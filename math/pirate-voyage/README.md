@@ -21,4 +21,6 @@ A touch-first math voyage for iPad Safari. The player captains a ship around six
 
 **Saving:** progress lives in `localStorage` under `shiningSeaVoyage.v1`.
 
+**3D:** `world3d.js` draws the voyage in 3D with the shared felt-toy kit (`shared/toy3d.js`): a stylized animated sea shader, the six islands with Greek temples, columns, olive trees, a forge volcano and Thunder Peak, the player's toy ship (sails, flag and crew follow the shop choices), and felt gods with their symbols (Poseidon's trident, Athena's owl, Hermes' winged hat, Artemis' bow and moon, Hephaestus' hammer, Zeus' thunderbolt). `models3d.js` builds every model in code; emoji pictures of treasures, cards, cabin furniture and counting objects are swapped for baked 3D pictures. Game rules, touch, saves, voice and cards are untouched. `?g3d=0` (or `?gl=0`, or no WebGL) keeps the 2D look.
+
 Files: `index.html` is the playable single-file game. `game.html` is the same game without the document wrapper (used for publishing as a Claude artifact).
