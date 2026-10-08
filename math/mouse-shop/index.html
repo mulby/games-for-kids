@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#fbf3e4">
+<title>Acorn Bakery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#fbf3e4; --paper:#fffaf0; --ink:#5a3e2b; --soft:#8a6a4f; --wood:#a8724a; --wood-d:#7d5233;
+  --honey:#e8b04b; --honey-d:#b9832a; --berry:#d4677a; --berry-d:#a64457; --sage:#9bb07a; --sage-d:#6f8a50;
+  --sky:#cfe6ef; --it:min(8.4vmin,70px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--cream);color:var(--ink);
+  font-family:Fredoka,ui-rounded,"SF Pro Rounded","Avenir Next",system-ui,sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.screen.on{display:flex}
+.screen:not(.on){display:none !important}
+.btn{font-size:clamp(19px,2.5vw,30px);font-weight:600;border:none;border-radius:999px;padding:.45em 1.15em;background:var(--honey);color:#4a2f1a;
+  box-shadow:0 5px 0 var(--honey-d);cursor:pointer;transition:transform .08s,box-shadow .08s;white-space:nowrap}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--honey-d)}
+.btn.berry{background:var(--berry);color:#fff;box-shadow:0 5px 0 var(--berry-d)}
+.btn.berry:active{box-shadow:0 1px 0 var(--berry-d)}
+.btn.sage{background:var(--sage);color:#fff;box-shadow:0 5px 0 var(--sage-d)}
+.btn.sage:active{box-shadow:0 1px 0 var(--sage-d)}
+.btn.small{font-size:clamp(15px,1.8vw,20px);padding:.4em .9em}
+.btn.ghost{background:#efe1c8;box-shadow:0 4px 0 #d3bf9c}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.acorn{width:1em;height:1.2em;vertical-align:-.2em;display:inline-block}
+
+/* ---------- title ---------- */
+#title{align-items:center;justify-content:center;gap:2vmin;background:
+  radial-gradient(ellipse at 50% 120%,#c9dca8 0 35%,transparent 36%),linear-gradient(#d9ecf2,#fbf3e4 70%)}
+#title h1{font-size:clamp(38px,7vw,84px);margin:0;color:var(--wood-d);text-align:center;line-height:1;letter-spacing:.5px;text-shadow:0 3px 0 #fff}
+#title .sub{font-size:clamp(18px,2.4vw,28px);color:var(--soft);margin-top:-1vmin}
+#titleMouse{width:min(34vmin,280px);height:auto;animation:bob 3s ease-in-out infinite}
+#title .buttons{display:flex;gap:3vmin;flex-wrap:wrap;justify-content:center}
+#title .purse{font-size:clamp(18px,2.4vw,28px)}
+#grownBtn{position:absolute;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));font-size:15px;background:none;border:none;color:var(--soft);opacity:.75;padding:10px}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-2deg)}}
+
+/* ---------- setup ---------- */
+#setup{align-items:center;justify-content:center;gap:1.6vmin;padding:16px;overflow:auto}
+#setup h2{margin:0;font-size:clamp(26px,4vw,46px);color:var(--wood-d)}
+#setupMouse{width:min(24vmin,200px)}
+.choices{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}
+.swatch{width:clamp(48px,7vmin,68px);height:clamp(48px,7vmin,68px);border-radius:50%;border:4px solid #fff;box-shadow:0 2px 6px #0003;cursor:pointer}
+.swatch.sel{outline:5px solid var(--honey);outline-offset:2px}
+.namechip{font-size:clamp(18px,2.4vw,26px);padding:.35em .9em;border-radius:999px;background:#fff;border:3px solid #ead9bb;cursor:pointer}
+.namechip.sel{background:var(--honey);border-color:var(--honey-d)}
+.lbl{font-size:clamp(16px,2vw,22px);color:var(--soft);margin-bottom:-1vmin}
+
+/* ---------- shop ---------- */
+#shop{display:grid;grid-template-rows:auto minmax(0,40%) minmax(0,1fr)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;background:#f3e3c6;border-bottom:3px solid #e2cba3}
+.topbar .iconbtn{font-size:clamp(22px,3vw,32px);background:#fff;border:none;border-radius:16px;width:1.9em;height:1.6em;box-shadow:0 3px 0 #d8c29c;cursor:pointer}
+.dots{display:flex;gap:8px;align-items:center}
+.dots span{font-size:clamp(20px,2.8vw,30px);filter:grayscale(1);opacity:.35;transition:all .3s}
+.dots span.done{filter:none;opacity:1;transform:scale(1.15)}
+.pursebox{font-size:clamp(22px,3vw,32px);font-weight:600;background:#fff;padding:.1em .6em;border-radius:999px;box-shadow:0 3px 0 #d8c29c;display:flex;align-items:center;gap:.2em}
+.pursebox.bump{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.25)}}
+#scene{position:relative;overflow:hidden}
+#sceneBg{position:absolute;inset:0;width:100%;height:100%}
+#customer{position:absolute;left:5%;bottom:12%;text-align:center;transition:transform .7s cubic-bezier(.3,1.3,.5,1),opacity .5s;z-index:2}
+#customer .who{font-size:clamp(70px,15vmin,150px);line-height:1;display:block;filter:drop-shadow(0 6px 4px #0002)}
+#customer .tag{display:inline-block;background:#fff;border-radius:10px;padding:2px 10px;font-size:clamp(13px,1.7vw,19px);box-shadow:0 2px 0 #d8c29c}
+#customer.away-r{transform:translateX(120vw);opacity:0}
+#customer.away-l{transform:translateX(-60vw);opacity:0}
+#customer.happy .who{animation:hop .5s 2}
+@keyframes hop{50%{transform:translateY(-18px)}}
+#bubble{position:absolute;left:27%;right:24%;top:6%;max-height:76%;background:#fff;border-radius:26px;padding:12px 18px 12px 18px;
+  box-shadow:0 4px 0 #e2cba3;font-size:clamp(19px,2.6vw,30px);line-height:1.25;z-index:3;display:flex;flex-direction:column;gap:6px;overflow:hidden;transition:opacity .3s}
+#bubble:before{content:"";position:absolute;left:-16px;bottom:24%;border:12px solid transparent;border-right:18px solid #fff}
+#bubble.hide{opacity:0}
+#bubble .say{padding-right:44px}
+#bubble .extra{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#speak{position:absolute;right:10px;top:8px;font-size:24px;background:#f6ecd8;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer}
+.order{display:inline-flex;align-items:center;gap:4px;background:#fdf3df;border:2px dashed #e2c48f;border-radius:14px;padding:2px 10px;font-size:clamp(22px,3vw,34px)}
+.order .num{font-weight:600;font-size:1.3em;color:var(--berry-d)}
+.order .pics{letter-spacing:-2px}
+#pip{position:absolute;right:3%;bottom:2%;width:clamp(90px,18vmin,180px);z-index:2}
+#pip.happy{animation:hop .45s 2}
+#counterBand{position:absolute;left:0;right:0;bottom:0;height:16%;background:linear-gradient(#c08a5c,#a8724a);border-top:6px solid #8b5a36;z-index:1}
+
+#work{position:relative;display:flex;gap:14px;padding:12px 14px 14px;min-height:0}
+.panel{background:var(--paper);border-radius:22px;box-shadow:0 4px 0 #e5d2ae;padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0;position:relative}
+.panel.grow{flex:1}
+.plabel{font-size:clamp(16px,2vw,22px);color:var(--soft);font-weight:500;display:flex;align-items:center;gap:8px}
+.plabel .cnt{background:var(--honey);color:#4a2f1a;border-radius:999px;padding:0 .6em;font-weight:600}
+.tray{display:flex;flex-direction:column;gap:6px;overflow:auto;flex:1;align-content:flex-start}
+.trayrow{display:flex;flex-wrap:wrap;gap:4px;padding:4px;border-bottom:3px solid #ecdcbc}
+.item{font-size:var(--it);width:1.2em;height:1.2em;line-height:1.2em;text-align:center;border:none;background:none;padding:0;cursor:pointer;border-radius:12px;position:relative;transition:transform .1s}
+.item:active{transform:scale(.88)}
+.item.gone{visibility:hidden}
+.item.new:after{content:"";position:absolute;inset:-2px;border:3px solid var(--honey);border-radius:50%}
+.row{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}
+.basket{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px;padding:8px;border-radius:18px;background:
+  repeating-linear-gradient(45deg,#e9c99a 0 10px,#e2bd89 10px 20px);border:4px solid #c99a5d;min-height:calc(var(--it)*1.6);overflow:auto}
+.basket .slotrow{display:flex;flex-wrap:wrap;gap:4px;width:100%}
+.slot{width:calc(var(--it)*1.2);height:calc(var(--it)*1.2);border-radius:50%;border:3px dashed #a98257;display:flex;align-items:center;justify-content:center;font-size:var(--it);opacity:.9}
+.slot .ghost{opacity:.22}
+.extra-item{animation:wob .6s infinite}
+@keyframes wob{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--berry);color:#fff;font-size:18px;line-height:1;padding:4px 8px;border-radius:999px;font-weight:600;pointer-events:none;z-index:2;font-family:Fredoka,system-ui}
+.glow{animation:glow .5s}
+@keyframes glow{50%{transform:scale(1.35);filter:drop-shadow(0 0 8px #ffd36b)}}
+.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* ten-frames */
+.frames{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.frame{display:grid;grid-template-columns:repeat(5,calc(var(--it)*1.05));gap:4px;padding:6px;background:#fff6e4;border:4px solid #c99a5d;border-radius:14px}
+.cell{width:calc(var(--it)*1.05);height:calc(var(--it)*1.05);border-radius:10px;background:#f3e3c6;display:flex;align-items:center;justify-content:center;font-size:calc(var(--it)*.82);position:relative;border:none;padding:0;cursor:default}
+.cell.empty{background:transparent;border:3px dashed #d2b384}
+.cell.tap{cursor:pointer}
+.cell svg.acorn{width:70%;height:80%}
+.closedbox{display:flex;flex-direction:column;align-items:center;justify-content:center;width:min(40vmin,300px);height:min(22vmin,170px);background:#d9a76b;border:5px solid #9c6a3a;border-radius:16px;font-size:clamp(24px,3.6vw,42px);color:#4a2f1a;box-shadow:inset 0 -10px 0 #c4904f}
+.closedbox b{font-size:1.5em}
+
+.tiles{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.tile{font-size:clamp(34px,5.4vmin,58px);font-weight:600;width:1.9em;height:1.7em;border-radius:20px;border:none;background:#fff;box-shadow:0 5px 0 #d8c29c;cursor:pointer;color:var(--ink)}
+.tile:active{transform:translateY(4px);box-shadow:0 1px 0 #d8c29c}
+.tile.no{opacity:.3;pointer-events:none}
+.tile.yes{background:var(--sage);color:#fff;box-shadow:0 5px 0 var(--sage-d)}
+.question{font-size:clamp(20px,2.7vw,32px);text-align:center;font-weight:500}
+
+.goods{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:flex-end}
+.good{display:flex;flex-direction:column;align-items:center;gap:2px}
+.good .e{font-size:calc(var(--it)*1.15)}
+.ptag{background:#fff;border:3px solid var(--berry);border-radius:10px;padding:2px 8px;font-size:clamp(18px,2.4vw,28px);font-weight:600;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;max-width:9em}
+.ptag .dot{width:.55em;height:.55em;border-radius:50%;background:#a0693a;display:inline-block}
+.ptag .dot:nth-of-type(5n){margin-right:6px}
+.ptag .dot.lit{background:var(--honey);box-shadow:0 0 0 3px #ffe7a8}
+.jar{border:none;background:none;cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;font-size:clamp(15px,1.9vw,20px);color:var(--soft)}
+.dish{--it:min(6.2vmin,54px)}
+.jar svg{width:min(13vmin,110px);height:auto;transition:transform .1s}
+.jar:active svg{transform:scale(.92) rotate(-6deg)}
+.dishcount{font-size:clamp(22px,3vw,34px);font-weight:600;text-align:center}
+.vs{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap}
+.till{min-width:calc(var(--it)*3);min-height:calc(var(--it)*1.5);background:#7d5233;border-radius:14px;padding:6px;display:flex;flex-wrap:wrap;gap:3px;align-content:flex-start;justify-content:center;border:4px solid #5c3a20;position:relative}
+.till:before{content:"till";position:absolute;top:-1.4em;left:6px;color:var(--soft);font-size:16px}
+.till .acorn{width:calc(var(--it)*.65);height:calc(var(--it)*.75)}
+
+/* flyers + toast */
+.flyer{position:fixed;z-index:50;pointer-events:none;font-size:var(--it);transition:transform .42s cubic-bezier(.4,.1,.4,1),opacity .42s;transform-origin:center}
+.flyer svg.acorn{width:calc(var(--it)*.7);height:calc(var(--it)*.8)}
+#toast{position:fixed;left:50%;top:18%;transform:translate(-50%,-30px) scale(.9);opacity:0;background:#fff;border-radius:24px;padding:16px 26px;font-size:clamp(22px,3vw,36px);
+  box-shadow:0 8px 0 #e2cba3,0 10px 40px #0002;z-index:60;transition:all .35s;text-align:center;pointer-events:none;max-width:86vw}
+#toast.on{opacity:1;transform:translate(-50%,0) scale(1)}
+.sparkle{position:fixed;pointer-events:none;z-index:55;font-size:28px;animation:spark 1s forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.3) rotate(180deg);opacity:0}}
+
+/* ---------- day end ---------- */
+#dayend{align-items:center;justify-content:center;gap:3vmin;text-align:center;padding:20px;background:linear-gradient(#f6d6a8,#fbf3e4)}
+#dayend h2{font-size:clamp(30px,5vw,56px);margin:0;color:var(--wood-d)}
+#dayend .big{font-size:clamp(22px,3vw,34px)}
+#dayend .stars{font-size:clamp(36px,6vw,64px);letter-spacing:6px}
+
+/* ---------- home ---------- */
+#home{display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+#roomWrap{position:relative;display:flex;align-items:center;justify-content:center;padding:10px;min-height:0}
+#room{position:relative;height:100%;max-width:100%;aspect-ratio:5/3}
+#room>svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.decor{position:absolute;transform:translate(-50%,-100%);line-height:1;cursor:pointer;filter:drop-shadow(0 4px 2px #0003);transition:transform .2s}
+.decor.pop{animation:popin .6s}
+@keyframes popin{0%{transform:translate(-50%,-100%) scale(0)}70%{transform:translate(-50%,-100%) scale(1.3)}}
+.decor.wig{animation:wig .5s}
+@keyframes wig{30%{transform:translate(-50%,-100%) rotate(-12deg)}70%{transform:translate(-50%,-100%) rotate(12deg)}}
+#roomPip{position:absolute;left:46%;bottom:6%;width:17%;transform:translateX(-50%);cursor:pointer}
+#catalog{display:flex;gap:10px;overflow-x:auto;padding:10px 14px 14px;background:#f3e3c6;border-top:3px solid #e2cba3;-webkit-overflow-scrolling:touch}
+.card{flex:0 0 auto;width:clamp(96px,13vw,130px);background:#fff;border-radius:18px;box-shadow:0 4px 0 #d8c29c;border:none;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.card .e{font-size:clamp(34px,5vw,50px)}
+.card .n{font-size:clamp(13px,1.6vw,16px);color:var(--soft);text-align:center;line-height:1.1;min-height:2.2em;display:flex;align-items:center}
+.card .p{font-size:clamp(17px,2.2vw,22px);font-weight:600}
+.card.cant{opacity:.55}
+.card.owned{display:none}
+
+/* ---------- grown ups ---------- */
+#grown{padding:20px;overflow:auto;gap:14px;align-items:center}
+#grown .wrap{max-width:720px;width:100%;display:flex;flex-direction:column;gap:14px}
+#grown h2{margin:0;color:var(--wood-d)}
+.skill{background:#fff;border-radius:18px;padding:12px 16px;box-shadow:0 3px 0 #e2cba3}
+.skill h3{margin:0 0 4px;font-size:20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.skill p{margin:2px 0;color:var(--soft);font-size:16px}
+.lvlbar{display:flex;gap:4px;margin:6px 0}
+.lvlbar i{flex:1;height:10px;border-radius:5px;background:#efe1c8}
+.lvlbar i.on{background:var(--sage)}
+.adj{display:flex;gap:6px}
+.adj button{width:36px;height:36px;border-radius:50%;border:none;background:#efe1c8;font-size:20px;cursor:pointer}
+.note{font-size:15px;color:var(--soft);line-height:1.4}
+
+@media (orientation:portrait){
+  #shop{grid-template-rows:auto minmax(0,30%) minmax(0,1fr)}
+  #work{flex-direction:column}
+  #bubble{left:31%;right:4%;top:5%}
+  #pip{display:none}
+  #room{height:auto;width:100%}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="acornSym" viewBox="0 0 40 48">
+      <path d="M8 21 Q7 42 20 47 Q33 42 32 21 Z" fill="#c98b4a"/>
+      <path d="M13 25 Q12 37 18 42" stroke="#e7b479" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M3 22 Q3 8 20 8 Q37 8 37 22 Q20 26 3 22 Z" fill="#7a5230"/>
+      <path d="M8 13 L32 21 M6 19 L24 10 M16 22 L34 13 M12 9 L30 20" stroke="#5e3d22" stroke-width="1.6" opacity=".6"/>
+      <rect x="18" y="1" width="4.5" height="9" rx="2.2" fill="#5a3a20"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="app">
+  <!-- TITLE -->
+  <section id="title" class="screen">
+    <div id="titleMouse"></div>
+    <h1 id="titleName">Pip's Acorn Bakery</h1>
+    <div class="sub">in Bramblewick Hollow</div>
+    <div class="purse" id="titlePurse"></div>
+    <div class="buttons">
+      <button class="btn berry" id="openBtn">🧁 Open the bakery</button>
+      <button class="btn sage" id="homeBtn">🏡 My mouse house</button>
+    </div>
+    <button id="grownBtn">Grown-ups</button>
+  </section>
+
+  <!-- SETUP -->
+  <section id="setup" class="screen">
+    <h2>Make your baker mouse!</h2>
+    <div id="setupMouse"></div>
+    <div class="lbl">Fur</div>
+    <div class="choices" id="furChoices"></div>
+    <div class="lbl">Apron</div>
+    <div class="choices" id="apronChoices"></div>
+    <div class="lbl">Name</div>
+    <div class="choices" id="nameChoices"></div>
+    <button class="btn berry" id="setupDone">That's me! ✨</button>
+  </section>
+
+  <!-- SHOP -->
+  <section id="shop" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" id="shopHome" aria-label="Home">🏠</button>
+      <div class="dots" id="dayDots"></div>
+      <div class="pursebox" id="shopPurse"></div>
+    </div>
+    <div id="scene">
+      <svg id="sceneBg" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid slice">
+        <rect width="1000" height="400" fill="#f2dcb8"/>
+        <path d="M0 0 H1000 V40 Q500 70 0 40Z" fill="#e6c99c"/>
+        <g opacity=".5" stroke="#e3c597" stroke-width="3"><path d="M0 120 H1000 M0 200 H1000 M0 280 H1000"/></g>
+        <!-- window -->
+        <g transform="translate(600 70)">
+          <rect x="-10" y="-10" width="250" height="190" rx="24" fill="#8b5e3c"/>
+          <rect width="230" height="170" rx="16" fill="#cfe6ef"/>
+          <circle cx="190" cy="40" r="22" fill="#ffe28a"/>
+          <path d="M0 120 Q40 80 80 110 Q120 70 160 105 Q200 75 230 100 V170 H0Z" fill="#8fb36a"/>
+          <path d="M0 145 Q60 115 120 140 Q180 120 230 135 V170 H0Z" fill="#6f9a4f"/>
+          <circle cx="40" cy="128" r="5" fill="#e86b7e"/><circle cx="150" cy="122" r="5" fill="#fff"/><circle cx="105" cy="142" r="5" fill="#f2c94c"/>
+          <path d="M115 0 V170 M0 85 H230" stroke="#8b5e3c" stroke-width="10"/>
+        </g>
+        <!-- shelf with jars -->
+        <rect x="270" y="150" width="250" height="12" rx="4" fill="#8b5e3c"/>
+        <g transform="translate(290 98)"><rect width="40" height="52" rx="10" fill="#f6e7c8" stroke="#c9a46e" stroke-width="3"/><rect x="4" y="-8" width="32" height="12" rx="4" fill="#d4677a"/></g>
+        <g transform="translate(350 108)"><rect width="34" height="42" rx="9" fill="#f6e7c8" stroke="#c9a46e" stroke-width="3"/><rect x="3" y="-7" width="28" height="10" rx="4" fill="#9bb07a"/></g>
+        <g transform="translate(405 92)"><rect width="46" height="58" rx="12" fill="#f6e7c8" stroke="#c9a46e" stroke-width="3"/><rect x="5" y="-8" width="36" height="12" rx="4" fill="#e8b04b"/></g>
+        <g transform="translate(470 112)"><circle cx="16" cy="20" r="18" fill="#e8b04b"/><circle cx="16" cy="20" r="9" fill="#f6d68b"/></g>
+        <!-- bunting -->
+        <path d="M0 18 Q250 70 500 22 Q750 70 1000 18" stroke="#8b5e3c" stroke-width="3" fill="none"/>
+        <g id="bunting"></g>
+        <!-- door -->
+        <path d="M30 400 V170 Q30 90 130 90 Q230 90 230 170 V400Z" fill="#b98a5a" stroke="#8b5e3c" stroke-width="8"/>
+        <path d="M60 400 V180 Q60 125 130 125 Q200 125 200 180 V400Z" fill="#a8d0dd"/>
+        <path d="M60 300 Q130 250 200 290 V400 H60Z" fill="#8fb36a"/>
+      </svg>
+      <div id="customer" class="away-r"><span class="who"></span><span class="tag"></span></div>
+      <div id="bubble" class="hide"><div class="say"></div><div class="extra"></div><button id="speak" aria-label="Say it again">🔊</button></div>
+      <div id="pip"></div>
+      <div id="counterBand"></div>
+    </div>
+    <div id="work"></div>
+  </section>
+
+  <!-- DAY END -->
+  <section id="dayend" class="screen">
+    <h2 id="deTitle">The bakery is closed for today!</h2>
+    <div id="deMouse" style="width:min(26vmin,200px)"></div>
+    <div class="stars" id="deStars"></div>
+    <div class="big" id="deText"></div>
+    <div class="row">
+      <button class="btn sage" id="deHome">🏡 Go home</button>
+      <button class="btn berry" id="deAgain">🧁 Another day</button>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="home" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" id="homeBack" aria-label="Back">⬅️</button>
+      <div style="font-size:clamp(18px,2.4vw,28px);font-weight:600" id="homeTitle">My mouse house</div>
+      <div class="pursebox" id="homePurse"></div>
+    </div>
+    <div id="roomWrap"><div id="room"></div></div>
+    <div id="catalog"></div>
+  </section>
+
+  <!-- GROWN UPS -->
+  <section id="grown" class="screen">
+    <div class="wrap">
+      <div class="row" style="justify-content:space-between"><h2>For grown-ups</h2><button class="btn small ghost" id="grownBack">Done</button></div>
+      <div class="note">The game adjusts itself: two or three orders in a row solved on the first try moves a skill up a level, and two orders in a row that needed help moves it down. New kinds of orders unlock as counting gets solid. The levels below are a rough picture of where she is right now. You can nudge a level with − and +.</div>
+      <div id="skillList"></div>
+      <div class="note" id="statsNote"></div>
+      <div class="row" style="justify-content:flex-start">
+        <button class="btn small ghost" id="soundBtn"></button>
+        <button class="btn small ghost" id="voiceBtn"></button>
+        <button class="btn small ghost" id="giftBtn">+20 acorns</button>
+        <button class="btn small ghost" id="resetBtn">Start over</button>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* =============== helpers =============== */
+const $ = s => document.querySelector(s);
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const ACORN = '<svg class="acorn" viewBox="0 0 40 48"><use href="#acornSym"/></svg>';
+function tap(el, fn) { el.addEventListener('click', e => { e.preventDefault(); fn(e); }); }
+
+/* =============== content =============== */
+const GOODS = [
+  { id: 'cupcake', e: '🧁', one: 'berry cupcake', many: 'berry cupcakes' },
+  { id: 'roll', e: '🥐', one: 'crescent roll', many: 'crescent rolls' },
+  { id: 'cookie', e: '🍪', one: 'acorn cookie', many: 'acorn cookies' },
+  { id: 'pie', e: '🥧', one: 'honey pie', many: 'honey pies' },
+  { id: 'bread', e: '🍞', one: 'loaf of bread', many: 'loaves of bread' },
+  { id: 'ring', e: '🍩', one: 'sugar ring', many: 'sugar rings' },
+  { id: 'pretzel', e: '🥨', one: 'twisty pretzel', many: 'twisty pretzels' },
+  { id: 'berry', e: '🍓', one: 'strawberry', many: 'strawberries' },
+];
+const CUSTOMERS = [
+  { e: '🦔', name: 'Mrs. Prickleback', hi: ['Good morning, dearie!', 'Hello, little one!'], bye: 'Thank you, dearie!' },
+  { e: '🐇', name: 'Bramble Bunny', hi: ['Hop hop, hello!', 'Hi hi!'], bye: 'Yay! Thank you!' },
+  { e: '🐿️', name: 'Old Hazel', hi: ['Ahh, it smells lovely in here!'], bye: 'Splendid, simply splendid.' },
+  { e: '🐦', name: 'Wren', hi: ['Tweet! Hello!'], bye: 'Tweet tweet, thank you!' },
+  { e: '🐸', name: 'Toadflax', hi: ['Ribbit! Good day!'], bye: 'Ribbit-tastic!' },
+  { e: '🦉', name: 'Professor Hoot', hi: ['Hoo! Good evening... er, morning!'], bye: 'Most excellent work.' },
+  { e: '🐞', name: 'Dot', hi: ['Hi hi hi!'], bye: 'You are the best baker!' },
+  { e: '🐌', name: 'Shelly Snail', hi: ['I came as fast as I could!'], bye: 'Worth the long trip!' },
+  { e: '🐝', name: 'Bumble', hi: ['Bzzz! Hello, baker!'], bye: 'Bzzz-utiful!' },
+  { e: '🦊', name: 'Sir Russet', hi: ['A fine day for baking, friend!'], bye: 'My thanks, good baker!' },
+  { e: '🐢', name: 'Grandpa Moss', hi: ['Hello there, young baker.'], bye: 'Lovely. Just lovely.' },
+  { e: '🐁', name: 'Cousin Thimble', hi: ["Hiya! It's me!"], bye: 'Yum yum yum!' },
+  { e: '🦋', name: 'Flutter', hi: ['Hello from the meadow!'], bye: 'How magical!' },
+  { e: '🐓', name: 'Mother Hen', hi: ['Cluck! My chicks are hungry!'], bye: 'Cluck cluck, thank you!' },
+];
+const PRAISE = ['Perfect!', 'Just right!', 'Wonderful!', 'You did it!', 'Hooray!', 'Exactly right!', 'Brilliant baking!'];
+const DECOR = [
+  { id: 'flowers', e: '🌼', n: 'Daisy pot', c: 4, x: 20, y: 52, s: 7 },
+  { id: 'candle', e: '🕯️', n: 'Candle', c: 5, x: 44, y: 32, s: 6 },
+  { id: 'teapot', e: '🫖', n: 'Teapot', c: 6, x: 56, y: 32, s: 6.5 },
+  { id: 'yarn', e: '🧶', n: 'Yarn ball', c: 6, x: 37, y: 93, s: 6 },
+  { id: 'books', e: '📚', n: 'Storybooks', c: 7, x: 50, y: 32, s: 6.5 },
+  { id: 'butterfly', e: '🦋', n: 'Butterfly friend', c: 8, x: 30, y: 22, s: 6 },
+  { id: 'teddy', e: '🧸', n: 'Teddy', c: 8, x: 64, y: 90, s: 8 },
+  { id: 'cake', e: '🎂', n: 'Party cake', c: 9, x: 62, y: 32, s: 6.5 },
+  { id: 'plant', e: '🪴', n: 'Fern', c: 9, x: 95, y: 93, s: 11 },
+  { id: 'painting', e: '🖼️', n: 'Painting', c: 10, x: 40, y: 22, s: 9 },
+  { id: 'clock', e: '🕰️', n: 'Clock', c: 11, x: 92, y: 60, s: 8 },
+  { id: 'mushroom', e: '🍄', n: 'Mushroom stool', c: 12, x: 28, y: 95, s: 10 },
+  { id: 'chair', e: '🪑', n: 'Little chair', c: 13, x: 74, y: 88, s: 12 },
+  { id: 'jar', e: '🏺', n: 'Ancient jar', c: 15, x: 85, y: 92, s: 10 },
+  { id: 'violin', e: '🎻', n: 'Fiddle', c: 15, x: 36, y: 56, s: 8 },
+  { id: 'ship', e: '⛵', n: 'Pirate ship', c: 18, x: 74, y: 30, s: 8 },
+  { id: 'bed', e: '🛏️', n: 'Cozy bed', c: 20, x: 13, y: 93, s: 16 },
+  { id: 'gem', e: '💎', n: 'Treasure gem', c: 22, x: 68, y: 32, s: 5.5 },
+  { id: 'crown', e: '👑', n: 'Fairy crown', c: 25, x: 14, y: 33, s: 6 },
+  { id: 'fairy', e: '🧚', n: 'Fairy friend', c: 30, x: 58, y: 62, s: 9 },
+];
+
+/* skill ladders: descriptions are for the grown-up page */
+const SKILLS = {
+  pack: { name: 'Counting out orders', max: 6, unlock: () => true, desc: [
+    'Counts out 1 to 3 things, with pictures to match',
+    'Counts out up to 5, with pictures',
+    'Counts out up to 6 from a number (with dots as a hint), ignoring other treats',
+    'Counts out up to 10 from a written number',
+    'Two different treats, up to 5 each',
+    'Two different treats, up to 8 each' ] },
+  fill: { name: 'Making 5 and 10 (filling boxes)', max: 4, unlock: s => s.pack.lvl >= 3, desc: [
+    'Fills a box of 5 and counts how many were added',
+    'Fills a box of 10 and counts how many were added',
+    'Sees the empty spaces and says how many more make 10',
+    'Knows how many more make 10 from just the number (number bonds)' ] },
+  price: { name: 'Adding prices', max: 5, unlock: s => s.pack.lvl >= 3, desc: [
+    'Counts out a price of 1 to 5 acorns',
+    'Adds two small prices (total up to 6), dots on the tags',
+    'Adds two prices up to 10, dots on the tags',
+    'Adds two prices up to 10 from numbers only',
+    'Adds prices with totals from 11 to 18' ] },
+  change: { name: 'Giving change (take away)', max: 4, unlock: s => s.price.lvl >= 3, desc: [
+    'Takes away from 5 by moving acorns',
+    'Takes away from up to 10 by moving acorns',
+    'Takes away within 10 from a picture',
+    'Takes away within 20 from numbers only' ] },
+};
+
+/* =============== state =============== */
+const KEY = 'acornBakery.v1';
+const FRESH = () => ({ setup: false, name: 'Pip', fur: '#b08968', apron: '#d4677a', acorns: 0, owned: [], days: 0, served: 0, sound: true, voice: true,
+  skills: { pack: sk(), fill: sk(), price: sk(), change: sk() } });
+function sk() { return { lvl: 1, streak: 0, struggle: 0, right: 0, total: 0 }; }
+let S;
+function load() {
+  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); S = Object.assign(FRESH(), raw || {}); S.skills = Object.assign(FRESH().skills, S.skills || {}); }
+  catch (e) { S = FRESH(); }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+load();
+
+/* =============== sound =============== */
+let AC = null;
+function ac() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (AC && AC.state === 'suspended') AC.resume(); return AC; }
+function tone(f, t0, d, type = 'sine', v = .18) {
+  const a = ac(); if (!a || !S.sound) return;
+  const o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f;
+  const t = a.currentTime + t0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .015); g.gain.exponentialRampToValueAtTime(.001, t + d);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + d + .05);
+}
+const SCALE = [523, 587, 659, 698, 784, 880, 988, 1047, 1175, 1319, 1397, 1568];
+const sfx = {
+  pop: n => tone(SCALE[Math.min(n, SCALE.length) - 1] || 523, 0, .18, 'triangle'),
+  back: () => tone(392, 0, .15, 'triangle', .12),
+  coin: () => { tone(1568, 0, .12, 'square', .05); tone(2093, .06, .18, 'square', .05); },
+  win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .09, .3, 'triangle')),
+  hmm: () => { tone(330, 0, .22, 'sine', .15); tone(294, .18, .3, 'sine', .15); },
+  bell: () => { tone(1319, 0, .6, 'sine', .12); tone(1760, .02, .5, 'sine', .06); },
+  nope: () => tone(220, 0, .15, 'sine', .12),
+};
+document.addEventListener('pointerdown', () => ac(), { once: true });
+
+/* speech: reads everything aloud, since reading may still be tricky */
+let VOICE = null;
+function pickVoice() {
+  try {
+    const vs = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+    VOICE = vs.find(v => /Samantha|Karen|Moira|Tessa|Serena|Google UK English Female|Google US English/.test(v.name)) || vs[0] || null;
+  } catch (e) {}
+}
+try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
+function say(text, rate = .95) {
+  if (!S.voice || !window.speechSynthesis) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ''));
+    if (VOICE) u.voice = VOICE; u.rate = rate; u.pitch = 1.15; speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+/* =============== art =============== */
+function mouseSVG(fur, apron, happy = false) {
+  const dark = shade(fur, -0.25);
+  const eye = happy
+    ? '<path d="M70 92 q8 -10 16 0" stroke="#2b1d14" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M114 92 q8 -10 16 0" stroke="#2b1d14" stroke-width="5" fill="none" stroke-linecap="round"/>'
+    : '<circle cx="78" cy="92" r="8" fill="#2b1d14"/><circle cx="122" cy="92" r="8" fill="#2b1d14"/><circle cx="81" cy="89" r="2.6" fill="#fff"/><circle cx="125" cy="89" r="2.6" fill="#fff"/>';
+  return `<svg viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg">
+  <path d="M150 200 Q195 195 190 160 Q186 135 170 140" stroke="#e7a3a8" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="52" cy="48" r="38" fill="${fur}"/><circle cx="52" cy="50" r="24" fill="#f2b8bd"/>
+  <circle cx="148" cy="48" r="38" fill="${fur}"/><circle cx="148" cy="50" r="24" fill="#f2b8bd"/>
+  <ellipse cx="100" cy="172" rx="50" ry="46" fill="${fur}"/>
+  <path d="M62 150 Q100 140 138 150 L144 206 Q100 220 56 206Z" fill="${apron}"/>
+  <path d="M62 150 Q100 140 138 150" stroke="#fff" stroke-width="4" fill="none" opacity=".7"/>
+  <rect x="84" y="176" width="32" height="20" rx="6" fill="#fff" opacity=".35"/>
+  <circle cx="75" cy="160" r="3" fill="#fff" opacity=".8"/><circle cx="125" cy="160" r="3" fill="#fff" opacity=".8"/>
+  <ellipse cx="55" cy="170" rx="11" ry="17" fill="${fur}" transform="rotate(20 55 170)"/><ellipse cx="145" cy="170" rx="11" ry="17" fill="${fur}" transform="rotate(-20 145 170)"/>
+  <ellipse cx="78" cy="216" rx="17" ry="9" fill="#f2b8bd"/><ellipse cx="122" cy="216" rx="17" ry="9" fill="#f2b8bd"/>
+  <ellipse cx="100" cy="98" rx="56" ry="50" fill="${fur}"/>
+  <ellipse cx="100" cy="112" rx="34" ry="26" fill="${shade(fur, .35)}"/>
+  ${eye}
+  <ellipse cx="62" cy="112" rx="10" ry="6" fill="#f5a3ad" opacity=".7"/><ellipse cx="138" cy="112" rx="10" ry="6" fill="#f5a3ad" opacity=".7"/>
+  <ellipse cx="100" cy="108" rx="8" ry="6" fill="#e0707f"/>
+  <path d="M92 118 Q100 126 108 118" stroke="#6b3b2b" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <g stroke="${dark}" stroke-width="2" stroke-linecap="round" opacity=".7"><path d="M84 110 L50 104 M84 114 L52 118 M116 110 L150 104 M116 114 L148 118"/></g>
+  </svg>`;
+}
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255;
+  const f = c => Math.round(amt > 0 ? c + (255 - c) * amt : c * (1 + amt));
+  return '#' + [f(r), f(g), f(b)].map(c => c.toString(16).padStart(2, '0')).join('');
+}
+function roomSVG() {
+  return `<svg class="bg" viewBox="0 0 1000 600" preserveAspectRatio="none">
+  <rect width="1000" height="600" fill="#6e4f34"/>
+  <path d="M20 600 V170 Q500 -40 980 170 V600Z" fill="#f2dfc0"/>
+  <path d="M20 600 V170 Q500 -40 980 170" fill="none" stroke="#8b5e3c" stroke-width="16"/>
+  <g stroke="#e6cfa8" stroke-width="3" opacity=".7"><path d="M60 250 H940 M40 340 H960"/></g>
+  <g transform="translate(200 230)"><circle r="92" fill="#8b5e3c"/><circle r="78" fill="#cfe6ef"/>
+   <path d="M-78 20 Q-30 -20 10 15 Q45 -10 78 10 A78 78 0 0 1 -78 20Z" fill="#8fb36a"/>
+   <circle cx="35" cy="-35" r="14" fill="#ffe28a"/><path d="M0 -78 V78 M-78 0 H78" stroke="#8b5e3c" stroke-width="9"/>
+   <rect x="-100" y="80" width="200" height="16" rx="6" fill="#8b5e3c"/></g>
+  <rect x="380" y="190" width="330" height="14" rx="5" fill="#8b5e3c"/>
+  <path d="M400 204 l10 30 M690 204 l-10 30" stroke="#8b5e3c" stroke-width="8"/>
+  <g transform="translate(800 250)"><path d="M-80 220 V40 Q-80 -40 0 -40 Q80 -40 80 40 V220Z" fill="#a39283"/>
+   <path d="M-50 220 V70 Q-50 20 0 20 Q50 20 50 70 V220Z" fill="#3b2a20"/>
+   <path d="M-30 220 Q-30 160 -5 130 Q0 170 15 150 Q35 180 30 220Z" fill="#f28c38"/><path d="M-15 220 Q-10 185 5 170 Q20 195 15 220Z" fill="#ffd36b"/>
+   <g fill="#8d7c6d"><circle cx="-62" cy="60" r="8"/><circle cx="62" cy="90" r="9"/><circle cx="-60" cy="150" r="9"/><circle cx="64" cy="180" r="8"/><circle cx="0" cy="-26" r="8"/></g></g>
+  <rect x="20" y="470" width="960" height="130" fill="#c49a6c"/>
+  <g stroke="#a87c50" stroke-width="3"><path d="M20 505 H980 M20 545 H980 M20 580 H980"/></g>
+  <ellipse cx="470" cy="545" rx="270" ry="44" fill="#d4677a"/><ellipse cx="470" cy="545" rx="225" ry="32" fill="none" stroke="#f3c1c9" stroke-width="6" stroke-dasharray="14 10"/>
+  </svg>`;
+}
+function jarSVG() {
+  return `<svg viewBox="0 0 120 130"><rect x="22" y="6" width="76" height="18" rx="8" fill="#a8724a"/>
+   <path d="M18 30 Q14 120 60 124 Q106 120 102 30Z" fill="#e8f3f7" stroke="#b9d3dc" stroke-width="4"/>
+   ${[[38,95],[60,100],[82,95],[48,75],[72,78],[60,56],[40,58],[82,60]].map(([x, y]) => `<use href="#acornSym" x="${x - 12}" y="${y - 14}" width="24" height="29"/>`).join('')}
+   <rect x="30" y="26" width="60" height="8" rx="4" fill="#fff" opacity=".6"/></svg>`;
+}
+
+/* =============== screens =============== */
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); }
+function purseHTML() { return `${ACORN}<span>${S.acorns}</span>`; }
+function refreshPurses() { ['#shopPurse', '#homePurse'].forEach(s => $(s).innerHTML = purseHTML()); $('#titlePurse').innerHTML = S.acorns ? `${ACORN} ${S.acorns} acorns saved` : ''; }
+function toast(html, ms = 2200) { const t = $('#toast'); t.innerHTML = html; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), ms); }
+function sparkles(el, n = 10, chars = ['✨', '⭐', '💛']) {
+  const r = el.getBoundingClientRect();
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('div'); s.className = 'sparkle'; s.textContent = pick(chars);
+    s.style.left = (r.left + r.width / 2) + 'px'; s.style.top = (r.top + r.height / 2) + 'px';
+    const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 90;
+    s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d + 'px');
+    document.body.appendChild(s); setTimeout(() => s.remove(), 1000);
+  }
+}
+function fly(fromEl, toEl, html, ms = 420) {
+  if (!fromEl || !toEl) return;
+  const a = fromEl.getBoundingClientRect(), b = toEl.getBoundingClientRect();
+  const d = document.createElement('div'); d.className = 'flyer'; d.innerHTML = html;
+  d.style.left = a.left + 'px'; d.style.top = a.top + 'px'; document.body.appendChild(d);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    d.style.transform = `translate(${b.left + b.width / 2 - a.left - a.width / 2}px,${b.top + b.height / 2 - a.top - a.height / 2}px) scale(.7)`;
+  }));
+  setTimeout(() => d.remove(), ms);
+}
+
+function goTitle() {
+  if (!S.setup) return goSetup();
+  $('#titleMouse').innerHTML = mouseSVG(S.fur, S.apron, true);
+  $('#titleName').textContent = `${S.name}'s Acorn Bakery`;
+  refreshPurses(); show('title');
+}
+
+/* ---------- setup ---------- */
+const FURS = ['#b08968', '#9a9a9a', '#e8d2b0', '#c9876a', '#f1ece4'];
+const APRONS = ['#d4677a', '#7ea6c9', '#9bb07a', '#e8b04b', '#b48ac9'];
+const NAMES = ['Pip', 'Clover', 'Primrose', 'Hazelnut', 'Thimble', 'Bramble', 'Poppy'];
+function goSetup() {
+  const draw = () => {
+    $('#setupMouse').innerHTML = mouseSVG(S.fur, S.apron, true);
+    $('#furChoices').innerHTML = FURS.map(c => `<button class="swatch ${c === S.fur ? 'sel' : ''}" style="background:${c}" data-c="${c}" aria-label="fur"></button>`).join('');
+    $('#apronChoices').innerHTML = APRONS.map(c => `<button class="swatch ${c === S.apron ? 'sel' : ''}" style="background:${c}" data-c="${c}" aria-label="apron"></button>`).join('');
+    $('#nameChoices').innerHTML = NAMES.map(n => `<button class="namechip ${n === S.name ? 'sel' : ''}" data-n="${n}">${n}</button>`).join('');
+    $('#furChoices').querySelectorAll('button').forEach(b => tap(b, () => { S.fur = b.dataset.c; sfx.pop(3); draw(); }));
+    $('#apronChoices').querySelectorAll('button').forEach(b => tap(b, () => { S.apron = b.dataset.c; sfx.pop(5); draw(); }));
+    $('#nameChoices').querySelectorAll('button').forEach(b => tap(b, () => { S.name = b.dataset.n; sfx.pop(7); say(S.name); draw(); }));
+  };
+  draw(); show('setup');
+}
+tap($('#setupDone'), () => {
+  S.setup = true; save(); sfx.win();
+  goTitle();
+  say(`Hello, ${S.name}! Welcome to your very own bakery in Bramblewick Hollow. The animals of the hedgerow are hungry. Let's open the shop!`);
+});
+
+/* =============== the shop day =============== */
+const DAY_LEN = 6;
+let day = null, task = null, busy = false;
+
+function openShop() {
+  day = { served: 0, earned: 0, last: [], cust: [] };
+  $('#pip').innerHTML = mouseSVG(S.fur, S.apron);
+  $('#dayDots').innerHTML = Array.from({ length: DAY_LEN }, () => '<span>⭐</span>').join('');
+  refreshPurses(); show('shop'); $('#work').innerHTML = '';
+  $('#bunting').innerHTML = Array.from({ length: 16 }, (_, i) => {
+    const x = 30 + i * 62, y = 18 + 46 * Math.sin(Math.PI * ((x % 500) / 500));
+    return `<path d="M${x - 16} ${y} L${x + 16} ${y} L${x} ${y + 30}Z" fill="${['#d4677a', '#e8b04b', '#9bb07a', '#7ea6c9'][i % 4]}"/>`;
+  }).join('');
+  sfx.bell();
+  setTimeout(nextCustomer, 400);
+}
+
+function chooseType() {
+  const open = Object.keys(SKILLS).filter(k => SKILLS[k].unlock(S.skills));
+  // just-unlocked skills show up straight away so she meets them
+  for (const k of open) if (S.skills[k].total === 0 && !day.last.includes(k)) return k;
+  let opts = open.filter(k => !(day.last.length >= 2 && day.last.slice(-2).every(x => x === k)));
+  // early on, counting appears more often
+  const weighted = []; opts.forEach(k => { const w = k === 'pack' && open.length > 1 ? 1 : 2; for (let i = 0; i < w; i++) weighted.push(k); });
+  return pick(weighted.length ? weighted : open);
+}
+function pickCustomer() {
+  const pool = CUSTOMERS.filter(c => !day.cust.includes(c.name));
+  const c = pick(pool.length ? pool : CUSTOMERS); day.cust.push(c.name); return c;
+}
+
+async function nextCustomer() {
+  if (day.served >= DAY_LEN) return endDay();
+  const type = window.__force || chooseType(); day.last.push(type);
+  const lvl = S.skills[type].lvl;
+  task = MAKERS[type](lvl); task.type = type; task.lvl = lvl; task.tries = 0; task.helped = false; task.done = false;
+  task.cust = pickCustomer();
+  const c = $('#customer'); c.className = 'away-r';
+  c.querySelector('.who').textContent = task.cust.e; c.querySelector('.tag').textContent = task.cust.name;
+  $('#bubble').classList.add('hide'); $('#work').innerHTML = '';
+  await wait(60); c.className = ''; sfx.bell();
+  await wait(650);
+  bubble(`${pick(task.cust.hi)} ${task.ask}`, task.note ? task.note() : '');
+  task.render($('#work'));
+}
+
+function bubble(text, extra = '', speak = true) {
+  const b = $('#bubble'); b.classList.remove('hide');
+  b.querySelector('.say').innerHTML = text; b.querySelector('.extra').innerHTML = extra;
+  b.dataset.say = text; if (speak) say(text);
+}
+tap($('#speak'), () => say($('#bubble').dataset.say || ''));
+
+/* called by tasks */
+function oops(msg) {
+  task.tries++; sfx.hmm();
+  $('#work').classList.add('shake'); setTimeout(() => $('#work').classList.remove('shake'), 500);
+  bubble(msg, task.note ? task.note() : '');
+  return task.tries;
+}
+function record(type, firstTry, struggled) {
+  const s = S.skills[type]; s.total++; let change = 0;
+  if (firstTry) {
+    s.right++; s.streak++; s.struggle = 0;
+    const need = s.lvl < 3 ? 2 : 3;
+    if (s.streak >= need && s.lvl < SKILLS[type].max) { s.lvl++; s.streak = 0; change = 1; }
+  } else {
+    s.streak = 0;
+    if (struggled) { s.struggle++; if (s.struggle >= 2 && s.lvl > 1) { s.lvl--; s.struggle = 0; change = -1; } }
+    else s.struggle = 0;
+  }
+  return change;
+}
+async function solved(reward) {
+  if (task.done) return; task.done = true;
+  const before = Object.keys(SKILLS).filter(k => SKILLS[k].unlock(S.skills));
+  const change = record(task.type, task.tries === 0 && !task.helped, task.tries >= 2);
+  const after = Object.keys(SKILLS).filter(k => SKILLS[k].unlock(S.skills));
+  sfx.win(); sparkles($('#customer'), 12);
+  $('#customer').classList.add('happy'); $('#pip').innerHTML = mouseSVG(S.fur, S.apron, true); $('#pip').classList.add('happy');
+  const praise = pick(PRAISE);
+  bubble(`${praise} ${task.cust.bye} Here ${reward === 1 ? 'is 1 acorn' : `are ${reward} acorns`} for you.`, '');
+  $('#work').querySelectorAll('button').forEach(b => b.disabled = true);
+  await wait(900);
+  for (let i = 0; i < reward; i++) {
+    fly($('#customer'), $('#shopPurse'), ACORN, 500);
+    setTimeout(() => { S.acorns++; refreshPurses(); sfx.coin(); $('#shopPurse').classList.remove('bump'); void $('#shopPurse').offsetWidth; $('#shopPurse').classList.add('bump'); }, 480);
+    await wait(260);
+  }
+  day.served++; day.earned += reward; S.served++; save();
+  $('#dayDots').children[day.served - 1].classList.add('done');
+  await wait(1500);
+  if (after.length > before.length) {
+    toast('🎉 New kinds of customers are coming to your bakery!', 2600); say('New kinds of customers are coming to your bakery!');
+    await wait(2400);
+  } else if (change > 0 && day.served < DAY_LEN && Math.random() < .6) {
+    toast('✨ Word is spreading about your bakery! ✨', 2000);
+  }
+  $('#customer').className = 'away-l'; $('#pip').classList.remove('happy'); $('#pip').innerHTML = mouseSVG(S.fur, S.apron);
+  $('#bubble').classList.add('hide'); $('#work').innerHTML = '';
+  await wait(700);
+  if ($('#shop').classList.contains('on')) nextCustomer();
+}
+
+/* count things aloud one by one, with number badges */
+async function countAloud(els, from = 1, gap = 700) {
+  for (let i = 0; i < els.length; i++) {
+    const el = els[i]; const b = document.createElement('span'); b.className = 'badge'; b.textContent = from + i;
+    el.style.position = 'relative'; el.appendChild(b); el.classList.remove('glow'); void el.offsetWidth; el.classList.add('glow');
+    say(String(from + i), 1.05); sfx.pop(Math.min(from + i, 12));
+    await wait(gap);
+  }
+  return from + els.length - 1;
+}
+function clearBadges(root) { root.querySelectorAll('.badge').forEach(b => b.remove()); }
+
+function tilesHTML(ans, lo = 0, hi = 20) {
+  const set = new Set([ans]);
+  const near = shuffle([ans - 1, ans + 1, ans - 2, ans + 2, ans + 3, ans - 3]);
+  for (const n of near) { if (set.size >= 4) break; if (n >= lo && n <= hi) set.add(n); }
+  return [...set].sort((a, b) => a - b).map(n => `<button class="tile" data-n="${n}">${n}</button>`).join('');
+}
+function wireTiles(root, ans, onWrong) {
+  root.querySelectorAll('.tile').forEach(t => tap(t, () => {
+    if (busy || task.done) return;
+    const n = +t.dataset.n;
+    if (n === ans) { t.classList.add('yes'); return solved(rewardFor()); }
+    t.classList.add('no'); onWrong(n);
+  }));
+}
+function rewardFor() { return Math.min(5, 2 + Math.floor(task.lvl / 2) + (task.tries === 0 ? 1 : 0)); }
+function helpBtn(fn) { return { html: '<button class="btn small ghost help">🐭 Help</button>', wire: root => root.querySelectorAll('.help').forEach(b => tap(b, () => { task.helped = true; fn(); })) }; }
+
+const plural = (g, n) => n === 1 ? g.one : g.many;
+const aOrAn = s => (/^[aeiou]/i.test(s) ? 'an ' : 'a ') + s;
+const dotsHTML = (n, lit = 0) => Array.from({ length: n }, (_, i) => `<i class="dot ${i < lit ? 'lit' : ''}"></i>`).join('');
+const orderNote = (g, n, mode) => mode === 'pics'
+  ? `<span class="order"><span class="pics">${g.e.repeat(n)}</span></span>`
+  : mode === 'dots' ? `<span class="order"><span class="num">${n}</span>${g.e}<span style="font-size:.5em">${'●'.repeat(n)}</span></span>`
+  : `<span class="order"><span class="num">${n}</span>${g.e}</span>`;
+
+/* =============== TASK: pack an order (counting) =============== */
+const PACK_L = [null,
+  { k: 1, min: 1, max: 3, mode: 'pics', distract: false },
+  { k: 1, min: 2, max: 5, mode: 'pics', distract: false },
+  { k: 1, min: 3, max: 6, mode: 'dots', distract: true },
+  { k: 1, min: 4, max: 10, mode: 'num', distract: true },
+  { k: 2, min: 1, max: 5, mode: 'dots', distract: false },
+  { k: 2, min: 2, max: 8, mode: 'num', distract: true }];
+function makePack(lvl) {
+  const L = PACK_L[lvl], kinds = shuffle(GOODS.slice());
+  const want = []; for (let i = 0; i < L.k; i++) want.push({ g: kinds[i], n: rnd(L.min, L.max) });
+  const rows = want.map(w => ({ g: w.g, n: Math.max(w.n + rnd(2, 3), L.k === 1 ? 6 : 5) }));
+  if (L.distract) rows.push({ g: kinds[L.k], n: rnd(3, 4) });
+  shuffle(rows);
+  const tray = []; rows.forEach((r, ri) => { for (let i = 0; i < r.n; i++) tray.push({ g: r.g, row: ri, inB: false }); });
+  const basket = [];
+  const t = { want, tray, basket, ghost: false };
+  t.ask = want.length === 1
+    ? `May I have ${want[0].n} ${plural(want[0].g, want[0].n)}, please?`
+    : `I'd like ${want[0].n} ${plural(want[0].g, want[0].n)} and ${want[1].n} ${plural(want[1].g, want[1].n)}, please!`;
+  t.note = () => want.map(w => orderNote(w.g, w.n, L.mode)).join(' ');
+  t.render = el => {
+    const h = helpBtn(() => help());
+    el.innerHTML = `<div class="panel grow"><div class="plabel">🧺 Shelf: tap to pack</div><div class="tray"></div></div>
+      <div class="panel grow"><div class="plabel">Basket ${lvl <= 3 ? '<span class="cnt"></span>' : ''}</div><div class="basket"></div>
+      <div class="row">${h.html}<button class="btn berry go">All packed! ✔</button></div></div>`;
+    h.wire(el); tap(el.querySelector('.go'), check); draw();
+  };
+  function draw() {
+    const el = $('#work'); if (!el.querySelector('.tray')) return;
+    el.querySelector('.tray').innerHTML = rows.map((r, ri) => `<div class="trayrow">${tray.map((it, i) => it.row === ri
+      ? `<button class="item ${it.inB ? 'gone' : ''}" data-i="${i}">${it.g.e}</button>` : '').join('')}</div>`).join('');
+    const bk = el.querySelector('.basket');
+    if (t.ghost) {
+      const used = new Set(); let html = '';
+      for (const w of want) {
+        const mine = basket.filter(i => tray[i].g === w.g); html += '<div class="slotrow">';
+        for (let s = 0; s < w.n; s++) { if (mine[s] !== undefined) { used.add(mine[s]); html += `<button class="item slot" data-b="${mine[s]}">${w.g.e}</button>`; } else html += `<span class="slot"><span class="ghost">${w.g.e}</span></span>`; }
+        html += '</div>';
+      }
+      const extra = basket.filter(i => !used.has(i));
+      if (extra.length) html += `<div class="slotrow">${extra.map(i => `<button class="item extra-item" data-b="${i}">${tray[i].g.e}</button>`).join('')}</div>`;
+      bk.innerHTML = html;
+    } else bk.innerHTML = basket.map(i => `<button class="item" data-b="${i}">${tray[i].g.e}</button>`).join('');
+    const c = el.querySelector('.cnt'); if (c) c.textContent = basket.length;
+    el.querySelectorAll('.tray .item').forEach(b => tap(b, () => add(+b.dataset.i, b)));
+    bk.querySelectorAll('[data-b]').forEach(b => tap(b, () => remove(+b.dataset.b, b)));
+  }
+  function add(i, btn) {
+    if (task.done || tray[i].inB) return;
+    tray[i].inB = true; basket.push(i); sfx.pop(Math.min(basket.length, 12));
+    fly(btn, $('#work .basket'), tray[i].g.e);
+    if (lvl <= 2) say(String(basket.length), 1.1);
+    setTimeout(draw, 120); draw();
+  }
+  function remove(i, btn) {
+    if (task.done) return;
+    tray[i].inB = false; basket.splice(basket.indexOf(i), 1); sfx.back(); draw();
+  }
+  async function help() {
+    t.ghost = true; draw();
+    bubble(`Let's look at my order together. ${t.ask.replace(/^(May I have|I'd like) /, 'I need ').replace(/, please[!?]/, '.')} Fill up each empty spot!`, t.note());
+  }
+  async function check() {
+    if (task.done || busy) return;
+    const cnt = g => basket.filter(i => tray[i].g === g).length;
+    if (!basket.length) { bubble(`Tap the ${want[0].g.many} on the shelf to put them in the basket!`, t.note()); return; }
+    const wrongKind = basket.map(i => tray[i].g).find(g => !want.some(w => w.g === g));
+    if (!want.some(w => cnt(w.g) !== w.n) && !wrongKind) return solved(rewardFor());
+    let msg;
+    if (wrongKind) msg = `Oh! I didn't ask for any ${wrongKind.many}. Can you take ${cnt(wrongKind) === 1 ? 'it' : 'them'} out?`;
+    else {
+      const w = want.find(w => cnt(w.g) !== w.n), c = cnt(w.g);
+      msg = c > w.n ? `Hmm, that's a few too many ${w.g.many}. I asked for ${w.n}.` : `I think I need more ${w.g.many}. I asked for ${w.n}.`;
+    }
+    const n = oops(msg);
+    busy = true;
+    await wait(2600);
+    const w = want.find(w => cnt(w.g) !== w.n) || want[0];
+    const els = [...$('#work .basket').querySelectorAll('[data-b]')].filter(b => tray[+b.dataset.b].g === w.g);
+    if (els.length && els.length <= 20) { bubble(`Let's count the ${w.g.many} in the basket.`, t.note(), true); await wait(1700); await countAloud(els); }
+    await wait(500); clearBadges($('#work'));
+    if (n >= 2) { t.ghost = true; draw(); bubble(`Here, I'll show you where each one goes. Fill up each empty spot!`, t.note()); }
+    busy = false;
+  }
+  return t;
+}
+
+/* =============== TASK: fill a box (make 5 / make 10) =============== */
+function makeFill(lvl) {
+  const size = lvl === 1 ? 5 : 10;
+  const have = lvl === 1 ? rnd(1, 4) : lvl === 2 ? rnd(5, 9) : rnd(1, 9);
+  const need = size - have, g = pick(GOODS);
+  const manual = lvl <= 2;
+  const t = { added: 0, closed: lvl === 4, showNums: false, answer: need, size, have };
+  t.ask = manual
+    ? `I need a full box of ${size} ${g.many} for a party. Can you fill it up?`
+    : t.closed ? `My box already has ${have} ${plural(g, have)} inside. How many more make ${size}?`
+    : `My box has ${have} ${plural(g, have)}. How many more to fill it up to ${size}?`;
+  t.note = () => `<span class="order">📦 <span class="num">${size}</span>${g.e}</span>`;
+  t.render = el => {
+    const h = helpBtn(() => help());
+    el.innerHTML = manual
+      ? `<div class="panel" style="flex:0 0 auto;max-width:42%"><div class="plabel">🧺 Shelf</div><div class="tray"><div class="trayrow">${Array.from({ length: need + 3 }, (_, i) => `<button class="item" data-i="${i}">${g.e}</button>`).join('')}</div></div></div>
+         <div class="panel grow" style="align-items:center"><div class="plabel">📦 The party box</div><div class="frames box"></div><div class="ask row"></div><div class="row">${h.html}</div></div>`
+      : `<div class="panel grow" style="align-items:center;justify-content:center"><div class="frames box"></div>
+         <div class="question">How many more ${g.many} fill the box?</div><div class="tiles"></div><div class="row">${h.html}</div></div>`;
+    h.wire(el);
+    if (manual) el.querySelectorAll('.tray .item').forEach(b => tap(b, () => add(b)));
+    else { el.querySelector('.tiles').innerHTML = tilesHTML(need, 0, size); wireTiles(el, need, wrong); }
+    drawBox();
+  };
+  function drawBox() {
+    const box = $('#work .box'); if (!box) return;
+    if (t.closed) { box.innerHTML = `<div class="closedbox"><div>${g.e} <b>${have}</b> inside</div><div style="font-size:.6em">a box of ${size}</div></div>`; return; }
+    let cells = '';
+    for (let i = 0; i < size; i++) {
+      if (i < have) cells += `<div class="cell">${g.e}</div>`;
+      else if (i < have + t.added) cells += `<div class="cell new-c" style="background:#ffe9b5">${g.e}</div>`;
+      else cells += `<div class="cell empty">${t.showNums ? `<span style="font-size:.5em;color:#b08a5c">${i - have + 1}</span>` : ''}</div>`;
+    }
+    box.innerHTML = `<div class="frame">${cells}</div>`;
+  }
+  function add(btn) {
+    if (task.done || busy) return;
+    if (have + t.added >= size) { sfx.nope(); const f = $('#work .frame'); f.classList.add('shake'); setTimeout(() => f.classList.remove('shake'), 500); say("It's full!"); return; }
+    t.added++; btn.classList.add('gone'); sfx.pop(t.added); fly(btn, $('#work .box'), g.e); drawBox();
+    if (have + t.added === size) askAdded();
+  }
+  async function askAdded() {
+    busy = true; await wait(500); busy = false;
+    bubble(`It's full! Thank you! How many ${g.many} did you put in?`, t.note());
+    const a = $('#work .ask'); a.innerHTML = `<div class="tiles">${tilesHTML(need, 0, size)}</div>`; wireTiles(a, need, wrong);
+  }
+  async function wrong(n) {
+    const tries = oops(manual ? `Hmm, not quite. Let's count the new ones you added.` : `Hmm, not ${n}. Let's count the empty spaces.`);
+    busy = true; await wait(2200);
+    if (t.closed) { t.closed = false; drawBox(); bubble(`Let's peek inside the box! Count the empty spaces.`, t.note()); await wait(2200); }
+    const els = manual ? [...$('#work').querySelectorAll('.new-c')] : [...$('#work').querySelectorAll('.cell.empty')];
+    await countAloud(els);
+    if (tries >= 2) { t.showNums = true; } else { await wait(600); clearBadges($('#work')); }
+    if (tries >= 2 && !manual) drawBox();
+    busy = false;
+  }
+  function help() {
+    if (t.closed) { t.closed = false; drawBox(); bubble(`Here's a peek inside the box. Count the empty spaces!`, t.note()); return; }
+    if (manual && have + t.added < size) { bubble(`Tap the ${g.many} on the shelf to put them in the box, until there are no empty spaces.`, t.note()); return; }
+    const els = manual ? [...$('#work').querySelectorAll('.new-c')] : [...$('#work').querySelectorAll('.cell.empty')];
+    bubble(manual ? `Count the new ones with the yellow glow.` : `Count the empty spaces. That's how many more we need!`, t.note());
+    setTimeout(() => countAloud(els).then(() => setTimeout(() => clearBadges($('#work')), 800)), 2000);
+  }
+  return t;
+}
+
+/* =============== TASK: add up prices =============== */
+function makePrice(lvl) {
+  let items;
+  const two = (lo, hi, maxSum, minSum = 2) => { let a, b; do { a = rnd(lo, hi); b = rnd(lo, hi); } while (a + b > maxSum || a + b < minSum); return [a, b]; };
+  const gs = shuffle(GOODS.slice());
+  if (lvl === 1) items = [{ g: gs[0], p: rnd(1, 5) }];
+  else if (lvl === 2) items = two(1, 3, 6).map((p, i) => ({ g: gs[i], p }));
+  else if (lvl <= 4) items = two(1, 7, 10, 4).map((p, i) => ({ g: gs[i], p }));
+  else items = two(2, 9, 18, 11).map((p, i) => ({ g: gs[i], p }));
+  const total = items.reduce((s, x) => s + x.p, 0);
+  const t = { dish: 0, dots: lvl <= 3, ghost: false, lit: 0, answer: total };
+  const names = items.map(x => aOrAn(x.g.one));
+  t.ask = `I'd like ${names.join(' and ')}, please. How many acorns is that?`;
+  t.note = () => '';
+  t.render = el => {
+    const h = helpBtn(() => help());
+    el.innerHTML = `<div class="panel" style="flex:1 1 40%;justify-content:center;align-items:center"><div class="plabel">Price tags</div><div class="goods"></div>
+        <div class="question" style="font-size:clamp(16px,2vw,22px);color:var(--soft)">Put that many acorns on the counter</div></div>
+      <div class="panel" style="flex:1 1 60%;align-items:center;justify-content:space-between"><div class="vs" style="flex-wrap:nowrap"><button class="jar">${jarSVG()}<span>tap for an acorn</span></button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="frames dish"></div>${lvl === 1 ? '<div class="dishcount"></div>' : ''}</div></div>
+        <div class="row">${h.html}<button class="btn berry go">That's the price! ✔</button></div></div>`;
+    h.wire(el); tap(el.querySelector('.jar'), addAcorn); tap(el.querySelector('.go'), check);
+    drawTags(); drawDish();
+  };
+  function drawTags() {
+    let k = 0;
+    $('#work .goods').innerHTML = items.map(x => {
+      const dots = t.dots ? `<span style="display:flex;gap:3px;flex-wrap:wrap">${Array.from({ length: x.p }, () => `<i class="dot ${k++ < t.lit ? 'lit' : ''}"></i>`).join('')}</span>` : '';
+      return `<div class="good"><span class="e">${x.g.e}</span><span class="ptag">${x.p} ${ACORN} ${dots}</span></div>`;
+    }).join(items.length > 1 ? '<span style="font-size:clamp(30px,5vw,50px);color:var(--soft)">+</span>' : '');
+  }
+  function drawDish() {
+    const d = $('#work .dish'); if (!d) return;
+    const cap = Math.max(10, Math.ceil(Math.max(t.dish, t.ghost ? total : 0, total > 10 ? 20 : 10) / 10) * 10);
+    let html = '';
+    for (let f = 0; f < cap / 10; f++) {
+      html += '<div class="frame">';
+      for (let i = f * 10; i < f * 10 + 10; i++) {
+        if (i < t.dish) html += `<button class="cell tap ${t.ghost && i >= total ? 'extra-item' : ''}" data-i="${i}">${ACORN}</button>`;
+        else html += `<div class="cell ${t.ghost && i < total ? 'empty' : ''}" style="${t.ghost && i < total ? '' : 'background:#f8eedb'}"></div>`;
+      }
+      html += '</div>';
+    }
+    d.innerHTML = html;
+    d.querySelectorAll('.cell.tap').forEach(b => tap(b, () => { if (task.done) return; t.dish--; sfx.back(); drawDish(); }));
+    const c = $('#work .dishcount'); if (c) c.textContent = t.dish;
+  }
+  function addAcorn() {
+    if (task.done || t.dish >= 20) return;
+    t.dish++; sfx.pop(Math.min(t.dish, 12)); fly($('#work .jar'), $('#work .dish'), ACORN); drawDish();
+    if (lvl <= 1) say(String(t.dish), 1.1);
+  }
+  async function countTags() {
+    t.dots = true; t.lit = 0; drawTags();
+    for (let i = 1; i <= total; i++) { t.lit = i; drawTags(); say(String(i), 1.05); sfx.pop(Math.min(i, 12)); await wait(650); }
+  }
+  async function check() {
+    if (task.done || busy) return;
+    if (t.dish === total) return solved(rewardFor());
+    const tries = oops(t.dish > total ? `Hmm, I think that's too many acorns.` : `Hmm, I think it costs a little more than that.`);
+    busy = true; await wait(2200);
+    bubble(`Let's count the dots on the price tags together.`, ''); await wait(1800);
+    await countTags();
+    bubble(`So it's ${total} acorns altogether!`, ''); await wait(1600);
+    if (tries >= 2) { t.ghost = true; drawDish(); bubble(`Fill up each empty spot with an acorn.`, ''); }
+    busy = false;
+  }
+  async function help() {
+    if (busy) return; busy = true;
+    if (!t.dots) { t.dots = true; drawTags(); bubble(`Here are dots to help. Count them all!`, ''); await wait(1800); }
+    else { bubble(`Count all the dots on the price tags. Start with the first tag, then keep going!`, ''); await wait(2400); }
+    if (items.length > 1) { await countTags(); await wait(600); t.lit = 0; drawTags(); }
+    busy = false;
+  }
+  return t;
+}
+
+/* =============== TASK: give change (take away) =============== */
+function makeChange(lvl) {
+  let C, P;
+  if (lvl === 1) { C = 5; P = rnd(1, 4); }
+  else if (lvl <= 3) { C = rnd(6, 10); P = rnd(1, C - 1); }
+  else { C = rnd(11, 20); P = rnd(C - 9, C - 1); }
+  const back = C - P, g = pick(GOODS);
+  const t = { manual: lvl <= 2, picture: lvl === 3, inTill: 0, nums: false, answer: back, P };
+  t.ask = `${aOrAn(g.one)[0].toUpperCase() + aOrAn(g.one).slice(1)}, please! Here ${C === 1 ? 'is 1 acorn' : `are ${C} acorns`}.`;
+  t.note = () => `<span class="order">${g.e} costs <span class="num">${P}</span>${ACORN}</span> <span class="order">I gave <span class="num">${C}</span>${ACORN}</span>`;
+  t.render = el => {
+    const h = helpBtn(() => help());
+    el.innerHTML = `<div class="panel grow" style="align-items:center;justify-content:center;gap:10px"><div class="vs area" style="flex-wrap:nowrap;${C > 10 ? '--it:min(5.4vmin,46px)' : ''}"></div><div class="question q"></div><div class="tiles"></div><div class="row">${h.html}</div></div>`;
+    h.wire(el); draw();
+  };
+  function draw() {
+    const el = $('#work'), area = el.querySelector('.area'), q = el.querySelector('.q');
+    if (t.manual) {
+      const cells = (n, from) => Array.from({ length: n }, (_, i) => i);
+      let pile = '';
+      const frames = Math.ceil(C / 10);
+      for (let f = 0; f < frames; f++) {
+        pile += '<div class="frame">';
+        for (let i = f * 10; i < f * 10 + 10; i++) {
+          if (i < C - t.inTill) pile += `<button class="cell tap ${t.inTill === P ? 'back' : ''}" data-i="${i}">${ACORN}${t.nums && t.inTill === P ? `` : ''}</button>`;
+          else pile += `<div class="cell" style="background:#f8eedb"></div>`;
+        }
+        pile += '</div>';
+      }
+      area.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="plabel">${task.cust.e} acorns</div><div class="frames">${pile}</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-size:clamp(28px,4vw,44px)">${g.e}</div><div class="till">${ACORN.repeat(t.inTill)}</div><div class="dishcount">${t.inTill} / ${P}</div></div>`;
+      if (t.inTill < P) { q.textContent = `The ${g.one} costs ${P}. Tap ${P} ${P === 1 ? 'acorn' : 'acorns'} to put in the till.`; el.querySelector('.tiles').innerHTML = ''; }
+      area.querySelectorAll('.cell.tap').forEach(b => tap(b, () => toTill(b)));
+    } else {
+      area.innerHTML = t.picture
+        ? `<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="plabel">${task.cust.e} gave you</div><div class="frames"><div class="frame">${Array.from({ length: 10 }, (_, i) => `<div class="cell" style="${i < C ? '' : 'background:#f8eedb'}">${i < C ? ACORN : ''}</div>`).join('')}</div></div></div>
+           <div style="display:flex;flex-direction:column;align-items:center"><div style="font-size:clamp(34px,5vw,54px)">${g.e}</div><span class="ptag">${P} ${ACORN}</span></div>`
+        : `<div class="good"><span class="e">${task.cust.e}</span><span class="ptag" style="border-color:var(--sage-d)">gave ${C} ${ACORN}</span></div>
+           <div class="good"><span class="e">${g.e}</span><span class="ptag">costs ${P} ${ACORN}</span></div>`;
+      q.textContent = `How many acorns go back to ${task.cust.name}?`;
+      if (!el.querySelector('.tiles .tile')) { el.querySelector('.tiles').innerHTML = tilesHTML(back, 0, 20); wireTiles(el, back, wrong); }
+    }
+  }
+  async function toTill(btn) {
+    if (task.done || busy) return;
+    if (t.inTill >= P) { sfx.nope(); say(`The ${g.one} only costs ${P}!`); btn.classList.add('shake'); return; }
+    t.inTill++; sfx.pop(t.inTill); fly(btn, $('#work .till'), ACORN); draw();
+    if (t.inTill === P) {
+      busy = true; await wait(500); busy = false;
+      bubble(`Now the rest go back to me. How many acorns go back?`, t.note());
+      $('#work .q').textContent = `How many acorns go back to ${task.cust.name}?`;
+      const tl = $('#work .tiles'); tl.innerHTML = tilesHTML(back, 0, 20); wireTiles(tl, back, wrong);
+    }
+  }
+  async function wrong(n) {
+    const tries = oops(`Hmm, not ${n}. Let's find out together.`);
+    busy = true; await wait(1800);
+    if (!t.manual) {
+      t.manual = true; const keep = $('#work .tiles').innerHTML;
+      t.inTill = P; draw(); $('#work .tiles').innerHTML = keep; wireTilesAgain();
+      bubble(`${P} acorns go in the till for the ${g.one}. Now count the ones that are left.`, t.note()); await wait(2600);
+    }
+    await countAloud([...$('#work .area .frames').querySelectorAll('.cell.tap')]);
+    if (tries < 2) { await wait(700); clearBadges($('#work')); }
+    busy = false;
+  }
+  function wireTilesAgain() {
+    $('#work .tiles').querySelectorAll('.tile:not(.no)').forEach(tl => tap(tl, () => {
+      if (busy || task.done) return;
+      const n = +tl.dataset.n; if (n === back) { tl.classList.add('yes'); return solved(rewardFor()); } tl.classList.add('no'); wrong(n);
+    }));
+  }
+  async function help() {
+    if (busy) return;
+    if (t.manual && t.inTill < P) { bubble(`Tap the acorns to move them into the till, one at a time. Stop at ${P}!`, t.note()); return; }
+    if (!t.manual) {
+      t.manual = true; const keep = $('#work .tiles').innerHTML; t.inTill = P; draw(); $('#work .tiles').innerHTML = keep; wireTilesAgain();
+      bubble(`I put ${P} in the till for the ${g.one}. Count the acorns that are left!`, t.note()); return;
+    }
+    bubble(`Count the acorns that are left. Those go back!`, t.note());
+  }
+  return t;
+}
+
+const MAKERS = { pack: makePack, fill: makeFill, price: makePrice, change: makeChange };
+
+/* =============== end of day =============== */
+function endDay() {
+  S.days++; save();
+  $('#deMouse').innerHTML = mouseSVG(S.fur, S.apron, true);
+  $('#deStars').textContent = '⭐'.repeat(DAY_LEN);
+  $('#deText').innerHTML = `You helped ${DAY_LEN} hungry customers and earned ${day.earned} ${ACORN} acorns!<br>Now you have ${S.acorns} acorns to spend.`;
+  show('dayend'); sfx.win(); sparkles($('#deStars'), 24);
+  say(`The bakery is closed for today! You helped ${DAY_LEN} customers and earned ${day.earned} acorns. Now you have ${S.acorns} acorns to spend on your mouse house.`);
+}
+tap($('#deHome'), () => goHome());
+tap($('#deAgain'), () => openShop());
+
+/* =============== home =============== */
+function goHome() {
+  $('#homeTitle').textContent = `${S.name}'s mouse house`;
+  refreshPurses(); drawRoom(); drawCatalog(); show('home');
+  if (!S.owned.length) say(`This is your mouse house! It's a bit empty. Use your acorns to make it cozy.`);
+}
+function drawRoom() {
+  const r = $('#room');
+  r.innerHTML = roomSVG() + DECOR.filter(d => S.owned.includes(d.id)).map(d =>
+    `<div class="decor" data-id="${d.id}" style="left:${d.x}%;top:${d.y}%;font-size:${d.s * 1.05}cqh">${d.e}</div>`).join('') +
+    `<div id="roomPip">${mouseSVG(S.fur, S.apron, true)}</div>`;
+  r.style.containerType = 'size';
+  r.querySelectorAll('.decor').forEach(el => tap(el, () => { el.classList.remove('wig'); void el.offsetWidth; el.classList.add('wig'); sfx.pop(rnd(3, 8)); }));
+  tap($('#roomPip'), () => { sfx.pop(8); say(pick([`I love my home!`, `So cozy!`, `Squeak!`, `Time for tea?`])); sparkles($('#roomPip'), 6); });
+}
+function drawCatalog() {
+  $('#catalog').innerHTML = DECOR.map(d => `<button class="card ${S.owned.includes(d.id) ? 'owned' : ''} ${S.acorns < d.c ? 'cant' : ''}" data-id="${d.id}">
+    <span class="e">${d.e}</span><span class="n">${d.n}</span><span class="p">${d.c} ${ACORN}</span></button>`).join('') +
+    (S.owned.length === DECOR.length ? '<div style="padding:20px;font-size:22px">Your house is full of treasures! 🎉</div>' : '');
+  $('#catalog').querySelectorAll('.card').forEach(c => tap(c, () => buy(c.dataset.id, c)));
+}
+function buy(id, card) {
+  const d = DECOR.find(x => x.id === id);
+  if (S.acorns < d.c) {
+    sfx.hmm(); say(`The ${d.n} costs ${d.c} acorns. You have ${S.acorns}. Open the bakery to earn ${d.c - S.acorns} more!`);
+    toast(`${d.e} costs ${d.c} ${ACORN}<br>You have ${S.acorns} ${ACORN}`, 2400); return;
+  }
+  S.acorns -= d.c; S.owned.push(id); save(); sfx.win(); refreshPurses();
+  drawRoom(); drawCatalog();
+  const el = $(`#room .decor[data-id="${id}"]`); el.classList.add('pop'); sparkles(el, 12);
+  say(pick([`Ooh, a ${d.n}! It looks lovely.`, `What a perfect spot for the ${d.n}!`, `Your house is getting so cozy!`]));
+}
+tap($('#homeBack'), goTitle);
+
+/* =============== grown ups =============== */
+let resetArmed = false;
+function goGrown() {
+  resetArmed = false; $('#resetBtn').textContent = 'Start over';
+  $('#skillList').innerHTML = Object.entries(SKILLS).map(([k, m]) => {
+    const s = S.skills[k], open = m.unlock(S.skills);
+    return `<div class="skill"><h3><span>${m.name}</span><span class="adj"><button data-k="${k}" data-d="-1">−</button><button data-k="${k}" data-d="1">+</button></span></h3>
+      <div class="lvlbar">${Array.from({ length: m.max }, (_, i) => `<i class="${i < s.lvl ? 'on' : ''}"></i>`).join('')}</div>
+      <p><b>Level ${s.lvl} of ${m.max}:</b> ${m.desc[s.lvl - 1]}</p>
+      <p>${open ? `${s.total} orders, ${s.right} solved on the first try${s.total ? ` (${Math.round(100 * s.right / s.total)}%)` : ''}` : 'Not unlocked yet (unlocks as counting gets solid)'}</p></div>`;
+  }).join('');
+  $('#skillList').querySelectorAll('.adj button').forEach(b => tap(b, () => {
+    const s = S.skills[b.dataset.k]; s.lvl = Math.max(1, Math.min(SKILLS[b.dataset.k].max, s.lvl + +b.dataset.d)); s.streak = 0; s.struggle = 0; save(); goGrown();
+  }));
+  $('#statsNote').textContent = `${S.days} bakery days, ${S.served} customers served, ${S.acorns} acorns saved, ${S.owned.length} of ${DECOR.length} house treasures bought. Progress is saved on this device.`;
+  $('#soundBtn').textContent = S.sound ? '🔔 Sounds on' : '🔕 Sounds off';
+  $('#voiceBtn').textContent = S.voice ? '🗣️ Read-aloud on' : '🤫 Read-aloud off';
+  show('grown');
+}
+tap($('#grownBtn'), goGrown);
+tap($('#grownBack'), goTitle);
+tap($('#soundBtn'), () => { S.sound = !S.sound; save(); goGrown(); });
+tap($('#voiceBtn'), () => { S.voice = !S.voice; save(); goGrown(); });
+tap($('#giftBtn'), () => { S.acorns += 20; save(); goGrown(); });
+tap($('#resetBtn'), () => {
+  if (!resetArmed) { resetArmed = true; $('#resetBtn').textContent = 'Tap again to erase everything'; return; }
+  S = FRESH(); save(); goSetup();
+});
+
+/* =============== wiring =============== */
+tap($('#openBtn'), openShop);
+tap($('#homeBtn'), goHome);
+tap($('#shopHome'), () => { try { speechSynthesis.cancel(); } catch (e) {} task && (task.done = true); goTitle(); });
+window.__bakery = { get S() { return S; }, get task() { return task; }, get day() { return day; } };
+goTitle();
+</script>
+</body>
+</html>
