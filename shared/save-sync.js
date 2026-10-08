@@ -127,11 +127,13 @@
   stage.id = "gfk-stage"; stage.hidden = true;
   stage.innerHTML = '<p class="wait">Fetching your saves…</p><iframe title="Game" allow="autoplay; fullscreen"></iframe>';
   const frame = stage.querySelector("iframe");
-  let open = false, lastScroll = 0;
+  let open = false, lastScroll = 0, openedAt = 0, openHref = "";
 
   function close() {
     if (!open) return;
     open = false;
+    // tell the shelf which game closed and how long it was open (it offers a fun break after practice)
+    try { window.dispatchEvent(new CustomEvent("gfk-game-closed", { detail: { href: openHref, ms: Date.now() - openedAt } })); } catch (e) {}
     stage.hidden = true;
     frame.removeAttribute("src");
     document.documentElement.style.overflow = "";
@@ -146,12 +148,13 @@
     document.documentElement.style.overflow = "hidden";
     await Promise.race([ready, new Promise(r => setTimeout(r, 12000))]);
     if (!open) return;
+    openedAt = Date.now(); openHref = href;
     frame.src = href;
   }
   frame.addEventListener("load", () => {
     if (!open || !frame.getAttribute("src")) return;
     let w;
-    try { w = frame.contentWindow; if (!/\/math\/[^/]+\/(index\.html)?$/.test(w.location.pathname)) { close(); return; } }
+    try { w = frame.contentWindow; if (!/\/(math|fun)\/[^/]+\/(index\.html)?$/.test(w.location.pathname)) { close(); return; } }
     catch (e) { return; }
     frame.style.visibility = "";
     try { w.focus(); } catch (e) {}
@@ -197,7 +200,10 @@
     "gemling-grids": ["Gemling Grids", ["gemlingGrids.v1"]],
     "egypt-puzzles": ["Miu's Magic Pyramids", ["games-for-kids.egypt-puzzles.v1"]],
     "mouse-shop": ["Acorn Bakery", ["acornBakery.v1"]],
-    "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]]
+    "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]],
+    "bubble-garden": ["Bubble Garden", ["funBubbleGarden.v1"]],
+    "mouse-house": ["Hazel's House", ["funMouseHouse.v1"]],
+    "treasure-dig": ["Treasure Dig", ["funTreasureDig.v1"]]
   };
   // Tucked away under "Grown-ups", and each reset needs a two-second press so a stray tap can't wipe anything.
   function resetPanel() {
