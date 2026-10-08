@@ -178,6 +178,7 @@
 
   /* Grown-ups' reset: forget a game's save keys and its cards in the binder, here and in the db. */
   function reset(keys, game) {
+    if (game === null) keys = Array.from(new Set(keys.concat(ls.keys(), Object.keys(meta).filter(k => meta[k] !== GONE)))).filter(k => !skip(k) && k !== "gfk-collection" && k !== "gfk-voice");
     for (const k of keys) { try { localStorage.removeItem(k); } catch (e) {} if (meta[k] === undefined) meta[k] = "local"; pending.add(k); }
     const cards = ls.get("gfk-collection");
     if (cards != null) {
@@ -189,6 +190,49 @@
     }
     saveMeta(); changed(); queue("", true);
   }
+
+  const SAVES = {
+    "moonlit-map": ["The Moonlit Map", ["moonlit-map-v2"]],
+    "fairy-lantern-festival": ["Fairy Lantern Festival", ["fairyLanternFestival.v1"]],
+    "gemling-grids": ["Gemling Grids", ["gemlingGrids.v1"]],
+    "egypt-puzzles": ["Miu's Magic Pyramids", ["games-for-kids.egypt-puzzles.v1"]],
+    "mouse-shop": ["Acorn Bakery", ["acornBakery.v1"]],
+    "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]]
+  };
+  // Tucked away under "Grown-ups", and each reset needs a two-second press so a stray tap can't wipe anything.
+  function resetPanel() {
+    const wrap = document.querySelector(".wrap");
+    if (!wrap || document.getElementById("gfk-reset")) return;
+    css.textContent += "#gfk-reset{font-size:15px;color:#7a6450;text-align:center}#gfk-reset summary{cursor:pointer;font-weight:700}" +
+      "#gfk-reset .rows{display:flex;flex-direction:column;gap:8px;max-width:420px;margin:12px auto 0}" +
+      "#gfk-reset .row{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}" +
+      "#gfk-reset button{position:relative;overflow:hidden;font:inherit;font-weight:700;min-height:44px;min-width:150px;border-radius:10px;border:2px solid #d9577a;background:#fffaf0;color:#a33a58;padding:4px 12px;touch-action:none;-webkit-user-select:none;user-select:none}" +
+      "#gfk-reset button i{position:absolute;inset:0;width:0;background:#d9577a33;transition:none}#gfk-reset button.hold i{width:100%;transition:width 2s linear}" +
+      "#gfk-reset button span{position:relative}#gfk-reset .all{border-color:#a33a58;background:#fde8ee}";
+    const d = document.createElement("details");
+    d.id = "gfk-reset";
+    const rows = Object.entries(SAVES).map(([slug, [title]]) => `<div class="row"><span>${title}</span><button type="button" data-game="${slug}"><i></i><span>Hold to reset</span></button></div>`).join("");
+    d.innerHTML = `<summary>Grown-ups: start a game over</summary><div class="rows">${rows}<div class="row"><span>Every game and the whole binder</span><button type="button" class="all" data-game=""><i></i><span>Hold to reset all</span></button></div></div><p>Resetting removes that game's progress and its cards, on every device. The reading voice choice stays.</p>`;
+    wrap.appendChild(d);
+    d.querySelectorAll("button").forEach(btn => {
+      let t = 0;
+      const label = btn.querySelector("span"), text = label.textContent;
+      const stop = () => { clearTimeout(t); btn.classList.remove("hold"); };
+      btn.addEventListener("pointerdown", e => {
+        e.preventDefault(); stop(); void btn.offsetWidth; btn.classList.add("hold");
+        t = setTimeout(() => {
+          btn.classList.remove("hold");
+          const g = btn.dataset.game;
+          reset(g ? SAVES[g][1] : [].concat(...Object.values(SAVES).map(x => x[1])), g || null);
+          label.textContent = "Done ✓";
+          setTimeout(() => { label.textContent = text; }, 2500);
+        }, 2000);
+      });
+      ["pointerup", "pointerleave", "pointercancel"].forEach(n => btn.addEventListener(n, stop));
+      btn.addEventListener("contextmenu", e => e.preventDefault());
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", resetPanel); else resetPanel();
 
   window.SaveSync = { ready, flush: () => queue("", true), close, play, reset, docId };
 })();
