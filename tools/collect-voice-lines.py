@@ -3,6 +3,7 @@
 
 Writes voice/lines.txt (one line per sentence, keyed the same way KidVoice looks clips up)
 and prints how many characters that is, since ElevenLabs bills per character.
+The fun/ mini games' random lines and card texts are collected too.
 Lines built on the fly (with ${...}) are split into the pieces around each ${...}, and the
 numbers 0-100 and math words are added, so lines with numbers can be stitched together.
 Usage: python3 tools/collect-voice-lines.py
@@ -19,8 +20,19 @@ def key(t):
     return re.sub(r"\s+", " ", t).strip()
 
 lines = {}
-for page in sorted(glob.glob(str(root / "math/*/index.html"))):
-    for q, text in CALL.findall(open(page).read()):
+# The break-time mini games (fun/) speak lines picked at random and their card texts, so for them
+# every quoted sentence on a line that calls say( or sets a card's text: (or a msg) is collected.
+STR = re.compile(r"""(['"`])((?:\\.|(?!\1).)*?)\1""")
+def fun_lines(src):
+    for line in src.splitlines():
+        if re.search(r"\bsay\(|\btext:|\bmsg =|\bline =", line):
+            for q, text in STR.findall(line):
+                if "${" not in text and re.search(r"[A-Za-z]{2}.*[.!?]$", text):
+                    yield q, text
+pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(str(root / "fun/*/index.html")))
+for page in pages:
+    src = open(page).read()
+    for q, text in (fun_lines(src) if "/fun/" in page else CALL.findall(src)):
         if "<" in text:
             continue
         text = text.replace("\\'", "'").replace('\\"', '"')
