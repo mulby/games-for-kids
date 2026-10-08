@@ -24,11 +24,12 @@
     "egypt-puzzles": { name: "Miu's Pyramids", icon: "🔺", a: "#ffe3a1", b: "#c08523" },
     "mouse-shop": { name: "Acorn Bakery", icon: "🥐", a: "#f5d2b0", b: "#9a6038" },
     "pirate-voyage": { name: "The Shining Sea", icon: "⚓", a: "#a9dcf5", b: "#235f8c" },
+    "toadstool-shop": { name: "The Toadstool Shop", icon: "🍄", a: "#ffc9c9", b: "#c23f55" },
     "wonder-charms": { name: "Wonder Charms", icon: "🍀", a: "#d9ccff", b: "#6a4fc4" },
     "wonder-crowns": { name: "Crown Cards", icon: "👑", a: "#fff0b3", b: "#c9931a" }
   };
   // Each game's very last reward is its Legendary card.
-  const FINALES = { "egypt-puzzles": ["hidden-3"], "gemling-grids": ["card-r-moonFinale"], "fairy-lantern-festival": ["starwing"], "pirate-voyage": ["sea:5"], "mouse-shop": ["mouse-shop-moonbeam-the-unicorn-sparkly"] };
+  const FINALES = { "egypt-puzzles": ["hidden-3"], "gemling-grids": ["card-r-moonFinale"], "fairy-lantern-festival": ["starwing"], "pirate-voyage": ["sea:5"], "mouse-shop": ["mouse-shop-moonbeam-the-unicorn-sparkly"], "toadstool-shop": ["friend-queen"] };
   const CROWNS = [
     { at: 8, id: "scarab", name: "The Golden Scarab", emoji: "🪲" },
     { at: 20, id: "fairy-queen", name: "The Fairy Queen", emoji: "🧚" },
