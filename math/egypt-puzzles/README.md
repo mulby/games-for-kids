@@ -12,8 +12,11 @@ Open `index.html` in Safari on the iPad (or add it to the Home Screen). Progress
 - **Journey up the Nile:** six places, four pyramids each, each with a treasure for the Treasure Room.
   Giza (2 rows, to 5) → Saqqara (to 10, some bottom stones missing) → Karnak (3 rows) →
   Valley of the Kings (missing stones anywhere) → Abu Simbel (to 20) → The Hidden Tomb (4 rows).
-- **Collecting:** 24 place treasures plus 12 lucky amulets from bonus pyramids at places she has
-  finished (36 in all). The Treasure Room shows what's found and silhouettes of what's still hidden.
+- **Collecting cards:** every treasure is a numbered collectible card (common ★, rare ★★, sparkly ★★★
+  with a holographic shimmer). 24 come from the places, plus 12 lucky amulets from bonus pyramids at
+  finished places (36 in all). The Card Binder shows silhouettes of cards still to find. Each card is
+  also added to the shared `gfk-collection` localStorage list used across games-for-kids.
+- **Miu's House:** a room she decorates by tapping a spot and choosing any treasure she has found.
 - **Placing stones:** tap or drag a blue number tile onto an empty stone.
 - **No-fail feedback:** a wrong tile wiggles back and Miu gives a hint with a counting tablet
   (dots to count). After three tries on the same stone, the right tile wiggles.

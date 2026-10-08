@@ -170,18 +170,70 @@ button:focus-visible{outline:3px solid var(--lapis);outline-offset:3px}
 .sparkle{position:absolute;pointer-events:none;font-size:26px;animation:fly 1.1s ease-out forwards;z-index:90}
 @keyframes fly{to{transform:translate(var(--dx),var(--dy)) scale(.4) rotate(160deg);opacity:0}}
 
-/* ---------- treasure room ---------- */
-#room .shelf{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-content:start;padding-bottom:20px;width:100%;max-width:760px;margin:0 auto}
-@media (max-width:520px){#room .shelf{grid-template-columns:repeat(3,minmax(0,1fr))}.relic .e{font-size:40px}}
-.relic{background:var(--papyrus);border-radius:18px;box-shadow:0 4px 0 var(--papyrus-edge);padding:12px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
-.relic .e{font-size:52px;line-height:1.1}
-.relic .n{font-size:15px;font-weight:500}
-.relic.no .e{filter:brightness(0) opacity(.18)}
-.relic.no .n{color:var(--ink-soft);opacity:.6}
-.room-head{font-family:var(--display);color:var(--lapis);font-size:clamp(22px,4vw,34px)}
-.room-head small{display:block;font-family:var(--body);font-size:17px;font-weight:600;color:var(--ink-soft)}
+/* ---------- treasure room: card binder + Miu's house ---------- */
+.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.tab{padding:10px 18px;border-radius:14px;font-size:19px;font-weight:600;background:rgba(253,245,225,.55)}
+.tab.on{background:var(--papyrus);box-shadow:0 3px 0 var(--papyrus-edge)}
+#shelf{flex:1;min-height:0;overflow-y:auto;display:grid;grid-auto-rows:max-content;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-content:start;padding-bottom:20px;width:100%;max-width:760px;margin:0 auto}
+@media (max-width:520px){#shelf{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}}
+.room-head{font-family:var(--display);color:var(--lapis);font-size:clamp(20px,4vw,32px)}
+.room-head small{display:block;font-family:var(--body);font-size:16px;font-weight:600;color:var(--ink-soft)}
 .shelf-head{grid-column:1/-1;font-size:22px;font-weight:600;padding-top:8px}
 .shelf-head small{display:block;font-size:15px;font-weight:400;color:var(--ink-soft)}
+/* collectible cards */
+.c7{position:relative;align-self:start;max-width:100%;border-radius:14px;padding:6px;background:#fffdf6;border:4px solid #dccba3;
+  box-shadow:0 4px 0 rgba(90,60,20,.18);display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden}
+.c7 .cn{font-size:13px;font-weight:600;text-align:center;line-height:1.1;min-height:2.3em;display:flex;align-items:center;justify-content:center;text-wrap:balance}
+.c7 .ca{position:relative;aspect-ratio:1;flex:none;border-radius:9px;display:grid;place-items:center;font-size:clamp(34px,6.5vw,56px);overflow:hidden;
+  background:radial-gradient(circle at 50% 42%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%), var(--tint,#f2c46d)}
+.c7 .cf{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--ink-soft)}
+.c7 .st{color:var(--gold-lo);letter-spacing:1px}
+.c7.r-rare{border-color:var(--gold);background:linear-gradient(#fff8dc,#ffe8a3)}
+.c7.r-sparkly{border-color:transparent;background:linear-gradient(#fffdf6,#fffdf6) padding-box,linear-gradient(135deg,#ff8fd8,#8fd3ff,#9dffb0,#fff59d,#ff8fd8) border-box}
+.c7.r-sparkly .ca::after{content:"";position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.85) 45%,rgba(255,180,240,.5) 50%,rgba(160,230,255,.5) 55%,transparent 65%);animation:holo 2.6s ease-in-out infinite}
+@keyframes holo{from{transform:translateX(-60%)}to{transform:translateX(60%)}}
+.c7.no{background:rgba(253,245,225,.6);border-style:dashed;border-color:#cdb98d;box-shadow:none}
+.c7.no .ca{background:rgba(205,185,141,.25)}
+.c7.no .ca span{filter:brightness(0) opacity(.16)}
+.c7.no .ca::after{display:none}
+.c7.no .cn{color:var(--ink-soft)}
+.c7.big{width:min(210px,52vw)}
+.c7.big .cn{font-size:17px}.c7.big .ca{font-size:84px}.c7.big .cf{font-size:14px}
+.card .big{animation:none}
+.card .flip{animation:flipin .8s ease}
+@keyframes flipin{0%{transform:perspective(600px) rotateY(90deg) scale(.6)}60%{transform:perspective(600px) rotateY(-12deg) scale(1.05)}100%{transform:none}}
+.rlabel{font-size:15px;font-weight:600;padding:3px 12px;border-radius:999px;background:#efe3c4}
+.rlabel.rare{background:var(--gold);color:#4a3000}
+.rlabel.sparkly{background:linear-gradient(90deg,#ffb3e6,#a8dcff,#b8ffc4);color:#3b2410}
+/* Miu's house */
+#house{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.scene{position:relative;width:min(100%,calc((100dvh - 190px)*1.333),820px);aspect-ratio:4/3;border-radius:22px;overflow:hidden;
+  box-shadow:0 6px 0 rgba(90,60,20,.25);
+  background:
+    linear-gradient(transparent 70%, #c98f4e 70%, #c98f4e 71.2%, transparent 71.2%),
+    repeating-linear-gradient(90deg,#e9c27e 0 22px,#dfb46c 22px 44px) bottom/100% 30% no-repeat,
+    linear-gradient(#f3dfb3,#efd6a3)}
+.frieze{position:absolute;left:0;right:0;top:4%;height:6%;background:
+  repeating-linear-gradient(90deg,var(--lapis) 0 6%,var(--gold) 6% 8%,var(--turq) 8% 14%,var(--gold) 14% 16%)}
+.frieze::after{content:"";position:absolute;left:0;right:0;top:100%;height:2.4%;background:var(--stone-edge)}
+.window{position:absolute;left:41%;top:16%;width:18%;height:26%;border-radius:50% 50% 6px 6px/40% 40% 6px 6px;
+  background:linear-gradient(#9fd3f0,#d9f0fa 70%,#f5d49a);border:6px solid #b8853d}
+.window::after{content:"";position:absolute;left:58%;top:18%;width:22%;aspect-ratio:1;border-radius:50%;background:#fff4c2}
+.shelfbar{position:absolute;top:40%;height:3%;width:26%;background:#9a6527;border-radius:4px;box-shadow:0 5px 0 rgba(0,0,0,.12)}
+.shelfbar.l{left:6%}.shelfbar.r{right:6%}
+.table{position:absolute;left:38%;top:58%;width:24%;height:16%}
+.table::before{content:"";position:absolute;left:0;right:0;top:0;height:20%;background:#a56a2c;border-radius:6px}
+.table::after{content:"";position:absolute;left:12%;right:12%;top:20%;bottom:0;border-left:8px solid #8a5520;border-right:8px solid #8a5520}
+.rug{position:absolute;left:20%;right:20%;bottom:3%;height:13%;border-radius:50%;background:repeating-radial-gradient(ellipse at center,#c0392b 0 8%,#e9b21f 8% 12%,#1d4f91 12% 18%)}
+.spot{position:absolute;width:12%;aspect-ratio:1;transform:translate(-50%,-100%);display:grid;place-items:center;border-radius:16px;font-size:clamp(28px,5.4vw,54px);line-height:1}
+.spot.empty{border:3px dashed rgba(120,80,30,.45);background:rgba(255,250,235,.4);color:rgba(120,80,30,.55);font-size:clamp(20px,3vw,30px);font-weight:600}
+.spot.filled{filter:drop-shadow(0 5px 2px rgba(60,35,10,.25))}
+.spot.pop{animation:pop .45s ease}
+.scene .miu{position:absolute;left:44%;bottom:6%;width:13%;height:auto;aspect-ratio:100/120}
+.picker{max-width:620px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;width:100%;max-height:46vh;overflow-y:auto;padding:4px}
+.pgrid button{font-size:40px;padding:8px 0;border-radius:14px;background:#fff;box-shadow:0 3px 0 var(--papyrus-edge)}
+.pgrid button.used{opacity:.4}
 .badge{position:absolute;top:-6px;right:-6px;min-width:24px;height:24px;border-radius:12px;background:#d9482b;color:#fff;font-size:15px;font-weight:600;display:grid;place-items:center;padding:0 6px}
 
 @media (max-height:620px){
@@ -205,7 +257,7 @@ button:focus-visible{outline:3px solid var(--lapis);outline-offset:3px}
     <p class="sub">Help Miu the temple cat fix the pyramids of Egypt</p>
     <div class="btnrow">
       <button class="bigbtn" id="playBtn">Let's go!</button>
-      <button class="bigbtn alt" id="roomBtn1">Treasure Room</button>
+      <button class="bigbtn alt" id="roomBtn1">My Cards &amp; House</button>
     </div>
   </section>
 
@@ -243,18 +295,36 @@ button:focus-visible{outline:3px solid var(--lapis);outline-offset:3px}
   <section class="screen" id="room" hidden>
     <div class="bar">
       <button class="iconbtn" id="roomBack" aria-label="Back">⬅️</button>
-      <div class="grow room-head">Treasure Room<small id="roomCount"></small></div>
+      <div class="grow room-head" id="roomTitle">Card Binder<small id="roomCount"></small></div>
       <div style="width:52px"></div>
     </div>
-    <div class="shelf" id="shelf"></div>
+    <div class="tabs"><button class="tab on" id="tabCards">🃏 My Cards</button><button class="tab" id="tabHouse">🏠 Miu's House</button></div>
+    <div id="shelf"></div>
+    <div id="house" hidden>
+      <div class="scene" id="scene">
+        <div class="frieze"></div><div class="window"></div><div class="shelfbar l"></div><div class="shelfbar r"></div>
+        <div class="table"></div><div class="rug"></div>
+        <svg class="miu" data-miu viewBox="0 0 100 120" aria-hidden="true"></svg>
+      </div>
+    </div>
   </section>
+
+  <!-- HOUSE PICKER -->
+  <div class="overlay" id="picker" hidden>
+    <div class="card picker">
+      <h2>What goes here?</h2>
+      <p id="pickHint">Tap a treasure to put it in Miu's house.</p>
+      <div class="pgrid" id="pgrid"></div>
+      <div class="btnrow"><button class="bigbtn alt" id="pickClear">Make it empty</button><button class="bigbtn" id="pickDone">Done</button></div>
+    </div>
+  </div>
 
   <!-- REWARD -->
   <div class="overlay" id="reward" hidden>
     <div class="card">
       <div class="found" id="rwFound">You found</div>
-      <div class="big" id="rwIcon">🪲</div>
-      <h2 id="rwName">The Golden Scarab</h2>
+      <div class="big" id="rwIcon"></div>
+      <h2 id="rwName"></h2>
       <p id="rwText"></p>
       <div class="btnrow">
         <button class="bigbtn" id="rwNext">Next pyramid</button>
@@ -297,13 +367,40 @@ const SITES = [
 const AMULETS = [["🐞","Ruby Beetle"],["🐟","Nile Fish Charm"],["🐸","Frog of Heqet"],["🦂","Scorpion of Serket"],
   ["🐄","Hathor's Cow"],["🦁","Sphinx Charm"],["🐦","Ibis of Thoth"],["🌸","Lotus Flower Charm"],
   ["🍯","Honey Pot"],["🧿","Blue Eye Bead"],["🐝","Golden Bee"],["🦋","Butterfly Brooch"]];
-const TOTAL_TREASURES = SITES.length*PER_SITE + AMULETS.length;
+const TINTS = {giza:"#f4c869",saqqara:"#93cfae",karnak:"#f6a866",valley:"#bba5e0",abu:"#ec9a7c",hidden:"#7f9fdc",amulet:"#9edbd6"};
+const AMULET_RARITY = {2:"rare",6:"rare",9:"rare",5:"sparkly",10:"sparkly"};
+const CARDS = [];
+SITES.forEach(s => s.treasures.forEach(([emoji,name],k) => CARDS.push({id:s.id+"-"+k, emoji, name, from:s.name, tint:TINTS[s.id],
+  rarity: k===PER_SITE-1 ? (s.id==="hidden" ? "sparkly" : "rare") : "common", has:() => doneAt(s.id) > k})));
+AMULETS.forEach(([emoji,name],k) => CARDS.push({id:"amulet-"+k, emoji, name, from:"Lucky Amulets", tint:TINTS.amulet,
+  rarity: AMULET_RARITY[k] || "common", has:() => S.amulets.includes(k)}));
+CARDS.forEach((c,i) => c.no = i+1);
+const cardById = id => CARDS.find(c => c.id === id);
+const TOTAL_TREASURES = CARDS.length;
+const STARS = {common:"★", rare:"★★", sparkly:"★★★"};
+function cardHTML(c, opts){
+  opts = opts || {};
+  const got = opts.show || c.has();
+  return `<div class="c7 r-${c.rarity}${got ? "" : " no"}${opts.big ? " big" : ""}" style="--tint:${c.tint}">
+    <div class="cn">${got ? c.name : "? ? ?"}</div><div class="ca"><span>${c.emoji}</span></div>
+    <div class="cf"><span class="st">${STARS[c.rarity]}</span><span>No. ${String(c.no).padStart(2,"0")}</span></div></div>`;
+}
+// Shared collection across all games in games-for-kids (read by the launcher).
+function shareCard(c){
+  try {
+    const key = "gfk-collection", list = JSON.parse(localStorage.getItem(key) || "[]");
+    if (!Array.isArray(list) || list.some(x => x && x.game === "egypt-puzzles" && x.id === c.id)) return;
+    list.push({game:"egypt-puzzles", id:c.id, name:c.name, emoji:c.emoji, rarity:c.rarity, earnedAt:new Date().toISOString()});
+    localStorage.setItem(key, JSON.stringify(list));
+  } catch(e) {}
+}
+function syncShared(){ CARDS.forEach(c => { if (c.has()) shareCard(c); }); }
 const CHEERS = ["Yes!","Purr-fect!","That's right!","Clever scribe!","Wonderful!","You got it!","Meow! Great job!"];
 const WINS = ["You fixed the whole pyramid!","The pyramid is shining again!","Pharaoh would be so proud!"];
 
 /* ---------- saved progress ---------- */
 const KEY = "games-for-kids.egypt-puzzles.v1";
-let S = {amulets:[], newFinds:0, done:{}, ease:{}, flawless:{}, sound:true, seenIntro:false, total:0, last:"giza"};
+let S = {house:{}, amulets:[], newFinds:0, done:{}, ease:{}, flawless:{}, sound:true, seenIntro:false, total:0, last:"giza"};
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) S = Object.assign(S, s); } catch(e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
 const doneAt = id => S.done[id] || 0;
@@ -683,31 +780,41 @@ function win(){
   setTimeout(() => {
     const finishedSite = firstTime && S.done[s.id] === PER_SITE;
     const next = SITES[P.si+1];
+    let card = null;
     if (firstTime){
-      const [ico,name] = s.treasures[idx];
-      $("#rwFound").textContent = "You found";
-      $("#rwIcon").textContent = ico; $("#rwName").textContent = name;
+      card = cardById(s.id + "-" + idx);
+      $("#rwFound").textContent = "New card!";
       $("#rwText").textContent = finishedSite
         ? (next ? `${s.name} is fixed! Now we can sail up the Nile to ${next.name}.` : "You fixed every pyramid in Egypt! You are a true royal scribe.")
-        : `Miu put it in your Treasure Room. That's ${found()} of ${TOTAL_TREASURES}!`;
+        : `That's ${found()} of ${TOTAL_TREASURES} cards in your binder!`;
     } else {
+      // bonus pyramids: a lucky amulet card, sparkly ones are the rarest
       const left = AMULETS.map((a,k)=>k).filter(k => !S.amulets.includes(k));
       if (left.length){
-        const k = pick(left); S.amulets.push(k);
-        $("#rwFound").textContent = "Lucky amulet!";
-        $("#rwIcon").textContent = AMULETS[k][0]; $("#rwName").textContent = AMULETS[k][1];
-        $("#rwText").textContent = `That's ${found()} of ${TOTAL_TREASURES} treasures in your collection!`;
+        const w = k => ({common:6, rare:3, sparkly:1})[AMULET_RARITY[k] || "common"];
+        let roll = Math.random() * left.reduce((n,k)=>n+w(k),0), k = left[0];
+        for (const x of left){ roll -= w(x); if (roll <= 0){ k = x; break; } }
+        S.amulets.push(k); card = cardById("amulet-" + k);
+        $("#rwFound").textContent = "Lucky amulet card!";
+        $("#rwText").textContent = `That's ${found()} of ${TOTAL_TREASURES} cards in your binder!`;
       } else {
         $("#rwFound").textContent = "Bonus pyramid";
-        $("#rwIcon").textContent = "🪙"; $("#rwName").textContent = "A shiny gold coin!";
         $("#rwText").textContent = `You have fixed ${S.total} pyramids so far.`;
       }
     }
+    if (card){
+      shareCard(card);
+      $("#rwIcon").innerHTML = `<div class="flip">${cardHTML(card,{big:true, show:true})}</div>`;
+      $("#rwName").innerHTML = `${card.name} <span class="rlabel ${card.rarity}">${card.rarity === "sparkly" ? "Sparkly!" : card.rarity === "rare" ? "Rare" : "Common"}</span>`;
+      if (card.rarity !== "common") setTimeout(() => sfx.win(), 500);
+    } else {
+      $("#rwIcon").textContent = "🪙"; $("#rwName").textContent = "A shiny gold coin!";
+    }
     $("#rwNext").textContent = finishedSite && next ? "Sail to " + next.name : "Next pyramid";
     $("#rwNext").dataset.go = finishedSite && next ? String(P.si+1) : String(P.si);
-    S.newFinds = (S.newFinds||0) + ($("#rwIcon").textContent === "🪙" ? 0 : 1); save();
+    if (card) S.newFinds = (S.newFinds||0) + 1; save();
     $("#reward").hidden = false;
-    speak($("#rwFound").textContent + " " + $("#rwName").textContent + "! " + $("#rwText").textContent);
+    speak($("#rwFound").textContent + " " + (card ? card.name + (card.rarity !== "common" ? ". It's " + card.rarity + "!" : "") : "A shiny gold coin") + "! " + $("#rwText").textContent);
   }, 1300);
 }
 function sparkles(){
@@ -723,18 +830,67 @@ function sparkles(){
 
 /* ---------- treasure room ---------- */
 function found(){ return SITES.reduce((n,s)=>n+Math.min(doneAt(s.id),PER_SITE),0) + S.amulets.length; }
+function coins(){ return Math.max(0, S.total - SITES.reduce((n,s)=>n+Math.min(doneAt(s.id),PER_SITE),0) - S.amulets.length); }
+let roomTab = "cards";
 function renderRoom(){
+  syncShared();
+  $("#roomCount").textContent = `${found()} of ${TOTAL_TREASURES} cards`;
+  $("#tabCards").classList.toggle("on", roomTab === "cards"); $("#tabHouse").classList.toggle("on", roomTab === "house");
+  $("#shelf").hidden = roomTab !== "cards"; $("#house").hidden = roomTab !== "house";
+  $("#roomTitle").firstChild.textContent = roomTab === "cards" ? "Card Binder" : "Miu's House";
+  if (roomTab === "cards") renderBinder(); else renderHouse();
+  S.newFinds = 0; save(); syncBadge();
+}
+function renderBinder(){
   const shelf = $("#shelf"); shelf.innerHTML = "";
   const head = (txt, sub) => { const h = document.createElement("div"); h.className = "shelf-head"; h.innerHTML = txt + (sub ? `<small>${sub}</small>` : ""); shelf.appendChild(h); };
-  const relic = (ico, name, got, hint) => { const d = document.createElement("div"); d.className = "relic" + (got ? "" : " no");
-    d.innerHTML = `<span class="e">${ico}</span><span class="n">${got ? name : hint}</span>`; shelf.appendChild(d); };
-  $("#roomCount").textContent = `${found()} of ${TOTAL_TREASURES} found`;
-  SITES.forEach(s => { head(s.ico + " " + s.name); s.treasures.forEach(([ico,name],k) => relic(ico, name, doneAt(s.id) > k, "Fix pyramid " + (k+1))); });
-  head("🍀 Lucky Amulets", "Fix extra pyramids at any place you've finished to find these");
-  AMULETS.forEach(([ico,name],k) => relic(ico, name, S.amulets.includes(k), "Still hidden"));
-  const coins = Math.max(0, S.total - SITES.reduce((n,s)=>n+Math.min(doneAt(s.id),PER_SITE),0) - S.amulets.length);
-  if (coins){ head("🪙 Gold"); relic("🪙", coins + " gold coin" + (coins>1?"s":""), true, ""); }
-  S.newFinds = 0; save(); syncBadge();
+  let lastFrom = "";
+  CARDS.forEach(c => {
+    if (c.from !== lastFrom){
+      lastFrom = c.from;
+      const site = SITES.find(x => x.name === c.from);
+      if (site) head(site.ico + " " + site.name);
+      else head("🍀 Lucky Amulets", "Fix extra pyramids at a place you've finished to find these. Sparkly ones are very rare!");
+    }
+    shelf.insertAdjacentHTML("beforeend", cardHTML(c));
+  });
+  if (coins()) { head("🪙 Gold coins: " + coins()); }
+}
+const SPOTS = [[13,40],[26,40],[74,40],[87,40],[50,58],[13,92],[87,92],[30,92],[70,92],[50,42]];
+let pickSpot = null;
+function renderHouse(){
+  const sc = $("#scene");
+  sc.querySelectorAll(".spot").forEach(e => e.remove());
+  SPOTS.forEach(([x,y],k) => {
+    const c = S.house[k] && cardById(S.house[k]);
+    const b = document.createElement("button");
+    b.className = "spot " + (c ? "filled" : "empty"); b.dataset.k = k;
+    b.style.left = x + "%"; b.style.top = y + "%";
+    b.textContent = c ? c.emoji : "+";
+    b.setAttribute("aria-label", c ? c.name : "Empty spot");
+    b.onclick = () => openPicker(k);
+    sc.appendChild(b);
+  });
+}
+function openPicker(k){
+  pickSpot = k; sfx.tap();
+  const got = CARDS.filter(c => c.has()), grid = $("#pgrid"); grid.innerHTML = "";
+  const placed = Object.values(S.house);
+  $("#pickHint").textContent = got.length ? "Tap a treasure to put it in Miu's house." : "Fix pyramids to find treasures for Miu's house!";
+  got.forEach(c => {
+    const b = document.createElement("button"); b.textContent = c.emoji; b.setAttribute("aria-label", c.name);
+    if (placed.includes(c.id)) b.className = "used";
+    b.onclick = () => {
+      Object.keys(S.house).forEach(j => { if (S.house[j] === c.id) delete S.house[j]; }); // each treasure lives in one spot
+      S.house[pickSpot] = c.id; save(); closePicker(true);
+    };
+    grid.appendChild(b);
+  });
+  $("#picker").hidden = false;
+}
+function closePicker(placed){
+  $("#picker").hidden = true; renderHouse();
+  if (placed){ const e = document.querySelector(`.spot[data-k="${pickSpot}"]`); if (e) e.classList.add("pop"); sfx.good(); miuHop(); }
 }
 function syncBadge(){ const b = $("#roomBadge"); if (b){ b.textContent = S.newFinds || ""; b.hidden = !S.newFinds; } }
 let roomBack = "title";
@@ -743,6 +899,10 @@ let roomBack = "title";
 $("#playBtn").onclick = () => { sfx.tap(); if (!S.seenIntro) startSite(0, true); else { renderMap(); show("map"); } };
 $("#roomBtn1").onclick = () => { roomBack = "title"; renderRoom(); show("room"); };
 $("#roomBtn2").onclick = () => { roomBack = "map"; renderRoom(); show("room"); };
+$("#tabCards").onclick = () => { roomTab = "cards"; sfx.tap(); renderRoom(); };
+$("#tabHouse").onclick = () => { roomTab = "house"; sfx.tap(); renderRoom(); };
+$("#pickClear").onclick = () => { delete S.house[pickSpot]; save(); closePicker(false); };
+$("#pickDone").onclick = () => closePicker(false);
 $("#roomBack").onclick = () => { if (roomBack === "map") renderMap(); show(roomBack); };
 $("#mapHome").onclick = () => show("title");
 $("#toMap").onclick = () => { try{speechSynthesis.cancel();}catch(e){} renderMap(); show("map"); };
