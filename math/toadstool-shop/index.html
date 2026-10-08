@@ -1467,14 +1467,14 @@ async function morning() {
 function notebookLine(g) {
   if (S.day === 1 || !(g in S.lastSold || g in (S.lastMissed || {}) || g in (S.lastDear || {}))) return '';
   const sold = S.lastSold[g] || 0, missed = (S.lastMissed || {})[g] || 0, dear = (S.lastDear || {})[g] || 0;
-  return `<div class="note">📒 Yesterday: sold ${sold}${missed ? ` · <b>${missed} more wanted</b> after they ran out` : ''}${dear ? ` · ${dear} not bought, too dear` : ''}</div>`;
+  return `<div class="note">📒 Yesterday: sold ${sold}${missed ? ` · <b>${missed} more wanted</b> after they ran out` : ''}${dear ? ` · ${dear} not bought, too expensive` : ''}</div>`;
 }
 // Each morning she can change the price tags. Bramble explains on the first day.
 function priceTags() {
   return new Promise(async res => {
     if (!S.pricesSeen) {
       await talk('bramble', 'Now the price tags! You choose how much each thing costs in your shop.');
-      await talk('bramble', 'A higher price earns you more for each one. But some animals will think it is too dear, and buy fewer.');
+      await talk('bramble', 'A higher price earns you more for each one. But some animals will think it is too expensive, and buy fewer.');
       S.pricesSeen = 1; save();
     }
     const goods = inStock();
@@ -1649,7 +1649,7 @@ async function shopFor(c) {
   order = order.map(([g, n]) => { const have = Math.min(n, S.stock[g] || 0); if (have < n) { short.push(g); S.missed[g] = (S.missed[g] || 0) + (n - have); } return [g, have]; }).filter(o => o[1] > 0);
   save();
   const many = gs => gs.map(g => GOODS[g].many).join(' and ');
-  if (dear.length) { mood('cust', 'think', 1800); await talk(who, order.length || short.length ? `Ooh, ${many(dear)} are dear today! I'll buy fewer.` : `Ooh, ${many(dear)} are too dear for me today. Maybe another day!`, order.length || short.length ? 'Okay' : 'Bye!'); }
+  if (dear.length) { mood('cust', 'think', 1800); await talk(who, order.length || short.length ? `Ooh, ${many(dear)} are expensive today! I'll buy fewer.` : `Ooh, ${many(dear)} cost too much for me today. Maybe another day!`, order.length || short.length ? 'Okay' : 'Bye!'); }
   else if (cheap.length) { mood('cust', 'happy', 1800); await talk(who, `${many(cheap)[0].toUpperCase() + many(cheap).slice(1)} are cheap today! I'll take extra!`, 'Hooray!'); }
   if (short.length) await talk(who, order.length ? `Oh, you haven't got enough ${many(short)}. I'll take what you have.` : `Oh no, no ${many(short)} left! I'll come back another day.`, order.length ? 'Okay' : 'Bye!');
   return order.length ? order : null;
