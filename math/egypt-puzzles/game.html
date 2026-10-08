@@ -1,0 +1,736 @@
+<title>Miu's Magic Pyramids</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Cinzel+Decorative:wght@700&display=swap">
+<style>
+/* Layout: one-screen app. A sandy desert stage, the pyramid in the middle,
+   blue faience number tiles below, Miu the temple cat talking at the bottom. */
+:root{
+  --sky-top:#f9e7c4; --sky-low:#f5d49a;
+  --sand:#efd29b; --dune:#e3b96d;
+  --stone:#e7bd72; --stone-lo:#c8913f; --stone-edge:#9a6527;
+  --gold:#f1b928; --gold-lo:#c98a0c;
+  --lapis:#1d4f91; --lapis-lo:#123668; --turq:#27a39c;
+  --ink:#3b2410; --ink-soft:#6d4a26;
+  --papyrus:#fdf5e1; --papyrus-edge:#e3cf9f;
+  --dot-a:#1d4f91; --dot-b:#d0870a; --good:#2f9a52;
+  --display:"Cinzel Decorative", "Trajan Pro", Georgia, serif;
+  --body:"Fredoka", "Avenir Next Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--sand);color:var(--ink);font-family:var(--body);overflow:hidden;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:3px solid var(--lapis);outline-offset:3px}
+#app{position:relative;height:100%;overflow:hidden;
+  background:
+    radial-gradient(circle at 85% 12%, #fff6d6 0 5%, rgba(255,240,190,.6) 5.5% 9%, transparent 9.5%),
+    radial-gradient(ellipse 70% 30% at 20% 105%, var(--dune) 60%, transparent 61%),
+    radial-gradient(ellipse 80% 26% at 85% 108%, #dcae5e 60%, transparent 61%),
+    linear-gradient(var(--sky-top), var(--sky-low) 70%, var(--sand));}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding-block:12px;padding-inline:16px;gap:10px}
+.screen[hidden]{display:none!important}
+
+/* ---------- shared bits ---------- */
+.bar{display:flex;align-items:center;gap:10px;min-height:52px}
+.bar .grow{flex:1;min-width:0;text-align:center}
+.iconbtn{width:52px;height:52px;border-radius:14px;background:var(--papyrus);box-shadow:0 3px 0 var(--papyrus-edge);
+  font-size:26px;display:grid;place-items:center;flex:none}
+.iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--papyrus-edge)}
+.iconbtn.off{opacity:.45}
+.bigbtn{background:linear-gradient(var(--turq),#1b827c);color:#fff;font-size:28px;font-weight:600;padding:16px 38px;border-radius:20px;
+  box-shadow:0 6px 0 #11605b;letter-spacing:.02em}
+.bigbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #11605b}
+.bigbtn.alt{background:linear-gradient(var(--papyrus),#f4e6c1);color:var(--ink);box-shadow:0 6px 0 var(--papyrus-edge)}
+.place{font-size:22px;font-weight:600;line-height:1.1}
+.place small{display:block;font-size:14px;font-weight:500;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- Miu ---------- */
+.miu{width:96px;height:112px;flex:none}
+.miu .tail{transform-origin:70px 100px;animation:tail 3s ease-in-out infinite}
+.miu .lids{transform-origin:50px 38px;transform:scaleY(0);animation:blink 5s infinite}
+.miu.happy{animation:hop .5s ease 2}
+@keyframes tail{50%{transform:rotate(14deg)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(0)}95%,98%{transform:scaleY(1)}}
+@keyframes hop{50%{transform:translateY(-14px)}}
+.talk{display:flex;align-items:flex-end;gap:8px}
+.bubble{position:relative;flex:1;min-width:0;background:var(--papyrus);border:3px solid var(--papyrus-edge);border-radius:20px;
+  padding:12px 16px;font-size:21px;line-height:1.3;min-height:64px;margin-bottom:22px}
+.bubble::before{content:"";position:absolute;left:-14px;bottom:16px;border:10px solid transparent;border-right:14px solid var(--papyrus-edge);border-left:0}
+.bubble .say{display:block}
+.bubble .replay{position:absolute;right:6px;top:-18px;width:38px;height:38px;border-radius:50%;background:var(--papyrus);
+  border:3px solid var(--papyrus-edge);font-size:18px;display:grid;place-items:center}
+
+/* ---------- title ---------- */
+#title{align-items:center;justify-content:center;text-align:center;gap:18px}
+#title h1{font-family:var(--display);font-size:clamp(34px,7vw,64px);line-height:1.05;margin:0;color:var(--lapis);text-wrap:balance;
+  text-shadow:0 3px 0 rgba(255,255,255,.6)}
+#title .sub{font-size:20px;color:var(--ink-soft);margin:0}
+.hero{display:flex;align-items:flex-end;gap:10px}
+.hero .miu{width:120px;height:140px}
+.mini-pyr{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mini-pyr div{display:flex;gap:4px}
+.mini-pyr span{width:46px;height:36px;border-radius:6px;background:linear-gradient(var(--stone),var(--stone-lo));
+  font-weight:600;font-size:20px;display:grid;place-items:center;box-shadow:inset 0 -3px 0 rgba(120,70,20,.3)}
+.mini-pyr span.cap{background:linear-gradient(#ffe07a,var(--gold))}
+.btnrow{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+
+/* ---------- map ---------- */
+#map .river{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;padding:10px 0 30px}
+#map .river::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:70px;margin-left:-35px;
+  background:repeating-linear-gradient(170deg,#4aa0d4 0 26px,#3d8fc7 26px 52px);border-radius:35px;opacity:.85}
+.stops{position:relative;display:flex;flex-direction:column-reverse;gap:18px;max-width:640px;margin:0 auto}
+.stop{position:relative;display:flex;align-items:center;gap:14px;width:min(100%,330px);padding:12px 16px;border-radius:20px;
+  background:var(--papyrus);box-shadow:0 5px 0 var(--papyrus-edge);text-align:left}
+.stop:nth-child(odd){align-self:flex-start}
+.stop:nth-child(even){align-self:flex-end}
+.stop .ico{font-size:40px;flex:none}
+.stop .txt{flex:1;min-width:0}
+.stop .nm{display:block;font-size:22px;font-weight:600}
+.stop .ds{display:block;font-size:15px;color:var(--ink-soft)}
+.pips{display:flex;gap:4px;margin-top:6px}
+.pips i{width:20px;height:16px;clip-path:polygon(50% 0,100% 100%,0 100%);background:#d7c39a}
+.pips i.on{background:var(--gold)}
+.stop.locked{opacity:.55}
+.stop.locked .ico{filter:grayscale(1)}
+.stop.here{outline:4px solid var(--turq);outline-offset:3px}
+.stop:active:not(.locked){transform:translateY(3px);box-shadow:0 2px 0 var(--papyrus-edge)}
+
+/* ---------- puzzle ---------- */
+#puzzle{gap:8px}
+#stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
+.pyr{display:flex;flex-direction:column;align-items:center;gap:var(--gap,8px)}
+.prow{display:flex;gap:var(--gap,8px)}
+.blk{position:relative;width:var(--bw,90px);height:var(--bh,72px);border-radius:10px;
+  background:linear-gradient(var(--stone),var(--stone-lo));
+  box-shadow:inset 0 -6px 0 rgba(120,70,20,.3), inset 0 3px 0 rgba(255,240,200,.5), 0 3px 0 var(--stone-edge);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:calc(var(--bh,72px)*.46);font-weight:600;line-height:1;transition:transform .15s}
+.blk.capstone:not(.hole){background:linear-gradient(#ffe48a,var(--gold) 60%,var(--gold-lo))}
+.blk.hole{background:rgba(255,250,235,.55);border:3px dashed var(--stone-edge);box-shadow:none;color:rgba(130,85,35,.45);cursor:pointer}
+.blk.hole.sel{border:3px solid var(--lapis);background:#fffaf0;box-shadow:0 0 0 5px rgba(29,79,145,.22);color:var(--lapis)}
+.blk.hole.over{background:#fff;border-color:var(--turq)}
+.blk.glow{box-shadow:0 0 0 5px rgba(39,163,156,.55), inset 0 -6px 0 rgba(120,70,20,.3), 0 3px 0 var(--stone-edge)}
+.blk.hole.glow{box-shadow:0 0 0 5px rgba(39,163,156,.55)}
+.blk.pop{animation:pop .45s ease}
+.blk.shake,.tile.shake{animation:shake .45s ease}
+.blk.won{animation:shine 1.2s ease}
+@keyframes pop{40%{transform:scale(1.18)}}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+@keyframes shine{30%{filter:brightness(1.35) saturate(1.2);transform:translateY(-6px)}}
+.blk .dots{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;max-width:86%;line-height:0}
+.dots .g{display:flex;gap:2px;margin-right:3px}
+.dots b{width:7px;height:7px;border-radius:50%;background:rgba(59,36,16,.55)}
+.blk.capstone .dots b{background:rgba(90,55,0,.55)}
+#tray{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;min-height:84px;align-items:center}
+.tile{width:76px;height:76px;border-radius:16px;font-size:38px;font-weight:600;color:#fff;
+  background:linear-gradient(#3270bf,var(--lapis) 60%,var(--lapis-lo));
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.25), 0 5px 0 #0c2447;display:grid;place-items:center;touch-action:none;position:relative}
+.tile.sel{transform:translateY(-8px);box-shadow:0 0 0 4px var(--gold), 0 9px 0 #0c2447}
+.tile.drag{z-index:50;transition:none;box-shadow:0 14px 24px rgba(0,0,0,.3);pointer-events:none}
+.tile.psst{animation:psst 1s ease infinite}
+.tile.gone{visibility:hidden}
+@keyframes psst{50%{transform:translateY(-10px) scale(1.06);box-shadow:0 0 0 5px var(--gold),0 9px 0 #0c2447}}
+
+/* counting tablet (hint) */
+#tablet{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;background:var(--papyrus);
+  border:3px solid var(--papyrus-edge);border-radius:18px;padding:10px 14px;font-size:30px;font-weight:600;align-self:center;max-width:100%}
+.tdots{display:flex;flex-wrap:wrap;gap:4px;max-width:180px;justify-content:center}
+.tdots .g{display:flex;gap:4px;margin-right:6px}
+.tdots b{width:18px;height:18px;border-radius:50%;border:3px solid currentColor}
+.tdots .a{color:var(--dot-a);background:var(--dot-a)}
+.tdots .b{color:var(--dot-b);background:var(--dot-b)}
+.tdots .e{color:var(--dot-b);background:transparent}
+.tnum{min-width:30px;text-align:center}
+.tnum.q{color:var(--turq)}
+
+/* ---------- overlays ---------- */
+.overlay{position:absolute;inset:0;background:rgba(59,36,16,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:80}
+.overlay[hidden]{display:none!important}
+.card{background:var(--papyrus);border:4px solid var(--papyrus-edge);border-radius:28px;padding:24px 26px;max-width:460px;width:100%;
+  text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;animation:rise .4s ease}
+@keyframes rise{from{transform:translateY(30px) scale(.9);opacity:.3}}
+.card .found{font-size:16px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.card .big{font-size:96px;line-height:1.1;animation:twirl 1s ease}
+@keyframes twirl{from{transform:scale(.2) rotate(-30deg)}60%{transform:scale(1.15)}}
+.card h2{margin:0;font-size:30px;color:var(--lapis);text-wrap:balance}
+.card p{margin:0;font-size:19px;color:var(--ink-soft);text-wrap:balance}
+.sparkle{position:absolute;pointer-events:none;font-size:26px;animation:fly 1.1s ease-out forwards;z-index:90}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) scale(.4) rotate(160deg);opacity:0}}
+
+/* ---------- treasure room ---------- */
+#room .shelf{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;align-content:start;padding-bottom:20px}
+.relic{background:var(--papyrus);border-radius:18px;box-shadow:0 4px 0 var(--papyrus-edge);padding:12px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.relic .e{font-size:52px;line-height:1.1}
+.relic .n{font-size:15px;font-weight:500}
+.relic.no .e{filter:brightness(0) opacity(.18)}
+.relic.no .n{color:var(--ink-soft);opacity:.6}
+.room-head{font-family:var(--display);color:var(--lapis);font-size:clamp(22px,4vw,34px)}
+
+@media (max-height:620px){
+  .miu{width:70px;height:82px}.bubble{font-size:18px;min-height:50px;margin-bottom:12px}
+  .tile{width:62px;height:62px;font-size:30px}#tray{min-height:70px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+
+<div id="app">
+  <!-- TITLE -->
+  <section class="screen" id="title">
+    <div class="hero">
+      <svg class="miu" data-miu viewBox="0 0 100 120" aria-hidden="true"></svg>
+      <div class="mini-pyr" aria-hidden="true">
+        <div><span class="cap">5</span></div>
+        <div><span>3</span><span>2</span></div>
+      </div>
+    </div>
+    <h1>Miu's Magic Pyramids</h1>
+    <p class="sub">Help Miu the temple cat fix the pyramids of Egypt</p>
+    <div class="btnrow">
+      <button class="bigbtn" id="playBtn">Let's go!</button>
+      <button class="bigbtn alt" id="roomBtn1">Treasure Room</button>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="screen" id="map" hidden>
+    <div class="bar">
+      <button class="iconbtn" id="mapHome" aria-label="Back to start">🏠</button>
+      <div class="grow place"><small>Journey up the Nile</small>Pick a place to visit</div>
+      <button class="iconbtn" id="roomBtn2" aria-label="Treasure room">🧺</button>
+    </div>
+    <div class="river"><div class="stops" id="stops"></div></div>
+    <div class="talk">
+      <svg class="miu" data-miu viewBox="0 0 100 120" aria-hidden="true"></svg>
+      <div class="bubble"><span class="say" id="mapSay"></span></div>
+    </div>
+  </section>
+
+  <!-- PUZZLE -->
+  <section class="screen" id="puzzle" hidden>
+    <div class="bar">
+      <button class="iconbtn" id="toMap" aria-label="Back to map">🗺️</button>
+      <div class="grow place" id="pzPlace"></div>
+      <button class="iconbtn" id="soundBtn" aria-label="Sound on or off">🔊</button>
+    </div>
+    <div id="stage"><div class="pyr" id="pyr"></div></div>
+    <div id="tablet" hidden></div>
+    <div id="tray"></div>
+    <div class="talk">
+      <button id="miuBtn" aria-label="Ask Miu for a hint" style="padding:0"><svg class="miu" data-miu viewBox="0 0 100 120" aria-hidden="true"></svg></button>
+      <div class="bubble"><span class="say" id="say"></span><button class="replay" id="replay" aria-label="Hear it again">🗣️</button></div>
+    </div>
+  </section>
+
+  <!-- TREASURE ROOM -->
+  <section class="screen" id="room" hidden>
+    <div class="bar">
+      <button class="iconbtn" id="roomBack" aria-label="Back">⬅️</button>
+      <div class="grow room-head">Treasure Room</div>
+      <div style="width:52px"></div>
+    </div>
+    <div class="shelf" id="shelf"></div>
+  </section>
+
+  <!-- REWARD -->
+  <div class="overlay" id="reward" hidden>
+    <div class="card">
+      <div class="found" id="rwFound">You found</div>
+      <div class="big" id="rwIcon">🪲</div>
+      <h2 id="rwName">The Golden Scarab</h2>
+      <p id="rwText"></p>
+      <div class="btnrow">
+        <button class="bigbtn" id="rwNext">Next pyramid</button>
+        <button class="bigbtn alt" id="rwMap">Map</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+/* ---------- content ---------- */
+const PER_SITE = 4;
+const SITES = [
+  {id:"giza", name:"Giza", ico:"🔺", desc:"Tiny pyramids, numbers to 5", rows:2, max:5, dots:true,
+   arrive:"Welcome to Giza! These little pyramids lost their top stones.",
+   treasures:[["🪲","The Golden Scarab"],["☥","The Ankh of Life"],["🐈‍⬛","A Cat Statue"],["🏺","A Painted Jar"]]},
+  {id:"saqqara", name:"Saqqara", ico:"🪜", desc:"Numbers to 10, some bottom stones too", rows:2, max:10, dots:true,
+   arrive:"Saqqara has the oldest step pyramid! Some bottom stones are missing here.",
+   treasures:[["👁️","The Eye of Horus"],["🪷","A Blue Lotus"],["🐊","Sobek's Crocodile Charm"],["📜","A Papyrus Scroll"]]},
+  {id:"karnak", name:"Karnak", ico:"🏛️", desc:"Taller pyramids, three rows", rows:3, max:10,
+   arrive:"Karnak! These pyramids are taller. Fix them one stone at a time.",
+   treasures:[["☀️","The Sun Disk of Ra"],["🦅","Horus the Falcon"],["🌙","Khonsu's Moon Charm"],["🐏","Amun's Ram"]]},
+  {id:"valley", name:"Valley of the Kings", ico:"⛰️", desc:"Puzzle stones hide anywhere", rows:3, max:12,
+   arrive:"The Valley of the Kings! Here the missing stones can hide anywhere. Think like a detective.",
+   treasures:[["👑","The Pharaoh's Crown"],["💎","A Lapis Gem"],["🐺","Anubis's Jackal Charm"],["⚱️","A Canopic Jar"]]},
+  {id:"abu", name:"Abu Simbel", ico:"🌅", desc:"Bigger numbers, up to 20", rows:3, max:20,
+   arrive:"Abu Simbel has giant statues and bigger numbers. You can do it!",
+   treasures:[["🦛","William the Blue Hippo"],["⛵","The Royal Boat"],["🐫","A Golden Camel"],["🌾","A Sheaf of Wheat"]]},
+  {id:"hidden", name:"The Hidden Tomb", ico:"🗝️", desc:"The tallest pyramids of all", rows:4, max:20,
+   arrive:"We found the Hidden Tomb! Only the cleverest scribes can fix these pyramids.",
+   treasures:[["🪶","The Feather of Ma'at"],["💍","The Queen's Ring"],["🔑","The Golden Key"],["⭐","A Star of Nut"]]},
+];
+const CHEERS = ["Yes!","Purr-fect!","That's right!","Clever scribe!","Wonderful!","You got it!","Meow! Great job!"];
+const WINS = ["You fixed the whole pyramid!","The pyramid is shining again!","Pharaoh would be so proud!"];
+
+/* ---------- saved progress ---------- */
+const KEY = "games-for-kids.egypt-puzzles.v1";
+let S = {done:{}, ease:{}, flawless:{}, sound:true, seenIntro:false, total:0, last:"giza"};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) S = Object.assign(S, s); } catch(e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+const doneAt = id => S.done[id] || 0;
+const unlocked = i => i === 0 || doneAt(SITES[i-1].id) >= PER_SITE;
+
+/* ---------- Miu drawing ---------- */
+const MIU = `
+<path class="tail" d="M70 100 C 96 98, 98 70, 86 58" fill="none" stroke="#1d1712" stroke-width="8" stroke-linecap="round"/>
+<ellipse cx="50" cy="88" rx="26" ry="28" fill="#2a211a"/>
+<ellipse cx="50" cy="96" rx="13" ry="16" fill="#3a2e25"/>
+<ellipse cx="38" cy="114" rx="9" ry="5" fill="#2a211a"/><ellipse cx="62" cy="114" rx="9" ry="5" fill="#2a211a"/>
+<path d="M27 26 L31 2 L46 18 Z M73 26 L69 2 L54 18 Z" fill="#2a211a"/>
+<path d="M31 21 L33 9 L41 17 Z M69 21 L67 9 L59 17 Z" fill="#c9806b"/>
+<circle cx="50" cy="38" r="25" fill="#2a211a"/>
+<ellipse cx="40" cy="36" rx="6.5" ry="7.5" fill="#9fd86b"/><ellipse cx="60" cy="36" rx="6.5" ry="7.5" fill="#9fd86b"/>
+<ellipse cx="40" cy="37" rx="2.4" ry="5.5" fill="#111"/><ellipse cx="60" cy="37" rx="2.4" ry="5.5" fill="#111"/>
+<circle cx="42" cy="33" r="1.6" fill="#fff"/><circle cx="62" cy="33" r="1.6" fill="#fff"/>
+<g class="lids"><ellipse cx="40" cy="36" rx="7.5" ry="8.5" fill="#2a211a"/><ellipse cx="60" cy="36" rx="7.5" ry="8.5" fill="#2a211a"/></g>
+<path d="M47 46 L53 46 L50 49 Z" fill="#d98b8b"/>
+<path d="M50 49 Q 46 54 43 51 M50 49 Q 54 54 57 51" fill="none" stroke="#6b5a4c" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M27 64 Q 50 76 73 64" fill="none" stroke="#f1b928" stroke-width="6" stroke-linecap="round"/>
+<path d="M27 64 Q 50 76 73 64" fill="none" stroke="#1d4f91" stroke-width="2" stroke-dasharray="3 5" stroke-linecap="round"/>
+<circle cx="50" cy="73" r="5" fill="#f1b928" stroke="#c98a0c" stroke-width="1.5"/>
+<circle cx="72" cy="20" r="3.2" fill="none" stroke="#f1b928" stroke-width="2"/>`;
+document.querySelectorAll("[data-miu]").forEach(s => s.innerHTML = MIU);
+const miuHop = () => document.querySelectorAll("[data-miu]").forEach(m => { m.classList.remove("happy"); void m.getBBox(); m.classList.add("happy"); });
+
+/* ---------- sound + voice ---------- */
+let AC = null;
+function tone(freq, start, dur, type, vol){
+  if (!S.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === "suspended") AC.resume();
+    const t = AC.currentTime + start, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.18, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + 0.05);
+  } catch(e) {}
+}
+const sfx = {
+  good(){ tone(784,0,.25,"triangle"); tone(1175,.09,.35,"triangle"); },
+  soft(){ tone(330,0,.18,"sine",.12); tone(294,.12,.22,"sine",.1); },
+  tap(){ tone(660,0,.08,"sine",.08); },
+  win(){ [523,659,784,1047,1319].forEach((f,i)=>tone(f,i*.11,.45,"triangle",.16)); }
+};
+let voice = null;
+function pickVoice(){
+  try {
+    const vs = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+    voice = vs.find(v => /Samantha|Karen|Moira|Tessa|Google US English/i.test(v.name)) || vs[0] || null;
+  } catch(e) {}
+}
+if ("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text){
+  if (!S.sound || !("speechSynthesis" in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[^\p{L}\p{N}\s.,!?'+=-]/gu, "").replace(/\+/g," plus ").replace(/=/g," equals "));
+    if (voice) u.voice = voice;
+    u.rate = 0.92; u.pitch = 1.25;
+    speechSynthesis.speak(u);
+  } catch(e) {}
+}
+let lastLine = "";
+function say(text, el){ (el || $("#say")).textContent = text; lastLine = text; speak(text); }
+
+/* ---------- screens ---------- */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s => s.hidden = s.id !== id);
+  if (id === "puzzle") requestAnimationFrame(layout);
+}
+
+/* ---------- map ---------- */
+function renderMap(){
+  const box = $("#stops"); box.innerHTML = "";
+  let current = 0;
+  SITES.forEach((s,i) => { if (unlocked(i)) current = i; });
+  SITES.forEach((s,i) => {
+    const open = unlocked(i), n = Math.min(doneAt(s.id), PER_SITE);
+    const b = document.createElement("button");
+    b.className = "stop" + (open ? "" : " locked") + (i === current ? " here" : "");
+    b.innerHTML = `<span class="ico">${open ? s.ico : "🔒"}</span><span class="txt"><span class="nm">${s.name}</span>
+      <span class="ds">${open ? s.desc : "Finish " + SITES[i-1].name + " to sail here"}</span>
+      <span class="pips">${Array.from({length:PER_SITE},(_,k)=>`<i class="${k<n?"on":""}"></i>`).join("")}</span></span>`;
+    b.setAttribute("aria-label", s.name + (open ? "" : " (locked)"));
+    b.onclick = () => {
+      if (!open){ sfx.soft(); say("That place is still far up the river. Let's finish " + SITES[i-1].name + " first!", $("#mapSay")); return; }
+      sfx.tap(); startSite(i, true);
+    };
+    box.appendChild(b);
+  });
+  const allDone = SITES.every(s => doneAt(s.id) >= PER_SITE);
+  say(allDone ? "You restored every pyramid in Egypt! You can visit any place again for more puzzles."
+      : S.total === 0 ? "Let's sail up the Nile! Tap Giza to start." : "Where shall we sail next? The blue outline shows our next stop.", $("#mapSay"));
+  requestAnimationFrame(() => { const h = box.querySelector(".here"); if (h) h.scrollIntoView({block:"center"}); });
+}
+
+/* ---------- puzzle generation ---------- */
+// grid[r][i]: r=0 is the bottom row (length rows), r=rows-1 is the capstone.
+function build(base){
+  const g = [base.slice()];
+  for (let r=1; r<base.length; r++) g.push(g[r-1].slice(1).map((v,i)=>v+g[r-1][i]));
+  return g;
+}
+function solvable(rows, known){
+  const k = known.map(r=>r.slice());
+  let changed = true;
+  while (changed){
+    changed = false;
+    for (let r=1; r<rows; r++) for (let i=0; i<rows-r; i++){
+      const t = [k[r][i], k[r-1][i], k[r-1][i+1]];
+      if (t.filter(Boolean).length === 2){ k[r][i]=k[r-1][i]=k[r-1][i+1]=true; changed = true; }
+    }
+  }
+  return k.every(r=>r.every(Boolean));
+}
+function params(si, idx, ease){
+  const s = SITES[si];
+  let max = s.max;
+  if (idx === 0) max = Math.ceil(max*0.75);
+  if (ease) max = Math.ceil(max*0.6);
+  const floor = s.rows===2 ? 4 : s.rows===3 ? 7 : 12;
+  max = Math.max(max, floor);
+  return {rows:s.rows, max};
+}
+function generate(si, idx){
+  const s = SITES[si], ease = !!S.ease[s.id];
+  const {rows, max} = params(si, idx, ease);
+  const minTop = Math.max(rows===2?2:rows===3?4:8, Math.ceil(max*0.45));
+  let grid;
+  for (let t=0; t<2000; t++){
+    const cap = Math.max(1, Math.floor(max / (rows===2?1.4:rows===3?2.5:5)));
+    const base = Array.from({length:rows}, () => rnd(1, cap));
+    const g = build(base), top = g[rows-1][0];
+    if (top <= max && top >= minTop){ grid = g; break; }
+  }
+  if (!grid) grid = build(Array(rows).fill(1));
+  // choose which stones are missing
+  const all = [];
+  for (let r=0; r<rows; r++) for (let i=0; i<rows-r; i++) all.push([r,i]);
+  let holes;
+  const mk = list => { const k = grid.map(row=>row.map(()=>true)); list.forEach(([r,i])=>k[r][i]=false); return k; };
+  if (s.id === "giza") holes = [[1,0]];
+  else if (s.id === "saqqara") holes = (idx % 2 === 0 || ease) ? [[1,0]] : [[0, rnd(0,1)]];
+  else {
+    const k = s.id==="karnak" ? 2 : s.id==="valley" ? 2 : s.id==="abu" ? (ease?2:3) : (ease?3:4);
+    for (let t=0; t<500; t++){
+      let pool = s.id==="karnak" ? all.filter(([r])=>r>=1) : all.slice();
+      const h = shuffle(pool).slice(0,k);
+      if (s.id==="valley" && !h.some(([r])=>r===0)) continue;
+      if (s.id!=="karnak" && !h.some(([r])=>r===rows-1) && Math.random()<.5) continue; // usually include the capstone
+      if (solvable(rows, mk(h))){ holes = h; break; }
+    }
+    if (!holes) holes = [[rows-1,0]];
+  }
+  return {si, idx, rows, grid, known:mk(holes), holes, dots: !!(s.dots || ease)};
+}
+
+/* ---------- puzzle play ---------- */
+let P = null;
+function startSite(si, arriving){
+  S.last = SITES[si].id; save();
+  newPuzzle(si, arriving);
+  show("puzzle");
+}
+function newPuzzle(si, arriving){
+  const s = SITES[si];
+  const idx = Math.min(doneAt(s.id), PER_SITE);
+  P = generate(si, idx);
+  P.mistakes = 0; P.miss = {}; P.selTile = null; P.selHole = null; P.locked = false;
+  // tiles: every answer plus a couple of near-miss decoys
+  const answers = P.holes.map(([r,i]) => P.grid[r][i]);
+  const decoyCount = s.id === "giza" ? 2 : P.holes.length > 2 ? 2 : 2;
+  const decoys = new Set();
+  let guard = 0;
+  while (decoys.size < decoyCount && guard++ < 100){
+    const a = pick(answers), d = a + pick([-2,-1,1,2,3]);
+    if (d >= 1 && !answers.includes(d)) decoys.add(d);
+  }
+  P.tiles = shuffle([...answers, ...decoys].map((v,id)=>({id, v, used:false})));
+  P.tiles.forEach((t,id)=>t.id=id);
+  const left = PER_SITE - idx;
+  $("#pzPlace").innerHTML = `<small>${s.name}</small>${idx < PER_SITE ? "Pyramid " + (idx+1) + " of " + PER_SITE : "Bonus pyramid"}`;
+  $("#tablet").hidden = true;
+  renderPyramid(); renderTray(); layout();
+  if (P.holes.length === 1) P.selHole = 0;
+  renderPyramid();
+  if (!S.seenIntro){
+    teach();
+  } else if (arriving && idx === 0){
+    say(s.arrive + " Remember: two stones side by side add up to the stone on top of them.");
+  } else {
+    say(P.holes.length === 1 ? pick(["Which stone fits here?","Can you find the missing stone?","Here's another pyramid!"])
+        : "This pyramid is missing " + P.holes.length + " stones. Which one can you fix first?");
+  }
+}
+function teach(){
+  const [a,b] = P.grid[0];
+  glow([[0,0],[0,1]]);
+  say(`Hello, I'm Miu, the temple cat! A sandstorm knocked stones off Pharaoh's pyramids. In a magic pyramid, the two stones underneath add up to the stone on top. ${a} and ${b} make... how many? Tap the right blue stone!`);
+}
+const holeIndex = (r,i) => P.holes.findIndex(([hr,hi]) => hr===r && hi===i);
+function dotsHTML(n){
+  let h = '<span class="dots">';
+  for (let g=0; g<n; g+=5){ h += '<span class="g">' + '<b></b>'.repeat(Math.min(5,n-g)) + '</span>'; }
+  return h + '</span>';
+}
+function renderPyramid(){
+  const box = $("#pyr"); box.innerHTML = "";
+  for (let r=P.rows-1; r>=0; r--){
+    const row = document.createElement("div"); row.className = "prow";
+    for (let i=0; i<P.rows-r; i++){
+      const d = document.createElement("div");
+      const v = P.grid[r][i], known = P.known[r][i], hi = holeIndex(r,i);
+      d.className = "blk" + (r===P.rows-1 ? " capstone" : "") + (!known ? " hole" : "") + (!known && hi===P.selHole ? " sel" : "");
+      d.dataset.r = r; d.dataset.i = i;
+      if (known) d.innerHTML = `<span>${v}</span>` + (P.dots && v <= 10 ? dotsHTML(v) : "");
+      else { d.textContent = "?"; d.setAttribute("role","button"); d.setAttribute("aria-label","Empty stone"); d.onclick = () => tapHole(hi); }
+      row.appendChild(d);
+    }
+    box.appendChild(row);
+  }
+}
+function blk(r,i){ return document.querySelector(`.blk[data-r="${r}"][data-i="${i}"]`); }
+function glow(list){
+  document.querySelectorAll(".blk.glow").forEach(e=>e.classList.remove("glow"));
+  list.forEach(([r,i]) => { const e = blk(r,i); if (e) e.classList.add("glow"); });
+}
+function renderTray(){
+  const tray = $("#tray"); tray.innerHTML = "";
+  P.tiles.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "tile" + (t.used ? " gone" : "") + (P.selTile === t.id ? " sel" : "");
+    b.textContent = t.v; b.dataset.id = t.id;
+    b.setAttribute("aria-label", "Stone " + t.v);
+    if (!t.used) attachDrag(b, t);
+    tray.appendChild(b);
+  });
+}
+function layout(){
+  if (!P) return;
+  const st = $("#stage"), w = st.clientWidth, h = st.clientHeight, rows = P.rows, gap = rows > 3 ? 6 : 8;
+  if (!w || !h) return;
+  let bw = Math.min(140, (w - gap*(rows-1)) / rows);
+  let bh = Math.min(bw*0.78, (h - gap*(rows-1)) / rows, 110);
+  bw = Math.min(bw, bh*1.4);
+  const pyr = $("#pyr");
+  pyr.style.setProperty("--bw", bw + "px"); pyr.style.setProperty("--bh", bh + "px"); pyr.style.setProperty("--gap", gap + "px");
+}
+window.addEventListener("resize", layout);
+
+function tapHole(hi){
+  if (P.locked || hi < 0) return;
+  if (P.selTile !== null){ attempt(hi, P.selTile); return; }
+  P.selHole = hi; sfx.tap(); renderPyramid();
+}
+function tapTile(t){
+  if (P.locked || t.used) return;
+  const open = P.holes.map((h,k)=>k).filter(k => !P.known[P.holes[k][0]][P.holes[k][1]]);
+  if (P.selHole !== null && open.includes(P.selHole)){ attempt(P.selHole, t.id); return; }
+  if (open.length === 1){ attempt(open[0], t.id); return; }
+  P.selTile = P.selTile === t.id ? null : t.id; sfx.tap(); renderTray();
+  if (P.selTile !== null) say("Now tap the empty stone where it goes.");
+}
+function attachDrag(el, t){
+  let sx=0, sy=0, drag=false, over=null;
+  el.addEventListener("pointerdown", e => {
+    if (P.locked) return;
+    sx = e.clientX; sy = e.clientY; drag = false;
+    try { el.setPointerCapture(e.pointerId); } catch(_){}
+  });
+  el.addEventListener("pointermove", e => {
+    if (!el.hasPointerCapture || !el.hasPointerCapture(e.pointerId)) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (!drag && Math.hypot(dx,dy) > 10){ drag = true; el.classList.add("drag"); }
+    if (drag){
+      el.style.transform = `translate(${dx}px,${dy}px) scale(1.08)`;
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      const h = target && target.closest(".blk.hole");
+      if (over && over !== h) over.classList.remove("over");
+      over = h; if (h) h.classList.add("over");
+    }
+  });
+  const end = e => {
+    if (drag){
+      el.classList.remove("drag"); el.style.transform = "";
+      if (over){ over.classList.remove("over"); attempt(holeIndex(+over.dataset.r, +over.dataset.i), t.id); }
+      over = null; drag = false;
+    } else if (e.type === "pointerup") tapTile(t);
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+}
+
+function relation(hi){
+  const [r,i] = P.holes[hi], K = P.known, G = P.grid, rows = P.rows;
+  if (r >= 1 && K[r-1][i] && K[r-1][i+1]) return {type:"add", a:G[r-1][i], b:G[r-1][i+1], ans:G[r][i], cells:[[r-1,i],[r-1,i+1],[r,i]]};
+  const tries = [];
+  if (r+1 < rows && i < rows-r-1) tries.push([[r+1,i],[r,i+1]]);   // I'm the left child
+  if (r+1 < rows && i-1 >= 0) tries.push([[r+1,i-1],[r,i-1]]);       // I'm the right child
+  for (const [[pr,pi],[sr,si]] of tries)
+    if (K[pr][pi] && K[sr][si]) return {type:"part", whole:G[pr][pi], part:G[sr][si], ans:G[r][i], cells:[[pr,pi],[sr,si],[r,i]]};
+  return null;
+}
+function hintFor(hi, level){
+  const rel = relation(hi);
+  if (!rel){ glow([]); $("#tablet").hidden = true; return "This stone is a tricky one! Try a different empty stone first, then come back."; }
+  glow(rel.cells);
+  showTablet(rel);
+  if (rel.type === "add")
+    return level < 2 ? `Look at the two stones underneath. ${rel.a} and ${rel.b} together make... Count all the dots!`
+                     : `${rel.a} plus ${rel.b}. Count the blue dots, then keep counting the orange ones.`;
+  return level < 2 ? `${rel.part} and what make ${rel.whole}? Count the empty circles!`
+                   : `We need ${rel.whole} in all. ${rel.part} are already there. How many empty circles are left?`;
+}
+function showTablet(rel){
+  const t = $("#tablet"), D = (n,cls) => { let h='<span class="tdots">'; for(let g=0;g<n;g+=5){h+='<span class="g">'+`<b class="${cls}"></b>`.repeat(Math.min(5,n-g))+'</span>';} return h+'</span>'; };
+  if (rel.type === "add"){
+    t.innerHTML = `${D(rel.a,"a")}<span class="tnum">+</span>${D(rel.b,"b")}<span class="tnum">=</span><span class="tnum q">?</span>`;
+  } else {
+    let h = '<span class="tdots">';
+    for (let g=0; g<rel.whole; g+=5){ h += '<span class="g">'; for (let k=g; k<Math.min(g+5,rel.whole); k++) h += `<b class="${k<rel.part?"a":"e"}"></b>`; h += '</span>'; }
+    t.innerHTML = `<span class="tnum">${rel.part} + <span class="q">?</span> = ${rel.whole}</span>${h}</span>`;
+  }
+  t.hidden = false; requestAnimationFrame(layout);
+}
+function attempt(hi, tileId){
+  if (hi < 0) return;
+  const t = P.tiles[tileId], [r,i] = P.holes[hi];
+  if (P.known[r][i] || t.used) return;
+  const el = blk(r,i);
+  if (t.v === P.grid[r][i]){
+    P.known[r][i] = true; t.used = true; P.selTile = null;
+    if (!S.seenIntro){ S.seenIntro = true; save(); }
+    const open = P.holes.map((h,k)=>k).filter(k => !P.known[P.holes[k][0]][P.holes[k][1]]);
+    P.selHole = open.length === 1 ? open[0] : null;
+    $("#tablet").hidden = true; glow([]);
+    renderPyramid(); renderTray(); layout();
+    blk(r,i).classList.add("pop"); sfx.good(); miuHop();
+    if (!open.length) return win();
+    const rel = relation(hi);
+    say(pick(CHEERS) + (open.length === 1 ? " One more stone to go!" : " " + open.length + " stones left."));
+  } else {
+    P.mistakes++; P.miss[hi] = (P.miss[hi] || 0) + 1;
+    sfx.soft(); P.selTile = null; P.selHole = hi;
+    renderPyramid(); renderTray();
+    const e2 = blk(r,i); e2.classList.add("shake");
+    const te = document.querySelector(`.tile[data-id="${tileId}"]`); if (te) te.classList.add("shake");
+    const n = P.miss[hi];
+    let line = (n === 1 ? pick(["Hmm, not that one. ","Oops, that stone doesn't fit. ","So close! "]) : "") + hintFor(hi, n);
+    if (n >= 3 && relation(hi)){
+      const right = P.tiles.find(x => !x.used && x.v === P.grid[r][i]);
+      const re = right && document.querySelector(`.tile[data-id="${right.id}"]`);
+      if (re) re.classList.add("psst");
+      line = "Psst! I think it might be the wiggly one. Let's count together to check!";
+    }
+    say(line);
+  }
+}
+function win(){
+  P.locked = true;
+  const s = SITES[P.si];
+  const firstTime = doneAt(s.id) < PER_SITE;
+  const idx = doneAt(s.id);
+  S.done[s.id] = idx + 1; S.total++;
+  // adaptive difficulty: ease off after a struggle, return to normal after two smooth pyramids
+  if (P.mistakes >= 2){ S.ease[s.id] = true; S.flawless[s.id] = 0; }
+  else if (P.mistakes === 0){ S.flawless[s.id] = (S.flawless[s.id]||0) + 1; if (S.flawless[s.id] >= 2) S.ease[s.id] = false; }
+  save();
+  sfx.win(); miuHop();
+  document.querySelectorAll(".blk").forEach((b,k) => setTimeout(() => b.classList.add("won"), k*70));
+  say(pick(WINS));
+  setTimeout(() => sparkles(), 300);
+  setTimeout(() => {
+    const finishedSite = firstTime && S.done[s.id] === PER_SITE;
+    const next = SITES[P.si+1];
+    if (firstTime){
+      const [ico,name] = s.treasures[idx];
+      $("#rwFound").textContent = "You found";
+      $("#rwIcon").textContent = ico; $("#rwName").textContent = name;
+      $("#rwText").textContent = finishedSite
+        ? (next ? `${s.name} is fixed! Now we can sail up the Nile to ${next.name}.` : "You fixed every pyramid in Egypt! You are a true royal scribe.")
+        : "Miu put it in your Treasure Room.";
+    } else {
+      $("#rwFound").textContent = "Bonus pyramid";
+      $("#rwIcon").textContent = "🪙"; $("#rwName").textContent = "A shiny gold coin!";
+      $("#rwText").textContent = `You have fixed ${S.total} pyramids so far.`;
+    }
+    $("#rwNext").textContent = finishedSite && next ? "Sail to " + next.name : "Next pyramid";
+    $("#rwNext").dataset.go = finishedSite && next ? String(P.si+1) : String(P.si);
+    $("#reward").hidden = false;
+    speak($("#rwFound").textContent + " " + $("#rwName").textContent + "! " + $("#rwText").textContent);
+  }, 1300);
+}
+function sparkles(){
+  const box = $("#stage").getBoundingClientRect();
+  for (let k=0; k<16; k++){
+    const sp = document.createElement("div"); sp.className = "sparkle"; sp.textContent = pick(["✨","⭐","✨","🌟"]);
+    sp.style.left = (box.left + box.width/2) + "px"; sp.style.top = (box.top + box.height/3) + "px";
+    const a = Math.random()*Math.PI*2, d = 120 + Math.random()*160;
+    sp.style.setProperty("--dx", Math.cos(a)*d + "px"); sp.style.setProperty("--dy", Math.sin(a)*d + "px");
+    $("#app").appendChild(sp); setTimeout(() => sp.remove(), 1200);
+  }
+}
+
+/* ---------- treasure room ---------- */
+function renderRoom(){
+  const shelf = $("#shelf"); shelf.innerHTML = "";
+  SITES.forEach(s => s.treasures.forEach(([ico,name],k) => {
+    const got = doneAt(s.id) > k;
+    const d = document.createElement("div"); d.className = "relic" + (got ? "" : " no");
+    d.innerHTML = `<span class="e">${ico}</span><span class="n">${got ? name : "From " + s.name}</span>`;
+    shelf.appendChild(d);
+  }));
+  const coins = Math.max(0, S.total - SITES.reduce((n,s)=>n+Math.min(doneAt(s.id),PER_SITE),0));
+  if (coins){ const d = document.createElement("div"); d.className="relic"; d.innerHTML = `<span class="e">🪙</span><span class="n">${coins} gold coin${coins>1?"s":""}</span>`; shelf.appendChild(d); }
+}
+let roomBack = "title";
+
+/* ---------- wiring ---------- */
+$("#playBtn").onclick = () => { sfx.tap(); if (!S.seenIntro) startSite(0, true); else { renderMap(); show("map"); } };
+$("#roomBtn1").onclick = () => { roomBack = "title"; renderRoom(); show("room"); };
+$("#roomBtn2").onclick = () => { roomBack = "map"; renderRoom(); show("room"); };
+$("#roomBack").onclick = () => { if (roomBack === "map") renderMap(); show(roomBack); };
+$("#mapHome").onclick = () => show("title");
+$("#toMap").onclick = () => { try{speechSynthesis.cancel();}catch(e){} renderMap(); show("map"); };
+$("#rwMap").onclick = () => { $("#reward").hidden = true; renderMap(); show("map"); };
+$("#rwNext").onclick = () => {
+  $("#reward").hidden = true; const go = +$("#rwNext").dataset.go;
+  if (go !== P.si) startSite(go, true); else newPuzzle(go, false);
+};
+$("#miuBtn").onclick = () => {
+  if (!P || P.locked) return;
+  const open = P.holes.map((h,k)=>k).filter(k => !P.known[P.holes[k][0]][P.holes[k][1]]);
+  let hi = P.selHole !== null && open.includes(P.selHole) ? P.selHole : open.find(k => relation(k)) ?? open[0];
+  if (hi === undefined) return;
+  P.selHole = hi; renderPyramid();
+  miuHop(); say(hintFor(hi, 1));
+};
+$("#replay").onclick = () => speak(lastLine);
+function syncSound(){ $("#soundBtn").textContent = S.sound ? "🔊" : "🔇"; $("#soundBtn").classList.toggle("off", !S.sound); }
+$("#soundBtn").onclick = () => { S.sound = !S.sound; save(); syncSound(); if (!S.sound) try{speechSynthesis.cancel();}catch(e){} else sfx.tap(); };
+syncSound();
+window.__miu = { get P(){ return P; }, get S(){ return S; }, attempt, generate, SITES };
+})();
+</script>
