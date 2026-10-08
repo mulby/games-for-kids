@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f3c6d8">
+<title>Bubble Garden</title>
+<style>
+:root{--font: ui-rounded,'SF Pro Rounded','Arial Rounded MT Bold','Andika','Nunito',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#f3c6d8;font-family:var(--font);overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+.fallback{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;font-size:24px;color:#3a2f5c}
+</style>
+<script id="kid-voice" data-voice-base="../../voice/">
+/* KidVoice: one friendly voice for every game.
+   Source of truth is shared/voice.js; tools/sync-voice.py copies it into each game
+   so every index.html stays self-contained.
+
+   1. Recorded clips first: if voice/manifest.json (made by tools/make-voice-clips.mjs)
+      has a clip for a sentence, it plays that. Lines with numbers in them, like
+      "7 plus 5" or "This lantern needs 7 fireflies", are stitched from shorter clips.
+   2. Otherwise the device's own speech, using the most natural voice it has
+      (Premium / Enhanced iPad voices first, never the novelty or robot voices).
+   A grown-up can pin a voice from The Wonder Shelf; it is saved in localStorage["gfk-voice"]. */
+(function () {
+  if (window.KidVoice) return;
+  const synth = window.speechSynthesis || null;
+  const NOVELTY = /\b(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Junior|Organ|Ralph|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Kathy)\b/i;
+  const ROBOTIC = /\b(Eddy|Flo|Reed|Rocko|Sandy|Shelley|Grandma|Grandpa)\b/i; // iOS "Eloquence" voices
+  const FAVORITES = ['Ava', 'Zoe', 'Samantha', 'Allison', 'Susan', 'Nicky', 'Serena', 'Karen', 'Moira', 'Kate', 'Tessa', 'Evan', 'Nathan', 'Tom', 'Daniel'];
+
+  function score(v) {
+    const id = (v.name || '') + ' ' + (v.voiceURI || '');
+    let s = 0;
+    if (NOVELTY.test(v.name)) s -= 100;
+    if (ROBOTIC.test(v.name)) s -= 60;
+    if (/premium/i.test(id)) s += 60;
+    else if (/enhanced/i.test(id)) s += 40;
+    if (/siri/i.test(id)) s += 35;
+    if (/Online \(Natural\)/i.test(id)) s += 45; // Edge
+    if (/^Google/i.test(v.name)) s += 20;      // Chrome
+    const fav = FAVORITES.findIndex(n => new RegExp('\\b' + n + '\\b', 'i').test(v.name));
+    if (fav >= 0) s += 15 - fav * 0.5;
+    if (/en[-_]US/i.test(v.lang)) s += 5; else if (/en[-_]GB/i.test(v.lang)) s += 4; else if (/en[-_](AU|IE|NZ|CA)/i.test(v.lang)) s += 3;
+    if (v.default) s += 1;
+    return s;
+  }
+  function voices() {
+    try { return (synth && synth.getVoices() || []).filter(v => /^en/i.test(v.lang)); } catch (e) { return []; }
+  }
+  function ranked() { return voices().map(v => ({ v, s: score(v) })).sort((a, b) => b.s - a.s).map(x => x.v); }
+  let chosen = null;
+  function pick() {
+    let pinned = null;
+    try { pinned = localStorage.getItem('gfk-voice'); } catch (e) {}
+    const list = ranked();
+    chosen = (pinned && list.find(v => v.voiceURI === pinned || v.name === pinned)) || list[0] || null;
+    return chosen;
+  }
+  if (synth) { pick(); try { synth.addEventListener('voiceschanged', pick); } catch (e) {} }
+
+  /* ---- recorded clips ---- */
+  let clips = null; // { base, lines: {key: file} }
+  const base = (document.currentScript && document.currentScript.dataset.voiceBase) || '../../voice/';
+  try {
+    if (location.protocol !== 'file:') fetch(base + 'manifest.json').then(r => r.ok ? r.json() : null)
+      .then(m => { if (m && m.lines) clips = { base, lines: m.lines }; }).catch(() => {});
+  } catch (e) {}
+  const key = t => String(t).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  function clipPlan(text) {
+    if (!clips) return null;
+    const plan = [];
+    for (const sentence of String(text).match(/[^.!?]+[.!?]*/g) || []) {
+      const k = key(sentence); if (!k) continue;
+      if (clips.lines[k]) { plan.push(clips.lines[k]); continue; }
+      // Stitch lines built from a template, like "this lantern needs" + "7" + "fireflies".
+      const parts = k.split(/\b(\d+)\b/).map(x => x.trim()).filter(Boolean);
+      if (parts.length > 1 && parts.every(x => clips.lines[x])) { parts.forEach(x => plan.push(clips.lines[x])); continue; }
+      return null; // one sentence without a recording: use speech for the whole line so it sounds even
+    }
+    return plan.length ? plan : null;
+  }
+  const audio = typeof Audio !== 'undefined' ? new Audio() : null;
+  let queue = [];
+  function playNext() {
+    if (!audio || !queue.length) return;
+    audio.src = clips.base + queue.shift();
+    audio.play().catch(() => { queue = []; });
+  }
+  if (audio) audio.addEventListener('ended', playNext);
+  function stopClips() { queue = []; if (audio) try { audio.pause(); } catch (e) {} }
+  // Games call speechSynthesis.cancel() when they change screens; make that stop clips too.
+  if (synth) try { const cancel = synth.cancel.bind(synth); synth.cancel = function () { stopClips(); cancel(); }; } catch (e) {}
+  // iPad Safari only plays audio after a tap: unlock the player on the first touch.
+  if (audio) document.addEventListener('pointerdown', function unlock() {
+    document.removeEventListener('pointerdown', unlock, true);
+    if (!audio.src) { audio.src = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA=='; audio.play().catch(() => {}); }
+  }, true);
+
+  function speak(text, opts) {
+    opts = opts || {};
+    if (!text) return;
+    const plan = clipPlan(text);
+    if (plan) {
+      if (!opts.queue) { try { synth && synth.cancel(); } catch (e) { stopClips(); } }
+      const idle = !queue.length && (!audio || audio.paused || audio.ended);
+      queue.push(...plan);
+      if (idle) playNext();
+      return;
+    }
+    if (!synth) return;
+    try {
+      if (!opts.queue) synth.cancel();
+      const u = new SpeechSynthesisUtterance(String(text));
+      const v = chosen || pick();
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+      // A natural pitch: raised pitch is what made the old voice sound strained and creepy.
+      u.rate = Math.min(1.05, Math.max(0.75, opts.rate || 0.92));
+      u.pitch = Math.min(1.05, Math.max(0.95, opts.pitch || 1));
+      synth.speak(u);
+    } catch (e) {}
+  }
+
+  window.KidVoice = { speak, stop: () => { try { synth ? synth.cancel() : stopClips(); } catch (e) {} }, pick, ranked, score, current: () => chosen, key };
+})();
+</script>
+</head>
+<body>
+<noscript><div class="fallback">Bubble Garden needs JavaScript.</div></noscript>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
+<script type="module">
+// Bubble Garden: Posy the fairy blows bubbles, and tiny firefly friends are stuck inside.
+// Tap a bubble to pop it and the friend joins the dance around Posy. No numbers, no losing: bubbles that float away just float away.
+import { THREE, K, stage, ui, sparkles, sfx, say, rayFrom, rand, pickOne, ease, load, save, takeBreakReward } from '../../shared/funkit.js';
+
+const SAVE_KEY = 'funBubbleGarden.v1';
+const data = load(SAVE_KEY, { plays: 0, best: 0, total: 0 });
+const BUBBLES_PER_ROUND = 30;
+
+const S = stage({ bg: '#f6cfe0', fov: 40, pos: [0, .6, 18], look: [0, .6, 0] });
+const { scene, cam } = S;
+const U = ui({ title: 'Bubble Garden' });
+U.hud.innerHTML = '<span class="fun-pill" id="count">✨ <b>0</b></span>';
+const countEl = U.hud.querySelector('b');
+
+/* ---------------- the garden ---------------- */
+(function sky() {
+  const m = new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    uniforms: { top: { value: new THREE.Color('#b4cdfa') }, mid: { value: new THREE.Color('#ffd9ea') }, low: { value: new THREE.Color('#fff1d8') } },
+    vertexShader: 'varying vec3 v; void main(){ v = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+    fragmentShader: 'uniform vec3 top,mid,low; varying vec3 v; void main(){ float h=v.y; vec3 c = h>0.05 ? mix(mid,top,smoothstep(.05,.6,h)) : mix(low,mid,smoothstep(-.15,.05,h)); gl_FragColor=vec4(c,1.); }'
+  });
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(200, 32, 16), m));
+})();
+S.R.toneMappingExposure = 1.2;
+K.toyLights(scene, { sky: '#fff0f6', ground: '#8fbf80', hemiI: 1.5, key: '#fff4e0', keyI: 2.1, fill: '#ffd0e0', fillI: .7, dir: [-4, 8, 6] });
+
+// soft clouds far behind
+const clouds = new THREE.Group(); scene.add(clouds);
+(function () {
+  const cm = K.mat('#ffffff', { glow: .45 });
+  for (let i = 0; i < 6; i++) {
+    const c = new THREE.Group();
+    [[0, 0, 0, 1.6], [1.5, -.2, 0, 1.2], [-1.4, -.3, 0, 1.1], [.6, .7, -.2, 1.1]].forEach(([x, y, z, r]) => c.add(K.ball(cm, [x, y, z], [r, r * .8, r * .7])));
+    K.freeze(c); c.position.set(-40 + i * 16 + rand(-3, 3), rand(10, 20), -60 - rand(0, 20)); c.scale.setScalar(rand(1.8, 3));
+    c.userData.v = rand(.3, .7); clouds.add(c);
+  }
+})();
+
+// rolling felt hills, flowers and mushrooms along the bottom
+const GROUND_Y = -5.6;
+(function ground() {
+  const still = new THREE.Group();
+  [[-30, -40, 22, '#a3d68f'], [10, -48, 26, '#97cf86'], [40, -38, 20, '#acdc96'], [-8, -26, 14, '#b4e29e']].forEach(([x, z, r, c]) => still.add(K.ball(K.mat(c, { felt: true }), [x, GROUND_Y - r * .62, z], [r * 1.7, r, r])));
+  const g = new THREE.PlaneGeometry(120, 40, 40, 12); g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setY(i, Math.sin(p.getX(i) * .25) * .25 + Math.cos(p.getZ(i) * .4) * .2);
+  g.computeVertexNormals();
+  const gm = new THREE.Mesh(g, K.mat('#a9dc8c', { rough: .95 })); gm.position.set(0, GROUND_Y, -8); still.add(gm);
+  [[-14, -10, 1.5], [21, -16, 1.7], [-22, -18, 1.9], [30, -24, 2], [-6, -22, 1.6]].forEach(([x, z, s], i) => { const t = K.tree(s, i % 2 ? '#5f9a5e' : '#6aa866'); t.position.set(x, GROUND_Y, z); still.add(t); });
+  [[-8.5, -1, 1.5, '#e2566b'], [-10.5, -3, 1, '#f2a7b5'], [9.5, -2, 1.2, '#b9a6e8'], [-6.8, 1, .7, '#e2566b']].forEach(([x, z, s, c]) => { const m = K.mushroom(c, s); m.position.set(x, GROUND_Y, z); m.rotation.y = x; still.add(m); });
+  scene.add(K.freeze(still));
+  ['#f6a6bd', '#ffffff', '#b9a6e8', '#ffd86b', '#a9d4ff'].forEach(c => {
+    const items = []; for (let i = 0; i < 14; i++) items.push({ p: [rand(-16, 16), GROUND_Y, rand(-8, 3)], s: rand(1.2, 2), ry: rand(0, 6) });
+    scene.add(K.scatter(K.flower(c), items));
+  });
+})();
+
+// Posy the fairy sits on a big mushroom and cheers you on
+const posySeat = K.mushroom('#e48aa0', 2.1); scene.add(posySeat);
+const posy = K.fairy({ wing: 'pink', hair: 'curls', hairColor: '#d98c4a', dress: '#b9a6e8', dress2: '#efe4ff', wand: true, sit: true });
+posy.scale.setScalar(1.05); scene.add(posy);
+function placePosy() {
+  const v = S.viewAt(18);
+  const x = Math.min(v.w - 2.3, 9);
+  posySeat.position.set(x, GROUND_Y, 1.2);
+  posy.position.set(x, GROUND_Y + 2.15, 1.4); posy.rotation.y = -.35;
+}
+S.onResize = placePosy;
+
+/* ---------------- bubbles ---------------- */
+const shellMat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: .05, metalness: 0, transparent: true, opacity: .32, iridescence: 1, iridescenceIOR: 1.5, iridescenceThicknessRange: [200, 700], clearcoat: 1, clearcoatRoughness: .05, depthWrite: false, side: THREE.FrontSide });
+const goldMat = new THREE.MeshPhysicalMaterial({ color: '#ffd86b', emissive: '#ffb54a', emissiveIntensity: .25, roughness: .1, transparent: true, opacity: .45, iridescence: .7, clearcoat: 1, depthWrite: false });
+const rimMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .55, depthWrite: false });
+const shellGeo = new THREE.SphereGeometry(1, 32, 22);
+const rimGeo = new THREE.TorusGeometry(1.0, .025, 6, 48);
+
+const FRIENDS = [
+  { body: '#ffe27a', glowColor: '#ffd65a', acc: 'flower' },
+  { body: '#ffc4d8', glowColor: '#ff9ec0', acc: 'bow' },
+  { body: '#b8f0c8', glowColor: '#9ff0b8', acc: 'leaf' },
+  { body: '#d4c4ff', glowColor: '#c4b0ff', acc: 'moon' },
+  { body: '#a9d4ff', glowColor: '#8fd0ff', acc: 'drop' },
+  { body: '#ffe27a', glowColor: '#ffcf66', acc: 'mushroom', stripes: true },
+  { body: '#ffd9b0', glowColor: '#ffbf80', acc: 'acorn' },
+  { body: '#ffffff', glowColor: '#fff3b0', acc: 'teacup' }
+];
+const friendTpl = FRIENDS.map(f => K.firefly({ ...f, wing: '#e6f2ff' }));
+const crownTpl = K.firefly({ body: '#ffe27a', glowColor: '#ffd65a', acc: 'crown', wing: '#ffe9a8' });
+
+const bubbles = [], swarm = [];
+const fx = sparkles(scene);
+let spawned = 0, freed = 0, nextSpawn = .6, playing = false, roundEnd = 0;
+let goldLeft = 0;
+
+function spawnBubble() {
+  const v = S.viewAt(18), gold = goldLeft > 0 && spawned > 4 && Math.random() < .12;
+  if (gold) goldLeft--;
+  const r = gold ? 1.55 : rand(1.05, 1.35);
+  const b = new THREE.Group();
+  const shell = new THREE.Mesh(shellGeo, gold ? goldMat : shellMat); shell.scale.setScalar(r); shell.renderOrder = 3; b.add(shell);
+  const rim = new THREE.Mesh(rimGeo, rimMat); rim.scale.setScalar(r * .98); rim.renderOrder = 4; b.add(rim);
+  const hi = K.glow('#ffffff', r * .55, .85); hi.position.set(-r * .42, r * .45, r * .6); b.add(hi);
+  const friend = K.instance(gold ? crownTpl : pickOne(friendTpl));
+  friend.scale.setScalar(r * .5); friend.rotation.y = rand(-.4, .4); b.add(friend);
+  const xMax = Math.max(1.5, v.w - r - .6);
+  b.position.set(rand(-xMax, xMax - 1.5), GROUND_Y - r - .5, rand(-1, 1));
+  b.userData = { r, shell, rim, hi, friend, gold, vy: gold ? rand(.9, 1.1) : rand(1.1, 1.9), x0: b.position.x, ph: rand(0, 6), wob: rand(.4, .9), age: 0, popping: 0 };
+  scene.add(b); bubbles.push(b); spawned++;
+}
+
+function pop(b) {
+  const u = b.userData; if (u.popping) return;
+  u.popping = .001;
+  sfx.pop(u.gold ? .8 : rand(.9, 1.25));
+  fx.burst(b.position.clone(), u.gold ? { n: 40, colors: ['#ffe58a', '#ffd86b', '#fff3cf', '#ffb54a'], speed: 7, size: .3 } : { n: 12, colors: ['#ffffff', '#a9d4ff', '#f6a6bd', '#ffe58a'], speed: 4.5, size: .18 });
+  // the friend flies off to join the dance
+  const f = u.friend;
+  f.getWorldPosition(f.position); f.scale.setScalar(.55); b.remove(f); scene.add(f);
+  joinSwarm(f, u.gold);
+  if (u.gold) {
+    sfx.sparkle();
+    // a golden bubble frees two extra friends
+    for (let i = 0; i < 2; i++) { const e = K.instance(pickOne(friendTpl)); e.position.copy(f.position); e.scale.setScalar(.5); scene.add(e); joinSwarm(e, false); }
+    say(pickOne(['A golden bubble! Hooray!', 'Ooh, sparkly gold!', 'You found the golden one!']), { who: 'Posy' });
+  } else if (freed % 7 === 0) {
+    say(pickOne(['Wheee!', 'Pop pop pop!', 'You got it!', 'Free at last!', 'Look at them dance!', 'Thank you!']), { who: 'Posy' });
+  }
+  posy.userData.mood = 'happy'; posy.userData.moodUntil = S.t + 1.2;
+}
+
+const flashCount = () => { countEl.textContent = freed; const p = countEl.parentElement; p.animate([{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'cubic-bezier(.3,1.6,.5,1)' }); };
+function joinSwarm(f, king) {
+  freed++; flashCount();
+  f.userData.swarm = { from: f.position.clone(), t: 0, a: rand(0, Math.PI * 2), rad: rand(2.5, 5.5), h: rand(1, 5), sp: rand(.5, .9) * (Math.random() < .5 ? -1 : 1), king };
+  swarm.push(f);
+  // keep the dance light: old friends quietly fly home once there are lots
+  if (swarm.length > 14) { const old = swarm.find(x => !x.userData.swarm.leaving && !x.userData.swarm.king); if (old) old.userData.swarm.leaving = 0.001; }
+}
+
+/* ---------------- touch ---------------- */
+// Generous hit circles so little fingers always land a pop. Swiping through bubbles pops them too.
+const tmpV = new THREE.Vector3();
+function tryPop(ev) {
+  if (!playing) return;
+  const ray = rayFrom(S, ev);
+  let best = null, bd = 1e9;
+  for (const b of bubbles) {
+    if (b.userData.popping) continue;
+    const d = ray.distanceSqToPoint(b.position), lim = (b.userData.r * 1.3) ** 2;
+    if (d < lim && d < bd) { bd = d; best = b; }
+  }
+  if (best) pop(best);
+}
+let down = false;
+S.canvas.addEventListener('pointerdown', e => { down = true; sfx.unlock(); tryPop(e); });
+S.canvas.addEventListener('pointermove', e => { if (down) tryPop(e); });
+window.addEventListener('pointerup', () => { down = false; });
+window.addEventListener('pointercancel', () => { down = false; });
+
+/* ---------------- loop ---------------- */
+S.tick = (dt, t) => {
+  for (const c of clouds.children) { c.position.x += c.userData.v * dt; if (c.position.x > 60) c.position.x = -60; }
+  if (posy.userData.moodUntil && t > posy.userData.moodUntil) posy.userData.mood = 'idle';
+  K.animate(posy, t);
+  if (playing) {
+    nextSpawn -= dt;
+    const onScreen = bubbles.filter(b => !b.userData.popping).length;
+    if (nextSpawn <= 0 && spawned < BUBBLES_PER_ROUND && onScreen < 9) { spawnBubble(); nextSpawn = rand(.5, 1.1); posy.userData.wandFlick = t; }
+  }
+  const top = S.viewAt(18).h + .6 + 2;
+  for (let i = bubbles.length - 1; i >= 0; i--) {
+    const b = bubbles[i], u = b.userData; u.age += dt;
+    if (u.popping) {
+      u.popping += dt * 7;
+      const k = Math.min(1, u.popping);
+      u.shell.scale.setScalar(u.r * (1 + k * .4)); u.rim.scale.setScalar(u.r * (1 + k * .5));
+      b.visible = k < 1 && Math.floor(k * 8) % 2 === 0;
+      if (k >= 1) { scene.remove(b); bubbles.splice(i, 1); }
+      continue;
+    }
+    b.position.y += u.vy * dt;
+    b.position.x = u.x0 + Math.sin(u.age * u.wob + u.ph) * .7;
+    const sq = 1 + Math.sin(u.age * 3 + u.ph) * .035;
+    u.shell.scale.set(u.r * sq, u.r / sq, u.r * sq);
+    u.rim.lookAt(cam.position);
+    u.friend.rotation.y = Math.sin(u.age * .8 + u.ph) * .5;
+    K.animate(u.friend, t);
+    if (b.position.y > top) { scene.remove(b); bubbles.splice(i, 1); }
+  }
+  // the dance around Posy
+  const cx = posy.position.x - 3.5, cy = posy.position.y + .5;
+  for (let i = swarm.length - 1; i >= 0; i--) {
+    const f = swarm[i], s = f.userData.swarm;
+    s.t += dt; s.a += s.sp * dt;
+    const target = tmpV.set(cx + Math.cos(s.a) * s.rad, cy + s.h + Math.sin(t * 1.3 + s.a * 2) * .5, 1.5 + Math.sin(s.a) * 2);
+    if (s.leaving) {
+      s.leaving += dt;
+      f.position.y += dt * 4; f.position.x += dt * 2;
+      if (s.leaving > 3) { scene.remove(f); swarm.splice(i, 1); }
+    } else if (s.t < 1.1) {
+      const k = ease.inOut(s.t / 1.1);
+      f.position.lerpVectors(s.from, target, k); f.position.y += Math.sin(k * Math.PI) * 2;
+    } else f.position.lerp(target, Math.min(1, dt * 3));
+    f.rotation.y = Math.atan2(-Math.sin(s.a) * s.sp, Math.cos(s.a) * s.sp) * .6;
+    K.animate(f, t);
+  }
+  fx.update(dt);
+  if (playing && spawned >= BUBBLES_PER_ROUND && !bubbles.length) { playing = false; roundEnd = t; setTimeout(finish, 900); }
+};
+
+/* ---------------- rounds ---------------- */
+async function title() {
+  const extra = data.total ? `Friends freed so far: ${data.total} ✨` : '';
+  await U.card({ art: '🫧🧚', heading: 'Bubble Garden', text: 'Firefly friends are stuck in Posy\'s bubbles. Pop them free!', buttons: [{ label: 'Pop bubbles! 🫧', value: 'go' }], extra });
+  startRound();
+}
+function startRound() {
+  spawned = 0; freed = 0; nextSpawn = .4; countEl.textContent = '0';
+  goldLeft = takeBreakReward('bubble-garden') ? 3 : 1;
+  playing = true;
+  say('Pop the bubbles!', { who: 'Posy' });
+}
+async function finish() {
+  data.plays++; data.total += freed; data.best = Math.max(data.best, freed); save(SAVE_KEY, data);
+  sfx.fanfare();
+  posy.userData.mood = 'happy'; posy.userData.moodUntil = S.t + 3;
+  fx.burst(posy.position.clone().add(new THREE.Vector3(-1, 3, 0)), { n: 50, speed: 8, size: .28 });
+  const msg = freed >= 25 ? 'Wow, what a dance party!' : freed >= 12 ? 'Look at all your friends dancing!' : 'Your friends are dancing!';
+  const v = await U.card({ art: '✨🧚✨', heading: `${freed} friends freed!`, text: msg, buttons: [{ label: 'Again! 🫧', value: 'again' }, { label: '📚 Shelf', href: '../../index.html', soft: true }] });
+  if (v === 'again') startRound();
+}
+
+placePosy();
+S.start();
+title();
+</script>
+</body>
+</html>

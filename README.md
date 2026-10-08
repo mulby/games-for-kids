@@ -18,6 +18,18 @@ Open `index.html` (The Wonder Shelf) to pick a game. Every collectible card a ga
 
 Each game is one self-contained `index.html` that saves progress in localStorage and has a press-and-hold "Grown-ups" view.
 
+## Break Time (just for fun)
+Short, no-math 3D games for a break between practice games. The shelf offers one after about four minutes of
+practice (`WORK_FOR_BREAK` in `index.html`), and each one then gives a single bonus for that break.
+| Folder | Game | Bonus after practice |
+| --- | --- | --- |
+| `fun/bubble-garden/` | **Bubble Garden**: pop Posy the fairy's bubbles to free firefly friends | extra golden bubbles |
+| `fun/mouse-house/` | **Hazel's House**: decorate a Maileg-style mouse room, drag things around, day and night | a parcel with new furniture |
+| `fun/treasure-dig/` | **Treasure Dig**: rub sand away with Miu the cat to find Egyptian treasures for her museum | a rare treasure |
+
+They share `shared/funkit.js` (stage, touch, sparkles, sounds, cards) on top of the felt-toy kit `shared/toy3d.js`.
+The break note lives in `localStorage["gfk-break"]` (`{work, earned, used}`).
+
 ## Voice
 All games read aloud through one shared helper, `shared/voice.js` (copied into each game by `python3 tools/sync-voice.py`, so edit the shared file and re-run that).
 It picks the most natural voice the device has (Premium or Enhanced iPad voices first), and a grown-up can pin a voice on The Wonder Shelf.

@@ -158,6 +158,51 @@ you need	You need
 more gold coins for that	more gold coins for that.
 solve some puzzles to earn more	Solve some puzzles to earn more!
 nine bars is all the forge can hold	Nine bars is all the forge can hold!
+a golden bubble	A golden bubble!
+hooray	Hooray!
+ooh sparkly gold	Ooh, sparkly gold!
+you found the golden one	You found the golden one!
+wheee	Wheee!
+pop pop pop	Pop pop pop!
+you got it	You got it!
+free at last	Free at last!
+look at them dance	Look at them dance!
+firefly friends are stuck in posy's bubbles	Firefly friends are stuck in Posy's bubbles.
+pop them free	Pop them free!
+pop the bubbles	Pop the bubbles!
+wow what a dance party	Wow, what a dance party!
+look at all your friends dancing	Look at all your friends dancing!
+your friends are dancing	Your friends are dancing!
+a surprise	A surprise!
+do some learning games to get more parcels	Do some learning games to get more parcels.
+the room is full	The room is full!
+drag something back to the tray first	Drag something back to the tray first.
+squeak	Squeak!
+hee hee	Hee hee!
+i love my room	I love my room!
+so cozy	So cozy!
+you are a great decorator	You are a great decorator!
+tickles	Tickles!
+a parcel came for you	A parcel came for you!
+tap it to open it	Tap it to open it.
+night night	Night night!
+the lamp is on	The lamp is on.
+this is hazel the mouse	This is Hazel the mouse.
+help her decorate her room	Help her decorate her room!
+you worked hard	You worked hard!
+a parcel is on its way	A parcel is on its way.
+hazel is happy to see you	Hazel is happy to see you!
+tap a thing in the tray to put it in my room	Tap a thing in the tray to put it in my room.
+drag things around	Drag things around.
+tap one to turn it	Tap one to turn it!
+rub the sand away to find pharaoh's lost treasures	Rub the sand away to find Pharaoh's lost treasures!
+rub the sand	Rub the sand!
+look for the sparkles	Look for the sparkles.
+all five found	All five found!
+your museum is full of treasures	Your museum is full of treasures.
+amazing	Amazing!
+miu is so proud of you	Miu is so proud of you.
+want to dig again	Want to dig again?
 0	0
 1	1
 2	2

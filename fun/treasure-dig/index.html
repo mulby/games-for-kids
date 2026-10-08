@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f5d9a0">
+<title>Treasure Dig</title>
+<style>
+:root{--font: ui-rounded,'SF Pro Rounded','Arial Rounded MT Bold','Andika','Nunito',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#f5d9a0;font-family:var(--font);overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+#finds{display:inline-flex;gap:8px;padding:6px 10px;border-radius:40px;background:rgba(255,248,230,.92);box-shadow:0 4px 0 rgba(0,0,0,.15)}
+#finds i{width:54px;height:54px;border-radius:50%;background:#f0dcb0;box-shadow:inset 0 3px 6px rgba(120,80,30,.25);display:flex;align-items:center;justify-content:center;
+  font-style:normal;font-size:24px;color:#c9a063;font-weight:800}
+#finds i img{width:52px;height:52px;object-fit:contain}
+#finds i.got{background:#fff4d6;animation:got .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes got{from{transform:scale(1.6)}to{transform:none}}
+.fly{position:fixed;z-index:8;width:120px;height:120px;margin:-60px 0 0 -60px;pointer-events:none;transition:transform .9s cubic-bezier(.5,0,.3,1),opacity .9s}
+</style>
+<script id="kid-voice" data-voice-base="../../voice/">
+/* KidVoice: one friendly voice for every game.
+   Source of truth is shared/voice.js; tools/sync-voice.py copies it into each game
+   so every index.html stays self-contained.
+
+   1. Recorded clips first: if voice/manifest.json (made by tools/make-voice-clips.mjs)
+      has a clip for a sentence, it plays that. Lines with numbers in them, like
+      "7 plus 5" or "This lantern needs 7 fireflies", are stitched from shorter clips.
+   2. Otherwise the device's own speech, using the most natural voice it has
+      (Premium / Enhanced iPad voices first, never the novelty or robot voices).
+   A grown-up can pin a voice from The Wonder Shelf; it is saved in localStorage["gfk-voice"]. */
+(function () {
+  if (window.KidVoice) return;
+  const synth = window.speechSynthesis || null;
+  const NOVELTY = /\b(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Junior|Organ|Ralph|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Kathy)\b/i;
+  const ROBOTIC = /\b(Eddy|Flo|Reed|Rocko|Sandy|Shelley|Grandma|Grandpa)\b/i; // iOS "Eloquence" voices
+  const FAVORITES = ['Ava', 'Zoe', 'Samantha', 'Allison', 'Susan', 'Nicky', 'Serena', 'Karen', 'Moira', 'Kate', 'Tessa', 'Evan', 'Nathan', 'Tom', 'Daniel'];
+
+  function score(v) {
+    const id = (v.name || '') + ' ' + (v.voiceURI || '');
+    let s = 0;
+    if (NOVELTY.test(v.name)) s -= 100;
+    if (ROBOTIC.test(v.name)) s -= 60;
+    if (/premium/i.test(id)) s += 60;
+    else if (/enhanced/i.test(id)) s += 40;
+    if (/siri/i.test(id)) s += 35;
+    if (/Online \(Natural\)/i.test(id)) s += 45; // Edge
+    if (/^Google/i.test(v.name)) s += 20;      // Chrome
+    const fav = FAVORITES.findIndex(n => new RegExp('\\b' + n + '\\b', 'i').test(v.name));
+    if (fav >= 0) s += 15 - fav * 0.5;
+    if (/en[-_]US/i.test(v.lang)) s += 5; else if (/en[-_]GB/i.test(v.lang)) s += 4; else if (/en[-_](AU|IE|NZ|CA)/i.test(v.lang)) s += 3;
+    if (v.default) s += 1;
+    return s;
+  }
+  function voices() {
+    try { return (synth && synth.getVoices() || []).filter(v => /^en/i.test(v.lang)); } catch (e) { return []; }
+  }
+  function ranked() { return voices().map(v => ({ v, s: score(v) })).sort((a, b) => b.s - a.s).map(x => x.v); }
+  let chosen = null;
+  function pick() {
+    let pinned = null;
+    try { pinned = localStorage.getItem('gfk-voice'); } catch (e) {}
+    const list = ranked();
+    chosen = (pinned && list.find(v => v.voiceURI === pinned || v.name === pinned)) || list[0] || null;
+    return chosen;
+  }
+  if (synth) { pick(); try { synth.addEventListener('voiceschanged', pick); } catch (e) {} }
+
+  /* ---- recorded clips ---- */
+  let clips = null; // { base, lines: {key: file} }
+  const base = (document.currentScript && document.currentScript.dataset.voiceBase) || '../../voice/';
+  try {
+    if (location.protocol !== 'file:') fetch(base + 'manifest.json').then(r => r.ok ? r.json() : null)
+      .then(m => { if (m && m.lines) clips = { base, lines: m.lines }; }).catch(() => {});
+  } catch (e) {}
+  const key = t => String(t).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  function clipPlan(text) {
+    if (!clips) return null;
+    const plan = [];
+    for (const sentence of String(text).match(/[^.!?]+[.!?]*/g) || []) {
+      const k = key(sentence); if (!k) continue;
+      if (clips.lines[k]) { plan.push(clips.lines[k]); continue; }
+      // Stitch lines built from a template, like "this lantern needs" + "7" + "fireflies".
+      const parts = k.split(/\b(\d+)\b/).map(x => x.trim()).filter(Boolean);
+      if (parts.length > 1 && parts.every(x => clips.lines[x])) { parts.forEach(x => plan.push(clips.lines[x])); continue; }
+      return null; // one sentence without a recording: use speech for the whole line so it sounds even
+    }
+    return plan.length ? plan : null;
+  }
+  const audio = typeof Audio !== 'undefined' ? new Audio() : null;
+  let queue = [];
+  function playNext() {
+    if (!audio || !queue.length) return;
+    audio.src = clips.base + queue.shift();
+    audio.play().catch(() => { queue = []; });
+  }
+  if (audio) audio.addEventListener('ended', playNext);
+  function stopClips() { queue = []; if (audio) try { audio.pause(); } catch (e) {} }
+  // Games call speechSynthesis.cancel() when they change screens; make that stop clips too.
+  if (synth) try { const cancel = synth.cancel.bind(synth); synth.cancel = function () { stopClips(); cancel(); }; } catch (e) {}
+  // iPad Safari only plays audio after a tap: unlock the player on the first touch.
+  if (audio) document.addEventListener('pointerdown', function unlock() {
+    document.removeEventListener('pointerdown', unlock, true);
+    if (!audio.src) { audio.src = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA=='; audio.play().catch(() => {}); }
+  }, true);
+
+  function speak(text, opts) {
+    opts = opts || {};
+    if (!text) return;
+    const plan = clipPlan(text);
+    if (plan) {
+      if (!opts.queue) { try { synth && synth.cancel(); } catch (e) { stopClips(); } }
+      const idle = !queue.length && (!audio || audio.paused || audio.ended);
+      queue.push(...plan);
+      if (idle) playNext();
+      return;
+    }
+    if (!synth) return;
+    try {
+      if (!opts.queue) synth.cancel();
+      const u = new SpeechSynthesisUtterance(String(text));
+      const v = chosen || pick();
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+      // A natural pitch: raised pitch is what made the old voice sound strained and creepy.
+      u.rate = Math.min(1.05, Math.max(0.75, opts.rate || 0.92));
+      u.pitch = Math.min(1.05, Math.max(0.95, opts.pitch || 1));
+      synth.speak(u);
+    } catch (e) {}
+  }
+
+  window.KidVoice = { speak, stop: () => { try { synth ? synth.cancel() : stopClips(); } catch (e) {} }, pick, ranked, score, current: () => chosen, key };
+})();
+</script>
+</head>
+<body>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
+<script type="module">
+// Treasure Dig: brush the sand away to find Egyptian treasures with Miu the temple cat.
+// Rub anywhere and the sand slides away; little glints show where something is hiding. Five treasures per dig, and every find goes in her museum.
+import { THREE, K, stage, ui, sparkles, sfx, say, planeHit, toScreen, rand, pickOne, ease, load, save, takeBreakReward } from '../../shared/funkit.js';
+import { cat, animateCat, palm, pyramid, stoneBlock, TREASURES, treasure } from './models.js';
+
+const SAVE_KEY = 'funTreasureDig.v1';
+const data = load(SAVE_KEY, { digs: 0, found: {} });
+const PER_DIG = 5;
+
+const S = stage({ bg: '#f5d9a0', fov: 40, pos: [0, 12, 8.6], look: [0, -.6, .4], shadows: true });
+const { scene, cam } = S;
+const U = ui({ title: 'Treasure Dig' });
+U.hud.innerHTML = '<span id="finds"></span>';
+const findsEl = U.hud.querySelector('#finds');
+
+/* ---------------- sky and desert ---------------- */
+(function sky() {
+  const m = new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    uniforms: { top: { value: new THREE.Color('#7fb7ef') }, low: { value: new THREE.Color('#ffe2b0') } },
+    vertexShader: 'varying vec3 v; void main(){ v = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+    fragmentShader: 'uniform vec3 top,low; varying vec3 v; void main(){ gl_FragColor=vec4(mix(low,top,smoothstep(-.02,.45,v.y)),1.); }'
+  });
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(220, 32, 16), m));
+  const sun = K.ball(new THREE.MeshBasicMaterial({ color: '#fff3c0' }), [40, 40, -150], 9); scene.add(sun);
+  const sg = K.glow('#ffe7a0', 70, .6); sg.position.copy(sun.position); scene.add(sg);
+})();
+S.R.toneMappingExposure = 1.0;
+const L = K.toyLights(scene, { sky: '#fff3dc', ground: '#d9a75a', hemiI: 1.1, key: '#fff0d0', keyI: 2.7, fill: '#ffd0a0', fillI: .5, dir: [-8, 10, 5] });
+L.key.castShadow = true; L.key.shadow.mapSize.set(1024, 1024); L.key.shadow.bias = -.002; L.key.position.set(-8, 10, 5);
+Object.assign(L.key.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 50 });
+
+const PW = 11, PD = 7.2, NX = 88, NZ = 58, FLOOR = -1.3;
+(function site() {
+  const still = new THREE.Group();
+  // desert all around (with a hole for the pit)
+  const outer = new THREE.Shape(); outer.moveTo(-90, -90); outer.lineTo(90, -90); outer.lineTo(90, 90); outer.lineTo(-90, 90);
+  const hole = new THREE.Path(); hole.moveTo(-PW / 2, -PD / 2); hole.lineTo(-PW / 2, PD / 2); hole.lineTo(PW / 2, PD / 2); hole.lineTo(PW / 2, -PD / 2); outer.holes.push(hole);
+  const dg = new THREE.ShapeGeometry(outer, 4); dg.rotateX(-Math.PI / 2);
+  const desert = new THREE.Mesh(dg, K.mat('#eac27f', { rough: 1 })); desert.receiveShadow = true; scene.add(desert);
+  [[-30, -60, 18], [25, -70, 22], [60, -50, 14], [-65, -45, 16]].forEach(([x, z, r]) => still.add(K.ball(K.mat('#f2d39b', { felt: true }), [x, -r * .75, z], [r * 1.8, r, r])));
+  // the pit walls: sandstone blocks
+  const tints = ['#dcae6c', '#d09f5c', '#e3b97a'];
+  let i = 0;
+  for (let x = -PW / 2; x < PW / 2 - .01; x += 1.375) { const b = stoneBlock(1.3, .8, .9, tints[i++ % 3]); b.rotation.x = -Math.PI / 2; b.position.set(x + .69, .05, -PD / 2 - .5); still.add(b); const f = stoneBlock(1.3, .8, .9, tints[i++ % 3]); f.rotation.x = -Math.PI / 2; f.position.set(x + .69, .05, PD / 2 + .5); still.add(f); }
+  for (let z = -PD / 2 - .95; z < PD / 2 + .9; z += 1.2) for (const sx of [-1, 1]) { const b = stoneBlock(.9, .8, 1.15, tints[i++ % 3]); b.rotation.x = -Math.PI / 2; b.position.set(sx * (PW / 2 + .5), .05, z + .6); still.add(b); }
+  // a stone floor deep under the sand
+  const tile = new THREE.Mesh(new THREE.PlaneGeometry(PW, PD), K.mat('#cfe3ea', { rough: .7 })); tile.rotation.x = -Math.PI / 2; tile.position.y = FLOOR - .02; tile.receiveShadow = true; still.add(tile);
+  for (let x = -PW / 2 + 1; x < PW / 2; x += 1) still.add(K.mesh(new THREE.BoxGeometry(.05, .02, PD), K.mat('#9fc0cc'), [x, FLOOR - .01, 0]));
+  for (let z = -PD / 2 + 1; z < PD / 2; z += 1) still.add(K.mesh(new THREE.BoxGeometry(PW, .02, .05), K.mat('#9fc0cc'), [0, FLOOR - .01, z]));
+  scene.add(K.freeze(still));
+  const p1 = pyramid(26); p1.position.set(-18, 0, -60); scene.add(p1);
+  const p2 = pyramid(16); p2.position.set(4, 0, -72); scene.add(p2);
+  [[-9.8, -5.5, 1], [9.6, -6.5, 1.15], [-12, 2, .9]].forEach(([x, z, s]) => { const p = palm(s); p.position.set(x, 0, z); p.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(p); });
+  [[7.8, -4.5], [-8, 5.8], [8.4, 5.2]].forEach(([x, z]) => { const r = K.stone(1.2); r.position.set(x, 0, z); scene.add(r); });
+})();
+
+/* ---------------- the sand ---------------- */
+const sandG = new THREE.PlaneGeometry(PW, PD, NX, NZ); sandG.rotateX(-Math.PI / 2);
+const SP = sandG.attributes.position, NV = SP.count;
+const H = new Float32Array(NV);
+const colors = new Float32Array(NV * 3); sandG.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+const SAND = new THREE.Color('#f2c97e'), SAND2 = new THREE.Color('#b57a3a'), cTmp = new THREE.Color();
+const sand = new THREE.Mesh(sandG, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+sand.receiveShadow = true; sand.castShadow = true; scene.add(sand);
+function resetSand() {
+  for (let i = 0; i < NV; i++) {
+    const x = SP.getX(i), z = SP.getZ(i);
+    const edge = Math.min(PW / 2 - Math.abs(x), PD / 2 - Math.abs(z));
+    H[i] = .12 + Math.sin(x * .9 + z * .3) * .07 + Math.cos(z * 1.3 - x * .4) * .05 + (edge < .3 ? .1 : 0);
+  }
+  paintSand(true);
+}
+let sandDirty = false;
+function paintSand(all) {
+  for (let i = 0; i < NV; i++) {
+    SP.setY(i, H[i]);
+    const d = Math.max(0, Math.min(1, -H[i] / 1.1));
+    cTmp.copy(SAND).lerp(SAND2, d * .9);
+    colors[i * 3] = cTmp.r; colors[i * 3 + 1] = cTmp.g; colors[i * 3 + 2] = cTmp.b;
+  }
+  SP.needsUpdate = true; sandG.attributes.color.needsUpdate = true; sandG.computeVertexNormals();
+  sandG.computeBoundingSphere();
+}
+const cell = (x, z) => { const ix = Math.round((x + PW / 2) / PW * NX), iz = Math.round((z + PD / 2) / PD * NZ); return [Math.max(0, Math.min(NX, ix)), Math.max(0, Math.min(NZ, iz))]; };
+const hAt = (x, z) => { const [ix, iz] = cell(x, z); return H[iz * (NX + 1) + ix]; };
+const BRUSH = 1.0;
+function dig(x, z, amt) {
+  const [cx, cz] = cell(x, z), rx = Math.ceil(BRUSH / PW * NX) + 1, rz = Math.ceil(BRUSH / PD * NZ) + 1;
+  let moved = 0;
+  for (let iz = Math.max(0, cz - rz); iz <= Math.min(NZ, cz + rz); iz++) for (let ix = Math.max(0, cx - rx); ix <= Math.min(NX, cx + rx); ix++) {
+    const i = iz * (NX + 1) + ix, d = Math.hypot(SP.getX(i) - x, SP.getZ(i) - z);
+    if (d > BRUSH) continue;
+    const f = 1 - d / BRUSH, k = f * f * (3 - 2 * f);
+    const before = H[i];
+    // never dig below the stone floor, or below a treasure's top
+    H[i] = Math.max(floorAt(SP.getX(i), SP.getZ(i)), H[i] - amt * k);
+    moved += before - H[i];
+  }
+  if (moved > 0) sandDirty = true;
+  return moved;
+}
+
+/* ---------------- treasures ---------------- */
+let buried = [], foundThisDig = [];
+const thumbs = {};
+const baker = new K.Baker(160);
+const thumb = id => thumbs[id] || (thumbs[id] = baker.bake(id, () => treasure(id), { yaw: .2, pitch: .9 }));
+function floorAt(x, z) {
+  // the sand slopes up to the stone walls so it never pulls away from them
+  const edge = Math.min(PW / 2 - Math.abs(x), PD / 2 - Math.abs(z));
+  let f = edge < .7 ? FLOOR * Math.max(0, edge - .1) / .6 : FLOOR;
+  for (const b of buried) { if (b.state !== 'hidden') continue; const d = Math.hypot(x - b.x, z - b.z); if (d < b.r) f = Math.max(f, b.top - .05 - (d / b.r) * .15); }
+  return f;
+}
+function chooseTreasures(bonus) {
+  const all = TREASURES.filter(t => !t.rare), rare = TREASURES.filter(t => t.rare);
+  const unseen = all.filter(t => !data.found[t.id]);
+  const picks = [];
+  // fill the museum first, then mix in favorites
+  while (picks.length < PER_DIG - 1 && unseen.length) picks.push(unseen.splice(Math.floor(Math.random() * unseen.length), 1)[0]);
+  const rest = all.filter(t => !picks.includes(t));
+  while (picks.length < PER_DIG - 1) picks.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
+  // the last one is sometimes rare: always after a learning game, otherwise on every third dig
+  const wantRare = bonus || data.digs % 3 === 2;
+  const pool = wantRare ? rare : rest.filter(t => !picks.includes(t));
+  picks.push(pickOne(pool.length ? pool : all));
+  return picks;
+}
+function bury(list) {
+  buried.forEach(b => scene.remove(b.obj)); buried = [];
+  const spots = [];
+  for (const t of list) {
+    let best = null;
+    for (let k = 0; k < 60; k++) {
+      const x = rand(-PW / 2 + 1.1, PW / 2 - 1.1), z = rand(-PD / 2 + 1.1, PD / 2 - 1.1);
+      const d = Math.min(9, ...spots.map(s => Math.hypot(s[0] - x, s[1] - z)));
+      if (!best || d > best.d) best = { x, z, d };
+    }
+    spots.push([best.x, best.z]);
+    const obj = treasure(t.id); obj.position.set(best.x, FLOOR, best.z); obj.rotation.y = rand(-.6, .6);
+    obj.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
+    scene.add(obj);
+    obj.updateMatrixWorld(true);
+    const bb = new THREE.Box3().setFromObject(obj);
+    buried.push({ t, obj, x: best.x, z: best.z, r: t.r + .15, top: bb.max.y, state: 'hidden', glint: rand(1, 4) });
+  }
+}
+function checkReveals() {
+  for (const b of buried) {
+    if (b.state !== 'hidden') continue;
+    let clear = 0, n = 0;
+    for (let k = 0; k < 9; k++) {
+      const a = k / 8 * Math.PI * 2, rr = k === 8 ? 0 : b.r * .7;
+      const h = hAt(b.x + Math.cos(a) * rr, b.z + Math.sin(a) * rr); n++;
+      if (h < b.top + .02) clear++;
+    }
+    if (clear / n >= .7) reveal(b);
+  }
+}
+function reveal(b) {
+  b.state = 'rising'; b.age = 0; b.from = b.obj.position.clone();
+  const isNew = !data.found[b.t.id];
+  data.found[b.t.id] = (data.found[b.t.id] || 0) + 1; save(SAVE_KEY, data);
+  foundThisDig.push(b.t.id); b.slot = foundThisDig.length - 1;
+  sfx.sparkle(); setTimeout(() => sfx.chime(foundThisDig.length + 2), 250);
+  fx.burst(new THREE.Vector3(b.x, .5, b.z), { n: b.t.rare ? 50 : 24, speed: b.t.rare ? 8 : 5.5, size: b.t.rare ? .32 : .24, colors: ['#ffe58a', '#f2c14e', '#3cc0b0', '#fff3cf'] });
+  miu.userData.happy = 1.6;
+  const line = b.t.rare ? `Wow! ${cap(b.t.name)}! That's super rare!` : isNew ? `You found ${b.t.name}!` : pickOne([`Another ${b.t.name.replace(/^(a|an|the) /, '')}!`, `${cap(b.t.name)} again! Shiny!`]);
+  say(line, { who: 'Miu' });
+}
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function drawFinds() {
+  findsEl.innerHTML = Array.from({ length: PER_DIG }, (_, i) => foundThisDig[i] ? `<i class="got"><img src="${thumb(foundThisDig[i])}" alt=""></i>` : '<i>?</i>').join('');
+}
+function flyToHud(b) {
+  const p = toScreen(S, b.obj.position.clone().add(new THREE.Vector3(0, .5, 0)));
+  const img = document.createElement('img'); img.className = 'fly'; img.src = thumb(b.t.id); img.style.left = p.x + 'px'; img.style.top = p.y + 'px';
+  document.body.appendChild(img);
+  const target = findsEl.children[b.slot].getBoundingClientRect();
+  requestAnimationFrame(() => requestAnimationFrame(() => { img.style.transform = `translate(${target.left + target.width / 2 - p.x}px, ${target.top + target.height / 2 - p.y}px) scale(.5)`; }));
+  setTimeout(() => { img.remove(); drawFinds(); }, 900);
+}
+
+/* ---------------- Miu ---------------- */
+function frame() {
+  // in portrait the camera looks along the long side of the pit, so the pit fills the tall screen
+  const tall = cam.aspect < .9;
+  const dir = (tall ? new THREE.Vector3(1, 1.15, 0) : new THREE.Vector3(0, 1.05, 1)).normalize();
+  const look = tall ? new THREE.Vector3(-.4, -.8, 0) : new THREE.Vector3(0, -.8, -.6);
+  const half = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
+  const dist = tall ? Math.max(5.6 / half, 5.0 / (half * cam.aspect)) : Math.max(5.6 / half, 7.6 / (half * cam.aspect));
+  cam.position.copy(look).addScaledVector(dir, dist); cam.lookAt(look);
+  // Miu sits on a corner wall where the score bar doesn't cover her
+  if (tall) { miu.position.set(-PW / 2 + 1.6, .45, PD / 2 + .55); miu.rotation.y = 2.1; }
+  else { miu.position.set(-PW / 2 - .5, .45, -PD / 2 + .5); miu.rotation.y = .5; }
+}
+S.onResize = frame;
+const miu = cat(); miu.scale.setScalar(1.25); miu.position.set(-PW / 2 - .5, .45, -PD / 2 + .5); miu.rotation.y = .5; scene.add(miu);
+miu.traverse(o => { if (o.isMesh) o.castShadow = true; });
+
+/* ---------------- the brush that follows your finger ---------------- */
+const brush = new THREE.Group(); scene.add(brush); brush.visible = false;
+(function () {
+  const b = new THREE.Group(); b.rotation.set(.5, 0, -.6); brush.add(b);
+  b.add(K.capsule(K.mat('#c48a55', { gloss: true }), [0, .45, 0], [0, 1.9, 0], .09));
+  b.add(K.mesh(new THREE.CylinderGeometry(.13, .12, .25, 14), K.mat('#d1a65a', { metal: true }), [0, .38, 0]));
+  b.add(K.lathe([[0, 0], [.22, .02], [.2, .15], [.13, .28], [0, .28]], K.mat('#f6e1b8', { felt: true }), 16));
+  K.freeze(b);
+})();
+
+/* ---------------- digging by touch ---------------- */
+const sandPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const touch = { down: false, p: null, last: null };
+S.canvas.addEventListener('pointerdown', ev => { sfx.unlock(); if (!playing) return; touch.down = true; touch.p = planeHit(S, ev, sandPlane); touch.last = touch.p && touch.p.clone(); S.canvas.setPointerCapture(ev.pointerId); });
+S.canvas.addEventListener('pointermove', ev => { if (!touch.down) return; const p = planeHit(S, ev, sandPlane); if (p) touch.p = p; });
+const up = () => { touch.down = false; };
+S.canvas.addEventListener('pointerup', up); S.canvas.addEventListener('pointercancel', up);
+
+/* sand flying off the brush */
+const grains = [], GMAX = 140;
+const gim = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 6, 4), K.mat('#e8c27e', { felt: true }), GMAX); gim.count = 0; gim.frustumCulled = false; scene.add(gim);
+const gd = new THREE.Object3D();
+function spray(x, z, n) {
+  for (let i = 0; i < n && grains.length < GMAX; i++) { const a = rand(0, Math.PI * 2), s = rand(1.5, 3.5); grains.push({ p: new THREE.Vector3(x + Math.cos(a) * .4, hAt(x, z) + .1, z + Math.sin(a) * .4), v: new THREE.Vector3(Math.cos(a) * s, rand(2, 4), Math.sin(a) * s), age: 0, s: rand(.04, .08) }); }
+}
+
+/* ---------------- loop ---------------- */
+const fx = sparkles(scene);
+let playing = false, digSound = 0, endAt = 0;
+S.tick = (dt, t) => {
+  if (touch.down && touch.p) {
+    const stroke = touch.last ? touch.p.distanceTo(touch.last) : 0;
+    const moved = dig(touch.p.x, touch.p.z, dt * .9 + stroke * .45);
+    touch.last = touch.p.clone();
+    brush.visible = true; brush.position.set(touch.p.x, Math.max(hAt(touch.p.x, touch.p.z), FLOOR) + .1, touch.p.z);
+    brush.rotation.y = Math.sin(t * 14) * .25;
+    if (moved > .02) { spray(touch.p.x, touch.p.z, 2); digSound -= dt; if (digSound <= 0) { sfx.dig(); digSound = .09; } }
+    checkReveals();
+  } else brush.visible = false;
+  if (sandDirty) { paintSand(); sandDirty = false; }
+  for (let i = grains.length - 1; i >= 0; i--) { const g = grains[i]; g.age += dt; g.v.y -= 12 * dt; g.p.addScaledVector(g.v, dt); if (g.age > .7) grains.splice(i, 1); }
+  grains.forEach((g, i) => { gd.position.copy(g.p); gd.scale.setScalar(g.s * (1 - g.age / .7)); gd.updateMatrix(); gim.setMatrixAt(i, gd.matrix); });
+  gim.count = grains.length; gim.instanceMatrix.needsUpdate = true;
+  for (const b of buried) {
+    if (b.state === 'hidden') {
+      // little glints show where something is hiding, brighter when the sand above it is thin
+      b.glint -= dt;
+      if (b.glint <= 0 && playing) {
+        const depth = hAt(b.x, b.z) - b.top;
+        b.glint = depth < .4 ? rand(.8, 1.6) : rand(3, 6);
+        fx.burst(new THREE.Vector3(b.x + rand(-.3, .3), hAt(b.x, b.z) + .15, b.z + rand(-.3, .3)), { n: depth < .4 ? 4 : 2, speed: 1.2, up: 1.5, gravity: 1, size: .14, dots: 1, life: .9, colors: ['#fff3b0', '#ffe58a'] });
+      }
+    } else if (b.state === 'rising') {
+      b.age += dt; const k = Math.min(1, b.age / 1.1);
+      b.obj.position.set(b.x, b.from.y + ease.back(k) * 3.2, b.z);
+      b.obj.rotation.y += dt * 4; b.obj.scale.setScalar(1 + ease.out(k) * .5);
+      b.obj.rotation.x = Math.sin(k * Math.PI) * -.5;
+      if (k >= 1 && b.age > 1.6) { b.state = 'flying'; flyToHud(b); b.age = 0; }
+    } else if (b.state === 'flying') {
+      b.age += dt; b.obj.scale.setScalar(Math.max(.01, 1.5 * (1 - b.age * 4)));
+      if (b.age > .25) { b.state = 'done'; scene.remove(b.obj); }
+    }
+  }
+  if (playing && buried.length && buried.every(b => b.state === 'done')) { playing = false; setTimeout(finish, 700); }
+  animateCat(miu, t, dt);
+  fx.update(dt);
+};
+
+/* ---------------- digs ---------------- */
+const museumCount = () => TREASURES.filter(t => data.found[t.id]).length;
+async function title() {
+  const m = museumCount();
+  await U.card({ art: '🐈⛏️', heading: 'Treasure Dig', text: 'Rub the sand away to find Pharaoh\'s lost treasures!', buttons: [{ label: 'Dig! ⛏️', value: 'go' }], extra: m ? `Your museum: ${m} of ${TREASURES.length} treasures` : '' });
+  startDig();
+}
+function startDig() {
+  foundThisDig = []; drawFinds();
+  resetSand();
+  bury(chooseTreasures(takeBreakReward('treasure-dig')));
+  playing = true;
+  say('Rub the sand! Look for the sparkles.', { who: 'Miu' });
+}
+async function finish() {
+  data.digs++; save(SAVE_KEY, data);
+  sfx.fanfare(); miu.userData.happy = 3;
+  const m = museumCount();
+  const v = await U.card({ art: '🏺✨', heading: 'All five found!', text: m >= TREASURES.length ? 'Your museum is full of treasures. Amazing!' : 'Miu is so proud of you. Want to dig again?', buttons: [{ label: 'Dig again! ⛏️', value: 'again' }, { label: '📚 Shelf', href: '../../index.html', soft: true }], extra: `Your museum: ${m} of ${TREASURES.length} treasures` });
+  if (v === 'again') startDig();
+}
+window.__dig = { dig, hAt, get list() { return buried; } };
+
+resetSand();
+drawFinds();
+S.start();
+title();
+</script>
+</body>
+</html>

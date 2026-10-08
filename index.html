@@ -72,6 +72,26 @@ a.book:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
 .path details summary{cursor:pointer;font-weight:700}
 .path details ul{margin:6px 0 0;padding-left:18px}
 a.book{position:relative}
+.breaks{display:flex;flex-direction:column;gap:12px}
+.breaks .head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:0 6px}
+.breaks h2{font-size:30px;color:var(--wood-dark)}
+.breaks .head span{color:var(--ink-soft);font-weight:700}
+.books.fun{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+a.book.fun{border-left:0;border-radius:18px;background:linear-gradient(160deg,#fff,var(--paper) 60%);box-shadow:0 0 0 3px var(--c),0 6px 0 #0001}
+a.book.fun .play{background:var(--c);color:#fff;box-shadow:0 4px 0 #0002}
+.bonus{position:absolute;top:-12px;right:12px;background:#e2566b;color:#fff;font-family:var(--display);font-weight:800;font-size:14px;padding:4px 10px;border-radius:8px;box-shadow:0 3px 0 #a33a58;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.breakask{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:#3a2f2a66}
+.breakask[hidden]{display:none}
+.breakask .box{background:var(--paper);border-radius:26px;padding:24px 22px 20px;max-width:640px;width:100%;text-align:center;box-shadow:0 18px 60px #0005;animation:pop .45s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{from{transform:scale(.75);opacity:0}}
+.breakask .big{font-size:56px;line-height:1}
+.breakask h2{font-size:clamp(28px,5vw,38px);color:var(--wood-dark);margin:6px 0 4px}
+.breakask p{margin:0 0 16px;color:var(--ink-soft);font-size:18px}
+.breakask .picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.breakask a.book{align-items:center;text-align:center;padding:14px 10px;gap:4px;border-left:0;box-shadow:0 0 0 3px var(--c),0 5px 0 #0001}
+.breakask a.book h3{font-size:20px}
+.breakask .later{margin-top:16px;font:700 17px var(--body);background:none;border:0;color:var(--ink-soft);min-height:44px;padding:6px 14px;cursor:pointer;text-decoration:underline}
 a.book.pick{box-shadow:0 0 0 4px var(--gold),0 6px 0 #0001}
 .ribbon{position:absolute;top:-10px;right:12px;background:var(--gold);color:var(--ink);font-family:var(--display);font-weight:800;font-size:14px;padding:4px 10px;border-radius:8px;box-shadow:0 3px 0 #b88a22}
 @media (max-width:480px){.path{flex-direction:column;text-align:center}}
@@ -994,6 +1014,17 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
     <div class="plank"></div>
   </section>
 
+  <section class="breaks" aria-label="Break time games">
+    <div class="head"><h2>Break Time</h2><span>Quick games just for fun</span></div>
+    <div class="books fun" id="funbooks"></div>
+    <div class="plank"></div>
+  </section>
+  <div class="breakask" id="breakask" hidden role="dialog" aria-modal="true" aria-labelledby="breakTitle"><div class="box">
+    <div class="big" aria-hidden="true">🎉</div><h2 id="breakTitle">Break time!</h2><p>You worked hard. Pick a fun game, and there's a bonus inside!</p>
+    <div class="picks" id="breakpicks"></div>
+    <button type="button" class="later" id="breakLater">Keep learning instead</button>
+  </div></div>
+
   <section class="binder" aria-label="My collection" id="binder">
     <div class="top"><h2>My Card Binder</h2><span class="count" id="count"></span><button class="flipall" id="flipall" type="button" hidden>Flip through ➜</button></div>
     <div class="crownbar" id="crownbar" hidden></div>
@@ -1112,6 +1143,42 @@ function renderPath() {
 }
 renderPath();
 window.addEventListener("storage", e => { if (!e.key || e.key === "moonlit-map-v2") renderPath(); });
+
+// Break Time: quick no-math games. After a stretch of practice games she earns a break,
+// and each fun game gives one bonus for it (a golden bubble, a parcel for Hazel, a rare treasure).
+const FUN = [
+  {slug:"bubble-garden", title:"Bubble Garden", art:"🫧🧚", c:"#d77fb3", blurb:"Pop Posy's bubbles to free the firefly friends inside.", bonus:"Golden bubbles"},
+  {slug:"mouse-house", title:"Hazel's House", art:"🐭🏠", c:"#c98a55", blurb:"Decorate Hazel the mouse's cozy room, and open parcels of new things.", bonus:"A parcel"},
+  {slug:"treasure-dig", title:"Treasure Dig", art:"🐈⛏️", c:"#d39a2c", blurb:"Brush away the sand with Miu to find Pharaoh's lost treasures.", bonus:"A rare treasure"}
+];
+const BREAK_KEY = "gfk-break", WORK_FOR_BREAK = 4 * 60 * 1000;
+function readBreak() { let v = null; try { v = JSON.parse(localStorage.getItem(BREAK_KEY)); } catch (e) {} return v && typeof v === "object" ? v : { work: 0 }; }
+function writeBreak(v) { try { localStorage.setItem(BREAK_KEY, JSON.stringify(v)); } catch (e) {} }
+const funCard = (g, br) => `
+  <a class="book fun" href="fun/${g.slug}/index.html" style="--c:${g.c}">
+    ${br.earned && !(br.used || []).includes(g.slug) ? `<span class="bonus">🎁 ${esc(g.bonus)}</span>` : ""}
+    <span class="art" aria-hidden="true">${g.art}</span>
+    <h3>${esc(g.title)}</h3>
+    <p>${esc(g.blurb)}</p>
+    <span class="play">Play</span>
+  </a>`;
+function renderFun() {
+  const br = readBreak();
+  document.getElementById("funbooks").innerHTML = FUN.map(g => funCard(g, br)).join("");
+  document.getElementById("breakpicks").innerHTML = FUN.map(g => `<a class="book" href="fun/${g.slug}/index.html" style="--c:${g.c}"><span class="art" aria-hidden="true">${g.art}</span><h3>${esc(g.title)}</h3></a>`).join("");
+}
+renderFun();
+const ask = document.getElementById("breakask");
+ask.addEventListener("click", e => { if (e.target === ask || e.target.closest("a.book") || e.target.id === "breakLater") ask.hidden = true; });
+window.addEventListener("gfk-game-closed", e => {
+  const d = e.detail || {};
+  if (!/^math\//.test(d.href || "")) { renderFun(); return; }
+  const br = readBreak();
+  br.work = (br.work || 0) + Math.max(0, Math.min(d.ms || 0, 30 * 60 * 1000));
+  if (br.work >= WORK_FOR_BREAK) { br.work = 0; br.earned = Date.now(); br.used = []; writeBreak(br); renderFun(); ask.hidden = false; }
+  else { writeBreak(br); renderFun(); }
+});
+window.addEventListener("storage", e => { if (!e.key || e.key === BREAK_KEY) renderFun(); });
 window.addEventListener("gfk-saves-changed", renderPath);
 
 // The binder: every card from every game, filterable, tap any card to flip through them big.
@@ -1338,11 +1405,13 @@ document.getElementById("voiceHear").onclick = hear;
   stage.id = "gfk-stage"; stage.hidden = true;
   stage.innerHTML = '<p class="wait">Fetching your saves…</p><iframe title="Game" allow="autoplay; fullscreen"></iframe>';
   const frame = stage.querySelector("iframe");
-  let open = false, lastScroll = 0;
+  let open = false, lastScroll = 0, openedAt = 0, openHref = "";
 
   function close() {
     if (!open) return;
     open = false;
+    // tell the shelf which game closed and how long it was open (it offers a fun break after practice)
+    try { window.dispatchEvent(new CustomEvent("gfk-game-closed", { detail: { href: openHref, ms: Date.now() - openedAt } })); } catch (e) {}
     stage.hidden = true;
     frame.removeAttribute("src");
     document.documentElement.style.overflow = "";
@@ -1357,12 +1426,13 @@ document.getElementById("voiceHear").onclick = hear;
     document.documentElement.style.overflow = "hidden";
     await Promise.race([ready, new Promise(r => setTimeout(r, 12000))]);
     if (!open) return;
+    openedAt = Date.now(); openHref = href;
     frame.src = href;
   }
   frame.addEventListener("load", () => {
     if (!open || !frame.getAttribute("src")) return;
     let w;
-    try { w = frame.contentWindow; if (!/\/math\/[^/]+\/(index\.html)?$/.test(w.location.pathname)) { close(); return; } }
+    try { w = frame.contentWindow; if (!/\/(math|fun)\/[^/]+\/(index\.html)?$/.test(w.location.pathname)) { close(); return; } }
     catch (e) { return; }
     frame.style.visibility = "";
     try { w.focus(); } catch (e) {}
@@ -1409,7 +1479,10 @@ document.getElementById("voiceHear").onclick = hear;
     "egypt-puzzles": ["Miu's Magic Pyramids", ["games-for-kids.egypt-puzzles.v1"]],
     "mouse-shop": ["Acorn Bakery", ["acornBakery.v1"]],
     "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]],
-    "toadstool-shop": ["The Toadstool Shop", ["toadstoolShop.v1"]]
+    "toadstool-shop": ["The Toadstool Shop", ["toadstoolShop.v1"]],
+    "bubble-garden": ["Bubble Garden", ["funBubbleGarden.v1"]],
+    "mouse-house": ["Hazel's House", ["funMouseHouse.v1"]],
+    "treasure-dig": ["Treasure Dig", ["funTreasureDig.v1"]]
   };
   // Tucked away under "Grown-ups", and each reset needs a two-second press so a stray tap can't wipe anything.
   function resetPanel() {
