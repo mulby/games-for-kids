@@ -89,6 +89,14 @@ button.coin{padding:0}
 .cnt{display:inline-flex;align-items:center;gap:10px}
 .cnt button{width:64px;height:64px;border-radius:50%;background:#fff;font-size:38px;font-weight:700;box-shadow:0 5px 0 #d8c4a8}
 .cnt b{font-size:48px;min-width:56px;text-align:center}
+.note{background:#fffaf0;border:2px dashed #d8c4a8;border-radius:12px;padding:4px 12px;font-size:17px}
+.prices{display:flex;flex-direction:column;gap:6px;width:100%}
+.prow{display:flex;align-items:center;gap:10px;justify-content:center}
+.prow .pn{display:flex;flex-direction:column;font-weight:700;font-size:19px;min-width:7em;line-height:1.1}
+.prow .pn small{font-weight:400;font-size:15px;opacity:.75}
+.prow .cnt button{width:52px;height:52px;font-size:32px}
+.prow .ptag{font-size:34px;min-width:72px;background:#fff6c8;border:2px solid #e5d48a;border-radius:10px}
+.prow .ptag.hi{background:#ffd9c9;border-color:#e59a7a}.prow .ptag.lo{background:#d9f0d0;border-color:#8cc47a}
 .pickbtn{display:inline-flex;flex-direction:column;align-items:center;background:#fff;border-radius:18px;padding:6px 10px;box-shadow:0 5px 0 #d8c4a8;min-width:92px}
 .pickbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #d8c4a8}
 .pickbtn small{font-size:15px;font-weight:700}
@@ -1096,7 +1104,7 @@ const DECOR = [
 ];
 const FURS = { grey: '#b9ada3', brown: '#a07c5e', cream: '#efe2cc', white: '#f7f4ef' };
 const DRESSES = { pink: '#f6a6bd', blue: '#9fc7e8', yellow: '#ffd86b', green: '#a8d8a0', lilac: '#c9b6f0' };
-const NAMES = ['Poppy', 'Primrose', 'Pip', 'Rosie', 'Juniper', 'Wren', 'Daisy', 'Maple'];
+const NAMES = ['Ginny', 'Poppy', 'Primrose', 'Pip', 'Rosie', 'Juniper', 'Wren', 'Daisy', 'Maple'];
 
 /* ================= levels (Moonlit Map strands) ================= */
 // 1 kindergarten to early 1st grade, 2 end of 1st, 3 early 2nd, 4 mid 2nd.
@@ -1128,11 +1136,11 @@ function record(k, ok) {
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START, mapLevels() || {});
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 3, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, decor: [], friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 3, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-if (!S || S.v !== 1) S = freshState();
+if (!S || S.v !== 1) S = freshState(); else S = Object.assign(freshState(), S);
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 /* ================= sound and voice ================= */
@@ -1384,10 +1392,21 @@ async function intro() {
 /* ----- morning: Bramble's cart ----- */
 function packFor() { const M = S.lv.M; return M >= 4 ? pick([2, 5, 10]) : M >= 3 ? 5 : 2; }
 const PACK = { 2: 'bag', 5: 'box', 10: 'crate' }, PACKS = { 2: 'bags', 5: 'boxes', 10: 'crates' };
-const packCost = (g, size) => Math.max(1, Math.round(size * GOODS[g].price / 4));
+// Bramble sells at half the usual price, so every good she sells earns her something,
+// and every fresh good left over at night is pennies she spent for nothing.
+const packCost = (g, size) => Math.max(1, Math.ceil(size * GOODS[g].price / 2));
+// She sets her own prices. The usual price is GOODS[g].price; higher means fewer animals buy.
+const priceOf = g => S.prices[g] || GOODS[g].price;
+const priceMax = g => Math.max(GOODS[g].price * 2, GOODS[g].price + 3);
+// How many an animal buys at her price, if they would buy n at the usual price.
+// Steep enough that a little above the usual price earns most and a lot above earns less.
+function wantAt(g, n) {
+  const x = n * Math.pow(GOODS[g].price / priceOf(g), 1.6);
+  return Math.min(n * 2 + 1, Math.floor(x) + (Math.random() < x - Math.floor(x) ? 1 : 0));
+}
 async function morning() {
   setScene('outside', { time: 'morning', cart: true, cam: 'cart' });
-  S.sold = {}; S.shop = null;
+  S.sold = {}; S.missed = {}; S.dear = {}; S.spent = 0; S.shop = null;
   await walkIn('bramble');
   if (S.day === 1) {
     await talk('bramble', `Good morning, ${S.keeper.name}! I'm Bramble. Every morning I bring things for your shop.`);
@@ -1402,12 +1421,14 @@ async function morning() {
   for (const g of offer) {
     const size = packFor(), cost = packCost(g, size), room = 10 - (S.stock[g] || 0);
     const most = Math.min(Math.floor(room / size), Math.floor((S.till - spent) / cost), 5);
-    if (most <= 0) { if (room < size) await talk('bramble', `Your shelf is full of ${GOODS[g].many}!`); continue; }
-    const sold = S.lastSold[g];
-    let suggest = S.day === 1 ? (g === 'bun' ? 4 : 2) : Math.ceil(Math.max(4, sold || 0) / size) + (S.soldOut && S.soldOut[g] ? 1 : 0);
-    suggest = clamp(suggest, 1, most);
-    if (S.soldOut && S.soldOut[g] && most > 1) await talk('bramble', `You sold every one of your ${GOODS[g].many} yesterday! Maybe buy a few more today.`);
-    const n = await chooseQty(g, size, cost, most, suggest);
+    if (most <= 0) { if (room < size) await talk('bramble', `Your shelf is full of ${GOODS[g].many}!`); else if (S.day > 1) await talk('bramble', `A ${PACK[size]} of ${GOODS[g].many} costs ${cost}. There isn't enough in your till for that today.`); continue; }
+    // No suggestion after day 1: how much to buy is her decision, from her notebook.
+    let start = S.day === 1 ? (g === 'bun' ? 4 : 2) : (S.lastBuy && S.lastBuy[g] && S.lastBuy[g].size === size ? S.lastBuy[g].n : 1);
+    start = clamp(start, 1, most);
+    const missed = (S.lastMissed || {})[g] || 0;
+    if (missed && most > 1) await talk('bramble', `Your notebook says ${missed} more ${plural(missed, GOODS[g].one, GOODS[g].many)} could have sold yesterday, but they ran out!`);
+    const n = await chooseQty(g, size, cost, most, start);
+    S.lastBuy = S.lastBuy || {}; S.lastBuy[g] = { size, n };
     if (!n) continue;
     if (n > 1) {
       await ask({
@@ -1432,15 +1453,43 @@ async function morning() {
     }
     await coinsTask({ who: 'bramble', amount: total, source: coinsFor(S.till), title: 'Your till', prompt: `That's ${total} ${plural(total, 'penny', 'pennies')}, please. Tap the coins to pay me.`, mode: 'pay' })
       .then(async given => { if (given > total) { await talk('bramble', `You gave me ${given}. Here are ${given - total} back!`); } });
-    S.till -= total;
+    S.till -= total; S.spent = total;
     for (const c of cart) S.stock[c.g] = (S.stock[c.g] || 0) + c.qty;
     syncView(); hud();
     mood('cust', 'happy', 1500);
-    await talk('bramble', 'Thank you! Have a lovely day at the shop!', 'Open the shop!');
+    await talk('bramble', 'Thank you! Have a lovely day at the shop!', 'Price tags');
   }
+  if (inStock().length) await priceTags();
   for (const g of Object.keys(S.stock)) S.had[g] = S.stock[g];
   S.wanted = {}; S.phase = 'shop'; save();
   await walkOut();
+}
+function notebookLine(g) {
+  if (S.day === 1 || !(g in S.lastSold || g in (S.lastMissed || {}) || g in (S.lastDear || {}))) return '';
+  const sold = S.lastSold[g] || 0, missed = (S.lastMissed || {})[g] || 0, dear = (S.lastDear || {})[g] || 0;
+  return `<div class="note">📒 Yesterday: sold ${sold}${missed ? ` · <b>${missed} more wanted</b> after they ran out` : ''}${dear ? ` · ${dear} not bought, too dear` : ''}</div>`;
+}
+// Each morning she can change the price tags. Bramble explains on the first day.
+function priceTags() {
+  return new Promise(async res => {
+    if (!S.pricesSeen) {
+      await talk('bramble', 'Now the price tags! You choose how much each thing costs in your shop.');
+      await talk('bramble', 'A higher price earns you more for each one. But some animals will think it is too dear, and buy fewer.');
+      S.pricesSeen = 1; save();
+    }
+    const goods = inStock();
+    say('keeper', 'What price shall I put on each tag?');
+    DBG.cur = { type: 'prices' };
+    const draw = () => setPanel(`
+      <div class="prices">${goods.map(g => `<div class="prow">${goodImg(g, 'sm')}<span class="pn">${GOODS[g].many}<small>usual price ${GOODS[g].price}¢</small></span>
+        <span class="cnt"><button data-m="${g}" aria-label="lower">−</button><b class="ptag ${priceOf(g) > GOODS[g].price ? 'hi' : priceOf(g) < GOODS[g].price ? 'lo' : ''}">${priceOf(g)}¢</b><button data-p="${g}" aria-label="higher">+</button></span></div>`).join('')}</div>
+      <button class="btn" id="nx">Open the shop!</button>`, p => {
+      $$('[data-m]', p).forEach(b => b.addEventListener('click', () => { const g = b.dataset.m; if (priceOf(g) > 1) { S.prices[g] = priceOf(g) - 1; SFX.tap(); speak(`${S.prices[g]} ${plural(S.prices[g], 'penny', 'pennies')}`); save(); draw(); } }));
+      $$('[data-p]', p).forEach(b => b.addEventListener('click', () => { const g = b.dataset.p; if (priceOf(g) < priceMax(g)) { S.prices[g] = priceOf(g) + 1; SFX.tap(); speak(`${S.prices[g]} ${plural(S.prices[g], 'penny', 'pennies')}`); save(); draw(); } else say('bramble', `Nobody would pay more than ${priceMax(g)} for ${GOODS[g].one === 'honey pot' ? 'a honey pot' : 'one'}!`); }));
+      $('#nx', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
+    });
+    rerender = draw; draw();
+  });
 }
 function chooseQty(g, size, cost, most, suggest) {
   return new Promise(res => {
@@ -1448,7 +1497,8 @@ function chooseQty(g, size, cost, most, suggest) {
     say('bramble', `${GOODS[g].many[0].toUpperCase() + GOODS[g].many.slice(1)} come in ${PACKS[size]} of ${size}. Each ${PACK[size]} costs ${cost} ${plural(cost, 'penny', 'pennies')}. How many ${PACKS[size]} would you like?`);
     const draw = () => setPanel(`
       <div class="row"><span class="grp">${goodImg(g)}<span class="lab">${PACK[size]} of ${size}</span></span><span class="tag">${cost}¢ a ${PACK[size]}</span>
-        <span class="small">On the shelf: ${S.stock[g] || 0}</span></div>
+        <span class="tag">You sell at ${priceOf(g)}¢ each</span><span class="small">On the shelf: ${S.stock[g] || 0}</span></div>
+      ${notebookLine(g)}
       <div class="cnt"><button id="mi" aria-label="fewer">−</button><b>${n}</b><button id="pl" aria-label="more">+</button></div>
       <div class="row"><button class="btn alt" id="none">No, thank you</button><button class="btn" id="ok" ${n ? '' : 'disabled'}>Buy ${n} ${plural(n, PACK[size], PACKS[size])}</button></div>`, p => {
       $('#mi', p).addEventListener('click', () => { if (n > 0) { n--; SFX.tap(); speak(String(n)); draw(); } });
@@ -1463,23 +1513,29 @@ function chooseQty(g, size, cost, most, suggest) {
 /* ----- shop time ----- */
 function makeCustomers() {
   if (S.day === 1) return [
-    { who: 'hazel', flow: 'count' }, { who: 'bunbury', flow: 'change' }, { who: 'hoot', flow: 'count', missing: 'honey' }, { who: 'mo', flow: 'change' }];
-  const regs = shuffle(REGULARS).slice(0, 4).map((who, i) => ({ who, flow: i % 2 ? 'change' : 'count' }));
+    { who: 'hazel', flow: 'count', order: makeOrder(1, true) }, { who: 'bunbury', flow: 'change', order: makeOrder(2, true) },
+    { who: 'hoot', flow: 'count', missing: 'honey', order: makeOrder(2, true) }, { who: 'mo', flow: 'change', order: makeOrder(2, true) }];
+  // Most customers pay with a bigger coin, so she gives change.
+  const regs = shuffle(REGULARS).slice(0, 4).map((who, i) => ({ who, flow: i === 0 ? 'count' : 'change' }));
   const sp = SPECIAL_BY_DAY[S.day] || (S.day > 10 ? pick(['captain', 'miu', 'athena']) : null);
   if (sp) regs.splice(1, 0, { who: sp, flow: 'change', special: sp });
   const notHere = Object.keys(GOODS).filter(g => !unlocked(S.day).includes(g));
   if (notHere.length && Math.random() < .6) regs[regs.length - 1].missing = notHere[0];
+  regs.forEach(c => { if (!c.special) c.order = makeOrder(2, true); });
   return regs;
 }
 const inStock = () => Object.keys(S.stock).filter(g => S.stock[g] > 0);
 // An order whose total fits her adding level.
-function makeOrder(maxGoods = 2) {
-  const A = S.lv.A, band = S.day === 1 ? [2, Math.min(6, [5, 10, 20, 30][A - 1])] : [[2, 5], [3, 10], [8, 20], [15, 30]][A - 1], cap = S.day === 1 ? 4 : S.lv.N >= 2 ? 6 : 5;
-  const goods = inStock(); if (!goods.length) return null;
+const orderBand = () => S.day === 1 ? [2, Math.min(6, [5, 10, 20, 30][S.lv.A - 1])] : [[2, 5], [3, 10], [8, 20], [15, 30]][S.lv.A - 1];
+// wish: what an animal would like at the usual prices, whatever is on the shelf (her stock decides what she can sell).
+function makeOrder(maxGoods = 2, wish = false) {
+  const band = orderBand(), cap = S.day === 1 ? 4 : S.lv.N >= 2 ? 6 : 5;
+  const goods = wish ? unlocked(S.day) : inStock(); if (!goods.length) return null;
+  const most = g => wish ? cap : Math.min(S.stock[g], cap);
   let best = null, bestD = 1e9;
   for (let t = 0; t < 60; t++) {
     const gs = shuffle(goods).slice(0, 1 + rnd(Math.min(maxGoods, goods.length)));
-    const order = gs.map(g => [g, 1 + rnd(Math.min(S.stock[g], cap))]);
+    const order = gs.map(g => [g, 1 + rnd(most(g))]);
     const total = order.reduce((s, [g, n]) => s + n * GOODS[g].price, 0), qty = order.reduce((s, o) => s + o[1], 0);
     const d = total < band[0] ? band[0] - total : total > band[1] ? total - band[1] : 0;
     if (qty > cap) continue;
@@ -1488,7 +1544,7 @@ function makeOrder(maxGoods = 2) {
   }
   return best;
 }
-const orderTotal = order => order.reduce((s, [g, n]) => s + n * GOODS[g].price, 0);
+const orderTotal = order => order.reduce((s, [g, n]) => s + n * priceOf(g), 0);
 const orderWords = order => order.map(([g, n]) => `${n} ${plural(n, GOODS[g].one, GOODS[g].many)}`).join(' and ');
 async function shopTime() {
   setScene('inside');
@@ -1498,7 +1554,12 @@ async function shopTime() {
     await talk('keeper', S.day === 1 ? 'My very own shop! I\'ll flip the sign to Open.' : 'Time to open the shop!', 'Open the door');
   }
   while (S.shop.i < S.shop.list.length) {
-    if (!inStock().length) { await talk('keeper', 'The shelves are empty! Everything is sold!', 'Close the shop'); break; }
+    if (!inStock().length) {
+      const rest = S.shop.list.slice(S.shop.i).filter(c => c.order);
+      rest.forEach(c => c.order.forEach(([g, n]) => { S.missed[g] = (S.missed[g] || 0) + n; }));
+      await talk('keeper', rest.length ? `The shelves are empty! Everything is sold! But ${rest.length} more ${plural(rest.length, 'friend was', 'friends were')} still coming to shop. I'll write it in my notebook.` : 'The shelves are empty! Everything is sold!', 'Close the shop');
+      break;
+    }
     const c = S.shop.list[S.shop.i];
     hush(); setPanel('');
     SFX.bell(); await walkIn(c.who);
@@ -1524,15 +1585,16 @@ async function serve(c) {
   else if (c.special === 'miu') order = await miuOrder(who);
   else if (c.special === 'athena') await athenaRiddle(who);
   else if (c.special === 'queen') order = inStock().slice(0, 4).map(g => [g, 1]);
-  if (!order) order = makeOrder(S.day === 1 ? (who === 'hazel' ? 1 : 2) : 2);
+  if (!order && c.order) { order = await shopFor(c); if (!order) return; }
+  if (!order) order = makeOrder(2);
   if (!order) { await talk(who, 'Oh, the shelves are empty! I\'ll come back tomorrow.', 'Bye!'); return; }
   say(who, `May I have ${orderWords(order)}, please?`);
   await pickTask(order, who);
   for (const [g, n] of order) { S.stock[g] -= n; S.sold[g] = (S.sold[g] || 0) + n; }
   syncView(); save();
   const total = orderTotal(order);
-  const priceShow = () => order.map(([g, n]) => `<span class="grp"><span class="row">${Array.from({ length: n }, () => goodImg(g, 'sm')).join('')}</span><span class="lab">${GOODS[g].price}¢ each</span></span>`).join('');
-  const priceHelp = () => `<div class="row">${order.map(([g, n]) => Array.from({ length: n }, () => `<span class="grp">${goodImg(g, 'sm')}${dots(GOODS[g].price)}</span>`).join('')).join('')}</div><div class="small">One dot for each penny. Count them all.</div>`;
+  const priceShow = () => order.map(([g, n]) => `<span class="grp"><span class="row">${Array.from({ length: n }, () => goodImg(g, 'sm')).join('')}</span><span class="lab">${priceOf(g)}¢ each</span></span>`).join('');
+  const priceHelp = () => `<div class="row">${order.map(([g, n]) => Array.from({ length: n }, () => `<span class="grp">${goodImg(g, 'sm')}${dots(priceOf(g))}</span>`).join('')).join('')}</div><div class="small">One dot for each penny. Count them all.</div>`;
   if (c.flow === 'count' && c.special !== 'queen') {
     const coins = coinsFor(total);
     say(who, `Here you are!`);
@@ -1570,6 +1632,27 @@ async function serve(c) {
     if (window.GFKCards) GFKCards.collect({ game: GAME, id: 'friend-' + who, name: me.name, emoji: me.emoji, rarity: me.finale ? 'legendary' : me.special ? 'rare' : 'common' });
     await talk(who, thanks + ' Let\'s be friends!', 'Bye-bye!');
   } else await talk(who, thanks, 'Bye-bye!');
+}
+// An animal's wish list meets her price tags, then her shelf.
+async function shopFor(c) {
+  const who = c.who, budget = orderBand()[1] + 2;
+  let order = [], dear = [], cheap = [], short = [];
+  for (const [g, n] of c.order) {
+    const at = wantAt(g, n);
+    if (at < n) { dear.push(g); S.dear[g] = (S.dear[g] || 0) + (n - at); }
+    if (at > n) cheap.push(g);
+    if (at > 0) order.push([g, at]);
+  }
+  // nobody spends more than they have in their purse
+  while (order.length && orderTotal(order) > budget) { const o = order.reduce((a, b) => (b[1] * priceOf(b[0]) > a[1] * priceOf(a[0]) ? b : a)); o[1]--; if (!o[1]) order.splice(order.indexOf(o), 1); }
+  // then what is actually on the shelf
+  order = order.map(([g, n]) => { const have = Math.min(n, S.stock[g] || 0); if (have < n) { short.push(g); S.missed[g] = (S.missed[g] || 0) + (n - have); } return [g, have]; }).filter(o => o[1] > 0);
+  save();
+  const many = gs => gs.map(g => GOODS[g].many).join(' and ');
+  if (dear.length) { mood('cust', 'think', 1800); await talk(who, order.length || short.length ? `Ooh, ${many(dear)} are dear today! I'll buy fewer.` : `Ooh, ${many(dear)} are too dear for me today. Maybe another day!`, order.length || short.length ? 'Okay' : 'Bye!'); }
+  else if (cheap.length) { mood('cust', 'happy', 1800); await talk(who, `${many(cheap)[0].toUpperCase() + many(cheap).slice(1)} are cheap today! I'll take extra!`, 'Hooray!'); }
+  if (short.length) await talk(who, order.length ? `Oh, you haven't got enough ${many(short)}. I'll take what you have.` : `Oh no, no ${many(short)} left! I'll come back another day.`, order.length ? 'Okay' : 'Bye!');
+  return order.length ? order : null;
 }
 function coinsTaskWithHelp({ who, change, paid, total, source }) {
   return coinsTask({ who, amount: change, source, title: 'The till drawer', k: 'S', mode: 'change',
@@ -1640,28 +1723,78 @@ async function evening() {
   } else if (fresh.some(x => (S.sold[x] || 0) > 0)) {
     await talk('keeper', 'Every single one was sold! Maybe I\'ll buy more tomorrow.', 'Next');
   }
-  S.lastSold = Object.assign({}, S.sold);
+  S.lastSold = Object.assign({}, S.sold); S.lastMissed = Object.assign({}, S.missed); S.lastDear = Object.assign({}, S.dear);
+  const missedAll = Object.values(S.missed).reduce((a, b) => a + b, 0);
+  if (missedAll) {
+    const top = Object.keys(S.missed).sort((a, b) => S.missed[b] - S.missed[a])[0];
+    await talk('keeper', `My notebook: friends wanted ${S.missed[top]} more ${plural(S.missed[top], GOODS[top].one, GOODS[top].many)} after mine ran out. That's ${S.missed[top] * priceOf(top)} ${plural(S.missed[top] * priceOf(top), 'penny', 'pennies')} I didn't get! Maybe I'll buy more tomorrow.`, 'Into my notebook 📒');
+  }
+  await profitTask();
   // count the till in tens
   const T = S.till;
   if (T >= 10) await stackTask(T);
   else await talk('keeper', `There ${T === 1 ? 'is' : 'are'} ${T} ${plural(T, 'penny', 'pennies')} in the till.`);
-  // keep ten for tomorrow, the rest to the jar
-  if (T > 10) {
-    const rest = T - 10;
+  // keep ten (or twenty, to buy more stock) for tomorrow, the rest to the jar
+  const keep = T > 10 && S.day >= 2 ? await keepChoice(Math.min(T, 20)) : 10;
+  if (T > keep) {
+    const rest = T - keep;
     await ask({
-      k: 'P', who: 'keeper', q: `I'll keep 10 pennies for Bramble's cart tomorrow. How many go in my savings jar?`, answer: rest,
+      k: 'P', who: 'keeper', q: `I'll keep ${keep} pennies for Bramble's cart tomorrow. How many go in my savings jar?`, answer: rest,
       show: () => `<span class="grp"><span class="lab">${T} pennies</span>${dots(Math.min(10, T))}${T > 10 ? dots(Math.min(10, T - 10)) : ''}${T > 20 ? dots(Math.min(10, T - 20)) : ''}${T > 30 ? dots(T - 30) : ''}</span>`,
-      help: () => `<div class="row"><span class="grp"><span class="lab">Keep for Bramble</span>${dots(10)}</span><span class="grp"><span class="lab">Jar</span>${dots(Math.min(rest, 10))}${rest > 10 ? dots(Math.min(rest - 10, 10)) : ''}${rest > 20 ? dots(rest - 20) : ''}</span></div>`,
-      helpSay: 'One stack of ten stays in the till. Count what is left over.',
+      help: () => `<div class="row"><span class="grp"><span class="lab">Keep for Bramble</span>${dots(10)}${keep > 10 ? dots(10) : ''}</span><span class="grp"><span class="lab">Jar</span>${dots(Math.min(rest, 10))}${rest > 10 ? dots(Math.min(rest - 10, 10)) : ''}${rest > 20 ? dots(rest - 20) : ''}</span></div>`,
+      helpSay: keep > 10 ? 'Two stacks of ten stay in the till. Count what is left over.' : 'One stack of ten stays in the till. Count what is left over.',
     });
-    S.jar += rest; S.till = 10; hud(); SFX.coin(5);
+    S.jar += rest; S.till = keep; hud(); SFX.coin(5);
   } else if (T < 10) {
     await talk('clover', `Aunt Clover's rainy-day tin adds ${10 - T} ${plural(10 - T, 'penny', 'pennies')}, so you have 10 for tomorrow. Love, Clover.`);
     S.till = 10; hud();
-  } else await talk('keeper', 'Exactly 10 for Bramble tomorrow!');
+  } else await talk('keeper', `Exactly ${keep} for Bramble tomorrow!`);
   save();
   await decorShop();
   S.phase = 'night'; save();
+}
+// Money in, money out: what the shop really earned today.
+async function profitTask() {
+  const took = S.shop ? S.shop.earned : 0, spent = S.spent || 0, P = took - spent;
+  S.profit = P;
+  if (!took && !spent) return;
+  if (!spent) await talk('keeper', `I took in ${took} ${plural(took, 'penny', 'pennies')} today, and I didn't buy anything from Bramble. So I earned ${took}!`);
+  else if (P <= 0) {
+    await talk('keeper', `I paid Bramble ${spent} ${plural(spent, 'penny', 'pennies')} and took in ${took}. ${P === 0 ? 'That\'s the same, so I earned nothing today.' : 'I took in less than I paid.'} Tomorrow I'll think about what to buy and my prices. Aunt Clover's tin will look after the till.`, 'I\'ll try again!');
+  } else {
+    await ask({
+      k: 'S', who: 'keeper', q: `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent} this morning. How much did my shop earn today?`, answer: P,
+      show: () => `<span class="grp"><span class="lab">Took in ${took}</span>${dots(took)}</span>`,
+      help: () => `<div class="row"><span class="grp">${Array.from({ length: took }, (_, i) => `<i style="display:inline-block;width:16px;height:16px;border-radius:50%;margin:2px;background:${i < spent ? '#e6d9c6' : '#e9b949'}"></i>`).join('')}</span></div><div class="small">The pale ones went to pay Bramble. Count the gold ones.</div>`,
+      helpSay: `Take away the ${spent} I paid Bramble. Count what is left.`,
+    });
+  }
+  if (P > 0) {
+    S.total += P;
+    if (P > S.best) {
+      if (S.best > 0) { SFX.cheer(); mood('keeper', 'happy', 2200); await talk('keeper', `${P} pennies! That's my best day ever! My old best was ${S.best}.`, 'Hooray! ⭐'); }
+      S.best = P;
+    }
+    for (const [at, id, name, emoji, rarity] of EARN_CARDS) if (S.total >= at && !(S.earnCards || []).includes(id)) {
+      (S.earnCards = S.earnCards || []).push(id);
+      if (window.GFKCards) GFKCards.collect({ game: GAME, id, name, emoji, rarity });
+      SFX.cheer(); await talk('keeper', `My shop has earned ${S.total} pennies so far! I won the ${name} card!`, 'Wow!');
+    }
+  }
+  save();
+}
+const EARN_CARDS = [[20, 'earn-20', 'Busy Bee Shopkeeper', '🐝', 'common'], [50, 'earn-50', 'Golden Acorn Award', '🌰', 'rare'], [100, 'earn-100', 'Hundred Penny Purse', '👛', 'rare'], [200, 'earn-200', 'Shopkeeper of Bramble Wood', '🏆', 'sparkly']];
+// More pennies in the till buys more stock tomorrow; fewer fills the savings jar faster.
+function keepChoice(more) {
+  return new Promise(res => {
+    say('keeper', 'How much shall I keep in the till for Bramble\'s cart? More pennies buys more things to sell. The rest goes in my savings jar.');
+    DBG.cur = { type: 'keep' };
+    setPanel(`<div class="row">
+      <button class="opt" id="nx" data-k="10">${dots(10)}<br>Keep 10</button>
+      <button class="opt" data-k="${more}">${dots(10)}${dots(more - 10)}<br>Keep ${more}</button></div>`, p => {
+      $$('[data-k]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); rerender = null; res(+b.dataset.k); }));
+    });
+  });
 }
 function stackTask(T) {
   return new Promise(res => {
@@ -1725,8 +1858,8 @@ async function night() {
   const n = S.shop ? S.shop.list.length : 0, earned = S.shop ? S.shop.earned : 0;
   if (S.day === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'clover-key', name: "Aunt Clover's Key", emoji: '🗝️', rarity: 'common' });
   mood('keeper', 'happy', 2000);
-  await talk('keeper', `Day ${S.day} is done! I served my friends and took in ${earned} ${plural(earned, 'penny', 'pennies')}. Time for bed.`, 'Sleep until morning 🌙',
-    `<div class="row"><span class="tag">Friends today: ${n}</span><span class="tag">Savings jar: ${S.jar}¢</span><span class="tag">Decorations: ${S.decor.length}</span></div>`);
+  await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
+    `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">Savings jar: ${S.jar}¢</span></div>`);
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
 }
 
@@ -1755,6 +1888,7 @@ async function title() {
     $('.card', box).innerHTML = `<h2 style="margin-top:0">The Toadstool Shop: grown-ups</h2>
       <p>Day ${S.day}. Levels follow The Moonlit Map (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
+      <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
       <p>Savings jar ${S.jar}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
