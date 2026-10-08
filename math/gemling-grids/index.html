@@ -1,0 +1,1338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#23263a">
+<title>Gemling Grids</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --slate:#23263a; --violet:#3a3360; --violet2:#4a4078; --gold:#ffd86b; --lav:#b9a6e8;
+  --ink:#f7f2ff; --ink2:#cfc6ec; --stone:#4b4672; --stone2:#5d5789; --stoneDark:#2e2a4c;
+  --rubbit:#ff6f8e; --sapphly:#4ea8ff; --topip:#ffcd3c; --mossling:#3fd394; --amethyx:#b77cff;
+  --cs:84px; --tp:84px;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px); --sar:env(safe-area-inset-right,0px);
+  --font:'Andika',ui-rounded,'SF Pro Rounded',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --head:'Fredoka',ui-rounded,'SF Pro Rounded',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--slate);color:var(--ink);font-family:var(--font);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+body{background:
+  radial-gradient(1200px 700px at 20% -10%, #4a3f7e 0%, transparent 60%),
+  radial-gradient(900px 600px at 110% 110%, #2d4a6b 0%, transparent 55%),
+  radial-gradient(2px 2px at 12% 22%, #fff8 50%, transparent 51%),
+  radial-gradient(2px 2px at 78% 14%, #fff6 50%, transparent 51%),
+  radial-gradient(2px 2px at 64% 72%, #fff5 50%, transparent 51%),
+  radial-gradient(2px 2px at 30% 84%, #fff5 50%, transparent 51%),
+  radial-gradient(1.5px 1.5px at 90% 48%, #fff7 50%, transparent 51%),
+  var(--slate)}
+button{font-family:inherit;color:inherit;touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer}
+svg{display:block}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;padding:calc(10px + var(--sat)) calc(12px + var(--sar)) calc(10px + var(--sab)) calc(12px + var(--sal))}
+.screen.active{display:flex}
+.btn{min-width:64px;min-height:64px;border-radius:22px;border:2px solid #ffffff2a;background:linear-gradient(180deg,#5a4f92,#3d3568);
+  box-shadow:0 4px 0 #1d1934, 0 8px 18px #0006, inset 0 2px 0 #ffffff30;font-size:22px;font-weight:700;padding:8px 18px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:var(--head);letter-spacing:.3px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1d1934,0 4px 10px #0006}
+.btn.gold{background:linear-gradient(180deg,#ffe58f,#f3b93b);color:#4a2e00;border-color:#fff6}
+.btn.soft{background:linear-gradient(180deg,#4b4378,#352f5c)}
+.icon{width:64px;height:64px;padding:0;border-radius:20px;flex:0 0 auto}
+.icon>svg{width:44px;height:44px}
+.icon.on{box-shadow:0 0 0 3px var(--gold),0 4px 0 #1d1934}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1 1 auto;min-width:0}
+h1,h2,h3{font-family:var(--head);margin:0}
+
+/* Nib caption bubble */
+.nibdock{display:flex;align-items:center;gap:10px;min-width:0}
+.nibbtn{width:72px;height:72px;border-radius:50%;border:none;background:radial-gradient(circle at 50% 40%,#6c5f9c,#3a3360);box-shadow:0 0 0 3px #ffffff22,0 6px 14px #0007;padding:2px;flex:0 0 auto}
+.nibbtn>svg{width:100%;height:100%}
+.cap{position:relative;flex:1 1 auto;min-width:0;min-height:64px;background:#fffaf0;color:#3a2f55;border-radius:22px;padding:10px 64px 10px 16px;font-size:20px;line-height:1.3;box-shadow:0 6px 16px #0006;display:flex;align-items:center}
+.cap:before{content:"";position:absolute;left:-10px;top:50%;margin-top:-10px;border:10px solid transparent;border-right-color:#fffaf0;border-left:0}
+.cap .say{position:absolute;right:6px;top:50%;margin-top:-28px;width:56px;height:56px;border-radius:18px;border:none;background:#efe6ff;display:flex;align-items:center;justify-content:center}
+.cap .say>svg{width:34px;height:34px}
+.cap.hidecap .txt{visibility:hidden}
+.cap .txt{display:block}
+.cap.pop{animation:capPop .35s ease}
+@keyframes capPop{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+/* TITLE */
+#title{align-items:center;justify-content:center;text-align:center;gap:14px}
+#title h1{font-size:clamp(40px,7vw,72px);color:var(--gold);text-shadow:0 0 24px #ffd86b66,0 4px 0 #6b4a00;line-height:1}
+#title .sub{font-family:var(--head);font-size:clamp(20px,3.2vw,30px);color:var(--ink2)}
+#crystalBtn{border:none;background:none;width:min(52vw,300px);height:min(52vw,300px);padding:0;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 30px #b9a6e8aa)}
+#crystalBtn>svg{width:100%;height:100%}
+.tapme{font-size:26px;font-family:var(--head);color:#fff;background:#ffffff14;padding:12px 24px;border-radius:30px;animation:breathe 2.4s ease-in-out infinite}
+.peek{display:flex;gap:6px;justify-content:center}
+.peek>svg{width:60px;height:60px;animation:bob 2.6s ease-in-out infinite}
+.peek>svg:nth-child(2){animation-delay:.3s}.peek>svg:nth-child(3){animation-delay:.6s}.peek>svg:nth-child(4){animation-delay:.9s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes breathe{0%,100%{opacity:.75}50%{opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* MAP */
+#map{padding:0}
+.mapscroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:calc(90px + var(--sat)) 0 calc(190px + var(--sab))}
+.mapsvg{width:min(100%,560px);margin:0 auto;height:auto}
+.maptop{position:absolute;left:0;right:0;top:0;padding:calc(10px + var(--sat)) calc(12px + var(--sar)) 10px calc(12px + var(--sal));display:flex;gap:10px;align-items:center;background:linear-gradient(#23263aee,#23263a00);z-index:3}
+.mapbottom{position:absolute;left:0;right:0;bottom:0;padding:16px calc(12px + var(--sar)) calc(12px + var(--sab)) calc(12px + var(--sal));background:linear-gradient(#23263a00,#23263aee 30%);z-index:3;display:flex;flex-direction:column;gap:12px;align-items:stretch}
+.mapbottom .nibdock{max-width:760px;margin:0 auto;width:100%}
+#exploreBtn{align-self:center;min-width:240px;min-height:76px;font-size:30px;border-radius:40px}
+#exploreBtn>svg{width:40px;height:40px}
+.holdbtn{position:relative}
+.holdbtn .ring{position:absolute;inset:-4px;pointer-events:none}
+.holdbtn .ring circle{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%}
+.spot-new{animation:spotNew 1.6s ease-out 2}
+@keyframes spotNew{0%{transform:scale(.4);opacity:.3}50%{transform:scale(1.6);opacity:1}100%{transform:scale(1)}}
+.cavname{font-family:var(--head)}
+
+/* DOORS */
+#doors{gap:12px}
+.doorrow{flex:0 0 auto;margin:auto 0;display:flex;align-items:flex-end;justify-content:center;gap:clamp(8px,3vw,40px);padding:10px 0 18px;min-height:0;background:radial-gradient(55% 26px at 50% 100%,#00000066,transparent)}
+@media (orientation:portrait){.door{width:clamp(104px,30vw,260px)}}
+.door{border:none;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:clamp(104px,28vw,240px);min-height:64px}
+.door>svg{width:100%;height:auto;filter:drop-shadow(0 10px 18px #0008)}
+.door .lbl{font-family:var(--head);font-size:clamp(18px,2.6vw,26px);background:#ffffff18;padding:6px 16px;border-radius:20px}
+.door:active>svg{transform:scale(.97)}
+.door.little>svg{width:78%}
+.doorwall{position:absolute;inset:0;z-index:-1;background:
+ radial-gradient(60% 50% at 50% 100%,#5a4f8a55,transparent),
+ repeating-linear-gradient(115deg,#ffffff05 0 2px,transparent 2px 40px)}
+
+/* PUZZLE */
+#pz{padding-bottom:calc(8px + var(--sab))}
+.pztop{display:grid;grid-template-columns:auto auto 1fr auto auto auto;gap:8px;align-items:center}
+.pztop .nibbtn{width:68px;height:68px}
+.pztop .cap{font-size:19px}
+.playarea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:0;touch-action:none;position:relative}
+#pz.land .playarea{flex-direction:row;gap:64px}
+.gridwrap{position:relative;padding:14px;border-radius:30px;background:
+  radial-gradient(120% 90% at 30% 0%,#6a63a0 0%,transparent 60%),
+  linear-gradient(160deg,#575089,#3a3563);
+  box-shadow:inset 0 3px 0 #ffffff22,inset 0 -6px 0 #0003,0 14px 30px #0009, 0 0 0 4px #2b2748;touch-action:none}
+.gridwrap.glowall{box-shadow:inset 0 3px 0 #ffffff22,0 0 0 4px var(--gold),0 0 60px #ffd86baa}
+.grid{position:relative;display:grid;grid-template-columns:repeat(var(--n),var(--cs));grid-template-rows:repeat(var(--n),var(--cs));touch-action:none}
+.cell{position:relative;width:var(--cs);height:var(--cs)}
+.nook{position:absolute;inset:9%;border-radius:50%;background:radial-gradient(circle at 50% 38%,#191630 0%,#25213f 55%,#3b3566 100%);box-shadow:inset 0 6px 12px #000a,0 2px 0 #ffffff1c}
+.cell.given .nook{background:radial-gradient(circle at 50% 40%,#5d5878,#4a4566 60%,#3d3858);box-shadow:inset 0 3px 6px #0006,0 2px 0 #ffffff22}
+.cg{position:absolute;pointer-events:none;border-color:var(--cgc)}
+.piece{position:absolute;left:7%;top:9%;width:86%;height:86%;pointer-events:none}
+.piece>svg,.ghost>svg{width:100%;height:100%;overflow:visible}
+.cell.hasbadge .piece,.cell.hasbadge .ghost{left:16%!important;top:24%!important;width:74%!important;height:74%!important}
+.cell.given .piece{filter:grayscale(.45) brightness(.92) contrast(.95) drop-shadow(0 1px 0 #ffffff40)}
+.cell.solvedwake .piece{filter:none}
+.cell.hl .nook{box-shadow:inset 0 6px 12px #000a,0 0 0 4px #ffd86bcc,0 0 18px #ffd86b99;animation:hlPulse 1.4s ease-in-out infinite}
+@keyframes hlPulse{50%{box-shadow:inset 0 6px 12px #000a,0 0 0 6px #ffd86b,0 0 26px #ffd86bcc}}
+.cell.twin .piece{animation:wiggle .5s ease-in-out 3}
+.cell.twin .nook{box-shadow:inset 0 6px 12px #000a,0 0 0 4px var(--lav),0 0 14px #b9a6e8aa}
+.cell.wob .piece{animation:wobble .6s ease-in-out 3}
+.cell.hover .nook{box-shadow:inset 0 6px 12px #000a,0 0 0 4px #ffffffaa}
+.cell.ghostcell .ghost{position:absolute;left:7%;top:9%;width:86%;height:86%;opacity:.5;filter:brightness(1.35) saturate(.55);animation:ghostPulse 1.3s ease-in-out infinite;pointer-events:none}
+.cell.ghostcell .nook{box-shadow:inset 0 6px 12px #000a,0 0 0 3px #fff;outline:3px dashed #ffffffcc;outline-offset:3px}
+@keyframes ghostPulse{50%{opacity:.75;transform:scale(1.06)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+@keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px) rotate(-4deg)}60%{transform:translateX(5px) rotate(4deg)}}
+.cell.placed .piece{animation:plop .32s cubic-bezier(.3,1.6,.5,1)}
+@keyframes plop{0%{transform:scale(.6)}100%{transform:scale(1)}}
+.cell.wake .piece{animation:wakeUp .7s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes wakeUp{0%{transform:translateY(0) scale(1)}40%{transform:translateY(-22%) scale(1.08)}100%{transform:translateY(0) scale(1)}}
+.badge{position:absolute;left:2px;top:2px;right:2px;z-index:4;display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:3px;pointer-events:none}
+.bn{white-space:nowrap;flex:0 0 auto;min-width:calc(var(--cs)*.36);height:calc(var(--cs)*.32);padding:0 6px;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;font-size:calc(var(--cs)*.22);color:#2a1f4a;
+  background:linear-gradient(160deg,#ffffff,#d9ccff);clip-path:polygon(18% 0,82% 0,100% 50%,82% 100%,18% 100%,0 50%);filter:drop-shadow(0 2px 0 #0004)}
+.badge.ok .bn{background:linear-gradient(160deg,#fff6c9,#ffd86b);animation:badgeGlow 1s ease 2}
+@keyframes badgeGlow{50%{transform:scale(1.18)}}
+.badge.focus .bn{animation:hlPulse2 1.2s ease-in-out infinite}
+@keyframes hlPulse2{50%{transform:scale(1.15)}}
+.meter{display:grid;grid-template-columns:repeat(5,var(--md));gap:2px;padding:3px 4px;background:#1b1733d9;border-radius:8px;--md:max(6px,calc(var(--cs)*.085))}
+.meter i{width:var(--md);height:var(--md);border-radius:50%;border:1.5px solid #fffc;display:block}
+.meter i.f{background:var(--gold);border-color:var(--gold)}
+.meter i.x{background:var(--lav);border-color:var(--lav)}
+.meter.under i:not(.f){animation:twinkle .9s ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.35;transform:scale(.8)}}
+.puff{position:absolute;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fff,#b9a6e8 60%,transparent 70%);pointer-events:none;z-index:9;animation:puff 1.2s ease-out forwards}
+@keyframes puff{to{transform:translate(var(--dx),-50px) scale(1.8);opacity:0}}
+.fly{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);pointer-events:none;z-index:9;transition:transform .7s cubic-bezier(.5,0,.3,1),opacity .7s}
+.shimmer{position:absolute;pointer-events:none;z-index:6;border-radius:20px;overflow:hidden}
+.shimmer:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-100%);animation:sweep 1s ease-out forwards}
+.shimmer.v:after{background:linear-gradient(190deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateY(-100%);animation:sweepV 1s ease-out forwards}
+@keyframes sweep{to{transform:translateX(100%)}}
+@keyframes sweepV{to{transform:translateY(100%)}}
+.crystals{position:absolute;inset:0;pointer-events:none;z-index:7;overflow:visible}
+.crystals g{transform-box:fill-box;transform-origin:50% 100%;animation:grow .8s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes grow{from{transform:scale(0)}to{transform:scale(1)}}
+.rowsum{position:absolute;right:-50px;width:44px;height:44px;margin-top:-22px;border-radius:50%;background:var(--gold);color:#4a2e00;font-family:var(--head);font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:8;animation:plop .5s both}
+
+.side{display:flex;flex-direction:column;align-items:center;gap:10px}
+#pz.land .side{justify-content:center}
+.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:10px 14px;border-radius:28px;background:linear-gradient(180deg,#3d3768,#2e2a52);box-shadow:inset 0 2px 0 #ffffff1f,0 8px 20px #0007;touch-action:none}
+#pz.land .tray{flex-direction:column;flex-wrap:nowrap}
+.tpiece{width:var(--tp);height:var(--tp);border-radius:24px;position:relative;background:radial-gradient(circle at 50% 30%,#ffffff1c,transparent 70%);touch-action:none;transition:transform .15s,opacity .2s}
+.tpiece>svg{width:100%;height:100%;pointer-events:none;overflow:visible}
+.tpiece:after{content:"";position:absolute;left:12%;right:12%;bottom:-3px;height:8px;border-radius:50%;background:#0005;z-index:-1}
+.tpiece.sel{transform:translateY(-8px) scale(1.08);background:radial-gradient(circle,#ffd86b66,transparent 70%);box-shadow:0 0 0 3px var(--gold)}
+.tpiece.dim{opacity:.28;filter:grayscale(.7)}
+.tpiece.bounce{animation:trayBounce .8s ease-in-out infinite}
+@keyframes trayBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.model{display:none;background:#fffaf0;color:#3a2f55;border-radius:22px;padding:8px 12px;box-shadow:0 6px 16px #0006;max-width:min(94vw,440px)}
+.model.show{display:block;animation:capPop .35s}
+.model{width:min(94vw,340px)}
+.model>svg{width:100%;height:auto;max-height:190px}
+.dragghost{position:fixed;left:0;top:0;width:var(--cs);height:var(--cs);pointer-events:none;z-index:100;filter:drop-shadow(0 10px 12px #000a)}
+.dragghost>svg{width:100%;height:100%;overflow:visible}
+.lantern{position:relative}
+.lantern.glow{animation:lanternGlow 1.4s ease-in-out infinite;background:linear-gradient(180deg,#7a6bc0,#4f4590)}
+@keyframes lanternGlow{50%{box-shadow:0 0 0 4px var(--gold),0 0 30px #ffd86b,0 4px 0 #1d1934}}
+.toolsmenu{position:absolute;z-index:40;right:12px;top:calc(90px + var(--sat));background:#2d2850;border-radius:24px;padding:12px;display:none;flex-direction:column;gap:10px;box-shadow:0 12px 30px #000a,0 0 0 2px #ffffff22}
+.toolsmenu.show{display:flex}
+.toolsmenu .btn{justify-content:flex-start;font-size:20px}
+.toolsmenu .btn>svg{width:40px;height:40px}
+
+/* OVERLAYS */
+.ov{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:#140f2bcc;padding:calc(16px + var(--sat)) calc(16px + var(--sar)) calc(16px + var(--sab)) calc(16px + var(--sal));overflow-y:auto}
+.ov.show{display:flex}
+.panel{background:linear-gradient(180deg,#3f3870,#2b2650);border-radius:32px;padding:20px;box-shadow:0 0 0 3px #ffffff22,0 20px 50px #000c;max-width:720px;width:100%;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;margin:auto}
+.panel h2{font-size:28px;color:var(--gold)}
+.rulecard{background:#fffaf0;color:#3a2f55;border-radius:24px;padding:14px;width:100%;max-width:520px}
+.rulecard>svg{width:100%;height:auto;max-height:42vh}
+.rulecard p{font-size:22px;margin:8px 0 0;line-height:1.35}
+.stage{min-height:200px;display:flex;align-items:center;justify-content:center;width:100%}
+.stage>svg{max-width:100%}
+.bigcard{width:min(76vw,300px)}
+.bigcard>svg{width:100%;height:auto}
+.gemreveal>svg{width:160px;height:160px;animation:gemSpin 1.2s cubic-bezier(.3,1.5,.5,1)}
+@keyframes gemSpin{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(0)}}
+.geode{border:none;background:none;padding:0;width:220px;height:220px}
+.geode>svg{width:100%;height:100%}
+.geode.shake{animation:wobble .4s}
+.burst{animation:burst .9s ease-out}
+@keyframes burst{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+.sparkle-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+
+/* BINDER / SHELF / NOOK */
+.hdr{display:flex;align-items:center;gap:10px;min-height:72px}
+.hdr h2{font-size:clamp(24px,4vw,34px);color:var(--gold);flex:1;text-align:center}
+.cards6{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,200px));justify-content:center;gap:clamp(8px,2vw,18px);align-content:center;justify-items:center;padding:8px;min-height:0}
+@media (orientation:portrait){.cards6{grid-template-columns:repeat(2,minmax(0,200px))}}
+.cardslot{border:none;background:none;padding:0;width:100%;max-width:200px;aspect-ratio:200/280;min-height:64px}
+.cardslot>svg{width:100%;height:100%}
+.binderfoot{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;padding-top:6px}
+.pageinfo{font-family:var(--head);font-size:22px;min-width:80px;text-align:center}
+.stickers{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;font-size:30px;min-height:10px}
+.lineup{display:flex;flex-direction:column;gap:14px;align-items:center;width:100%;touch-action:none}
+.lu-cards,.lu-slots{display:flex;gap:10px;justify-content:center;flex-wrap:nowrap;width:100%}
+.lu-card{width:min(21vw,120px);aspect-ratio:200/280;border-radius:12px;touch-action:none;position:relative}
+.lu-card>svg{width:100%;height:100%;pointer-events:none}
+.lu-card.sel{box-shadow:0 0 0 4px var(--gold);transform:translateY(-6px)}
+.lu-card.gone{visibility:hidden}
+.lu-slot{width:min(21vw,120px);aspect-ratio:200/280;border-radius:14px;border:3px dashed #ffffff55;background:#ffffff0d;position:relative;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:26px;color:#ffffff66}
+.lu-slot.hl{border-color:var(--gold);box-shadow:0 0 18px #ffd86b88}
+.lu-slot .lu-card{width:100%;position:absolute;inset:0}
+.lu-slot.wob{animation:wobble .6s 2}
+.lu-shelfline{width:100%;max-width:540px;height:14px;border-radius:7px;background:linear-gradient(#a8763e,#6d4720);margin-top:-8px}
+.shelfwrap{flex:1;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;min-height:0;touch-action:none}
+.shelf{width:min(100%,560px);flex:0 1 auto;background:linear-gradient(180deg,#3a2616,#2a1b10);border-radius:24px;padding:14px;box-shadow:inset 0 0 0 4px #5c3b1f,0 14px 30px #000a;overflow-y:auto;min-height:0}
+.plank{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:6px 6px 0;border-bottom:14px solid #9a6a36;box-shadow:0 8px 0 -2px #5a3a1a;margin-bottom:18px;border-radius:0 0 4px 4px}
+.gslot{aspect-ratio:1;min-height:56px;border-radius:14px;background:radial-gradient(circle at 50% 70%,#ffffff10,transparent 70%);display:flex;align-items:flex-end;justify-content:center;position:relative}
+.gslot [data-gem]>svg{width:100%;height:100%;pointer-events:none}
+.gslot.hover{background:radial-gradient(circle,#ffd86b55,transparent 70%)}
+.pouch{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;background:#2e2a52;border-radius:24px;padding:10px;min-height:84px;width:min(100%,640px)}
+.pgem{width:72px;height:72px;position:relative;border-radius:18px;background:#ffffff10;touch-action:none}
+.pgem>svg{width:100%;height:100%;pointer-events:none}
+.pgem .cnt{position:absolute;right:-4px;bottom:-4px;background:var(--gold);color:#4a2e00;border-radius:12px;font-weight:700;padding:0 7px;font-size:16px}
+.pgem.sel{box-shadow:0 0 0 4px var(--gold)}
+.nookscene{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;position:relative}
+.nookscene>svg{max-width:100%;max-height:100%;width:auto;height:100%}
+.hats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.hats .btn{width:72px;height:72px;padding:4px}
+.hats .btn>svg{width:60px;height:60px}
+
+/* GROWN-UPS */
+#grown .panel{text-align:left;align-items:stretch;max-width:900px;background:#f6f3fb;color:#2c2645}
+#grown h2{color:#4a3d8a}
+#grown h3{color:#4a3d8a;font-size:20px;margin-top:6px}
+#grown table{width:100%;border-collapse:collapse;font-size:15px}
+#grown td,#grown th{padding:5px 6px;border-bottom:1px solid #ddd5ee;text-align:left;vertical-align:top}
+#grown .lv{display:flex;gap:4px;flex-wrap:wrap}
+#grown .lv span{padding:4px 8px;border-radius:10px;background:#e7e1f5;font-size:14px}
+#grown .lv span.cur{background:#4a3d8a;color:#fff}
+#grown .lv span.best{outline:2px solid #4a3d8a}
+#grown .gbtn{min-height:56px;border-radius:14px;border:1px solid #bfb4dc;background:#fff;color:#2c2645;font-size:17px;padding:8px 14px}
+#grown .gbtn.prim{background:#4a3d8a;color:#fff}
+#grown textarea{width:100%;min-height:90px;font-size:13px;border-radius:10px;border:1px solid #bfb4dc;padding:8px;-webkit-user-select:text;user-select:text}
+#grown select{font-size:17px;min-height:48px;border-radius:10px;padding:4px 8px}
+#grown .set{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+#grown label{display:flex;gap:8px;align-items:center;font-size:17px;min-height:48px}
+#grown input[type=checkbox]{width:28px;height:28px}
+#grown .small{font-size:14px;color:#5b5378}
+#grown .scroll{overflow-x:auto}
+
+@media (max-width:600px){
+  .pztop{grid-template-columns:auto auto 1fr auto auto;grid-template-areas:"home nib sp lan tool" "cap cap cap cap cap"}
+  .pztop .h{grid-area:home}.pztop .nibbtn{grid-area:nib}.pztop .cap{grid-area:cap;font-size:18px}.pztop .lantern{grid-area:lan}.pztop .tools{grid-area:tool}.pztop .spk{grid-area:sp;justify-self:end}
+  .pztop .cap:before{display:none}
+  .cap{font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- TITLE -->
+<section class="screen active" id="title">
+  <div class="peek" id="peek"></div>
+  <h1>Gemling Grids</h1>
+  <div class="sub">Puzzles of the Crystal Caves</div>
+  <button id="crystalBtn" aria-label="Tap the crystal to begin"></button>
+  <div class="tapme">Tap the crystal to begin</div>
+</section>
+
+<!-- MAP -->
+<section class="screen" id="map">
+  <div class="mapscroll" id="mapScroll"><div id="mapInner"></div></div>
+  <div class="maptop">
+    <button class="btn icon" id="bBinder" aria-label="Gemling Binder"></button>
+    <button class="btn icon" id="bShelf" aria-label="Gem Shelf"></button>
+    <button class="btn icon" id="bNook" aria-label="Nib's Nook"></button>
+    <div class="grow"></div>
+    <button class="btn icon spk" aria-label="Sound"></button>
+    <button class="btn icon holdbtn soft" id="bGrown" aria-label="Grown-ups (press and hold)"></button>
+  </div>
+  <div class="mapbottom">
+    <div class="nibdock"><button class="nibbtn"></button><div class="cap"><span class="txt"></span><button class="say" aria-label="Read aloud"></button></div></div>
+    <button class="btn gold" id="exploreBtn"></button>
+  </div>
+</section>
+
+<!-- DOORS -->
+<section class="screen" id="doors">
+  <div class="doorwall"></div>
+  <div class="row">
+    <button class="btn icon h" data-home aria-label="Home"></button>
+    <div class="nibdock grow"><button class="nibbtn"></button><div class="cap"><span class="txt"></span><button class="say" aria-label="Read aloud"></button></div></div>
+  </div>
+  <div class="doorrow" id="doorRow"></div>
+</section>
+
+<!-- PUZZLE -->
+<section class="screen" id="pz">
+  <div class="pztop">
+    <button class="btn icon h" data-home aria-label="Home"></button>
+    <button class="nibbtn" aria-label="Nib"></button>
+    <div class="cap"><span class="txt"></span><button class="say" aria-label="Read aloud"></button></div>
+    <button class="btn icon lantern" id="bLantern" aria-label="Hint Lantern"></button>
+    <button class="btn icon tools" id="bTools" aria-label="Tools"></button>
+    <button class="btn icon spk" aria-label="Sound"></button>
+  </div>
+  <div class="toolsmenu" id="toolsMenu">
+    <button class="btn soft" id="bGlasses"></button>
+    <button class="btn soft" id="bRules"></button>
+  </div>
+  <div class="playarea" id="playArea">
+    <div class="gridwrap" id="gridWrap"><div class="grid" id="grid"></div></div>
+    <div class="side">
+      <div class="model" id="model"></div>
+      <div class="tray" id="tray"></div>
+      <button class="btn gold" id="collectBtn" style="display:none"></button>
+    </div>
+  </div>
+</section>
+
+<!-- BINDER -->
+<section class="screen" id="binder">
+  <div class="hdr"><button class="btn icon" data-home aria-label="Home"></button><h2>Gemling Binder</h2><button class="btn icon" id="bLineup" aria-label="Line-Up bonus"></button></div>
+  <div class="stickers" id="stickerRow"></div>
+  <div class="cards6" id="cards6"></div>
+  <div class="binderfoot"><button class="btn icon" id="pgPrev" aria-label="Previous page"></button><div class="pageinfo" id="pgInfo"></div><button class="btn icon" id="pgNext" aria-label="Next page"></button></div>
+</section>
+
+<!-- SHELF -->
+<section class="screen" id="shelfScr">
+  <div class="hdr"><button class="btn icon" data-home aria-label="Home"></button><h2>Gem Shelf</h2><div style="width:64px"></div></div>
+  <div class="shelfwrap" id="shelfWrap">
+    <div class="shelf" id="shelf"></div>
+    <div class="pouch" id="pouch"></div>
+  </div>
+</section>
+
+<!-- NOOK -->
+<section class="screen" id="nook">
+  <div class="hdr"><button class="btn icon" data-home aria-label="Home"></button><h2>Nib's Nook</h2><div style="width:64px"></div></div>
+  <div class="nookscene" id="nookScene"></div>
+  <div class="hats" id="hats"></div>
+  <div class="nibdock" style="margin-top:8px"><div class="cap" style="margin-left:6px"><span class="txt"></span><button class="say" aria-label="Read aloud"></button></div></div>
+</section>
+
+<!-- OVERLAY generic -->
+<div class="ov" id="ov"><div class="panel" id="ovPanel"></div></div>
+<div class="ov" id="grown"><div class="panel" id="grownPanel"></div></div>
+
+<script>
+'use strict';
+/* =========================================================
+   GEMLING GRIDS: Puzzles of the Crystal Caves
+   ========================================================= */
+const $=(s,el=document)=>el.querySelector(s);
+const $$=(s,el=document)=>Array.from(el.querySelectorAll(s));
+const SAVE_KEY='gemlingGrids.v1', SLUG='gemling-grids';
+const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+
+/* ---------- DATA ---------- */
+const KINDS=[null,
+ {v:1,name:'Rubbit',plural:'Rubbits',color:'#ff6f8e',dark:'#b8345a',light:'#ffd0db',emoji:'🐰'},
+ {v:2,name:'Sapphly',plural:'Sapphlies',color:'#4ea8ff',dark:'#1f5fb8',light:'#cfe6ff',emoji:'🦋'},
+ {v:3,name:'Topip',plural:'Topips',color:'#ffcd3c',dark:'#a87600',light:'#fff3bf',emoji:'🐥'},
+ {v:4,name:'Mossling',plural:'Mosslings',color:'#3fd394',dark:'#16805a',light:'#c4f5de',emoji:'🐸'},
+ {v:5,name:'Amethyx',plural:'Amethyxes',color:'#b77cff',dark:'#6c34c4',light:'#ead9ff',emoji:'🐱'}];
+
+const LOGIC=[null,
+ {id:'LG1',n:3,blanks:[1,1],desc:'3×3 picture grid, 1 missing Gemling (who is missing from the row?)',skill:'3×3 picture logic'},
+ {id:'LG2',n:3,blanks:[2,3],desc:'3×3 picture grid, 2–3 missing',skill:'3×3 picture logic'},
+ {id:'LG3',n:3,blanks:[4,5],desc:'3×3 picture grid, 4–5 missing (rows and columns together)',skill:'3×3 picture logic'},
+ {id:'LG4',n:4,blanks:[2,4],desc:'4×4 picture grid, 2–4 missing (rows nearly done)',skill:'4×4 logic'},
+ {id:'LG5',n:4,blanks:[5,7],desc:'4×4 picture grid, 5–7 missing',skill:'4×4 logic'},
+ {id:'LG6',n:4,blanks:[8,10],desc:'4×4 picture grid, 8–10 missing (true mini-sudoku)',skill:'4×4 logic'},
+ {id:'LG7',n:5,blanks:[6,10],desc:'5×5 picture grid, 6–10 missing',skill:'5×5 logic'},
+ {id:'LG8',n:5,blanks:[11,15],desc:'5×5 picture grid, 11–15 missing',skill:'5×5 logic'}];
+const SUM=[null,
+ {id:'S1',n:3,sizes:{2:1},one:1,maxT:5,blanks:[2,3],onePerCage:true,stage:0,desc:'3×3, pairs that add to 5 or less; one missing per nook, partner shown (missing addend)',skill:'missing addends to 5'},
+ {id:'S2',n:3,sizes:{2:1},one:1,maxT:5,blanks:[3,4],stage:0,desc:'3×3, sums to 5; a nook may have 2 missing (row logic helps)',skill:'sums to 5 with row logic'},
+ {id:'S3',n:3,sizes:{2:1},one:1,maxT:5,blanks:[7,8],stage:0,desc:'3×3 KenKen-lite: all pairs, one free piece, 0–1 other pieces shown',skill:'sums to 5 (KenKen-lite)'},
+ {id:'S4',n:4,sizes:{2:1},maxT:7,minT:3,blanks:[5,7],onePerCage:true,stage:1,desc:'4×4, pairs that add to 3–7; one missing per nook (missing addend)',skill:'missing addends to 7'},
+ {id:'S5',n:4,sizes:{2:1},maxT:7,blanks:[8,10],stage:1,desc:'4×4, pairs to 7; 8–10 missing',skill:'sums to 7 with logic'},
+ {id:'S6',n:4,sizes:{2:.6,3:.4},maxT:9,min3:6,need3:true,blanks:[7,9],stage:1,desc:'4×4 with 3-number nooks (targets 6–9); every row makes 10',skill:'3-number nooks'},
+ {id:'S7',n:4,sizes:{2:.6,3:.4},maxT:9,min3:6,blanks:[14,16],stage:2,desc:'4×4 nooks only (0–2 pieces shown)',skill:'cages-only sums to 9'},
+ {id:'S8',n:4,sizes:{2:1},maxT:7,gaps:[1,2],maxGap:3,blanks:[8,10],stage:2,desc:'4×4 with 1–2 gap nooks (differences up to 3)',skill:'differences (gap nooks)'},
+ {id:'S9',n:5,sizes:{2:.6,3:.4},maxT:12,blanks:[10,14],stage:2,desc:'5×5, values 1–5, sums up to 12; 10–14 missing',skill:'sums to 12 on 5×5'},
+ {id:'S10',n:5,sizes:{2:.4,3:.4,4:.2},maxT:15,gaps:[1,2],maxGap:4,blanks:[22,25],stage:2,desc:'5×5 nooks only, 3–4 number nooks to 15 plus gap nooks',skill:'sums to 15 and differences on 5×5'}];
+const STAGE_NAMES=['A (dots only, meter always)','B (dots + numeral, meter once a nook has a piece)','C (numerals, faint dots, meter via hint/glasses)'];
+
+const CAVERNS=[
+ {name:'Glimmer Hall',c:'#ffd86b',c2:'#ffe9a8'},
+ {name:'Mushroom Grotto',c:'#ff9ec7',c2:'#ffd0e4'},
+ {name:'Underground Lake',c:'#5ec8ff',c2:'#b8e8ff'},
+ {name:'Echo Chamber',c:'#8fe8c4',c2:'#ccf7e6'},
+ {name:'Rainbow Vault',c:'#ffa36b',c2:'#ffd2a8'},
+ {name:'Starroot Cavern',c:'#b9a6e8',c2:'#e0d6ff'},
+ {name:'Crystal Heart',c:'#ff7fb0',c2:'#ffc4dc'},
+ {name:'Moon Geode',c:'#cfe3ff',c2:'#ffffff'}];
+const SECOND_GLOW=['#7fffd4','#c3a6ff','#ffe066','#ff9ad5','#9be8ff','#b6ff8f','#ffc48f','#f0e6ff'];
+
+// name, base kind, hue, pattern, accessory, sparkle, line
+const COMMONS=[
+ ['Pebblepuff',1,20,'spots','none',3,'A sleepy rock-bunny who naps on warm pebbles'],
+ ['Glintwhisker',5,285,'stars','bow',7,'A kitten who chases every glint of light'],
+ ['Quartzle',3,48,'facets','leaf',12,'A little chick who hums songs to the crystals'],
+ ['Lumabun',1,330,'stars','flower',15,'A bunny whose fluffy tail glows like a lamp'],
+ ['Opal Mothling',2,190,'spots','none',21,'A soft moth who sips dewdrops from the moss'],
+ ['Gleamtoad',4,140,'spots','crown',9,'A toad who polishes stones until they shine'],
+ ['Shardy Owlet',3,30,'stripes','glasses',18,'A wise little owlet who reads crystal books'],
+ ['Crystafin',2,175,'stripes','none',26,'A shimmery swimmer from the underground lake'],
+ ['Dewdrop Hopper',4,110,'drops','leaf',5,'A frog who collects shiny dewdrops'],
+ ['Micamuffin',1,5,'facets','bow',11,'A bunny who bakes tiny crystal muffins'],
+ ['Fizzlewing',2,210,'stars','none',14,'A butterfly whose wings fizz with sparkles'],
+ ['Glimmerkit',5,300,'spots','scarf',17,'A kitten who curls up in glowing corners'],
+ ['Sparkchirp',3,55,'stars','flower',2,'A chick who sings one bright note every morning'],
+ ['Bramblegleam',4,95,'stripes','flower',23,'A frog who lives under a bramble of crystals'],
+ ['Honeyglow',3,40,'drops','none',8,'A chick who smells like warm honeycake'],
+ ['Moonmallow',1,240,'spots','none',30,'A marshmallow-soft bunny who loves the moon'],
+ ['Prismpaw',5,260,'facets','crown',33,'A kitten who leaves rainbow paw prints'],
+ ['Ripplewing',2,195,'drops','none',6,'A butterfly who dances over still water'],
+ ['Glowcap',4,160,'spots','mushroom',13,'A frog who wears a glowing mushroom hat'],
+ ['Starnibble',1,45,'stars','none',19,'A bunny who nibbles on starlight crumbs'],
+ ['Lanternbug',2,35,'spots','none',24,'A butterfly who lights the way for lost friends'],
+ ['Pipquartz',3,15,'facets','bow',4,'A chick who counts pebbles: one, two, three'],
+ ['Velvetmoss',4,125,'stripes','none',27,'A frog with the softest mossy back'],
+ ['Duskwhisker',5,230,'stripes','scarf',36,'A kitten who wakes up when the stars do'],
+ ['Bubblegem',4,180,'drops','none',16,'A frog who blows sparkly bubbles'],
+ ['Rosy Thimble',1,345,'spots','flower',10,'A tiny bunny who sleeps in a thimble'],
+ ['Echochirp',3,60,'stripes','none',22,'A chick who loves to hear her song echo back'],
+ ['Shimmerling',2,250,'stars','crown',40,'A butterfly with wings like stained glass'],
+ ['Cozycrag',4,80,'facets','scarf',29,'A frog who knits scarves for chilly caves'],
+ ['Mistmitten',5,200,'drops','none',20,'A kitten who hides in the morning mist'],
+ ['Tumblestone',1,25,'stripes','none',31,'A bunny who rolls downhill just for fun'],
+ ['Saffronsprout',3,70,'spots','leaf',38,'A chick who plants crystal seeds'],
+ ['Glaciwing',2,185,'facets','none',42,'A frosty butterfly who makes snowflake sparkles'],
+ ['Lilypebble',4,150,'stars','flower',45,'A frog who naps on lily pads of stone'],
+ ['Nightpurr',5,270,'stars','none',47,'A kitten whose purr sounds like tiny bells'],
+ ['Sugarshard',1,320,'facets','crown',49,'A bunny made of sweet pink sugar crystal']];
+const GUARDIANS=[
+ ['Lady Glimmerhare',1,45,'facets','crown',25,'The kind guardian of Glimmer Hall, who keeps every lamp lit'],
+ ['Old Toadstool Tom',4,330,'spots','mushroom',28,'He tells mushroom stories that last all night'],
+ ['Queen Ripplewing',2,200,'drops','crown',32,'She paints the lake with moonlight ripples'],
+ ['Hush the Echo Owl',3,160,'stripes','glasses',34,'She whispers, and the whole cave whispers back'],
+ ['Prismella',5,15,'stars','crown',35,'She keeps every color of the rainbow safe'],
+ ['Starroot Sage',4,265,'stars','leaf',37,'He grows star-roots that twinkle underground'],
+ ['Heartstone Hen',3,340,'facets','flower',39,'Her warm heart makes the crystals glow pink'],
+ ['Moonwhisker the Wise',5,220,'stars','crown',46,'The oldest Gemling, who sings to the moon']];
+const RARES={
+ rowTen:['Row-of-Ten Rabbit',1,48,'stars','crown',10,'She found out that 1, 2, 3 and 4 make 10 in every row'],
+ pic4:['Mosaic Mothling',2,300,'facets','flower',16,'Made of sixteen tiny painted tiles'],
+ cagesOnly:['Nookmaster Newt',4,190,'facets','crown',12,'He can solve a wall with no helpers at all'],
+ gap:['Gap Hopper',3,95,'drops','leaf',3,'She hops from one number to another and counts the jumps'],
+ five:['Fivefold Kitten',5,320,'stars','bow',5,'A kitten with five sparkly whiskers'],
+ w10:['Tenlight Bunny',1,190,'spots','scarf',20,'She lit ten walls with her lantern'],
+ w25:['Quartermoon Toad',4,45,'stars','crown',41,'He has seen twenty-five glowing walls'],
+ w50:['Fifty-Star Phoenixfly',2,20,'stars','crown',50,'Her wings hold fifty tiny stars'],
+ cleanCavern:['Steady Glow Chick',3,175,'facets','crown',44,'She checks every nook so carefully'],
+ moonFinale:['Moonheart Kitten',5,240,'stars','crown',48,'The finale friend from the Moon Geode']};
+const RARE_ORDER=['rowTen','pic4','cagesOnly','gap','five','w10','w25','w50','cleanCavern','moonFinale'];
+function mkCard(id,arr,rarity,home){return {id,name:arr[0],kind:arr[1],hue:arr[2],pattern:arr[3],acc:arr[4],sparkle:arr[5],line:arr[6],rarity,home}}
+const CARDS=[];
+COMMONS.forEach((a,i)=>CARDS.push(mkCard('c'+String(i+1).padStart(2,'0'),a,'common',CAVERNS[Math.min(7,Math.floor(i/4.5))].name)));
+GUARDIANS.forEach((a,i)=>CARDS.push(mkCard('g'+i,a,'guardian',CAVERNS[i].name)));
+RARE_ORDER.forEach(k=>CARDS.push(mkCard('r-'+k,RARES[k],'rare','Crystal Caves')));
+const CARD_BY={};CARDS.forEach(c=>CARD_BY[c.id]=c);
+
+const GEMS={
+ rose:{name:'rose quartz',a:'#ffd3e4',b:'#f48fb8',shape:'oval'},
+ moon:{name:'moonstone',a:'#f4f8ff',b:'#9fb6e6',shape:'round'},
+ ame:{name:'amethyst',a:'#dcc2ff',b:'#7f45dc',shape:'point'},
+ sun:{name:'sunstone',a:'#ffe6a6',b:'#ff9a3c',shape:'brilliant',rare:1},
+ star:{name:'star sapphire',a:'#a8c4ff',b:'#2f5fe0',shape:'star',rare:1},
+ opal:{name:'rainbow opal',a:'#fff',b:'#9fe8ff',shape:'opal',rare:1},
+ heart:{name:'heart crystal',a:'#ffd0e4',b:'#ff6fae',shape:'heart',rare:1}};
+const RARE_GEMS=['sun','star','opal','heart'];
+const NIB_ITEMS=[
+ {id:'miner',at:3,name:"miner's cap",wear:1},
+ {id:'scarf',at:6,name:'star scarf',wear:1},
+ {id:'chair',at:9,name:'tiny rocking chair'},
+ {id:'lamp',at:12,name:'mushroom lamp'},
+ {id:'flower',at:16,name:'flower crown',wear:1},
+ {id:'rug',at:20,name:'cozy moss rug'},
+ {id:'books',at:25,name:'crystal bookshelf'},
+ {id:'nightcap',at:30,name:'moon nightcap',wear:1},
+ {id:'bed',at:40,name:'mossy little bed'},
+ {id:'telescope',at:50,name:'star telescope'}];
+const STICKERS=['🌟','🌙','💎','🍄','🦋','🐚','🌈','🔮','🌸','⭐','🪐','🍀'];
+const NIB_LINES=['Thank you for teaching me the cave rules!','I polish my spectacles every morning. Squeak squeak!','Did you know? Moles can dig a whole tunnel in one night!','The Gemlings say you are a wonderful Puzzle Expert.','I love my cozy nook. It glows with your gems!','When I get muddled, I take a deep breath and look again.','Every row has one of each friend. I remember now!','Shall we light up another wall together?'];
+
+/* ---------- UTIL ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffle(arr,rnd){for(let i=arr.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function range(n){return Array.from({length:n},(_,i)=>i)}
+function today(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function newSeed(){return (Math.floor(Math.random()*2147483647)^(Date.now()&0x7fffffff))>>>0}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- SAVE ---------- */
+function trackDef(){return{level:1,streak:0,missStreak:0,best:1,solves:0,clean:0,hintSteps:0,glasses:0}}
+function defaults(){return{version:1,
+ settings:{voice:true,rate:0.9,sfx:true,captions:true,alwaysDots:false},
+ tracks:{logic:trackDef(),sum:trackDef()},
+ fadeStage:{drop:0,clean:0,miss:0},
+ history:[],current:null,doorSetIndex:0,doors:null,sessionWalls:0,sessionOpeningDone:false,lastActive:0,
+ cave:{cavern:0,wallsLit:0,loop:0,cleanCavern:true},
+ gems:{owned:[],placed:[],next:1},cards:{owned:[]},stickers:[],nib:{hats:[],items:[],wearing:null},
+ milestones:{},dailyMinutes:{},daily:{},totalWalls:0,softLanding:0,
+ seen:{intro:false,rule2:false,rule3:false,tuts:{},levels:{}},pending:[],firstRun:true}}
+function merge(def,src){if(def===null||typeof def!=='object'||Array.isArray(def)||!src||typeof src!=='object'||Array.isArray(src))return src===undefined?def:src;const o={};for(const k of Object.keys(def))o[k]=(k in src)?merge(def[k],src[k]):def[k];for(const k of Object.keys(src))if(!(k in o))o[k]=src[k];return o}
+let S=defaults();
+function load(){try{const raw=localStorage.getItem(SAVE_KEY);if(raw){const d=JSON.parse(raw);S=merge(defaults(),d);S.current=d.current||null;S.doors=d.doors||null}}catch(e){S=defaults()}
+ if(!Array.isArray(S.history))S.history=[];if(!Array.isArray(S.pending))S.pending=[];}
+function save(){try{S.lastActive=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function addShared(item){try{const k='gfk-collection';let a=JSON.parse(localStorage.getItem(k)||'[]');if(!Array.isArray(a))a=[];if(a.some(x=>x&&x.game===SLUG&&x.id===item.id))return;a.push(Object.assign({game:SLUG},item,{earnedAt:new Date().toISOString()}));localStorage.setItem(k,JSON.stringify(a))}catch(e){}}
+
+/* ---------- AUDIO ---------- */
+let AC=null,master=null,noiseBuf=null,noteIdx=0;
+function ensureAudio(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();master=AC.createGain();master.gain.value=0.55;master.connect(AC.destination);
+  noiseBuf=AC.createBuffer(1,AC.sampleRate*0.5,AC.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const b=AC.createBuffer(1,1,22050);const s=AC.createBufferSource();s.buffer=b;s.connect(AC.destination);s.start(0)}
+ if(AC.state==='suspended')AC.resume()}catch(e){}}
+function tone(f,t,dur,o={}){if(!AC||!S.settings.sfx)return;try{const g=AC.createGain(),os=AC.createOscillator();os.type=o.type||'sine';const t0=AC.currentTime+(t||0);
+ os.frequency.setValueAtTime(f,t0);if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,t0+dur);
+ const v=o.vol||0.18;g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(v,t0+(o.a||0.012));g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+ os.connect(g);g.connect(master);os.start(t0);os.stop(t0+dur+0.05)}catch(e){}}
+function noise(t,dur,f,vol){if(!AC||!S.settings.sfx)return;try{const s=AC.createBufferSource();s.buffer=noiseBuf;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=2.5;const g=AC.createGain();const t0=AC.currentTime+t;
+ g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);s.connect(bp);bp.connect(g);g.connect(master);s.start(t0);s.stop(t0+dur+0.02)}catch(e){}}
+const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760];
+const SFX={
+ pop(){tone(420,0,0.09,{to:220,vol:0.16});const f=PENTA[noteIdx%PENTA.length];noteIdx++;tone(f,0.03,0.45,{type:'triangle',vol:0.12})},
+ lift(){tone(660,0,0.08,{to:880,vol:0.07})},
+ back(){tone(500,0,0.12,{to:330,vol:0.08,type:'triangle'})},
+ arp(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,i*0.09,0.4,{type:'triangle',vol:0.1}))},
+ bell(){tone(1318.5,0,1.3,{vol:0.13});tone(2637,0,0.8,{vol:0.04});tone(1975.5,0.12,1.0,{vol:0.06})},
+ chord(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>{tone(f,i*0.05,1.8,{type:'triangle',vol:0.09});tone(f*2,i*0.05+0.02,1.2,{vol:0.03})})},
+ hmm(){tone(262,0,0.22,{type:'triangle',to:233,vol:0.09});tone(233,0.2,0.3,{type:'triangle',to:277,vol:0.08})},
+ mip(d){tone(1100,d||0,0.09,{to:1700,vol:0.07})},
+ crack(i){noise(0,0.12,900+i*500,0.35);tone(300+i*120,0,0.1,{type:'square',vol:0.03})},
+ burst(){[1046.5,1318.5,1568,2093,2637].forEach((f,i)=>tone(f,i*0.06,0.6,{vol:0.07}));noise(0,0.4,3000,0.12)},
+ tap(){tone(880,0,0.06,{vol:0.05})},
+ gem(){[1568,2093,2637].forEach((f,i)=>tone(f,i*0.08,0.7,{vol:0.07}))}};
+function sfx(n,a){try{SFX[n]&&SFX[n](a)}catch(e){}}
+
+/* ---------- SPEECH ---------- */
+let VOICE=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices()||[];for(const p of ['Samantha','Karen','Moira']){const v=vs.find(x=>x.name&&x.name.indexOf(p)>=0);if(v)return v}return vs.find(v=>/en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){return null}}
+try{if('speechSynthesis' in window){VOICE=pickVoice();speechSynthesis.onvoiceschanged=()=>{VOICE=pickVoice()}}}catch(e){}
+function speak(text){if(!S.settings.voice)return;try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text).replace(/↔/g,'').replace(/×/g,' by '));u.rate=S.settings.rate||0.9;u.pitch=1.05;u.lang='en-US';if(VOICE)u.voice=VOICE;speechSynthesis.speak(u)}catch(e){}}
+let lastLine='';
+function capEl(){const ov=$('#ov.show .cap');if(ov)return ov;return $('.screen.active .cap')}
+function say(text,opt={}){lastLine=text;const c=capEl();if(c){const t=$('.txt',c);t.textContent=text;c.classList.toggle('hidecap',!S.settings.captions);c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}if(!opt.silent)speak(text)}
+function replay(){if(lastLine)speak(lastLine)}
+
+/* ---------- SVG ART ---------- */
+function eye(x,y,sleep,big){if(sleep)return `<path d="M${x-5} ${y} Q${x} ${y+5} ${x+5} ${y}" stroke="#2a2140" stroke-width="2.8" fill="none" stroke-linecap="round"/>`;
+ const r=big?6:5;return `<circle cx="${x}" cy="${y}" r="${r}" fill="#2a2140"/><circle cx="${x+1.8}" cy="${y-1.8}" r="${r*0.38}" fill="#fff"/>`}
+const DIE={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]]};
+const PAT={1:[[24,60],[76,60],[70,84]],2:[[18,40],[82,40],[22,78],[78,78]],3:[[30,70],[70,70],[50,34]],4:[[16,62],[84,62],[30,84],[70,84]],5:[[24,62],[76,62],[72,86]]};
+const HEAD={1:[50,30],2:[50,28],3:[50,16],4:[50,24],5:[50,30]};
+function gemSVG(v,o={}){
+ const K=o.pal||KINDS[v];const c=K.color,d=K.dark,l=K.light;const mode=o.mode||'dots';const sl=!!o.sleep;
+ let b='',E=[[40,50],[60,50]],T=[50,72],mouth='',cheek=true;
+ const sw='stroke="'+d+'" stroke-width="3" stroke-linejoin="round"';
+ if(v===1){b=`<ellipse cx="36" cy="26" rx="9" ry="22" transform="rotate(-12 36 26)" fill="${c}" ${sw}/><ellipse cx="36" cy="28" rx="4" ry="14" transform="rotate(-12 36 28)" fill="${l}"/>
+  <ellipse cx="64" cy="26" rx="9" ry="22" transform="rotate(12 64 26)" fill="${c}" ${sw}/><ellipse cx="64" cy="28" rx="4" ry="14" transform="rotate(12 64 28)" fill="${l}"/>
+  <circle cx="50" cy="63" r="32" fill="${c}" ${sw}/><path d="M26 52 L40 36 L48 46 Z" fill="#fff" opacity=".35"/><path d="M64 38 L72 44 L66 48Z" fill="#fff" opacity=".25"/>`;E=[[39,54],[61,54]];T=[50,76];mouth=`<path d="M46 61 Q50 65 54 61" stroke="#2a2140" stroke-width="2.2" fill="none" stroke-linecap="round"/>`}
+ else if(v===2){const w=`<path d="M46 50 C 26 14, 2 22, 6 46 C 9 62, 28 64, 46 58 Z" fill="${c}" ${sw}/><path d="M46 64 C 26 66, 10 82, 22 92 C 34 98, 46 84, 47 72 Z" fill="${c}" ${sw}/><path d="M14 36 L26 30 L30 44 Z" fill="#fff" opacity=".35"/><circle cx="22" cy="48" r="5" fill="${l}"/>`;
+  b=`${w}<g transform="translate(100,0) scale(-1,1)">${w}</g><path d="M44 34 Q36 16 28 14" stroke="${d}" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M56 34 Q64 16 72 14" stroke="${d}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="28" cy="14" r="4" fill="${c}" ${sw}/><circle cx="72" cy="14" r="4" fill="${c}" ${sw}/>
+  <ellipse cx="50" cy="62" rx="21" ry="31" fill="${c}" ${sw}/><path d="M38 44 L46 36 L48 50Z" fill="#fff" opacity=".35"/>`;E=[[43,48],[57,48]];T=[50,74];mouth=`<path d="M47 55 Q50 58 53 55" stroke="#2a2140" stroke-width="2" fill="none" stroke-linecap="round"/>`}
+ else if(v===3){b=`<path d="M45 16 Q48 2 52 14 Q57 4 58 17" stroke="${d}" stroke-width="3" fill="${c}" stroke-linejoin="round"/>
+  <path d="M50 14 L88 84 Q91 93 80 93 L20 93 Q9 93 12 84 Z" fill="${c}" ${sw}/><path d="M50 22 L36 50 L46 48Z" fill="#fff" opacity=".38"/>
+  <path d="M30 94 l-3 5 M34 94 l0 5 M66 94 l0 5 M70 94 l3 5" stroke="#e08a00" stroke-width="3" stroke-linecap="round"/>`;E=[[42,46],[58,46]];T=[50,76];mouth=`<path d="M45 53 L55 53 L50 60 Z" fill="#ff9f43" stroke="#c86a10" stroke-width="1.5" stroke-linejoin="round"/>`}
+ else if(v===4){b=`<circle cx="29" cy="36" r="15" fill="${c}" ${sw}/><circle cx="71" cy="36" r="15" fill="${c}" ${sw}/>
+  <ellipse cx="50" cy="66" rx="43" ry="28" fill="${c}" ${sw}/><path d="M14 60 L30 44 L36 54Z" fill="#fff" opacity=".3"/><ellipse cx="18" cy="92" rx="9" ry="4" fill="${d}"/><ellipse cx="82" cy="92" rx="9" ry="4" fill="${d}"/>`;E=[[29,35],[71,35]];T=[50,72];mouth=`<path d="M38 52 Q50 60 62 52" stroke="#2a2140" stroke-width="2.4" fill="none" stroke-linecap="round"/>`}
+ else {b=`<path d="M78 80 Q99 74 94 52 Q92 44 86 48" stroke="${d}" stroke-width="11" fill="none" stroke-linecap="round"/><path d="M78 80 Q99 74 94 52 Q92 44 86 48" stroke="${c}" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M20 48 L24 10 L48 32 Z" fill="${c}" ${sw}/><path d="M80 48 L76 10 L52 32 Z" fill="${c}" ${sw}/><path d="M26 40 L28 20 L40 32Z" fill="${l}"/><path d="M74 40 L72 20 L60 32Z" fill="${l}"/>
+  <circle cx="50" cy="62" r="32" fill="${c}" ${sw}/><path d="M26 50 L38 36 L46 46Z" fill="#fff" opacity=".35"/>`;E=[[39,54],[61,54]];T=[50,77];
+  mouth=`<path d="M46 61 Q48 64 50 61 Q52 64 54 61" stroke="#2a2140" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M28 60 L16 58 M28 64 L16 66 M72 60 L84 58 M72 64 L84 66" stroke="${d}" stroke-width="1.6" stroke-linecap="round"/>`}
+ // pattern
+ let pat='';if(o.pattern&&o.pattern!=='none'){for(const [px,py] of PAT[v]){
+  if(o.pattern==='spots')pat+=`<circle cx="${px}" cy="${py}" r="4.5" fill="${l}" opacity=".8"/>`;
+  else if(o.pattern==='stars')pat+=`<path d="M${px} ${py-6} L${px+1.8} ${py-1.8} L${px+6} ${py} L${px+1.8} ${py+1.8} L${px} ${py+6} L${px-1.8} ${py+1.8} L${px-6} ${py} L${px-1.8} ${py-1.8}Z" fill="#fff" opacity=".85"/>`;
+  else if(o.pattern==='stripes')pat+=`<path d="M${px-6} ${py-3} Q${px} ${py-7} ${px+6} ${py-3} M${px-6} ${py+3} Q${px} ${py-1} ${px+6} ${py+3}" stroke="${d}" stroke-width="2" fill="none" opacity=".6"/>`;
+  else if(o.pattern==='facets')pat+=`<path d="M${px-5} ${py} L${px} ${py-6} L${px+5} ${py} L${px} ${py+6}Z" fill="#fff" opacity=".45" stroke="${d}" stroke-width="1"/>`;
+  else if(o.pattern==='drops')pat+=`<path d="M${px} ${py-6} Q${px+5} ${py+1} ${px} ${py+4} Q${px-5} ${py+1} ${px} ${py-6}Z" fill="${l}" opacity=".9"/>`;}}
+ // tummy
+ let tum='';const [tx,ty]=T;
+ if(mode!=='plain'){
+  tum=`<ellipse cx="${tx}" cy="${ty}" rx="17" ry="13.5" fill="${l}" opacity=".95"/>`;
+  const dots=(op)=>DIE[v]?DIE[v].map(([dx,dy])=>`<circle cx="${tx+dx*7.5}" cy="${ty+dy*6.2}" r="3.7" fill="${d}" opacity="${op}"/>`).join(''):'';
+  if(mode==='dots'||mode==='dotsNum')tum+=dots(1);
+  if(mode==='num'){tum+=dots(.2)+`<text x="${tx}" y="${ty+8}" text-anchor="middle" font-family="Fredoka,ui-rounded,system-ui" font-weight="700" font-size="23" fill="${d}">${v}</text>`}
+  if(mode==='dotsNum')tum+=`<circle cx="84" cy="18" r="12" fill="#fff" stroke="${d}" stroke-width="2.5"/><text x="84" y="24" text-anchor="middle" font-family="Fredoka,ui-rounded,system-ui" font-weight="700" font-size="17" fill="${d}">${v}</text>`;
+  if(mode==='face')tum=`<ellipse cx="${tx}" cy="${ty}" rx="15" ry="11" fill="${l}" opacity=".85"/>`;
+ }
+ const ch=cheek?`<ellipse cx="${E[0][0]-6}" cy="${E[0][1]+8}" rx="5" ry="3" fill="#ff9ec4" opacity=".55"/><ellipse cx="${E[1][0]+6}" cy="${E[1][1]+8}" rx="5" ry="3" fill="#ff9ec4" opacity=".55"/>`:'';
+ let acc='';if(o.acc&&o.acc!=='none')acc=accSVG(o.acc,v,E);
+ const vb=o.vb||'-4 -4 108 108';
+ return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">${b}${pat}${tum}${ch}${eye(E[0][0],E[0][1],sl)}${eye(E[1][0],E[1][1],sl)}${mouth}${acc}</svg>`;
+}
+function accSVG(a,v,E){const [hx,hy]=HEAD[v];
+ if(a==='bow')return `<g transform="translate(${hx+16} ${hy+6})"><path d="M0 0 L-10 -7 L-10 7Z M0 0 L10 -7 L10 7Z" fill="#ff8fc8" stroke="#c2407e" stroke-width="1.5"/><circle r="3.5" fill="#ffd0e6"/></g>`;
+ if(a==='crown')return `<path d="M${hx-13} ${hy+2} L${hx-13} ${hy-10} L${hx-6} ${hy-3} L${hx} ${hy-13} L${hx+6} ${hy-3} L${hx+13} ${hy-10} L${hx+13} ${hy+2}Z" fill="#ffd86b" stroke="#b07a00" stroke-width="2" stroke-linejoin="round"/><circle cx="${hx}" cy="${hy-3}" r="2.5" fill="#ff7fb0"/>`;
+ if(a==='leaf')return `<path d="M${hx} ${hy} Q${hx+16} ${hy-14} ${hx+22} ${hy-4} Q${hx+12} ${hy+6} ${hx} ${hy}Z" fill="#7be08e" stroke="#2d8a4a" stroke-width="1.6"/>`;
+ if(a==='flower')return `<g transform="translate(${hx-16} ${hy+4})">${[0,72,144,216,288].map(r=>`<ellipse rx="3.5" ry="6" cy="-5" transform="rotate(${r})" fill="#fff3a8" stroke="#e0a800" stroke-width="1"/>`).join('')}<circle r="3" fill="#ff9f43"/></g>`;
+ if(a==='glasses')return `<g fill="none" stroke="#5a3d1a" stroke-width="2"><circle cx="${E[0][0]}" cy="${E[0][1]}" r="8"/><circle cx="${E[1][0]}" cy="${E[1][1]}" r="8"/><path d="M${E[0][0]+8} ${E[0][1]} L${E[1][0]-8} ${E[1][1]}"/></g>`;
+ if(a==='scarf'){const y=E[0][1]+18;return `<path d="M26 ${y} Q50 ${y+9} 74 ${y}" stroke="#7fd8ff" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M66 ${y+2} l4 14" stroke="#7fd8ff" stroke-width="6" stroke-linecap="round"/>`}
+ if(a==='mushroom')return `<path d="M${hx-18} ${hy+2} Q${hx} ${hy-22} ${hx+18} ${hy+2}Z" fill="#ff7f9e" stroke="#b8345a" stroke-width="2"/><circle cx="${hx-7}" cy="${hy-6}" r="2.5" fill="#fff"/><circle cx="${hx+6}" cy="${hy-8}" r="3" fill="#fff"/>`;
+ return ''}
+function hslPal(h){return{color:`hsl(${h},78%,64%)`,dark:`hsl(${h},55%,34%)`,light:`hsl(${h},90%,88%)`}}
+
+function nibSVG(o={}){const hat=o.hat,sleepy=o.sleepy;const fur='#7a6a8c',fur2='#a898bb',dk='#4b3d5c';
+ let h='';
+ if(hat==='miner')h=`<path d="M22 34 Q50 4 78 34 Z" fill="#ffd23f" stroke="#a87600" stroke-width="3" stroke-linejoin="round"/><rect x="18" y="31" width="64" height="7" rx="3.5" fill="#f2b700" stroke="#a87600" stroke-width="2"/><circle cx="50" cy="20" r="7" fill="#fff8d0" stroke="#a87600" stroke-width="2"/><circle cx="50" cy="20" r="11" fill="#fff6b0" opacity=".35"/>`;
+ else if(hat==='flower')h=`<path d="M24 32 Q50 20 76 32" stroke="#6bc77a" stroke-width="4" fill="none"/>${[[28,30,'#ff9ec7'],[40,25,'#fff3a8'],[52,23,'#b9a6e8'],[64,25,'#ff9ec7'],[74,30,'#9be8ff']].map(([x,y,cl])=>`<circle cx="${x}" cy="${y}" r="5.5" fill="${cl}" stroke="#fff" stroke-width="1.5"/>`).join('')}`;
+ else if(hat==='nightcap')h=`<path d="M24 34 Q40 2 74 10 Q86 14 90 30 Q70 18 76 34Z" fill="#5c6bd6" stroke="#2f3a8f" stroke-width="2.5" stroke-linejoin="round"/><circle cx="90" cy="31" r="5" fill="#fff"/><path d="M48 18 a5 5 0 1 0 6 6 a4 4 0 1 1 -6 -6z" fill="#ffd86b"/>`;
+ const scarf=(o.scarf||hat==='scarf')?`<path d="M22 82 Q50 94 78 82" stroke="#7fd8ff" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M68 87 l5 11" stroke="#7fd8ff" stroke-width="7" stroke-linecap="round"/><path d="M34 87 l1 0 M50 89 l1 0 M64 87 l1 0" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`:'';
+ const eyes=sleepy?`<path d="M30 50 Q36 55 42 50 M58 50 Q64 55 70 50" stroke="#2a2140" stroke-width="2.6" fill="none" stroke-linecap="round"/>`:`<circle cx="36" cy="49" r="5.5" fill="#2a2140"/><circle cx="64" cy="49" r="5.5" fill="#2a2140"/><circle cx="38" cy="47" r="2" fill="#fff"/><circle cx="66" cy="47" r="2" fill="#fff"/>`;
+ return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+ <ellipse cx="50" cy="66" rx="36" ry="32" fill="${fur}" stroke="${dk}" stroke-width="2.5"/><ellipse cx="50" cy="76" rx="22" ry="18" fill="${fur2}"/>
+ <circle cx="20" cy="40" r="7" fill="${fur}" stroke="${dk}" stroke-width="2"/><circle cx="80" cy="40" r="7" fill="${fur}" stroke="${dk}" stroke-width="2"/>
+ ${eyes}
+ <circle cx="36" cy="49" r="13" fill="#ffffff26" stroke="#e8c26b" stroke-width="3.2"/><circle cx="64" cy="49" r="13" fill="#ffffff26" stroke="#e8c26b" stroke-width="3.2"/><path d="M49 49 Q50 46 51 49" stroke="#e8c26b" stroke-width="3" fill="none"/>
+ <path d="M30 42 l4 -3" stroke="#fff" stroke-width="2" opacity=".7" stroke-linecap="round"/><path d="M58 42 l4 -3" stroke="#fff" stroke-width="2" opacity=".7" stroke-linecap="round"/>
+ <ellipse cx="50" cy="64" rx="9" ry="6.5" fill="#ffadc6" stroke="#d26f93" stroke-width="1.5"/><ellipse cx="48" cy="62" rx="3" ry="2" fill="#fff" opacity=".6"/>
+ <path d="M44 72 Q50 77 56 72" stroke="#2a2140" stroke-width="2" fill="none" stroke-linecap="round"/>
+ ${scarf}
+ <g fill="#ffb3c9" stroke="#d26f93" stroke-width="1.5"><ellipse cx="26" cy="90" rx="10" ry="6"/><ellipse cx="74" cy="90" rx="10" ry="6"/></g>
+ <path d="M20 92 l-2 4 M25 94 l0 4 M30 92 l2 4 M70 92 l-2 4 M75 94 l0 4 M80 92 l2 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+ ${h}</svg>`}
+function nibHat(){const w=S.nib.wearing;return w||null}
+
+let UID=0;
+function gemStoneSVG(t,size){const G=GEMS[t]||GEMS.rose;const id='gs'+t+'_'+(++UID);
+ const defs=`<defs><radialGradient id="${id}" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${G.a}"/><stop offset="1" stop-color="${G.b}"/></radialGradient>
+ <linearGradient id="${id}o" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc4e0"/><stop offset=".3" stop-color="#fff3a8"/><stop offset=".55" stop-color="#a8f0d0"/><stop offset=".8" stop-color="#a8c8ff"/><stop offset="1" stop-color="#e0b8ff"/></linearGradient></defs>`;
+ let s='';const st=`stroke="${G.b}" stroke-width="2.5" stroke-linejoin="round"`;
+ if(G.shape==='oval')s=`<ellipse cx="50" cy="56" rx="30" ry="36" fill="url(#${id})" ${st}/><path d="M50 20 L36 44 L50 92 L64 44Z M20 56 L36 44 M80 56 L64 44" stroke="#fff" stroke-width="1.5" fill="none" opacity=".6"/>`;
+ else if(G.shape==='round')s=`<circle cx="50" cy="55" r="36" fill="url(#${id})" ${st}/><ellipse cx="40" cy="44" rx="14" ry="9" fill="#fff" opacity=".7"/><circle cx="50" cy="55" r="36" fill="#b8d8ff" opacity=".18"/>`;
+ else if(G.shape==='point')s=`<path d="M50 6 L74 30 L70 92 L30 92 L26 30Z" fill="url(#${id})" ${st}/><path d="M50 6 L50 92 M26 30 L50 40 L74 30" stroke="#fff" stroke-width="1.6" fill="none" opacity=".6"/><path d="M22 60 L12 92 L30 92Z" fill="${G.a}" ${st}/>`;
+ else if(G.shape==='brilliant')s=`<path d="M30 20 L70 20 L90 42 L50 94 L10 42Z" fill="url(#${id})" ${st}/><path d="M10 42 L90 42 M30 20 L40 42 L50 20 L60 42 L70 20 M40 42 L50 94 L60 42" stroke="#fff" stroke-width="1.5" fill="none" opacity=".7"/>`;
+ else if(G.shape==='star')s=`<circle cx="50" cy="55" r="36" fill="url(#${id})" ${st}/><path d="M50 27 L50 83 M26 41 L74 69 M26 69 L74 41" stroke="#fff" stroke-width="3" opacity=".85" stroke-linecap="round"/><circle cx="50" cy="55" r="5" fill="#fff"/>`;
+ else if(G.shape==='opal')s=`<ellipse cx="50" cy="55" rx="36" ry="32" fill="url(#${id}o)" ${st}/><ellipse cx="40" cy="44" rx="13" ry="8" fill="#fff" opacity=".75"/>`;
+ else s=`<path d="M50 92 L14 52 Q4 36 18 24 Q34 12 50 30 Q66 12 82 24 Q96 36 86 52Z" fill="url(#${id})" ${st}/><path d="M28 32 Q34 26 40 32" stroke="#fff" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/>`;
+ return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${defs}<ellipse cx="50" cy="96" rx="26" ry="4" fill="#0004"/>${s}</svg>`}
+
+function tenFrames(N,x,y,cell){let s='';const frames=Math.max(1,Math.ceil(N/10));const per=3;const fw=cell*5+4,fh=cell*2+4;
+ for(let f=0;f<frames;f++){const row=Math.floor(f/per),col=f%per;const inRow=Math.min(per,frames-row*per);const ox=x-(inRow*(fw+6)-6)/2+col*(fw+6),oy=y+row*(fh+6);
+  s+=`<rect x="${ox}" y="${oy}" width="${fw}" height="${fh}" rx="3" fill="#fff" stroke="#8b7fb8" stroke-width="1.2"/>`;
+  for(let k=0;k<10;k++){const cx=ox+2+(k%5)*cell+cell/2,cy=oy+2+Math.floor(k/5)*cell+cell/2;const filled=f*10+k<N;s+=`<circle cx="${cx}" cy="${cy}" r="${cell*0.33}" fill="${filled?'#ff9f43':'none'}" stroke="${filled?'#c86a10':'#c9c0e6'}" stroke-width="1"/>`}}
+ return s}
+function cardSVG(card,o={}){
+ if(!card||o.silhouette){const k=card?card.kind:1;return `<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="192" height="272" rx="18" fill="#2a2548" stroke="#5a5290" stroke-width="4" stroke-dasharray="10 8"/>
+ <g transform="translate(45 60) scale(1.1)" opacity=".5" style="filter:brightness(0)">${gemSVG(k,{mode:'plain',pal:{color:'#544c86',dark:'#544c86',light:'#544c86'}}).replace('<svg','<svg width="100" height="100"')}</g>
+ <text x="100" y="230" text-anchor="middle" font-family="Fredoka,ui-rounded,system-ui" font-size="44" fill="#6b62a8" font-weight="700">?</text></svg>`}
+ const pal=hslPal(card.hue);const rare=card.rarity!=='common';const frame=rare?'#ffd86b':'#cfe3ff';const bg=`hsl(${card.hue},45%,${rare?30:26}%)`;
+ const gid='cg'+card.id+'_'+(++UID);
+ const shimmer=rare?`<rect x="10" y="10" width="180" height="260" rx="14" fill="url(#${gid}s)" opacity=".5"><animate attributeName="x" values="-200;200" dur="3s" repeatCount="indefinite"/></rect>`:'';
+ const tag=card.rarity==='guardian'?'GUARDIAN':(card.rarity==='rare'?'RARE':'');
+ return `<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="${gid}" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="hsl(${card.hue},70%,62%)"/><stop offset="1" stop-color="${bg}"/></radialGradient>
+ <linearGradient id="${gid}s" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <clipPath id="${gid}c"><rect x="10" y="10" width="180" height="260" rx="14"/></clipPath></defs>
+ <rect x="3" y="3" width="194" height="274" rx="20" fill="${frame}"/>${rare?`<rect x="3" y="3" width="194" height="274" rx="20" fill="none" stroke="#b07a00" stroke-width="3"/>`:''}
+ <rect x="10" y="10" width="180" height="260" rx="14" fill="url(#${gid})"/>
+ <g clip-path="url(#${gid}c)">${[[30,30],[170,50],[40,150],[160,140],[100,24]].map(([x,y])=>`<path d="M${x} ${y-5} L${x+1.5} ${y-1.5} L${x+5} ${y} L${x+1.5} ${y+1.5} L${x} ${y+5} L${x-1.5} ${y+1.5} L${x-5} ${y} L${x-1.5} ${y-1.5}Z" fill="#fff" opacity=".7"/>`).join('')}${shimmer}</g>
+ ${tag?`<rect x="60" y="14" width="80" height="18" rx="9" fill="#ffd86b"/><text x="100" y="27" text-anchor="middle" font-family="Fredoka,ui-rounded,system-ui" font-size="11" font-weight="700" fill="#5a3d00">${tag}</text>`:''}
+ <g transform="translate(40 32) scale(1.2)">${gemSVG(card.kind,{mode:'plain',pal,pattern:card.pattern,acc:card.acc}).replace('<svg','<svg width="100" height="100"')}</g>
+ <rect x="16" y="160" width="168" height="30" rx="12" fill="#fffaf0"/><text x="100" y="181" text-anchor="middle" font-family="Fredoka,ui-rounded,system-ui" font-size="${card.name.length>16?14:17}" font-weight="700" fill="#3a2f55">${esc(card.name)}</text>
+ <circle cx="34" cy="226" r="20" fill="#ffd86b" stroke="#b07a00" stroke-width="2.5"/><text x="34" y="234" text-anchor="middle" font-family="Fredoka,ui-rounded,system-ui" font-size="21" font-weight="700" fill="#4a2e00">${card.sparkle}</text>
+ <g>${tenFrames(card.sparkle,125,card.sparkle>30?200:card.sparkle>10?212:206,card.sparkle>30?6.6:card.sparkle>10?7:10)}</g>
+ <text x="100" y="264" text-anchor="middle" font-family="Andika,ui-rounded,system-ui" font-size="10.5" fill="#fffaf0" opacity=".85">${esc(card.home)}</text></svg>`}
+
+const ICON={
+ home:`<svg viewBox="0 0 48 48"><path d="M8 24 L24 10 L40 24" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 22 V38 H35 V22" fill="#ffd86b" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><rect x="20" y="27" width="8" height="11" rx="4" fill="#7a5a00"/></svg>`,
+ speaker:`<svg viewBox="0 0 48 48"><path d="M8 19 H16 L26 10 V38 L16 29 H8Z" fill="#fff"/><path d="M31 17 Q36 24 31 31 M35 12 Q44 24 35 36" stroke="#ffd86b" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>`,
+ mute:`<svg viewBox="0 0 48 48"><path d="M8 19 H16 L26 10 V38 L16 29 H8Z" fill="#fff" opacity=".7"/><path d="M32 20 l8 8 M40 20 l-8 8" stroke="#b9a6e8" stroke-width="3.5" stroke-linecap="round"/></svg>`,
+ say:`<svg viewBox="0 0 48 48"><path d="M8 19 H16 L26 10 V38 L16 29 H8Z" fill="#6c5fb0"/><path d="M31 17 Q36 24 31 31 M35 12 Q44 24 35 36" stroke="#6c5fb0" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>`,
+ lantern:`<svg viewBox="0 0 48 48"><path d="M18 8 Q24 2 30 8" stroke="#ffd86b" stroke-width="3" fill="none"/><rect x="15" y="10" width="18" height="5" rx="2" fill="#c99a3a"/><path d="M14 15 H34 L32 36 H16Z" fill="#fff3b0" stroke="#c99a3a" stroke-width="2.5"/><path d="M24 20 Q29 26 24 31 Q19 26 24 20Z" fill="#ff9f43"/><rect x="15" y="36" width="18" height="5" rx="2" fill="#c99a3a"/></svg>`,
+ tools:`<svg viewBox="0 0 48 48"><circle cx="15" cy="26" r="9" fill="#cfe9ff55" stroke="#fff" stroke-width="3"/><circle cx="33" cy="26" r="9" fill="#cfe9ff55" stroke="#fff" stroke-width="3"/><path d="M24 25 Q24 22 24 25" stroke="#fff" stroke-width="3"/><path d="M22 24 Q24 21 26 24" stroke="#fff" stroke-width="3" fill="none"/><path d="M38 10 l2 4 4 2 -4 2 -2 4 -2 -4 -4 -2 4 -2z" fill="#ffd86b"/></svg>`,
+ glasses:`<svg viewBox="0 0 48 48"><circle cx="15" cy="26" r="9" fill="#ffd86b55" stroke="#ffd86b" stroke-width="3"/><circle cx="33" cy="26" r="9" fill="#ffd86b55" stroke="#ffd86b" stroke-width="3"/><path d="M22 24 Q24 21 26 24" stroke="#ffd86b" stroke-width="3" fill="none"/><circle cx="12" cy="24" r="2" fill="#fff"/><circle cx="17" cy="28" r="2" fill="#fff"/><circle cx="31" cy="24" r="2" fill="#fff"/><circle cx="35" cy="28" r="2" fill="#fff"/></svg>`,
+ rules:`<svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="5" fill="#fffaf0" stroke="#b9a6e8" stroke-width="3"/><rect x="15" y="12" width="7" height="7" rx="2" fill="#ff6f8e"/><rect x="26" y="12" width="7" height="7" rx="2" fill="#4ea8ff"/><rect x="15" y="23" width="7" height="7" rx="2" fill="#4ea8ff"/><rect x="26" y="23" width="7" height="7" rx="2" fill="#ff6f8e"/><path d="M15 36 H33" stroke="#b9a6e8" stroke-width="3" stroke-linecap="round"/></svg>`,
+ binder:`<svg viewBox="0 0 48 48"><rect x="8" y="6" width="32" height="38" rx="5" fill="#7b5cd6" stroke="#fff" stroke-width="2.5"/><rect x="15" y="12" width="18" height="24" rx="3" fill="#fffaf0"/><circle cx="24" cy="22" r="6" fill="#ff6f8e"/><path d="M8 14 h-3 M8 24 h-3 M8 34 h-3" stroke="#ffd86b" stroke-width="3" stroke-linecap="round"/></svg>`,
+ shelf:`<svg viewBox="0 0 48 48"><rect x="4" y="34" width="40" height="6" rx="2" fill="#b9864a"/><path d="M12 34 L8 26 L13 18 L18 26Z" fill="#f48fb8" stroke="#fff" stroke-width="1.5"/><path d="M24 34 L20 22 L24 12 L28 22Z" fill="#a66bff" stroke="#fff" stroke-width="1.5"/><circle cx="36" cy="28" r="6" fill="#dfe8f7" stroke="#fff" stroke-width="1.5"/></svg>`,
+ next:`<svg viewBox="0 0 48 48"><path d="M18 10 L32 24 L18 38" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ prev:`<svg viewBox="0 0 48 48"><path d="M30 10 L16 24 L30 38" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ mushroom:`<svg viewBox="0 0 48 48"><path d="M8 24 Q24 2 40 24Z" fill="#ff9ec7" stroke="#fff" stroke-width="2"/><circle cx="18" cy="17" r="3" fill="#fff"/><circle cx="29" cy="14" r="2.5" fill="#fff"/><path d="M19 24 H29 V36 Q24 40 19 36Z" fill="#fffaf0"/></svg>`,
+ lineup:`<svg viewBox="0 0 48 48"><rect x="4" y="26" width="8" height="12" rx="2" fill="#ffd86b"/><rect x="15" y="20" width="8" height="18" rx="2" fill="#ffd86b"/><rect x="26" y="14" width="8" height="24" rx="2" fill="#ffd86b"/><rect x="37" y="8" width="8" height="30" rx="2" fill="#ffd86b"/><rect x="2" y="40" width="44" height="4" rx="2" fill="#b9864a"/></svg>`};
+function crystalSVG(){const u=++UID;return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cr1_${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3ecff"/><stop offset=".5" stop-color="#b9a6e8"/><stop offset="1" stop-color="#6a4fc8"/></linearGradient><radialGradient id="crg_${u}"><stop offset="0" stop-color="#ffd86b" stop-opacity=".6"/><stop offset="1" stop-color="#ffd86b" stop-opacity="0"/></radialGradient></defs>
+ <circle cx="100" cy="100" r="96" fill="url(#crg_${u})"/><path d="M100 14 L136 60 L124 172 L76 172 L64 60Z" fill="url(#cr1_${u})" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="M100 14 L100 172 M64 60 L100 78 L136 60" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>
+ <path d="M60 100 L44 120 L52 176 L74 176Z" fill="#9be8ff" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/><path d="M140 96 L158 118 L150 176 L126 176Z" fill="#ff9ec7" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+ <path d="M84 50 L92 40 L94 66Z" fill="#fff" opacity=".7"/></svg>`}
+
+/* ---------- SOLVER & GENERATOR ---------- */
+function nbrs(i,n){const r=Math.floor(i/n),c=i%n,o=[];if(r>0)o.push(i-n);if(r<n-1)o.push(i+n);if(c>0)o.push(i-1);if(c<n-1)o.push(i+1);return o}
+function cageOk(P,g,i,v){const k=P.cageOf[i];if(k<0)return true;const C=P.cages[k];const n=P.n;
+ if(C.op==='gap'){const j=C.cells[0]===i?C.cells[1]:C.cells[0];if(g[j])return Math.abs(g[j]-v)===C.t;return (v+C.t<=n)||(v-C.t>=1)}
+ let s=v,e=0;for(const j of C.cells){if(j===i)continue;if(g[j])s+=g[j];else e++}
+ if(e===0)return s===C.t;return s+e<=C.t&&s+e*n>=C.t}
+function countSolutions(P,grid,cap){const n=P.n,N=n*n,g=grid.slice();const row=new Array(n).fill(0),col=new Array(n).fill(0);
+ for(let i=0;i<N;i++)if(g[i]){const b=1<<g[i];row[Math.floor(i/n)]|=b;col[i%n]|=b}
+ let count=0,nodes=0;
+ function rec(){if(++nodes>200000)return;let best=-1,bc=99,bm=0;
+  for(let i=0;i<N;i++){if(g[i])continue;const r=Math.floor(i/n),c=i%n;const used=row[r]|col[c];let cnt=0,m=0;
+   for(let v=1;v<=n;v++){if(used&(1<<v))continue;if(!cageOk(P,g,i,v))continue;cnt++;m|=1<<v}
+   if(cnt===0)return;if(cnt<bc){bc=cnt;best=i;bm=m;if(cnt===1)break}}
+  if(best<0){count++;return}
+  const r=Math.floor(best/n),c=best%n;
+  for(let v=1;v<=n;v++){if(!(bm&(1<<v)))continue;g[best]=v;row[r]|=1<<v;col[c]|=1<<v;rec();row[r]&=~(1<<v);col[c]&=~(1<<v);g[best]=0;if(count>=cap)return}}
+ rec();return count}
+function genLatin(n,rnd){const R=shuffle(range(n),rnd),C=shuffle(range(n),rnd),Y=shuffle(range(n),rnd);const s=new Array(n*n);for(let r=0;r<n;r++)for(let c=0;c<n;c++)s[r*n+c]=Y[(R[r]+C[c])%n]+1;return s}
+function pickSize(sizes,rnd){const ks=Object.keys(sizes).map(Number);let tot=0;for(const k of ks)tot+=sizes[k];let x=rnd()*tot;for(const k of ks){x-=sizes[k];if(x<=0)return k}return ks[ks.length-1]}
+function colorCages(cages,cageOf,n){const adj=cages.map(()=>new Set());for(let i=0;i<n*n;i++)for(const j of nbrs(i,n)){if(cageOf[i]!==cageOf[j]){adj[cageOf[i]].add(cageOf[j])}}
+ for(let k=0;k<cages.length;k++){const used=new Set();for(const a of adj[k])if(a<k)used.add(cages[a].color);let col=-1;for(let c=0;c<4;c++)if(!used.has(c)){col=c;break}if(col<0)return false;cages[k].color=col}return true}
+function genCages(n,sol,L,rnd){const N=n*n;
+ for(let tries=0;tries<200;tries++){const cageOf=new Array(N).fill(-1),cages=[];
+  for(const start of shuffle(range(N),rnd)){if(cageOf[start]>=0)continue;const size=pickSize(L.sizes,rnd);const cells=[start];cageOf[start]=cages.length;
+   while(cells.length<size){const nb=[];for(const c of cells)for(const d of nbrs(c,n))if(cageOf[d]<0&&nb.indexOf(d)<0)nb.push(d);if(!nb.length)break;const p=nb[Math.floor(rnd()*nb.length)];cageOf[p]=cages.length;cells.push(p)}
+   cages.push({cells:cells.sort((a,b)=>a-b),op:'sum',t:0,color:0})}
+  const singles=cages.filter(c=>c.cells.length===1).length;if(singles!==(L.one||0))continue;
+  if(L.need3&&!cages.some(c=>c.cells.length===3))continue;
+  if(L.gaps){const twos=cages.filter(c=>c.cells.length===2&&Math.abs(sol[c.cells[0]]-sol[c.cells[1]])<=(L.maxGap||n-1));const k=L.gaps[0]+Math.floor(rnd()*(L.gaps[1]-L.gaps[0]+1));if(twos.length<k)continue;shuffle(twos,rnd).slice(0,k).forEach(c=>c.op='gap')}
+  let bad=false;for(const c of cages){if(c.op==='gap')c.t=Math.abs(sol[c.cells[0]]-sol[c.cells[1]]);else{c.t=c.cells.reduce((s,i)=>s+sol[i],0);if(c.t>L.maxT)bad=true;if(L.min3&&c.cells.length===3&&c.t<L.min3)bad=true;if(L.minT&&c.cells.length===2&&c.t<L.minT)bad=true}}
+  if(bad)continue;if(!colorCages(cages,cageOf,n))continue;return{cages,cageOf}}
+ return null}
+// Hand-authored tutorials
+const TUTS={
+ 'TUT-L1':{track:'logic',level:1,n:3,sol:[1,2,3,2,3,1,3,1,2],blanks:[8],cages:[],line:'Every row has one of each friend. Who is missing here?'},
+ 'TUT-L2':{track:'logic',level:2,n:3,sol:[1,2,3,2,3,1,3,1,2],blanks:[5,6],cages:[],line:'Two Gemlings tumbled out! Look at each row. Who is missing?'},
+ 'TUT-S1':{track:'sum',level:1,n:3,sol:[1,2,3,2,3,1,3,1,2],blanks:[1,6],cages:[{cells:[0,1],t:3},{cells:[2,5],t:4},{cells:[3,6],t:5},{cells:[4,7],t:4},{cells:[8],t:2}],line:'This nook wants 3 sparkles. Rubbit has 1. How many more?'},
+ 'TUT-ROW10':{track:'sum',level:4,n:4,sol:[1,2,3,4,3,4,1,2,2,1,4,3,4,3,2,1],blanks:[0,1,2,11],cages:[{cells:[0,4],t:4},{cells:[1,5],t:6},{cells:[2,6],t:4},{cells:[3,7],t:6},{cells:[8,9],t:3},{cells:[10,11],t:7},{cells:[12,13],t:7},{cells:[14,15],t:3}],line:'A bigger wall! Each nook is missing one friend. Count the sparkles.'}};
+const LEVEL_TUT={'logic:1':'TUT-L1','logic:2':'TUT-L2','sum:1':'TUT-S1','sum:4':'TUT-ROW10'};
+function buildTut(id){const T=TUTS[id];const n=T.n,N=n*n;const cageOf=new Array(N).fill(-1);const cages=T.cages.map((c,k)=>{c.cells.forEach(i=>cageOf[i]=k);return{cells:c.cells.slice(),op:'sum',t:c.t,color:0}});
+ if(cages.length)colorCages(cages,cageOf,n);const givens=T.sol.map((v,i)=>T.blanks.indexOf(i)>=0?0:v);
+ return{n,track:T.track,level:T.level,sol:T.sol.slice(),cages,cageOf,givens,tut:id,seed:0,blanks:T.blanks.length}}
+function generate(track,level,seed){const t0=performance.now();const L=(track==='logic'?LOGIC:SUM)[level];const n=L.n,N=n*n;const rnd=mulberry32(seed);
+ const target=L.blanks[0]+Math.floor(rnd()*(L.blanks[1]-L.blanks[0]+1));let best=null;
+ for(let att=0;att<30;att++){const sol=genLatin(n,rnd);let cages=[],cageOf=new Array(N).fill(-1);
+  if(track==='sum'){const cg=genCages(n,sol,L,rnd);if(!cg)continue;cages=cg.cages;cageOf=cg.cageOf}
+  const P={n,track,level,sol,cages,cageOf};const g=sol.slice();let blanks=0;const locked=new Set();for(const c of cages)if(c.cells.length===1)locked.add(c.cells[0]);
+  for(const i of shuffle(range(N),rnd)){if(blanks>=target)break;if(locked.has(i))continue;
+   if(L.onePerCage&&cageOf[i]>=0&&cages[cageOf[i]].cells.some(j=>j!==i&&g[j]===0))continue;
+   g[i]=0;if(countSolutions(P,g,2)===1)blanks++;else g[i]=sol[i]}
+  if(!best||blanks>best.blanks)best={P,g,blanks};
+  if(blanks>=target)break;if(performance.now()-t0>70&&best)break}
+ const P=best.P;P.givens=best.g;P.blanks=best.blanks;P.seed=seed;P.tut=null;P.ms=performance.now()-t0;P.target=target;return P}
+function selfTest(per){per=per||200;const out=[];
+ for(const [track,arr] of [['logic',LOGIC],['sum',SUM]])for(let lv=1;lv<arr.length;lv++){const L=arr[lv];let unique=0,inRange=0,rules=0,maxMs=0,tot=0;
+  for(let k=0;k<per;k++){const P=generate(track,lv,1000+k*7919+lv*31);tot+=P.ms;maxMs=Math.max(maxMs,P.ms);
+   if(countSolutions(P,P.givens,2)===1)unique++;if(P.blanks>=L.blanks[0]&&P.blanks<=L.blanks[1])inRange++;
+   let ok=true;if(track==='sum'){for(const c of P.cages){if(c.op==='sum'&&c.t>L.maxT)ok=false;if(c.op==='sum'&&c.t!==c.cells.reduce((s,i)=>s+P.sol[i],0))ok=false;if(c.op==='gap'&&(c.cells.length!==2||c.t!==Math.abs(P.sol[c.cells[0]]-P.sol[c.cells[1]])))ok=false;
+     if(L.onePerCage&&c.cells.filter(i=>!P.givens[i]).length>1)ok=false;if(c.cells.length===1&&!P.givens[c.cells[0]])ok=false}
+    if(L.gaps){const gc=P.cages.filter(c=>c.op==='gap').length;if(gc<L.gaps[0]||gc>L.gaps[1])ok=false}
+    if(L.need3&&!P.cages.some(c=>c.cells.length===3))ok=false;
+    const singles=P.cages.filter(c=>c.cells.length===1).length;if(singles!==(L.one||0))ok=false}
+   if(ok)rules++}
+  out.push({level:L.id,unique,inRange,rules,avgMs:+(tot/per).toFixed(1),maxMs:+maxMs.toFixed(1)})}
+ return out}
+
+/* ---------- GAME STATE ---------- */
+let cur=null; // live puzzle state (mirrors S.current)
+let ui={sel:0,glow:null,justLit:-1,screen:'title',solvedAnim:false,lanternGlow:false,lastInteract:Date.now(),binderPage:0,shelfSel:null};
+function L_of(P){return (P.track==='logic'?LOGIC:SUM)[P.level]}
+function levelStage(P){if(P.track==='logic')return -1;return Math.max(0,SUM[P.level].stage-S.fadeStage.drop)}
+function pieceMode(){const P=cur.P;const glasses=cur.glasses||S.settings.alwaysDots;
+ if(P.track==='logic')return glasses?'dots':'face';const st=levelStage(P);const m=['dots','dotsNum','num'][st];if(m==='num'&&glasses)return 'dotsNum';return m}
+function board(){const P=cur.P;return P.givens.map((g,i)=>g||cur.place[i]||0)}
+function rc(i){const n=cur.P.n;return[Math.floor(i/n),i%n]}
+function lineCells(type,idx,n){return type==='row'?range(n).map(c=>idx*n+c):range(n).map(r=>r*n+idx)}
+function dupInfo(b,n){const set=new Set(),pairs=[];for(const type of ['row','col'])for(let k=0;k<n;k++){const cells=lineCells(type,k,n);const m={};for(const i of cells)if(b[i]){(m[b[i]]=m[b[i]]||[]).push(i)}for(const v in m)if(m[v].length>1){m[v].forEach(i=>set.add(i));pairs.push({type,k,v:+v,cells:m[v]})}}return{set,pairs}}
+function cageState(b,C){const vals=C.cells.map(i=>b[i]);const filled=vals.filter(Boolean);const full=filled.length===vals.length;let val;
+ if(C.op==='gap')val=full?Math.abs(vals[0]-vals[1]):0;else val=filled.reduce((a,x)=>a+x,0);return{full,val,correct:full&&val===C.t,filled:filled.length,vals}}
+function isSolved(b){const P=cur.P,n=P.n;if(b.some(x=>!x))return false;if(dupInfo(b,n).set.size)return false;for(const C of P.cages)if(!cageState(b,C).correct)return false;return true}
+function cands(b,i){const P=cur.P,n=P.n,[r,c]=rc(i);const res=[];for(let v=1;v<=n;v++){let bad=false;for(let k=0;k<n;k++){if(k!==c&&b[r*n+k]===v)bad=true;if(k!==r&&b[k*n+c]===v)bad=true}if(bad)continue;const g=b.slice();g[i]=0;if(!cageOk(P,g,i,v))continue;res.push(v)}return res}
+
+function newCurrent(P,door){return{P,door:door.type,frontier:!!door.frontier,soft:!!door.soft,place:new Array(P.n*P.n).fill(0),order:[],hint:null,hintMax:0,hintSteps:0,cellHint:{},twins:0,wrongCages:0,eventsSinceHint:0,glasses:false,usedGlasses:false,meterCages:[],activeMs:0,startedAt:Date.now(),saidTwin:false,saidWrongCage:false,fixedOwn:false,solved:false,started:false}}
+function persistCurrent(){S.current=cur&&!cur.solved?cur:null;save()}
+
+/* ---------- ADAPTIVITY & DOORS ---------- */
+function recentCleanRate(){const h=S.history.slice(-8);if(h.length<4)return null;return h.filter(x=>x.clean).length/h.length}
+function masteredLevel(track,rnd){const lv=S.tracks[track].level;if(lv<=1)return 1;const lo=Math.max(1,lv-3);return lo+Math.floor(rnd()*(lv-lo))}
+function sumSeen(){return S.tracks.sum.solves>0||S.tracks.sum.level>1||S.seen.rule2}
+function littleDoor(rnd,avoid){for(let t=0;t<12;t++){const track=(sumSeen()&&rnd()<0.7)?'sum':'logic';const level=masteredLevel(track,rnd);const n=(track==='logic'?LOGIC:SUM)[level].n;
+  if(avoid&&((avoid.track===track&&avoid.level===level)||(t<8&&avoid.n===n)))continue;return{type:'little',track,level,n,seed:newSeed(),frontier:false}}
+ const track=avoid&&avoid.track==='sum'?'logic':'sum';const level=masteredLevel(track,rnd);return{type:'little',track,level,n:(track==='logic'?LOGIC:SUM)[level].n,seed:newSeed(),frontier:false}}
+function makeDoorSet(){const rnd=Math.random;let doors;const opening=!S.sessionOpeningDone;
+ if(opening){if(S.doorSetIndex%2===1)S.doorSetIndex++;
+  const lg=S.tracks.logic.level;const pl=lg<=1?1:Math.max(1,lg-1);const little=littleDoor(rnd,{track:'logic',level:pl,n:LOGIC[pl].n});
+  doors=[little,{type:'picture',track:'logic',level:pl,n:LOGIC[pl].n,seed:newSeed(),frontier:lg<=1}]}
+ else{const pic=S.doorSetIndex%2===0;let bl=S.tracks.sum.level,soft=false;if(S.softLanding>0&&bl>1){bl--;soft=true;S.softLanding--}
+  const big={type:'big',track:'sum',level:bl,n:SUM[bl].n,seed:newSeed(),frontier:!soft,soft};const little=littleDoor(rnd);
+  if(pic){const ll=S.tracks.logic.level;doors=[little,big,{type:'picture',track:'logic',level:ll,n:LOGIC[ll].n,seed:newSeed(),frontier:true}]}
+  else doors=[little,big,littleDoor(rnd,little)]}
+ S.doors={set:doors,opening,index:S.doorSetIndex};S.doorSetIndex++;save();return S.doors}
+
+function puzzleForDoor(d){const key=d.track+':'+d.level;const tid=LEVEL_TUT[key];
+ if(tid&&!S.seen.tuts[tid]&&(d.frontier||!S.seen.levels[key]))return buildTut(tid);
+ return generate(d.track,d.level,d.seed)}
+
+/* ---------- RENDER: PUZZLE ---------- */
+function layoutPuzzle(){if(!cur)return;const W=innerWidth,H=innerHeight;const land=W>H&&W>=700;const pz=$('#pz');pz.classList.toggle('land',land);
+ const top=$('.pztop',pz).getBoundingClientRect().height;const n=cur.P.n;let availW,availH,tp;
+ const mEl=$('#model');const modelShown=mEl.classList.contains('show');
+ if(land){availW=W-260-(modelShown?Math.max(0,mEl.offsetWidth-130):0);availH=H-top-40;tp=Math.max(72,Math.min(92,Math.floor((H-top-60)/n)-10))}
+ else{const inner=W-24-28-4;tp=Math.max(W<500?56:72,Math.min(96,Math.floor((inner-(n-1)*10)/n)));const perRow=Math.max(1,Math.floor((inner+10)/(tp+10)));const rows=Math.ceil(n/perRow);const trayH=rows*tp+(rows-1)*10+20;
+  const modelH=modelShown?mEl.offsetHeight+10:0;availW=W-24;availH=H-top-trayH-modelH-44}
+ const side=Math.min(availW,availH);const cs=Math.max(64,Math.min(100,Math.floor((side-32)/n)));
+ document.documentElement.style.setProperty('--cs',cs+'px');document.documentElement.style.setProperty('--n',n);
+ document.documentElement.style.setProperty('--tp',tp+'px')}
+const CAGE_COLORS=['#7fd8ff','#ffb0d6','#c6f08a','#ffd59e'];
+function meterVisible(k,b){const P=cur.P;if(P.track!=='sum')return false;const C=P.cages[k];if(C.cells.length===1)return false;const cs=cageState(b,C);
+ if(cur.glasses)return true;if(cs.full&&!cs.correct)return true;if(cur.meterCages.indexOf(k)>=0)return true;const st=levelStage(P);
+ if(st===0)return true;if(st===1)return cs.filled>0;return false}
+function hintRegion(){const h=cur.hint;if(!h||h.step<1)return null;return h.region||null}
+function regionCells(reg){const P=cur.P;if(!reg)return[];if(reg.type==='cage')return P.cages[reg.k].cells.slice();return lineCells(reg.type,reg.k,P.n)}
+function renderGrid(fx={}){const P=cur.P,n=P.n,b=board();const grid=$('#grid');grid.style.setProperty('--n',n);const mode=pieceMode();const dup=dupInfo(b,n);
+ const hl=new Set(regionCells(hintRegion()));const wob=new Set(fx.wob||[]);const twins=new Set(fx.twins||[]);
+ const ghostAt=(cur.hint&&cur.hint.step>=3&&cur.hint.kind==='empty'&&!b[cur.hint.target])?cur.hint.target:-1;
+ let html='';
+ for(let i=0;i<n*n;i++){const [r,c]=[Math.floor(i/n),i%n];const g=P.givens[i];const v=b[i];const cls=['cell'];if(g)cls.push('given');if(hl.has(i))cls.push('hl');if(twins.has(i)||(fx.keepTwins&&dup.set.has(i)))cls.push('twin');if(wob.has(i))cls.push('wob');if(fx.placed===i)cls.push('placed');if(ghostAt===i)cls.push('ghostcell');if(cur.solved)cls.push('solvedwake');
+  let cg='';const k=P.cageOf[i];
+  if(k>=0){const C=P.cages[k];const col=CAGE_COLORS[C.color];const up=r===0||P.cageOf[i-n]!==k,dn=r===n-1||P.cageOf[i+n]!==k,lf=c===0||P.cageOf[i-1]!==k,rt=c===n-1||P.cageOf[i+1]!==k;
+   const ins=4,bw=3;const st=`--cgc:${col};top:${up?ins:0}px;bottom:${dn?ins:0}px;left:${lf?ins:0}px;right:${rt?ins:0}px;border-style:dashed;border-width:${up?bw:0}px ${rt?bw:0}px ${dn?bw:0}px ${lf?bw:0}px;border-radius:${up&&lf?18:0}px ${up&&rt?18:0}px ${dn&&rt?18:0}px ${dn&&lf?18:0}px;background:${col}22`;
+   cg=`<div class="cg" style="${st}"></div>`;
+   if(C.cells[0]===i&&C.cells.length>1){cls.push('hasbadge');const cst=cageState(b,C);const showM=meterVisible(k,b);const focus=(cur.hint&&cur.hint.region&&cur.hint.region.type==='cage'&&cur.hint.region.k===k);
+    let meter='';if(showM){const tot=Math.max(C.t,cst.full?cst.val:0);let dots='';const filled=C.op==='gap'?(cst.full?cst.val:0):cst.val;
+     for(let d=0;d<Math.max(C.t,filled);d++){dots+=`<i class="${d<Math.min(filled,C.t)?'f':(d>=C.t?'x':'')}"></i>`}
+     meter=`<div class="meter ${cst.full&&filled<C.t?'under':''}">${dots}</div>`}
+    cg+=`<div class="badge ${cst.correct?'ok':''} ${focus?'focus':''}" data-cage="${k}"><div class="bn">${C.op==='gap'?'↔ '+C.t:C.t}</div>${meter}</div>`}}
+  const piece=v?`<div class="piece">${gemSVG(v,{mode,sleep:!cur.solved})}</div>`:'';
+  const ghost=ghostAt===i?`<div class="ghost">${gemSVG(P.sol[i],{mode,sleep:false})}</div>`:'';
+  html+=`<div class="${cls.join(' ')}" data-i="${i}">${cg}<div class="nook"></div>${piece}${ghost}</div>`}
+ grid.innerHTML=html}
+function renderTray(){const P=cur.P,n=P.n;const mode=pieceMode();const h=cur.hint;let dim=null,bounce=0;const b=board();
+ if(h&&h.kind==='empty'&&h.step>=2&&!b[h.target]){dim=new Set(cands(b,h.target));if(!dim.has(P.sol[h.target]))dim.add(P.sol[h.target])}
+ if(h&&h.kind==='empty'&&h.step>=3&&!b[h.target])bounce=P.sol[h.target];
+ let html='';for(let v=1;v<=n;v++){const cls=['tpiece'];if(ui.sel===v)cls.push('sel');if(dim&&!dim.has(v))cls.push('dim');if(bounce===v)cls.push('bounce');
+  html+=`<div class="${cls.join(' ')}" data-v="${v}" role="button" aria-label="${KINDS[v].name}">${gemSVG(v,{mode})}</div>`}
+ $('#tray').innerHTML=html}
+function renderModel(){const el=$('#model');const h=cur.hint;const P=cur.P;const b=board();let svg='';
+ if(h&&h.step>=2&&!cur.solved){
+  if(h.kind==='empty'&&P.cageOf[h.target]>=0&&!b[h.target]){const C=P.cages[P.cageOf[h.target]];if(C.cells.length>1)svg=bondSVG(C,b)}
+  else if(h.kind==='wrong'&&h.region&&h.region.type==='cage'){const C=P.cages[h.region.k];svg=bondSVG(C,b,true)}}
+ const was=el.classList.contains('show');el.innerHTML=svg;el.classList.toggle('show',!!svg);if(was!==!!svg)layoutPuzzle()}
+function dotRow(x,y,count,opts){let s='';const per=5,sp=opts.sp||16,r=opts.r||5.5;for(let d=0;d<count;d++){const cx=x+(d%per)*sp,cy=y+Math.floor(d/per)*sp;const kind=opts.kind?opts.kind(d):'f';
+  if(kind==='f')s+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${opts.fill||'#ffb020'}" stroke="#a86a00" stroke-width="1.2"/>`;
+  else if(kind==='t')s+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff" stroke="#8a6ad6" stroke-width="2" stroke-dasharray="3 2"><animate attributeName="opacity" values="1;.3;1" dur="1s" repeatCount="indefinite"/></circle>`;
+  else s+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#8a7fb8" stroke-width="2"/>`}return s}
+function bondSVG(C,b,wrong){const P=cur.P;const st=levelStage(P);
+ if(C.op==='gap'){const n=P.n;const other=C.cells.map(i=>b[i]).filter(Boolean);const a=other.length?other[0]:0;const W=280,x0=24,step=(W-48)/n,y=74,F='Fredoka,ui-rounded,system-ui';
+  let s=`<svg viewBox="0 0 ${W} 106" xmlns="http://www.w3.org/2000/svg"><text x="${W/2}" y="22" text-anchor="middle" font-family="${F}" font-size="20" font-weight="700" fill="#3a2f55">↔ ${C.t} apart</text>`;
+  s+=`<line x1="${x0}" y1="${y}" x2="${x0+n*step}" y2="${y}" stroke="#8a7fb8" stroke-width="3" stroke-linecap="round"/>`;
+  for(let k=0;k<=n;k++){const x=x0+k*step;s+=`<line x1="${x}" y1="${y-7}" x2="${x}" y2="${y+7}" stroke="#8a7fb8" stroke-width="2"/><text x="${x}" y="${y+27}" text-anchor="middle" font-family="${F}" font-size="18" font-weight="600" fill="#3a2f55">${k}</text>`}
+  if(a){const xa=x0+a*step;
+   for(const dir of [1,-1]){const t=a+dir*C.t;if(t<1||t>n)continue;for(let h=0;h<C.t;h++){const xs=x0+(a+dir*h)*step,xe=x0+(a+dir*(h+1))*step;s+=`<path d="M${xs} ${y-8} Q${(xs+xe)/2} ${y-34} ${xe} ${y-8}" stroke="#ff9f43" stroke-width="3" fill="none" stroke-dasharray="5 4"/>`}
+    const xt=x0+t*step;s+=`<circle cx="${xt}" cy="${y}" r="9" fill="#fff" stroke="#ff9f43" stroke-width="3"><animate attributeName="r" values="8;11;8" dur="1s" repeatCount="indefinite"/></circle>`}
+   s+=`<circle cx="${xa}" cy="${y}" r="10" fill="${KINDS[a].color}" stroke="#3a2f55" stroke-width="2"/>`}
+  return s+'</svg>'}
+ const vals=C.cells.map(i=>b[i]);const have=vals.filter(Boolean).reduce((x,y)=>x+y,0);const need=Math.max(0,C.t-have);const over=Math.max(0,have-C.t);
+ const W=300,sp=19,r=7.2,F='Fredoka,ui-rounded,system-ui';const rows=c=>Math.max(1,Math.ceil(c/5));const bw=c=>Math.max(1,Math.min(5,c))*sp+44;const bh=c=>rows(c)*sp+16;
+ const tW=bw(C.t),tH=bh(C.t),tx=(W-tW)/2,ty=4;const py=ty+tH+26;const lC=W*0.27,rC=W*0.73;const pH=Math.max(bh(have),over?30:bh(need));const H0=py+pH+6;const Ht=st>=2?H0+46:H0;
+ let s=`<svg viewBox="0 0 ${W} ${Ht}" xmlns="http://www.w3.org/2000/svg">`;
+ s+=`<rect x="${tx}" y="${ty}" width="${tW}" height="${tH}" rx="16" fill="#efe6ff" stroke="#8a6ad6" stroke-width="2.5"/><text x="${tx+20}" y="${ty+tH/2+8}" text-anchor="middle" font-family="${F}" font-size="24" font-weight="700" fill="#3a2f55">${C.t}</text>`;
+ s+=dotRow(tx+38+r,ty+8+r,C.t,{kind:d=>d<have?'f':'t',r,sp});
+ s+=`<path d="M${W/2-14} ${ty+tH} L${lC} ${py} M${W/2+14} ${ty+tH} L${rC} ${py}" stroke="#8a6ad6" stroke-width="3" stroke-linecap="round"/>`;
+ const hW=bw(have),hx=lC-hW/2;s+=`<rect x="${hx}" y="${py}" width="${hW}" height="${bh(have)}" rx="14" fill="#fff6d6" stroke="#e0a800" stroke-width="2.5"/><text x="${hx+20}" y="${py+bh(have)/2+8}" text-anchor="middle" font-family="${F}" font-size="22" font-weight="700" fill="#7a5a00">${have}</text>`+dotRow(hx+38+r,py+8+r,have,{sp,r});
+ if(over){s+=`<text x="${rC}" y="${py+22}" text-anchor="middle" font-family="${F}" font-size="20" font-weight="700" fill="#6c5fb0">${over} extra</text>`}
+ else{const nW=bw(need),nx=rC-nW/2;s+=`<rect x="${nx}" y="${py}" width="${nW}" height="${bh(need)}" rx="14" fill="#f1ecff" stroke="#8a6ad6" stroke-width="2.5" stroke-dasharray="6 4"/><text x="${nx+20}" y="${py+bh(need)/2+8}" text-anchor="middle" font-family="${F}" font-size="22" font-weight="700" fill="#6c5fb0">${need?need:'✓'}</text>`+dotRow(nx+38+r,py+8+r,need,{sp,r,kind:()=>'t'})}
+ if(st>=2){const max=Math.max(10,C.t);const x0=14,x1=W-14,stp=(x1-x0)/max,y=H0+16;s+=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#8a7fb8" stroke-width="2.5"/>`;
+  for(let k=0;k<=max;k++){const x=x0+k*stp;s+=`<line x1="${x}" y1="${y-5}" x2="${x}" y2="${y+5}" stroke="#8a7fb8" stroke-width="1.6"/><text x="${x}" y="${y+22}" text-anchor="middle" font-family="${F}" font-size="${max>12?11:14}" font-weight="600" fill="#3a2f55">${k}</text>`}
+  const xa=x0+have*stp,xt=x0+C.t*stp;if(have!==C.t)s+=`<path d="M${xa} ${y-5} Q${(xa+xt)/2} ${y-30} ${xt} ${y-5}" stroke="#ff9f43" stroke-width="3" fill="none"/><circle cx="${xt}" cy="${y}" r="6" fill="#ff9f43"/>`;s+=`<circle cx="${xa}" cy="${y}" r="6" fill="#ffb020" stroke="#a86a00"/>`}
+ return s+'</svg>'}
+function renderPuzzle(fx){renderGrid(fx||{});renderTray();renderModel();$('#bLantern').classList.toggle('glow',ui.lanternGlow&&!cur.solved);$('#bGlasses').classList.toggle('on',!!cur.glasses);
+ $('#pz .nibbtn').innerHTML=nibSVG({hat:nibHat(),scarf:S.nib.items.indexOf('scarf')>=0&&nibHat()!=='scarf'})}
+
+/* ---------- PUZZLE FLOW ---------- */
+function openDoor(d){ensureAudio();const P=puzzleForDoor(d);cur=newCurrent(P,d);S.doors=null;S.sessionOpeningDone=true;
+ const dk=today();S.daily[dk]=S.daily[dk]||{walls:0,little:0,big:0,picture:0};S.daily[dk][d.type]=(S.daily[dk][d.type]||0)+1;
+ persistCurrent();startPuzzleScreen(true)}
+async function startPuzzleScreen(fresh){ui.sel=0;ui.lanternGlow=false;show('pz');$('#collectBtn').style.display='none';$('#gridWrap').classList.remove('glowall');layoutPuzzle();renderPuzzle();
+ const P=cur.P;
+ if(P.track==='sum'&&!S.seen.rule2){S.seen.rule2=true;save();await ruleCard(2)}
+ if(P.cages.some(c=>c.op==='gap')&&!S.seen.rule3){S.seen.rule3=true;save();await ruleCard(3)}
+ show('pz');layoutPuzzle();renderPuzzle();
+ if(P.tut&&TUTS[P.tut])say(TUTS[P.tut].line);else if(fresh)say('Tuck in the sleepy Gemlings!');else say("Let's finish this wall! Tuck in the sleepy Gemlings.")}
+
+function place(i,v,from){const P=cur.P;if(cur.solved||P.givens[i])return;const prev=cur.place[i];
+ if(prev&&prev!==P.sol[i]&&prev!==v)noteFix(i);
+ cur.place[i]=v;cur.order=cur.order.filter(x=>x!==i);cur.order.push(i);
+ if(from!=null&&from!==i){if(cur.place[from]&&cur.place[from]!==P.sol[from])noteFix(from);cur.place[from]=0;cur.order=cur.order.filter(x=>x!==from)}
+ sfx('pop');afterChange(i,true)}
+function removeAt(i){if(cur.solved||!cur.place[i])return;if(cur.place[i]!==cur.P.sol[i])noteFix(i);cur.place[i]=0;cur.order=cur.order.filter(x=>x!==i);sfx('back');afterChange(i,false)}
+function noteFix(i){const h=cur.hint;if(!(h&&h.target===i&&h.step>=2))cur.fixedOwn=true}
+function afterChange(i,placed){const P=cur.P,n=P.n,b=board();ui.lastInteract=Date.now();
+ // hint resets
+ const h=cur.hint;if(h){if(h.kind==='empty'&&b[h.target]===P.sol[h.target])cur.hint=null;else if(h.kind==='wrong'&&b[h.target]!==h.v)cur.hint=null;
+  else if(h.kind==='empty'&&h.target!==i&&h.step<3)cur.hint=Object.assign({},h,{region:h.region})}
+ const fx={placed:placed?i:-1};let line=null,pri=0;
+ if(placed){const dup=dupInfo(b,n);const myPairs=dup.pairs.filter(p=>p.cells.indexOf(i)>=0);
+  if(myPairs.length){cur.twins++;cur.eventsSinceHint++;fx.twins=[].concat(...myPairs.map(p=>p.cells));
+   if(!cur.saidTwin){cur.saidTwin=true;const p=myPairs[0];line={t:`Oh! Two ${KINDS[p.v].plural} in one ${p.type==='row'?'row':'column'}. They'd like to live apart.`,s:'hmm'};pri=3}
+   else{line={t:'',s:'hmm'};pri=1}}
+  // cage
+  const k=P.cageOf[i];if(k>=0){const C=P.cages[k];const cs=cageState(b,C);
+   if(cs.full&&C.cells.length>1){if(cs.correct){if(pri<2){const vals=cs.vals;let t;
+      if(C.op==='gap'){const big=Math.max(...vals),sm=Math.min(...vals);t=`${big} take away ${sm} is ${C.t}. They're ${C.t} apart!`}
+      else t=vals.length===2?`${vals[0]} and ${vals[1]} make ${C.t}!`:vals.slice(0,-1).join(' and ')+' and '+vals[vals.length-1]+` make ${C.t}!`;
+      line={t,s:'bell'};pri=2;fx.okCage=k}}
+    else{cur.wrongCages++;cur.eventsSinceHint++;if(pri<3){let t;const vals=cs.vals;
+      if(C.op==='gap'){const big=Math.max(...vals),sm=Math.min(...vals);t=`Hmm, ${big} take away ${sm} is ${big-sm}, but this gap nook wants them ${C.t} apart.`}
+      else t=`Hmm, these sparkles make ${cs.val}, but the nook wants ${C.t}.`;
+      line={t:cur.saidWrongCage&&pri<1?'':t,s:'hmm'};if(!cur.saidWrongCage||true){line.t=t}cur.saidWrongCage=true;pri=3;fx.badCage=k}}}}
+  // rows / cols complete
+  const [r,c]=rc(i);fx.lines=[];for(const [type,idx] of [['row',r],['col',c]]){const cells=lineCells(type,idx,n);if(cells.every(j=>b[j])&&new Set(cells.map(j=>b[j])).size===n)fx.lines.push({type,idx})}}
+ if(cur.eventsSinceHint>=2)ui.lanternGlow=true;
+ renderPuzzle(fx);
+ // juice
+ if(fx.lines&&fx.lines.length){setTimeout(()=>sfx('arp'),120);fx.lines.forEach(L=>shimmer(L.type,L.idx))}
+ if(fx.okCage!=null){setTimeout(()=>sfx('bell'),220);flyDots(fx.okCage)}
+ if(fx.badCage!=null){puffExtra(fx.badCage,b)}
+ if(line&&line.s==='hmm')setTimeout(()=>sfx('hmm'),150);
+ if(line&&line.t)say(line.t);
+ // completion
+ if(b.every(Boolean)){if(isSolved(b)){cur.solved=true;persistCurrent();setTimeout(onSolved,650);return}
+  else{const dup=dupInfo(b,n);const bad=new Set(dup.set);for(const C of P.cages){if(!cageState(b,C).correct)C.cells.forEach(j=>{if(!P.givens[j])bad.add(j)})}
+   for(let j=0;j<n*n;j++)if(!P.givens[j]&&b[j]!==P.sol[j]&&bad.size===0)bad.add(j);
+   ui.lanternGlow=true;setTimeout(()=>{renderPuzzle({wob:[...bad].filter(j=>!P.givens[j]),keepTwins:true});if(!line||!line.t)say('Almost! A few Gemlings want to swap. The lantern can help!')},700)}}
+ persistCurrent()}
+function cellRect(i){const g=$('#grid').getBoundingClientRect();const n=cur.P.n;const cs=g.width/n;const [r,c]=rc(i);return{x:g.left+c*cs,y:g.top+r*cs,w:cs,h:cs}}
+function shimmer(type,idx){if(RM)return;const wrap=$('#gridWrap');const g=$('#grid');const n=cur.P.n;const cs=g.getBoundingClientRect().width/n;const el=document.createElement('div');el.className='shimmer'+(type==='col'?' v':'');
+ const off=14;if(type==='row')Object.assign(el.style,{left:off+'px',top:(off+idx*cs)+'px',width:(n*cs)+'px',height:cs+'px'});else Object.assign(el.style,{top:off+'px',left:(off+idx*cs)+'px',height:(n*cs)+'px',width:cs+'px'});
+ wrap.appendChild(el);setTimeout(()=>el.remove(),1200)}
+function flyDots(k){const P=cur.P,C=P.cages[k];const wrap=$('#gridWrap');const wr=wrap.getBoundingClientRect();const badge=$(`.badge[data-cage="${k}"] .bn`);if(!badge)return;const br=badge.getBoundingClientRect();const tx=br.left+br.width/2-wr.left,ty=br.top+br.height/2-wr.top;
+ const b=board();let d=0;for(const i of C.cells){const r=cellRect(i);const cnt=C.op==='gap'?1:b[i];for(let q=0;q<cnt;q++){const el=document.createElement('div');el.className='fly';const sx=r.x+r.w/2-wr.left+(q%3-1)*10,sy=r.y+r.h*0.62-wr.top+(Math.floor(q/3)-.5)*10;el.style.left=sx-6+'px';el.style.top=sy-6+'px';wrap.appendChild(el);
+  const delay=d*50;d++;setTimeout(()=>{el.style.transform=`translate(${tx-sx}px,${ty-sy}px) scale(.6)`;el.style.opacity='0.2'},30+delay);setTimeout(()=>el.remove(),900+delay)}}}
+function puffExtra(k,b){const P=cur.P,C=P.cages[k];if(C.op==='gap')return;const cs=cageState(b,C);const extra=cs.val-C.t;if(extra<=0)return;const badge=$(`.badge[data-cage="${k}"]`);if(!badge)return;const wrap=$('#gridWrap');const wr=wrap.getBoundingClientRect();const br=badge.getBoundingClientRect();
+ for(let q=0;q<extra;q++){const el=document.createElement('div');el.className='puff';el.style.left=(br.right-wr.left-10-q*10)+'px';el.style.top=(br.bottom-wr.top-12)+'px';el.style.setProperty('--dx',(q*8-10)+'px');el.style.animationDelay=(q*0.12)+'s';wrap.appendChild(el);setTimeout(()=>el.remove(),1600+q*120)}}
+
+/* ---------- HINTS ---------- */
+function pickTarget(){const P=cur.P,b=board(),n=P.n;
+ for(let k=cur.order.length-1;k>=0;k--){const i=cur.order[k];if(cur.place[i]&&cur.place[i]!==P.sol[i])return{i,kind:'wrong'}}
+ let best=-1,bs=1e9;const blanksIn=cells=>cells.filter(j=>!b[j]).length;
+ for(let i=0;i<n*n;i++){if(b[i])continue;const [r,c]=rc(i);const cnt=cands(b,i).length;let bonus=0;if(blanksIn(lineCells('row',r,n))===1||blanksIn(lineCells('col',c,n))===1)bonus=1;if(P.cageOf[i]>=0&&blanksIn(P.cages[P.cageOf[i]].cells)===1&&P.cages[P.cageOf[i]].cells.length>1)bonus=1;
+  const sc=cnt*2-bonus;if(sc<bs){bs=sc;best=i}}
+ return best>=0?{i:best,kind:'empty'}:null}
+function chooseRegion(i){const P=cur.P,b=board(),n=P.n;const [r,c]=rc(i);const blanksIn=cells=>cells.filter(j=>!b[j]).length;const k=P.cageOf[i];
+ if(k>=0&&P.cages[k].cells.length>1&&blanksIn(P.cages[k].cells)===1)return{type:'cage',k};
+ if(blanksIn(lineCells('row',r,n))===1)return{type:'row',k:r};if(blanksIn(lineCells('col',c,n))===1)return{type:'col',k:c};
+ if(k>=0&&P.cages[k].cells.length>1)return{type:'cage',k};return{type:'row',k:r}}
+function wrongReason(i){const P=cur.P,b=board(),n=P.n;const [r,c]=rc(i);const v=b[i];
+ for(const [type,idx] of [['row',r],['col',c]]){if(lineCells(type,idx,n).some(j=>j!==i&&b[j]===v))return{type,k:idx,why:'twin'}}
+ const k=P.cageOf[i];if(k>=0&&P.cages[k].cells.length>1){const g=b.slice();g[i]=0;if(!cageOk(P,g,i,v)||cageState(b,P.cages[k]).full)return{type:'cage',k,why:'cage'}}
+ if(k>=0&&P.cages[k].cells.length>1)return{type:'cage',k,why:'tricky'};return{type:'row',k:r,why:'tricky'}}
+function useHint(){if(!cur||cur.solved)return;ensureAudio();ui.lastInteract=Date.now();const t=pickTarget();if(!t)return;const P=cur.P,b=board();
+ let h=cur.hint;if(h&&h.target===t.i&&h.kind===t.kind)h.step=Math.min(3,h.step+1);else{h={target:t.i,kind:t.kind,step:1,v:b[t.i]};cur.hint=h}
+ cur.hintSteps++;cur.cellHint[t.i]=Math.max(cur.cellHint[t.i]||0,h.step);cur.hintMax=Math.max(cur.hintMax,h.step);cur.eventsSinceHint=0;ui.lanternGlow=false;ui.sel=0;
+ sfx('tap');let line='';const fx={};
+ if(h.kind==='empty'){if(h.step===1||!h.region)h.region=chooseRegion(t.i);const reg=h.region;
+  if(h.step===1){if(reg.type==='cage'){const C=P.cages[reg.k];line=C.op==='gap'?`This gap nook wants two friends ${C.t} apart. Let's look at it.`:`This nook wants ${C.t}. Let's look at it.`}else line=`Look at this ${reg.type==='row'?'row':'column'}. Who is missing?`}
+  else if(h.step===2){const k=P.cageOf[t.i];if(k>=0&&P.cages[k].cells.length>1){const C=P.cages[k];if(cur.meterCages.indexOf(k)<0)cur.meterCages.push(k);
+    if(C.op==='gap'){const other=C.cells.map(j=>b[j]).filter(Boolean);line=other.length?`This one has ${other[0]}. Its friend is ${C.t} apart. Hop along the path!`:`These two are ${C.t} apart. The faded friends can't fit here.`}
+    else{const have=C.cells.map(j=>b[j]).filter(Boolean).reduce((x,y)=>x+y,0);line=have?`${have} sparkle${have===1?'':'s'} here. We need ${C.t-have} more.`:`This nook wants ${C.t}. The faded friends can't fit here.`}}
+   else line='The faded friends are already in this row or column. Who is left?'}
+  else{line=`Here's who fits! Can you tuck ${KINDS[P.sol[t.i]].name} in?`}}
+ else{const i=t.i;if(h.step===1){fx.wob=[i];line=P.track==='logic'?"Hmm, I think this one might want a different nook. Let's check its row and its column.":"Hmm, I think this one might want a different nook. Let's check its row and its nook."}
+  else if(h.step===2){const rs=wrongReason(i);h.region={type:rs.type,k:rs.k};if(rs.type==='cage'&&cur.meterCages.indexOf(rs.k)<0)cur.meterCages.push(rs.k);fx.wob=[i];
+   if(rs.why==='twin')line=`See? This ${rs.type==='row'?'row':'column'} already has a ${KINDS[b[i]].name}.`;
+   else if(rs.why==='cage'){const C=P.cages[rs.k];const cs=cageState(b,C);line=C.op==='gap'?`Look at the gap. These two want to be ${C.t} apart.`:(cs.full?`Look at the sparkles. This nook makes ${cs.val}, but it wants ${C.t}.`:`Look at the sparkles. This nook wants ${C.t}, and that's too many already.`)}
+   else line="This one is tricky! Its row and its nook are glowing. Let's look together."}
+  else{cur.place[i]=0;cur.order=cur.order.filter(x=>x!==i);sfx('back');cur.hint={target:i,kind:'empty',step:3,region:chooseRegion(i)};cur.cellHint[i]=3;line=`Let's try a different friend here. Can you tuck ${KINDS[P.sol[i]].name} in?`}}
+ renderPuzzle(fx);say(line);persistCurrent()}
+
+/* ---------- SOLVE & REWARDS ---------- */
+async function onSolved(){const P=cur.P,n=P.n;show('pz');ui.sel=0;ui.lanternGlow=false;cur.hint=null;
+ const clean=cur.hintMax<=1;applyStats(clean);const rewards=buildRewards();S.pending=rewards;S.current=null;save();
+ renderPuzzle();$('#gridWrap').classList.add('glowall');
+ // crystals along cracks
+ const g=$('#grid');const cs=g.getBoundingClientRect().width/n;let svg=`<svg class="crystals" viewBox="0 0 ${n*cs} ${n*cs}" style="left:14px;top:14px;width:${n*cs}px;height:${n*cs}px;position:absolute">`;
+ const cols=['#ff9ec7','#9be8ff','#fff3a8','#a8f0d0','#d9c2ff'];let q=0;
+ for(let r=0;r<=n;r++)for(let c=0;c<=n;c++){if((r+c)%2)continue;const x=c*cs,y=r*cs;const s=cs*0.16;const col=cols[(r*3+c)%5];svg+=`<g style="animation-delay:${(r+c)*0.08}s"><path d="M${x} ${y-s*1.6} L${x+s*.5} ${y} L${x} ${y+s*.4} L${x-s*.5} ${y}Z" fill="${col}" stroke="#fff" stroke-width="1.5"/><path d="M${x+s*.6} ${y-s} L${x+s} ${y} L${x+s*.4} ${y}Z" fill="${col}" opacity=".8"/></g>`;q++}
+ svg+='</svg>';$('#gridWrap').insertAdjacentHTML('beforeend',svg);
+ sfx('chord');
+ // wake wave
+ $$('#grid .cell').forEach(el=>{const i=+el.dataset.i;const [r,c]=rc(i);el.classList.add('wake');const pc=$('.piece',el);if(pc)pc.style.animationDelay=((r+c)*0.12)+'s'});
+ for(let k=0;k<2*n-1;k++)setTimeout(()=>sfx('mip'),k*120);
+ // row sums for sum puzzles
+ if(P.track==='sum'){const wrap=$('#gridWrap');for(let r=0;r<n;r++){const el=document.createElement('div');el.className='rowsum';el.style.top=(14+r*cs+cs/2)+'px';el.style.right='-24px';el.style.animationDelay=(0.6+r*0.15)+'s';el.textContent=n*(n+1)/2;el.style.width=el.style.height=Math.min(44,cs*0.5)+'px';el.style.fontSize=Math.min(22,cs*0.26)+'px';wrap.appendChild(el)}}
+ let praise;if(P.tut==='TUT-ROW10')praise="Wait! 1, 2, 3 and 4 make 10 in EVERY row! You noticed every row makes 10!";
+ else if(cur.fixedOwn)praise="You tried it, checked it, and fixed it. Real puzzle experts do that!";
+ else if(cur.usedGlasses||(P.track==='sum'&&P.cages.length&&cur.hintSteps===0&&Math.random()<0.5))praise='You used the sparkles to check the nook!';
+ else if(cur.hintSteps>=2)praise='You kept trying, and the whole wall is glowing!';
+ else praise="You found the only nook it could go in. That's careful thinking!";
+ say('The whole wall is glowing! '+praise);
+ await sleep(RM?300:1700);const cb=$('#collectBtn');cb.innerHTML=gemStoneSVG(rewards.find(r=>r.type==='gem').gem).replace('<svg','<svg width="44" height="44"')+' Collect';cb.style.display='inline-flex';$('#tray').style.display='none';$('#model').classList.remove('show')}
+function applyStats(clean){const P=cur.P,tr=S.tracks[P.track];const key=P.track+':'+P.level;
+ tr.solves++;if(clean)tr.clean++;tr.hintSteps+=cur.hintSteps;if(cur.usedGlasses)tr.glasses++;
+ S.history.push({t:Date.now(),track:P.track,level:P.level,n:P.n,blanks:P.givens.filter(x=>!x).length,hintMax:cur.hintMax,hintSteps:cur.hintSteps,twins:cur.twins,wrongCages:cur.wrongCages,ms:cur.activeMs||Date.now()-cur.startedAt,door:cur.door,clean,glasses:cur.usedGlasses,tut:P.tut||null});
+ if(S.history.length>200)S.history=S.history.slice(-200);
+ const maxL=P.track==='logic'?8:10;const rate=recentCleanRate();
+ if(cur.frontier&&P.level===tr.level){const first=!S.seen.levels[key];
+  const express=first&&clean&&cur.hintSteps===0&&!cur.twins&&!cur.wrongCages&&(P.track==='logic'?P.level<=3:P.level<=2);
+  if(express){tr.level=Math.min(maxL,tr.level+1);tr.streak=0;tr.missStreak=0}
+  else if(clean){tr.streak++;tr.missStreak=0;const need=(rate!==null&&rate>0.95&&S.history.length>=8)?2:3;if(tr.streak>=need){tr.level=Math.min(maxL,tr.level+1);tr.streak=0}}
+  else{tr.missStreak++;tr.streak=0;if(tr.missStreak>=2){tr.level=Math.max(1,tr.level-1);tr.missStreak=0}}
+  tr.best=Math.max(tr.best,tr.level)}
+ else if(cur.soft&&!clean&&P.level<tr.level){tr.missStreak++;tr.streak=0;if(tr.missStreak>=2){tr.level=Math.max(1,tr.level-1);tr.missStreak=0}}
+ S.seen.levels[key]=true;if(P.tut)S.seen.tuts[P.tut]=true;
+ if(rate!==null&&rate<0.7&&S.softLanding===0)S.softLanding=2;
+ if(P.track==='sum'){const f=S.fadeStage;if(clean){f.clean++;f.miss=0;if(f.clean>=3){f.drop=Math.max(0,f.drop-1);f.clean=0}}else{f.miss++;f.clean=0;if(f.miss>=2){f.drop=Math.min(2,f.drop+1);f.miss=0}}}
+ if(!clean)S.cave.cleanCavern=false;
+ S.totalWalls++;S.sessionWalls++;const dk=today();S.daily[dk]=S.daily[dk]||{walls:0,little:0,big:0,picture:0};S.daily[dk].walls++}
+function grantCard(id){if(S.cards.owned.indexOf(id)>=0)return null;S.cards.owned.push(id);const c=CARD_BY[id];addShared({id:'card-'+id,name:c.name,emoji:KINDS[c.kind].emoji,rarity:c.rarity==='common'?'common':(c.rarity==='rare'?'rare':'sparkly')});return c}
+function grantGem(type){const id='gem'+(S.gems.next++);S.gems.owned.push({id,type});if(GEMS[type].rare)addShared({id:'gem-'+id,name:GEMS[type].name,emoji:'💎',rarity:'rare'});return id}
+function milestone(key){if(S.milestones[key])return false;S.milestones[key]=today();return true}
+function buildRewards(){const P=cur.P,R=[];const gtype=cur.door==='little'?'rose':cur.door==='picture'?'moon':'ame';grantGem(gtype);R.push({type:'gem',gem:gtype});
+ const cave=S.cave;cave.wallsLit++;const cavIdx=cave.cavern;ui.justLit={cavern:cavIdx,spot:cave.wallsLit-1,loop:cave.loop};
+ if(cave.wallsLit===3||cave.wallsLit===6){const next=CARDS.find(c=>c.rarity==='common'&&S.cards.owned.indexOf(c.id)<0);if(next){grantCard(next.id);R.push({type:'geode',card:next.id})}else{const rg=RARE_GEMS[S.totalWalls%4];grantGem(rg);R.push({type:'geode',gem:rg})}}
+ const rares=[];
+ if(P.tut==='TUT-ROW10'&&milestone('rowTen'))rares.push('rowTen');
+ if(P.track==='logic'&&P.n===4&&milestone('pic4'))rares.push('pic4');
+ if(P.track==='sum'&&(P.level===7||P.level===10)&&milestone('cagesOnly'))rares.push('cagesOnly');
+ if(P.cages.some(c=>c.op==='gap')&&milestone('gap'))rares.push('gap');
+ if(P.n===5&&milestone('five'))rares.push('five');
+ if(S.totalWalls>=10&&milestone('w10'))rares.push('w10');if(S.totalWalls>=25&&milestone('w25'))rares.push('w25');if(S.totalWalls>=50&&milestone('w50'))rares.push('w50');
+ if(cave.wallsLit===6){const g=grantCard('g'+cavIdx);R.push({type:'guardian',cavern:cavIdx,card:g?g.id:null});
+  if(cave.cleanCavern&&milestone('cleanCavern'))rares.push('cleanCavern');if(cavIdx===7&&milestone('moonFinale'))rares.push('moonFinale');
+  cave.wallsLit=0;cave.cavern++;cave.cleanCavern=true;if(cave.cavern>7){cave.cavern=0;cave.loop++}}
+ for(const k of rares){if(grantCard('r-'+k))R.push({type:'card',card:'r-'+k,rare:true})}
+ if(S.totalWalls%10===0){const rg=RARE_GEMS[(S.totalWalls/10-1)%4];grantGem(rg);R.push({type:'gem',gem:rg,rare:true})}
+ for(const it of NIB_ITEMS){if(S.totalWalls>=it.at&&S.nib.items.indexOf(it.id)<0){S.nib.items.push(it.id);if(it.wear){S.nib.hats.push(it.id);if(it.id!=='scarf'||!S.nib.wearing)S.nib.wearing=it.id}R.push({type:'nib',item:it.id})}}
+ if(S.sessionWalls===5)R.push({type:'rest'});
+ return R}
+function collect(){ensureAudio();$('#collectBtn').style.display='none';$('#tray').style.display='';$$('#gridWrap .crystals,#gridWrap .rowsum').forEach(e=>e.remove());$('#gridWrap').classList.remove('glowall');cur=null;showRewards()}
+function ovShow(html){$('#ovPanel').innerHTML=html;$('#ov').classList.add('show')}
+function ovHide(){$('#ov').classList.remove('show');$('#ovPanel').innerHTML=''}
+const capHTML=`<div class="nibdock" style="width:100%"><button class="nibbtn" data-nib></button><div class="cap"><span class="txt"></span><button class="say" aria-label="Read aloud">${ICON.say}</button></div></div>`;
+function fillNibs(root){$$('[data-nib]',root).forEach(b=>b.innerHTML=nibSVG({hat:nibHat(),scarf:S.nib.items.indexOf('scarf')>=0&&nibHat()!=='scarf'}))}
+async function showRewards(){while(S.pending&&S.pending.length){const r=S.pending[0];await showReward(r);S.pending.shift();save()}ovHide();goMap()}
+function showReward(r){return new Promise(res=>{
+ const nextBtn=label=>`<button class="btn gold" id="rwNext" style="min-width:200px">${label||'Next'}</button>`;
+ if(r.type==='gem'){const G=GEMS[r.gem];ovShow(`<h2>${r.rare?'A rare gem!':'A gem for your shelf!'}</h2><div class="stage gemreveal">${gemStoneSVG(r.gem)}</div>${capHTML}${nextBtn()}`);fillNibs($('#ov'));sfx('gem');say(r.rare?`Ooh! A rare ${G.name}! It goes on your Gem Shelf.`:`A ${G.name} for your Gem Shelf!`);$('#rwNext').onclick=()=>{sfx('tap');res()}}
+ else if(r.type==='geode'){let taps=0;ovShow(`<h2>A geode!</h2><div class="stage"><button class="geode" id="geode">${geodeSVG(0)}</button></div>${capHTML}<div id="rwSlot" style="min-height:64px"></div>`);fillNibs($('#ov'));say('A geode! Tap it three times!');
+  $('#geode').onclick=()=>{ensureAudio();if(taps>=3)return;taps++;sfx('crack',taps);const g=$('#geode');g.classList.remove('shake');void g.offsetWidth;g.classList.add('shake');g.innerHTML=geodeSVG(taps);
+   if(taps===3){setTimeout(()=>{sfx('burst');if(r.card){const c=CARD_BY[r.card];$('.stage',$('#ov')).innerHTML=`<div class="bigcard burst">${cardSVG(c)}</div>`;say(`You found ${c.name}! ${c.line}.`)}else{$('.stage',$('#ov')).innerHTML=`<div class="gemreveal burst">${gemStoneSVG(r.gem)}</div>`;say(`A rare ${GEMS[r.gem].name} was hiding inside!`)}
+     $('#rwSlot').innerHTML=nextBtn();$('#rwNext').onclick=()=>{sfx('tap');res()}},350)}}}
+ else if(r.type==='card'){const c=CARD_BY[r.card];ovShow(`<h2>A rare card!</h2><div class="stage"><div class="bigcard burst">${cardSVG(c)}</div></div>${capHTML}${nextBtn()}`);fillNibs($('#ov'));sfx('burst');say(`You found ${c.name}! ${c.line}.`);$('#rwNext').onclick=()=>{sfx('tap');res()}}
+ else if(r.type==='guardian'){const cv=CAVERNS[r.cavern];const c=r.card?CARD_BY[r.card]:null;ovShow(`<h2>${esc(cv.name)} is glowing!</h2><div class="stage">${c?`<div class="bigcard burst">${cardSVG(c)}</div>`:`<div class="gemreveal">${crystalSVG()}</div>`}</div>${capHTML}${nextBtn()}`);fillNibs($('#ov'));sfx('chord');
+  say(c?`The whole ${cv.name} is glowing! Its guardian, ${c.name}, came to say hello! ${c.line}.`:`The whole ${cv.name} is glowing with a second glow!`);$('#rwNext').onclick=()=>{sfx('tap');res()}}
+ else if(r.type==='nib'){const it=NIB_ITEMS.find(x=>x.id===r.item);ovShow(`<h2>A present for Nib!</h2><div class="stage"><div style="width:220px;height:220px">${it.wear?nibSVG({hat:it.id==='scarf'?null:it.id,scarf:it.id==='scarf'}):nookItemSVG(it.id,true)}</div></div>${capHTML}${nextBtn()}`);fillNibs($('#ov'));sfx('gem');
+  say(`Your glowing walls made the caves so cozy. Nib got a ${it.name}! ${it.wear?'He looks so proud.':'It is in his nook now.'}`);$('#rwNext').onclick=()=>{sfx('tap');res()}}
+ else if(r.type==='rest'){ovShow(`<div class="stage"><div style="width:200px;height:200px">${nibSVG({hat:nibHat(),sleepy:true})}</div></div>${capHTML}<div class="row" style="flex-wrap:wrap;justify-content:center"><button class="btn soft" id="rwRest" style="min-width:180px">🌙 Rest</button><button class="btn gold" id="rwKeep" style="min-width:180px">✨ Keep exploring</button></div>`);fillNibs($('#ov'));
+  say('*Yawn!* The caves are glowing so bright! Want to rest or keep exploring?'.replace('*Yawn!* ','Yawn! '));$('#rwRest').onclick=()=>{ui.resting=true;res()};$('#rwKeep').onclick=()=>{ui.resting=false;res()}}
+ else res()})}
+function geodeSVG(stage){const cracks=['','<path d="M100 40 L92 70 L104 86" stroke="#2a2140" stroke-width="4" fill="none" stroke-linecap="round"/>','<path d="M60 100 L84 108 L96 130 M140 90 L124 112" stroke="#2a2140" stroke-width="4" fill="none" stroke-linecap="round"/>','<path d="M100 150 L110 128 L104 112" stroke="#2a2140" stroke-width="4" fill="none" stroke-linecap="round"/>'];
+ let c='';for(let k=1;k<=stage;k++)c+=cracks[k];const glow=stage?`<circle cx="100" cy="100" r="${60+stage*12}" fill="#ffd86b" opacity="${stage*0.12}"/>`:'';
+ return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${glow}<path d="M40 110 Q30 50 90 34 Q150 24 168 80 Q182 140 130 166 Q70 186 46 150 Z" fill="#8a7f9c" stroke="#4e4562" stroke-width="5"/><path d="M60 80 Q70 56 96 50" stroke="#b6acc8" stroke-width="6" fill="none" stroke-linecap="round"/>
+ <circle cx="130" cy="130" r="6" fill="#6f6585"/><circle cx="70" cy="140" r="4" fill="#6f6585"/>${c}${stage>=2?'<path d="M96 110 L102 98 L108 110Z" fill="#b9a6e8"/><path d="M110 114 L114 104 L118 114Z" fill="#9be8ff"/>':''}</svg>`}
+
+/* ---------- RULE CARDS ---------- */
+function ruleCardHTML(k){if(k===1){const sol=[1,2,3,2,3,1,3,1,2];let g='';sol.forEach((v,i)=>{const r=Math.floor(i/3),c=i%3;g+=`<g transform="translate(${20+c*70} ${10+r*70}) scale(.62)">${gemSVG(v,{mode:'face'}).replace('<svg','<svg width="100" height="100"')}</g>`});
+  return `<svg viewBox="0 0 400 230"><rect x="10" y="4" width="226" height="74" rx="20" fill="#ffd86b55" stroke="#e0a800" stroke-width="3"/><rect x="14" y="4" width="68" height="216" rx="20" fill="#9be8ff44" stroke="#4ea8ff" stroke-width="3" stroke-dasharray="7 5"/>${g}
+  <text x="250" y="48" font-family="Fredoka,ui-rounded" font-size="20" fill="#3a2f55" font-weight="700">← one of each</text><text x="250" y="140" font-family="Fredoka,ui-rounded" font-size="20" fill="#3a2f55" font-weight="700">↑ one of each</text><text x="250" y="166" font-family="Fredoka,ui-rounded" font-size="20" fill="#3a2f55" font-weight="700">  down, too!</text></svg><p>Rule one: no twins! Every row and every column has one of each Gemling.</p>`}
+ if(k===2)return `<svg viewBox="0 0 400 190"><rect x="20" y="20" width="200" height="110" rx="26" fill="#7fd8ff33" stroke="#4ea8ff" stroke-width="4" stroke-dasharray="10 7"/><g transform="translate(28 20)">${gemSVG(2,{mode:'dots'}).replace('<svg','<svg width="96" height="100"')}</g><g transform="translate(118 20)">${gemSVG(3,{mode:'dots'}).replace('<svg','<svg width="96" height="100"')}</g>
+  <path d="M20 16 L38 0 L64 0 L82 16 L64 32 L38 32Z" fill="#fff" stroke="#8a6ad6" stroke-width="3" transform="translate(-6 0)"/><text x="45" y="24" text-anchor="middle" font-family="Fredoka,ui-rounded" font-size="22" font-weight="700" fill="#3a2f55">5</text>
+  ${dotRow(250,50,2,{})}${`<text x="290" y="56" font-family="Fredoka" font-size="22" fill="#3a2f55">+</text>`}${dotRow(312,50,3,{})}<text x="300" y="100" text-anchor="middle" font-family="Fredoka,ui-rounded" font-size="26" font-weight="700" fill="#3a2f55">2 + 3 = 5</text>${dotRow(262,128,5,{fill:'#ffd86b'})}</svg><p>Rule two: cozy nooks! The sparkles inside a nook add up to its crystal number.</p>`;
+ return `<svg viewBox="0 0 400 200"><rect x="20" y="20" width="200" height="110" rx="26" fill="#ffd59e44" stroke="#e0a800" stroke-width="4" stroke-dasharray="10 7"/><g transform="translate(28 20)">${gemSVG(4,{mode:'dots'}).replace('<svg','<svg width="96" height="100"')}</g><g transform="translate(118 20)">${gemSVG(2,{mode:'dots'}).replace('<svg','<svg width="96" height="100"')}</g>
+  <path d="M20 16 L38 0 L76 0 L94 16 L76 32 L38 32Z" fill="#fff" stroke="#8a6ad6" stroke-width="3" transform="translate(-6 0)"/><text x="51" y="24" text-anchor="middle" font-family="Fredoka,ui-rounded" font-size="20" font-weight="700" fill="#3a2f55">↔ 2</text>
+  <line x1="240" y1="150" x2="390" y2="150" stroke="#8a7fb8" stroke-width="3"/>${[0,1,2,3,4].map(k=>`<line x1="${250+k*34}" y1="143" x2="${250+k*34}" y2="157" stroke="#8a7fb8" stroke-width="2"/><text x="${250+k*34}" y="178" text-anchor="middle" font-family="Fredoka" font-size="18" fill="#3a2f55">${k}</text>`).join('')}
+  <path d="M318 140 Q335 112 352 140 M352 140 Q369 112 386 140" stroke="#ff9f43" stroke-width="3" fill="none"/><circle cx="318" cy="150" r="8" fill="#4ea8ff"/><circle cx="386" cy="150" r="8" fill="#3fd394"/><text x="352" y="100" text-anchor="middle" font-family="Fredoka" font-size="20" font-weight="700" fill="#3a2f55">2 hops</text>
+  <text x="300" y="56" text-anchor="middle" font-family="Fredoka,ui-rounded" font-size="24" font-weight="700" fill="#3a2f55">4 − 2 = 2</text></svg><p>Rule three: gap nooks! These two Gemlings are this many apart.</p>`}
+const RULE_LINES={1:'Rule one: no twins! Every row and every column has one of each Gemling.',2:'Rule two: cozy nooks! The sparkles inside a nook add up to its crystal number.',3:"Rule three: gap nooks! These two Gemlings are this many apart. The bigger one take away the smaller one."};
+function ruleCard(k){return new Promise(res=>{ovShow(`<h2>Cave Rule ${k}</h2><div class="rulecard">${ruleCardHTML(k)}</div>${capHTML}<button class="btn gold" id="ruleOk" style="min-width:200px">Got it!</button>`);fillNibs($('#ov'));say(RULE_LINES[k]);$('#ruleOk').onclick=()=>{sfx('tap');ovHide();res()}})}
+async function showRuleCards(){const ks=[1];if(S.seen.rule2)ks.push(2);if(S.seen.rule3)ks.push(3);for(const k of ks){await ruleCard(k)}if(cur)say('Tuck in the sleepy Gemlings!')}
+
+/* ---------- SCREENS ---------- */
+function show(id){$$('.screen').forEach(s=>s.classList.toggle('active',s.id===id));ui.screen=id;$('#toolsMenu').classList.remove('show')}
+function speakerIcons(){$$('.spk').forEach(b=>{const on=S.settings.voice||S.settings.sfx;b.innerHTML=on?ICON.speaker:ICON.mute;b.setAttribute('aria-pressed',on?'true':'false')})}
+function goHome(){if(cur&&!cur.solved)persistCurrent();goMap()}
+function goMap(){show('map');renderMap();const P=S.current;
+ if(ui.resting){ui.resting=false;say('Sweet dreams, Gemlings! Come back any time. The caves will be glowing.');return}
+ if(P)say("Your wall is waiting! Tap Explore to finish tucking in the Gemlings.");
+ else if(ui.justLit&&ui.justLit.cavern!=null)say(`Look! A new light in ${CAVERNS[ui.justLit.cavern].name}. Ready to explore?`);
+ else say(S.totalWalls?'Tap Explore to find a wall of sleepy Gemlings!':"Let's explore the Crystal Caves! Tap Explore.")}
+function renderMap(){const W=400,step=190,top=90;const H=top+7*step+150;const cave=S.cave;let s=`<svg class="mapsvg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs>${CAVERNS.map((c,i)=>`<radialGradient id="cv${i}" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="${c.c2}"/><stop offset="1" stop-color="${c.c}"/></radialGradient>`).join('')}<radialGradient id="cvd" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#4c4678"/><stop offset="1" stop-color="#2d2950"/></radialGradient></defs>`;
+ const pos=i=>[i%2?W*0.68:W*0.32,top+i*step];
+ let path=`M${pos(0)[0]} ${pos(0)[1]}`;for(let i=1;i<8;i++){const [x0,y0]=pos(i-1),[x1,y1]=pos(i);path+=` C${x0} ${y0+step*0.55} ${x1} ${y1-step*0.55} ${x1} ${y1}`}
+ s+=`<path d="${path}" stroke="#ffffff1a" stroke-width="26" fill="none" stroke-linecap="round"/><path d="${path}" stroke="#b9a6e866" stroke-width="5" fill="none" stroke-dasharray="2 14" stroke-linecap="round"/>`;
+ for(let i=0;i<8;i++){const [x,y]=pos(i);const done=i<cave.cavern||(cave.loop>0);const isCur=i===cave.cavern;const lit=isCur?cave.wallsLit:(i<cave.cavern?6:(cave.loop>0?6:0));
+  const loopCol=(i<cave.cavern)?cave.loop:cave.loop-1;const glowCol=loopCol>=1?SECOND_GLOW[i]:CAVERNS[i].c;const full=(i<cave.cavern)||(i>cave.cavern&&cave.loop>0);
+  s+=`<g>${full?`<circle cx="${x}" cy="${y}" r="78" fill="${glowCol}" opacity=".25"/>`:''}<circle cx="${x}" cy="${y}" r="56" fill="${full?(loopCol>=1?glowCol:`url(#cv${i})`):'url(#cvd)'}" stroke="${isCur?'#ffd86b':'#ffffff44'}" stroke-width="${isCur?5:3}"/>`;
+  // little cave mouth
+  s+=`<path d="M${x-26} ${y+26} Q${x-26} ${y-12} ${x} ${y-14} Q${x+26} ${y-12} ${x+26} ${y+26}Z" fill="${full?'#3a3360':'#1d1a33'}" opacity=".85"/>`;
+  if(full||lit>0){s+=`<path d="M${x-8} ${y+22} L${x-4} ${y+2} L${x} ${y+22}Z M${x+2} ${y+22} L${x+8} ${y-2} L${x+12} ${y+22}Z" fill="${glowCol}"/>`}
+  for(let k=0;k<6;k++){const a=(-160+k*28)*Math.PI/180;const sx=x+Math.cos(a)*74,sy=y+Math.sin(a)*74+6;const on=k<lit;const isNew=ui.justLit&&ui.justLit.cavern===i&&ui.justLit.spot===k&&ui.justLit.loop===cave.loop-(i>cave.cavern&&cave.loop>0?1:0)&&isCur;
+   s+=`<g ${isNew?'class="spot-new" style="transform-box:fill-box;transform-origin:center"':''}><path d="M${sx} ${sy-12} L${sx+7} ${sy} L${sx} ${sy+9} L${sx-7} ${sy}Z" fill="${on?glowCol:'#3d3866'}" stroke="${on?'#fff':'#5d5789'}" stroke-width="2"/>${on?`<circle cx="${sx}" cy="${sy}" r="13" fill="${glowCol}" opacity=".3"/>`:''}</g>`}
+  s+=`<text class="cavname" x="${x}" y="${y+84}" text-anchor="middle" font-size="19" font-weight="700" fill="${full||isCur?'#fffaf0':'#9a92c4'}">${CAVERNS[i].name}</text>`;
+  if(isCur)s+=`<g transform="translate(${x+(i%2?-150:84)} ${y-18}) scale(.62)">${nibSVG({hat:nibHat(),scarf:S.nib.items.indexOf('scarf')>=0&&nibHat()!=='scarf'}).replace('<svg','<svg width="100" height="100"')}</g>`;
+  s+='</g>'}
+ if(cave.loop>0)s+=`<text x="${W/2}" y="40" text-anchor="middle" font-family="Fredoka" font-size="20" fill="#ffd86b">✨ Second glow ✨</text>`;
+ s+='</svg>';$('#mapInner').innerHTML=s;
+ $('#exploreBtn').innerHTML=ICON.lantern+(S.current?' Keep going':' Explore');
+ setTimeout(()=>{const sc=$('#mapScroll');const y=(top+cave.cavern*step)/H*$('#mapInner svg').getBoundingClientRect().height;sc.scrollTop=Math.max(0,y-sc.clientHeight/2+60)},30);
+ setTimeout(()=>{ui.justLit=null},3500)}
+function explore(){ensureAudio();sfx('tap');if(S.current){cur=S.current;startPuzzleScreen(false);return}
+ const ds=S.doors&&S.doors.set?S.doors:makeDoorSet();renderDoors(ds)}
+function doorSVG(d){const n=d.n;const mini=(x,y,size)=>{let s='';const cs=size/n;for(let r=0;r<n;r++)for(let c=0;c<n;c++)s+=`<rect x="${x+c*cs+1}" y="${y+r*cs+1}" width="${cs-2}" height="${cs-2}" rx="${cs*0.3}" fill="#ffffff55" stroke="#ffffffaa" stroke-width="1"/>`;return s};
+ if(d.type==='little')return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg"><path d="M20 236 V110 Q20 30 100 30 Q180 30 180 110 V236Z" fill="#5a4630" stroke="#3a2a18" stroke-width="6"/><path d="M36 236 V114 Q36 48 100 48 Q164 48 164 114 V236Z" fill="#8a6a42"/><path d="M68 52 V236 M100 48 V236 M132 52 V236" stroke="#6d5232" stroke-width="3"/>
+  <path d="M20 120 Q30 100 50 106 Q60 90 80 98 Q70 116 50 118 Q36 132 20 130Z M150 70 Q170 60 182 90 Q170 96 160 86Z M180 200 Q160 190 168 220 Q178 226 182 214Z" fill="#6bc77a"/><circle cx="150" cy="160" r="7" fill="#ffd86b" stroke="#a87600" stroke-width="2"/>${mini(70,120,60)}</svg>`;
+ if(d.type==='big')return `<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe9ff"/><stop offset=".5" stop-color="#8f7de6"/><stop offset="1" stop-color="#4b3a9c"/></linearGradient></defs>
+  <path d="M14 296 V120 L40 40 L100 6 L160 40 L186 120 V296Z" fill="url(#bd)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><path d="M34 296 V126 L56 60 L100 32 L144 60 L166 126 V296Z" fill="#2c2458"/>
+  <path d="M14 120 L34 126 M40 40 L56 60 M100 6 L100 32 M160 40 L144 60 M186 120 L166 126" stroke="#fff" stroke-width="3"/><path d="M10 296 L2 240 L20 250Z M190 296 L198 236 L180 250Z" fill="#b9a6e8" stroke="#fff" stroke-width="2"/>
+  ${mini(55,130,90)}<path d="M100 250 l5 10 10 5 -10 5 -5 10 -5 -10 -10 -5 10 -5z" fill="#ffd86b"/></svg>`;
+ return `<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg"><path d="M16 276 V100 Q16 16 100 16 Q184 16 184 100 V276Z" fill="#ffe9c7" stroke="#c98a4a" stroke-width="6"/><path d="M30 276 V104 Q30 32 100 32 Q170 32 170 104 V276Z" fill="#fff6e6" stroke="#f0b8d0" stroke-width="3" stroke-dasharray="6 5"/>
+  ${[1,2,3,4].map((v,k)=>`<g transform="translate(${36+(k%2)*66} ${52+Math.floor(k/2)*62}) scale(.62)">${gemSVG(v,{mode:'face'}).replace('<svg','<svg width="100" height="100"')}</g>`).join('')}
+  ${mini(64,186,72)}<circle cx="156" cy="190" r="6" fill="#ff9ec7"/></svg>`}
+function renderDoors(ds){show('doors');const row=$('#doorRow');row.innerHTML='';
+ ds.set.forEach((d,idx)=>{const b=document.createElement('button');b.className='door '+d.type;b.setAttribute('aria-label',d.type+' door');b.innerHTML=doorSVG(d)+`<span class="lbl">${d.type==='little'?'Little':d.type==='big'?'Big':'Picture'}</span>`;
+  b.onclick=()=>{sfx('tap');openDoor(d)};row.appendChild(b)});
+ const hasPic=ds.set.some(d=>d.type==='picture'),hasBig=ds.set.some(d=>d.type==='big');
+ say(hasPic&&hasBig?'Little puzzle, big puzzle, or picture puzzle. You choose!':hasBig?'Little puzzle or big puzzle. You choose!':'Little puzzle or picture puzzle. You choose!')}
+
+/* ---------- BINDER ---------- */
+function binderOrder(){return CARDS}
+function renderBinder(){const cards=binderOrder();const pages=Math.ceil(cards.length/6);ui.binderPage=Math.max(0,Math.min(pages-1,ui.binderPage));const pg=cards.slice(ui.binderPage*6,ui.binderPage*6+6);
+ $('#cards6').innerHTML=pg.map(c=>{const own=S.cards.owned.indexOf(c.id)>=0;return `<button class="cardslot" data-card="${c.id}" aria-label="${own?esc(c.name):'not found yet'}">${own?cardSVG(c):cardSVG(c,{silhouette:true})}</button>`}).join('');
+ $('#pgInfo').textContent=`${ui.binderPage+1} / ${pages}`;$('#stickerRow').textContent=S.stickers.join(' ');
+ $('#bLineup').style.visibility=ownedDistinct().length>=4?'visible':'hidden'}
+function ownedDistinct(){const seen=new Set(),out=[];for(const id of S.cards.owned){const c=CARD_BY[id];if(c&&!seen.has(c.sparkle)){seen.add(c.sparkle);out.push(c)}}return out}
+function openBinder(){sfx('tap');show('binder');renderBinder();say(S.cards.owned.length?`You have ${S.cards.owned.length} Gemling card${S.cards.owned.length===1?'':'s'}! Tap one to say hello.`:'Your binder is waiting for Gemling cards. Geodes hatch new friends!')}
+function cardBig(id){const c=CARD_BY[id];ovShow(`<div class="bigcard">${cardSVG(c)}</div>${capHTML}<button class="btn gold" id="cbClose" style="min-width:180px">Back</button>`);fillNibs($('#ov'));say(`${c.name}! ${c.line}. Sparkle number ${c.sparkle}.`);$('#cbClose').onclick=()=>{sfx('tap');ovHide()}}
+// Line-up bonus
+let LU=null;
+function startLineup(){const pool=shuffle(ownedDistinct().slice(),Math.random).slice(0,4);if(pool.length<4)return;LU={cards:pool,slots:[null,null,null,null],sel:null,hint:0};renderLineup();say('Line-Up! Put the cards in order, from the fewest sparkles to the most.')}
+function renderLineup(){const sorted=LU.cards.slice().sort((a,b)=>a.sparkle-b.sparkle);const used=new Set(LU.slots.filter(Boolean));
+ let ghost=-1,ghostId=null;if(LU.hint>=3){for(let k=0;k<4;k++)if(LU.slots[k]!==sorted[k].id){ghost=k;ghostId=sorted[k].id;break}}
+ const html=`<h2>Line-Up!</h2><div class="lineup" id="luArea"><div class="lu-cards">${LU.cards.map(c=>`<div class="lu-card ${used.has(c.id)?'gone':''} ${LU.sel===c.id?'sel':''} ${ghostId===c.id&&!used.has(c.id)?'bounce':''}" data-lc="${c.id}" style="${ghostId===c.id?'animation:trayBounce .8s infinite':''}">${cardSVG(c)}</div>`).join('')}</div>
+  <div class="lu-slots">${LU.slots.map((id,k)=>`<div class="lu-slot ${(LU.hint>=1&&k===0&&!id)||ghost===k?'hl':''}" data-ls="${k}">${id?`<div class="lu-card" data-lc="${id}" data-from="${k}" style="${ghostId===id?'animation:trayBounce .8s infinite':''}">${cardSVG(CARD_BY[id])}</div>`:(ghost===k?`<div style="opacity:.35;width:100%;position:absolute;inset:0">${cardSVG(CARD_BY[ghostId])}</div>`:k+1)}</div>`).join('')}</div><div class="lu-shelfline"></div>
+  ${LU.hint>=2?numPathCards(LU.cards):''}</div>${capHTML}<div class="row" style="flex-wrap:wrap;justify-content:center"><button class="btn icon" id="luHint" aria-label="Hint Lantern">${ICON.lantern}</button><button class="btn soft" id="luClose" style="min-width:150px">Back</button></div>`;
+ const keepLine=lastLine;ovShow(html);fillNibs($('#ov'));const c=capEl();if(c){$('.txt',c).textContent=keepLine;c.classList.toggle('hidecap',!S.settings.captions)}
+ $('#luClose').onclick=()=>{sfx('tap');LU=null;ovHide();renderBinder()};$('#luHint').onclick=()=>{LU.hint=Math.min(3,LU.hint+1);sfx('tap');renderLineup();say(LU.hint===1?'Which card has the fewest sparkles? It goes first.':LU.hint===2?'Look at the number path. The smallest number is closest to zero.':(LU.slots.every(Boolean)?'The bouncing card goes in the glowing spot. Tap a card on the shelf to take it off, then try again.':'The bouncing card goes in the glowing spot. Can you move it?'))};
+ bindPress($('#luArea'),e=>{const card=e.target.closest('[data-lc]');if(card)return{type:'card',id:card.dataset.lc,from:card.dataset.from!=null?+card.dataset.from:null,el:card,drag:true};const sl=e.target.closest('[data-ls]');if(sl)return{type:'slot',k:+sl.dataset.ls};return null},
+  {tap(info){if(info.type==='card'){if(info.from!=null){LU.slots[info.from]=null;sfx('back');renderLineup();return}LU.sel=LU.sel===info.id?null:info.id;sfx('lift');renderLineup()}else if(info.type==='slot'&&LU.sel){luPlace(LU.sel,info.k,null)}},
+   dragStart(p){p.ghost=makeGhost(cardSVG(CARD_BY[p.info.id]),p.info.el.getBoundingClientRect().width)},dragMove(p,e){moveGhost(p.ghost,e.clientX,e.clientY)},
+   drop(p,e){killGhost(p.ghost);const el=document.elementFromPoint(e.clientX,e.clientY);const sl=el&&el.closest('[data-ls]');if(sl)luPlace(p.info.id,+sl.dataset.ls,p.info.from);else if(p.info.from!=null){LU.slots[p.info.from]=null;renderLineup()}},cancel(p){killGhost(p.ghost)}})}
+function numPathCards(cards){const W=420,x0=20,x1=400,max=50,y=52;let s=`<svg viewBox="0 0 ${W} 84" style="width:100%;max-width:520px;background:#fffaf0;border-radius:16px"><line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#8a7fb8" stroke-width="3"/>`;
+ for(let k=0;k<=max;k+=5){const x=x0+(x1-x0)*k/max;s+=`<line x1="${x}" y1="${y-6}" x2="${x}" y2="${y+6}" stroke="#8a7fb8" stroke-width="2"/><text x="${x}" y="${y+24}" text-anchor="middle" font-family="Fredoka" font-size="12" fill="#3a2f55">${k}</text>`}
+ const cs=cards.slice().sort((a,b)=>a.sparkle-b.sparkle);let prevX=-99,up=false;
+ cs.forEach(c=>{const x=x0+(x1-x0)*c.sparkle/max;up=(x-prevX<26)?!up:false;prevX=x;const ly=up?14:34;s+=`<line x1="${x}" y1="${ly+3}" x2="${x}" y2="${y-8}" stroke="#3a2f5566" stroke-width="1.5"/><circle cx="${x}" cy="${y}" r="8" fill="${hslPal(c.hue).color}" stroke="#3a2f55" stroke-width="2"/><text x="${x}" y="${ly}" text-anchor="middle" font-family="Fredoka" font-size="15" font-weight="700" fill="#3a2f55">${c.sparkle}</text>`});return s+'</svg>'}
+function luPlace(id,k,from){if(from!=null)LU.slots[from]=null;const old=LU.slots.indexOf(id);if(old>=0)LU.slots[old]=null;LU.slots[k]=id;LU.sel=null;sfx('pop');
+ if(LU.slots.every(Boolean)){const ok=LU.slots.every((x,i)=>i===0||CARD_BY[LU.slots[i-1]].sparkle<CARD_BY[x].sparkle);renderLineup();
+  if(ok){sfx('chord');const st=STICKERS.find(x=>S.stickers.indexOf(x)<0)||STICKERS[S.stickers.length%STICKERS.length];S.stickers.push(st);addShared({id:'sticker-'+S.stickers.length,name:'Line-Up sticker',emoji:st,rarity:'common'});save();
+   const nums=LU.slots.map(x=>CARD_BY[x].sparkle);say(`${nums.join(', ')}. From fewest to most! You earned a ${st} sticker for your binder!`);setTimeout(()=>{if(LU){ovShow(`<h2>A binder sticker!</h2><div class="stage" style="font-size:120px">${st}</div>${capHTML}<button class="btn gold" id="luDone" style="min-width:180px">Yay!</button>`);fillNibs($('#ov'));$('.txt',capEl()).textContent=lastLine;$('#luDone').onclick=()=>{LU=null;ovHide();renderBinder()}}},1500)}
+  else{sfx('hmm');LU.hint=Math.max(LU.hint,0);$$('.lu-slot').forEach((s,i)=>{if(i>0&&CARD_BY[LU.slots[i-1]].sparkle>CARD_BY[LU.slots[i]].sparkle)s.classList.add('wob')});say('Hmm, a couple of cards want to swap. Look at their sparkle numbers. The lantern can help!')}}
+ else renderLineup()}
+
+/* ---------- GEM SHELF ---------- */
+function openShelf(){sfx('tap');show('shelfScr');ui.shelfSel=null;renderShelf();say(S.gems.owned.length?'Drag your gems onto the shelf. Put them anywhere you like!':'Solve a wall to earn your first gem!')}
+function renderShelf(){const placed=S.gems.placed;const slots=Math.max(24,Math.ceil((S.gems.owned.length+1)/6)*6);const bySlot={};placed.forEach(p=>bySlot[p.slot]=p.id);const gById={};S.gems.owned.forEach(g=>gById[g.id]=g);
+ let h='';for(let p=0;p<slots/6;p++){h+='<div class="plank">';for(let k=0;k<6;k++){const s=p*6+k;const gid=bySlot[s];h+=`<div class="gslot" data-slot="${s}">${gid&&gById[gid]?`<div data-gem="${gid}" data-from="${s}" style="width:84%;height:84%">${gemStoneSVG(gById[gid].type)}</div>`:''}</div>`}h+='</div>'}
+ $('#shelf').innerHTML=h;const placedIds=new Set(placed.map(p=>p.id));const loose={};S.gems.owned.forEach(g=>{if(!placedIds.has(g.id))(loose[g.type]=loose[g.type]||[]).push(g.id)});
+ $('#pouch').innerHTML=Object.keys(loose).length?Object.keys(loose).map(t=>`<div class="pgem ${ui.shelfSel&&gById[ui.shelfSel]&&gById[ui.shelfSel].type===t&&!placedIds.has(ui.shelfSel)?'sel':''}" data-gem="${loose[t][0]}" aria-label="${GEMS[t].name}">${gemStoneSVG(t)}<span class="cnt">${loose[t].length}</span></div>`).join(''):`<div style="padding:20px;color:#cfc6ec;font-size:18px">${S.gems.owned.length?'All your gems are on the shelf!':'Your gem pouch is empty.'}</div>`}
+function shelfPlace(gid,slot){const P=S.gems.placed;const fromIdx=P.findIndex(p=>p.id===gid);const occ=P.findIndex(p=>p.slot===slot);
+ if(occ>=0&&P[occ].id!==gid){if(fromIdx>=0){P[occ].slot=P[fromIdx].slot}else P.splice(occ,1)}
+ const fi=P.findIndex(p=>p.id===gid);if(fi>=0)P[fi].slot=slot;else P.push({id:gid,slot});ui.shelfSel=null;sfx('gem');save();renderShelf()}
+
+/* ---------- NIB'S NOOK ---------- */
+function nookItemSVG(id,solo){const items={
+ chair:`<g><path d="M20 80 Q50 92 80 80" stroke="#8a5a2b" stroke-width="5" fill="none"/><rect x="26" y="36" width="44" height="34" rx="8" fill="#c98a4a" stroke="#8a5a2b" stroke-width="3"/><rect x="24" y="60" width="50" height="10" rx="4" fill="#ff9ec7"/><path d="M30 70 L26 82 M66 70 L72 82" stroke="#8a5a2b" stroke-width="4"/></g>`,
+ lamp:`<g><circle cx="50" cy="40" r="30" fill="#ffd86b" opacity=".25"/><path d="M24 44 Q50 4 76 44Z" fill="#ff8fb8" stroke="#b8345a" stroke-width="3"/><circle cx="40" cy="30" r="4" fill="#fff"/><circle cx="58" cy="26" r="5" fill="#fff"/><rect x="44" y="44" width="12" height="40" rx="5" fill="#fffaf0" stroke="#c9b8a0" stroke-width="2"/></g>`,
+ rug:`<g><ellipse cx="50" cy="70" rx="44" ry="14" fill="#6bc77a" stroke="#2d8a4a" stroke-width="3"/><ellipse cx="50" cy="70" rx="30" ry="8" fill="#9be89b"/></g>`,
+ books:`<g><rect x="16" y="20" width="68" height="64" rx="4" fill="#8a5a2b"/><rect x="20" y="24" width="60" height="26" fill="#3a2616"/><rect x="20" y="54" width="60" height="26" fill="#3a2616"/>${[0,1,2,3,4].map(k=>`<rect x="${23+k*11}" y="${28+(k%2)*3}" width="8" height="${20-(k%2)*3}" fill="${['#ff6f8e','#4ea8ff','#ffcd3c','#3fd394','#b77cff'][k]}"/>`).join('')}<path d="M30 78 L36 60 L42 78Z M50 78 L58 56 L66 78Z" fill="#b9a6e8" stroke="#fff" stroke-width="1.5"/></g>`,
+ bed:`<g><rect x="10" y="50" width="80" height="26" rx="10" fill="#6bc77a" stroke="#2d8a4a" stroke-width="3"/><rect x="14" y="44" width="26" height="16" rx="8" fill="#fffaf0"/><path d="M40 52 Q65 40 90 54 L90 66 L40 66Z" fill="#b9a6e8"/><rect x="10" y="74" width="6" height="10" fill="#8a5a2b"/><rect x="84" y="74" width="6" height="10" fill="#8a5a2b"/></g>`,
+ telescope:`<g><path d="M30 86 L50 56 L70 86" stroke="#8a5a2b" stroke-width="4" fill="none"/><rect x="26" y="34" width="56" height="16" rx="7" transform="rotate(-25 54 42)" fill="#5c6bd6" stroke="#2f3a8f" stroke-width="3"/><circle cx="80" cy="20" r="5" fill="#ffd86b"/></g>`,
+ miner:'',scarf:'',flower:'',nightcap:''};
+ const inner=items[id]||'';return solo?`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`:inner}
+function renderNook(){const it=S.nib.items;const gemsN=S.gems.owned.length;const has=k=>it.indexOf(k)>=0;
+ let s=`<svg viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="nk" cx="50%" cy="45%" r="65%"><stop offset="0" stop-color="${has('lamp')?'#7a5a6a':'#5a4a68'}"/><stop offset="1" stop-color="#2a2140"/></radialGradient></defs>
+ <path d="M20 410 Q10 60 300 30 Q590 60 580 410Z" fill="url(#nk)" stroke="#1a1430" stroke-width="8"/><path d="M40 410 Q60 300 300 300 Q540 300 560 410Z" fill="#4a3a30"/>
+ <path d="M80 140 Q300 110 520 140" stroke="#8a5a2b" stroke-width="10" fill="none" stroke-linecap="round"/>`;
+ // gem ledge glows
+ const jar=Math.min(12,gemsN);for(let k=0;k<jar;k++){const g=S.gems.owned[S.gems.owned.length-1-k];s+=`<g transform="translate(${100+k*34} 102) scale(.36)">${gemStoneSVG(g.type).replace('<svg','<svg width="100" height="100"')}</g>`}
+ if(!gemsN)s+=`<text x="300" y="120" text-anchor="middle" font-family="Fredoka" font-size="18" fill="#b9a6e8">(your gems will glow here)</text>`;
+ const place={rug:[180,300,2.4],chair:[60,230,1.7],lamp:[440,190,1.6],books:[60,160,0],bed:[400,270,1.8],telescope:[470,150,1.4]};
+ if(has('rug'))s+=`<g transform="translate(180 290) scale(2.4 1.6)">${nookItemSVG('rug')}</g>`;
+ if(has('books'))s+=`<g transform="translate(470 150) scale(1.1)">${nookItemSVG('books')}</g>`;
+ if(has('bed'))s+=`<g transform="translate(400 250) scale(1.6)">${nookItemSVG('bed')}</g>`;
+ if(has('chair'))s+=`<g transform="translate(80 230) scale(1.6)">${nookItemSVG('chair')}</g>`;
+ if(has('lamp'))s+=`<g transform="translate(40 150) scale(1.5)">${nookItemSVG('lamp')}</g>`;
+ if(has('telescope'))s+=`<g transform="translate(330 120) scale(1.2)">${nookItemSVG('telescope')}</g>`;
+ s+=`<g id="nookNib" transform="translate(220 170) scale(1.7)" style="cursor:pointer">${nibSVG({hat:nibHat(),scarf:has('scarf')&&nibHat()!=='scarf'}).replace('<svg','<svg width="100" height="100"')}</g>`;
+ if(!it.length)s+=`<text x="300" y="400" text-anchor="middle" font-family="Fredoka" font-size="18" fill="#cfc6ec">Nib's nook gets cozier as walls light up!</text>`;
+ s+='</svg>';$('#nookScene').innerHTML=s;
+ const hats=S.nib.hats.filter(h=>h!=='scarf');$('#hats').innerHTML=hats.length?['none'].concat(hats).map(h=>`<button class="btn soft ${((S.nib.wearing||'none')===h)?'on':''}" data-hat="${h}" aria-label="${h}">${h==='none'?nibSVG({}):nibSVG({hat:h})}</button>`).join(''):''}
+function openNook(){sfx('tap');show('nook');renderNook();say(S.nib.items.length?"Welcome to my nook! Tap me to chat.":"This is my little nook. It's a bit empty... but every glowing wall makes it cozier!")}
+
+/* ---------- GROWN-UPS ---------- */
+function openGrown(){const T=S.tracks;const ladder=(arr,tr,track)=>`<div class="lv">${arr.slice(1).map((L,i)=>`<span class="${i+1===tr.level?'cur':''} ${i+1===tr.best?'best':''}" title="${esc(L.desc)}">${L.id}</span>`).join('')}</div><div class="small"><b>Now:</b> ${arr[tr.level].id}: ${esc(arr[tr.level].desc)}<br><b>Best reached:</b> ${arr[tr.best].id}. Streak ${tr.streak}, miss streak ${tr.missStreak}.</div>`;
+ const days=[];for(let k=0;k<7;k++){const d=new Date();d.setDate(d.getDate()-k);days.push(today(d))}
+ const dayRow=k=>{const dd=S.daily[k]||{walls:0,little:0,big:0,picture:0};const m=Math.round(S.dailyMinutes[k]||0);return `<tr><td>${k===today()?'<b>Today</b>':k}</td><td>${m}</td><td>${dd.walls||0}</td><td>${dd.little||0} / ${dd.big||0} / ${dd.picture||0}</td></tr>`};
+ const hToday=S.history.filter(h=>today(new Date(h.t))===today());const firstSeen={};S.history.forEach(h=>{const k=h.track+':'+h.level;if(!firstSeen[k])firstSeen[k]=today(new Date(h.t))});
+ const skill=h=>(h.track==='logic'?LOGIC:SUM)[h.level].skill;const prac=[...new Set(hToday.map(skill))];const nw=[...new Set(hToday.filter(h=>firstSeen[h.track+':'+h.level]===today()&&S.history.filter(x=>x.track===h.track&&x.level===h.level).length===hToday.filter(x=>x.track===h.track&&x.level===h.level).length).map(skill))];
+ const summary=hToday.length?`Solved ${hToday.length} wall${hToday.length===1?'':'s'}. Practiced: ${prac.join(', ')}.${nw.length?' New: '+nw.join(', ')+'.':''}`:'No walls solved yet today.';
+ const stat=k=>{const t=T[k];return `<tr><td>${k==='logic'?'Logic (Picture Door)':'Sum (Big Door)'}</td><td>${t.solves}</td><td>${t.solves?Math.round(100*t.clean/t.solves):0}%</td><td>${t.solves?(t.hintSteps/t.solves).toFixed(1):'0'}</td><td>${t.glasses}</td></tr>`};
+ const last=S.history.slice(-20).reverse().map(h=>`<tr><td>${new Date(h.t).toLocaleDateString()}</td><td>${(h.track==='logic'?LOGIC:SUM)[h.level].id}${h.tut?' (tutorial)':''}</td><td>${h.door}</td><td>${h.n}×${h.n}</td><td>${h.blanks}</td><td>${h.hintSteps} (max ${h.hintMax})</td><td>${h.twins}</td><td>${h.wrongCages}</td><td>${(h.ms/60000).toFixed(1)}</td></tr>`).join('');
+ const opt=(arr,v)=>arr.slice(1).map((L,i)=>`<option value="${i+1}" ${i+1===v?'selected':''}>${L.id}: ${esc(L.desc).slice(0,60)}</option>`).join('');
+ const rate=recentCleanRate();
+ $('#grownPanel').innerHTML=`<div class="row"><h2 class="grow">Grown-ups: Gemling Grids</h2><button class="gbtn prim" id="gClose">Close</button></div>
+ <div class="small">Every puzzle is a Latin-square logic grid (sudoku/KenKen style). The <b>Sum track</b> practises addition facts and missing addends through “nooks” whose pieces must add to a number (later: differences). The <b>Logic track</b> builds reasoning with pictures only. Levels move up after 3 clean solves (2 if she's above 95%) and down after 2 non-clean solves; the very first levels (LG1–LG3, S1–S2) can skip ahead after one perfect first try. If her recent clean rate dips below 70%, the Big Door offers one level easier for a couple of sets. Clean = never needed more than the first hint nudge on any cell. She never sees levels or percentages.</div>
+ <h3>Summary</h3><div><b>${esc(summary)}</b> Total walls: ${S.totalWalls}. Rolling clean rate (last 8): ${rate===null?'n/a':Math.round(rate*100)+'%'}${S.softLanding?' (soft landing active)':''}.</div>
+ <h3>Skill ladders</h3><div><b>Logic</b>${ladder(LOGIC,T.logic,'logic')}</div><div><b>Sum</b>${ladder(SUM,T.sum,'sum')}</div>
+ <div class="small"><b>Sum fade stage:</b> ${STAGE_NAMES[Math.max(0,SUM[T.sum.level].stage-S.fadeStage.drop)]} (drop ${S.fadeStage.drop} from the level default).</div>
+ <h3>Last 7 days</h3><div class="scroll"><table><tr><th>Day</th><th>Minutes</th><th>Walls</th><th>Doors L / B / P</th></tr>${days.map(dayRow).join('')}</table></div>
+ <h3>By track</h3><div class="scroll"><table><tr><th>Track</th><th>Solves</th><th>Clean</th><th>Avg hint steps</th><th>Sparkle Glasses used</th></tr>${stat('sum')}${stat('logic')}</table></div>
+ <h3>Last 20 puzzles</h3><div class="scroll"><table><tr><th>Date</th><th>Level</th><th>Door</th><th>Grid</th><th>Blanks</th><th>Hints</th><th>Twins</th><th>Wrong nooks</th><th>Min</th></tr>${last||'<tr><td colspan="9">None yet</td></tr>'}</table></div>
+ <h3>Settings</h3><div class="set"><label>Logic start <select id="gLog">${opt(LOGIC,T.logic.level)}</select></label><label>Sum start <select id="gSum">${opt(SUM,T.sum.level)}</select></label></div>
+ <div class="set"><label><input type="checkbox" id="gVoice" ${S.settings.voice?'checked':''}> Voice</label><label>Speed <input type="range" id="gRate" min="0.6" max="1.2" step="0.05" value="${S.settings.rate}" style="width:140px;height:40px"></label><label><input type="checkbox" id="gSfx" ${S.settings.sfx?'checked':''}> Sound effects</label><label><input type="checkbox" id="gCap" ${S.settings.captions?'checked':''}> Captions</label><label><input type="checkbox" id="gDots" ${S.settings.alwaysDots?'checked':''}> Always show dots</label></div>
+ <h3>Save backup</h3><div class="row" style="flex-wrap:wrap"><button class="gbtn" id="gExport">Export save</button><button class="gbtn" id="gImport">Import from box</button><span class="small" id="gMsg"></span></div><textarea id="gText" placeholder="Export puts the save here. Paste a save here, then press Import."></textarea>
+ <h3>Reset</h3><div class="row" style="flex-wrap:wrap"><button class="gbtn" id="gReset">Reset all progress…</button><span id="gResetBox"></span></div>
+ <div class="small">Self-test: <button class="gbtn" id="gTest">Run puzzle self-test (20/level)</button> <span id="gTestOut"></span></div>`;
+ $('#grown').classList.add('show');
+ $('#gClose').onclick=()=>{$('#grown').classList.remove('show');if(ui.screen==='map')renderMap()};
+ $('#gLog').onchange=e=>{const v=+e.target.value;T.logic.level=v;T.logic.best=Math.max(T.logic.best,v);T.logic.streak=0;T.logic.missStreak=0;S.doors=null;save()};
+ $('#gSum').onchange=e=>{const v=+e.target.value;T.sum.level=v;T.sum.best=Math.max(T.sum.best,v);T.sum.streak=0;T.sum.missStreak=0;if(v>1)S.seen.rule2=S.seen.rule2;S.doors=null;save()};
+ $('#gVoice').onchange=e=>{S.settings.voice=e.target.checked;save();speakerIcons()};$('#gRate').onchange=e=>{S.settings.rate=+e.target.value;save();speak('This is how fast I talk.')};
+ $('#gSfx').onchange=e=>{S.settings.sfx=e.target.checked;save();speakerIcons()};$('#gCap').onchange=e=>{S.settings.captions=e.target.checked;save()};$('#gDots').onchange=e=>{S.settings.alwaysDots=e.target.checked;save()};
+ $('#gExport').onclick=()=>{$('#gText').value=JSON.stringify(S);$('#gMsg').textContent='Copied into the box below. Select and copy it.';try{navigator.clipboard&&navigator.clipboard.writeText($('#gText').value)}catch(e){}};
+ $('#gImport').onclick=()=>{try{const d=JSON.parse($('#gText').value);if(!d||d.version!==1)throw 0;S=merge(defaults(),d);S.current=d.current||null;S.doors=d.doors||null;save();$('#gMsg').textContent='Imported!';cur=null}catch(e){$('#gMsg').textContent='That does not look like a Gemling Grids save.'}};
+ $('#gReset').onclick=()=>{$('#gResetBox').innerHTML='<button class="gbtn" id="gR2">Yes, erase everything</button> <button class="gbtn" id="gRno">Keep progress</button>';$('#gRno').onclick=()=>$('#gResetBox').innerHTML='';
+  $('#gR2').onclick=()=>{$('#gResetBox').innerHTML='<b>Really? This cannot be undone.</b> <button class="gbtn" id="gR3">Erase now</button> <button class="gbtn" id="gRno2">Cancel</button>';$('#gRno2').onclick=()=>$('#gResetBox').innerHTML='';
+   $('#gR3').onclick=()=>{const keep=S.settings;S=defaults();S.settings=keep;cur=null;save();$('#grown').classList.remove('show');show('title')}}};
+ $('#gTest').onclick=()=>{const r=selfTest(20);$('#gTestOut').innerHTML='<br>'+r.map(x=>`${x.level}: unique ${x.unique}/20, blanks in range ${x.inRange}/20, rules ${x.rules}/20, avg ${x.avgMs}ms, max ${x.maxMs}ms`).join('<br>')}}
+function setupHold(btn,ms,fn){btn.innerHTML=ICON.mushroom+`<svg class="ring" viewBox="0 0 72 72"><circle cx="36" cy="36" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3"/></svg>`;let t=null,raf=null,start=0;const ring=$('.ring circle',btn);
+ const reset=()=>{clearTimeout(t);cancelAnimationFrame(raf);t=null;ring.style.strokeDashoffset=207.3};
+ btn.addEventListener('pointerdown',e=>{e.preventDefault();try{btn.setPointerCapture(e.pointerId)}catch(_){}start=performance.now();const tick=()=>{const p=Math.min(1,(performance.now()-start)/ms);ring.style.strokeDashoffset=207.3*(1-p);if(p<1)raf=requestAnimationFrame(tick)};tick();t=setTimeout(()=>{reset();fn()},ms)});
+ ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>btn.addEventListener(ev,()=>{if(t)reset()}))}
+
+/* ---------- POINTER (tap + drag) ---------- */
+function bindPress(container,resolver,H){if(container._bound)container.removeEventListener('pointerdown',container._bound);let press=null;
+ const down=e=>{if(press)return;const info=resolver(e);if(!info)return;e.preventDefault();ensureAudio();ui.lastInteract=Date.now();press={id:e.pointerId,info,sx:e.clientX,sy:e.clientY,drag:false};try{container.setPointerCapture(e.pointerId)}catch(_){}};
+ const move=e=>{if(!press||e.pointerId!==press.id)return;if(!press.drag&&press.info.drag&&Math.hypot(e.clientX-press.sx,e.clientY-press.sy)>9){press.drag=true;H.dragStart(press,e)}if(press.drag)H.dragMove(press,e)};
+ const up=e=>{if(!press||e.pointerId!==press.id)return;const p=press;press=null;if(p.drag)H.drop(p,e);else H.tap(p.info,e)};
+ const cancel=e=>{if(!press)return;const p=press;press=null;if(p.drag&&H.cancel)H.cancel(p)};
+ container._bound=down;container.addEventListener('pointerdown',down);if(!container._moveBound){container._moveBound=true;container.addEventListener('pointermove',e=>container._move&&container._move(e));container.addEventListener('pointerup',e=>container._up&&container._up(e));container.addEventListener('pointercancel',e=>container._cancel&&container._cancel(e))}
+ container._move=move;container._up=up;container._cancel=cancel}
+function makeGhost(svg,size){const g=document.createElement('div');g.className='dragghost';g.style.width=g.style.height=size+'px';if(size&&svg.indexOf('0 0 200 280')>0){g.style.height=size*1.4+'px'}g.innerHTML=svg;document.body.appendChild(g);return g}
+function moveGhost(g,x,y){if(!g)return;const w=g.offsetWidth,h=g.offsetHeight;g.style.transform=`translate(${x-w/2}px,${y-h/2-28}px) scale(1.08)`}
+function killGhost(g){if(g)g.remove()}
+function cellAt(x,y){const g=$('#grid').getBoundingClientRect();const n=cur.P.n;const cs=g.width/n;const c=Math.floor((x-g.left)/cs),r=Math.floor((y-g.top)/cs);if(r<0||c<0||r>=n||c>=n)return -1;return r*n+c}
+function setupPuzzleInput(){let hover=-1;
+ bindPress($('#playArea'),e=>{if(!cur||cur.solved)return null;const tp=e.target.closest('.tpiece');if(tp)return{type:'tray',v:+tp.dataset.v,drag:true,el:tp};const cell=e.target.closest('.cell');if(cell){const i=+cell.dataset.i;const v=cur.place[i];return{type:'cell',i,v,drag:!!v&&!cur.P.givens[i],el:cell}}return null},
+ {tap(info){if(!cur||cur.solved)return;if(info.type==='tray'){ui.sel=ui.sel===info.v?0:info.v;if(ui.sel)sfx('lift');renderTray();return}
+   const i=info.i,P=cur.P;if(P.givens[i]){if(ui.sel){say('That Gemling is sleeping in stone. Try an empty nook!');sfx('hmm')}return}
+   if(ui.sel){const v=ui.sel;ui.sel=0;place(i,v,null);return}
+   if(cur.place[i]){const v=cur.place[i];removeAt(i);ui.sel=v;sfx('lift');renderTray();return}
+   if(cur.hint&&cur.hint.step>=3&&cur.hint.target===i){say(`Drag ${KINDS[P.sol[i]].name} from the tray, or tap it and then tap here.`)}},
+  dragStart(p,e){const v=p.info.type==='tray'?p.info.v:p.info.v;p.v=v;p.from=p.info.type==='cell'?p.info.i:null;ui.sel=0;sfx('lift');const cs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs'))||84;p.ghost=makeGhost(gemSVG(v,{mode:pieceMode()}),cs);
+   if(p.from!=null){const pc=$(`.cell[data-i="${p.from}"] .piece`);if(pc)pc.style.opacity='.25'}renderTray()},
+  dragMove(p,e){moveGhost(p.ghost,e.clientX,e.clientY);const i=cellAt(e.clientX,e.clientY-28);if(i!==hover){if(hover>=0){const o=$(`.cell[data-i="${hover}"]`);o&&o.classList.remove('hover')}hover=i;if(i>=0&&!cur.P.givens[i]){const o=$(`.cell[data-i="${i}"]`);o&&o.classList.add('hover')}}},
+  drop(p,e){killGhost(p.ghost);hover=-1;const i=cellAt(e.clientX,e.clientY-28);
+   if(i>=0&&!cur.P.givens[i]){if(p.from===i){renderPuzzle();return}place(i,p.v,p.from)}
+   else if(p.from!=null){removeAt(p.from)}else{renderPuzzle();if(i>=0)say('That Gemling is sleeping in stone. Try an empty nook!')}},
+  cancel(p){killGhost(p.ghost);hover=-1;if(cur)renderPuzzle()}})}
+function setupShelfInput(){bindPress($('#shelfWrap'),e=>{const g=e.target.closest('[data-gem]');if(g)return{type:'gem',id:g.dataset.gem,from:g.dataset.from!=null?+g.dataset.from:null,drag:true,el:g};const s=e.target.closest('[data-slot]');if(s)return{type:'slot',slot:+s.dataset.slot};return null},
+ {tap(info){if(info.type==='gem'){if(ui.shelfSel&&info.from!=null&&ui.shelfSel!==info.id){shelfPlace(ui.shelfSel,info.from);return}ui.shelfSel=ui.shelfSel===info.id?null:info.id;sfx('lift');renderShelf();if(ui.shelfSel){const t=S.gems.owned.find(g=>g.id===info.id).type;say(`A ${GEMS[t].name}! Tap a spot on the shelf.`,{silent:false})}}else if(ui.shelfSel){shelfPlace(ui.shelfSel,info.slot)}},
+  dragStart(p){const t=S.gems.owned.find(g=>g.id===p.info.id).type;p.ghost=makeGhost(gemStoneSVG(t),80)},dragMove(p,e){moveGhost(p.ghost,e.clientX,e.clientY);$$('.gslot.hover').forEach(x=>x.classList.remove('hover'));const el=document.elementFromPoint(e.clientX,e.clientY-28);const s=el&&el.closest('[data-slot]');if(s)s.classList.add('hover')},
+  drop(p,e){killGhost(p.ghost);const el=document.elementFromPoint(e.clientX,e.clientY-28);const s=el&&el.closest('[data-slot]');if(s)shelfPlace(p.info.id,+s.dataset.slot);else if(p.info.from!=null&&el&&el.closest('#pouch')){S.gems.placed=S.gems.placed.filter(x=>x.id!==p.info.id);save();renderShelf()}else renderShelf()},cancel(p){killGhost(p.ghost);renderShelf()}})}
+
+/* ---------- INIT ---------- */
+function init(){load();
+ if(Date.now()-(S.lastActive||0)>30*60*1000){S.sessionWalls=0;S.sessionOpeningDone=false;S.doors=null}
+ $('#peek').innerHTML=[1,2,3,4].map(v=>gemSVG(v,{mode:'face'})).join('');$('#crystalBtn').innerHTML=crystalSVG();
+ $$('[data-home]').forEach(b=>{b.innerHTML=ICON.home;b.onclick=()=>{sfx('tap');goHome()}});
+ $$('.say').forEach(b=>b.innerHTML=ICON.say);
+ $('#bBinder').innerHTML=ICON.binder;$('#bShelf').innerHTML=ICON.shelf;$('#bNook').innerHTML=nibSVG({});$('#bLantern').innerHTML=ICON.lantern;$('#bTools').innerHTML=ICON.tools;
+ $('#bGlasses').innerHTML=ICON.glasses+' Sparkle Glasses';$('#bRules').innerHTML=ICON.rules+' Rule Cards';$('#pgPrev').innerHTML=ICON.prev;$('#pgNext').innerHTML=ICON.next;$('#bLineup').innerHTML=ICON.lineup;
+ speakerIcons();$$('.nibbtn').forEach(b=>{if(!b.innerHTML)b.innerHTML=nibSVG({hat:nibHat()})});
+ document.addEventListener('click',e=>{const s=e.target.closest('.say');if(s){ensureAudio();replay();return}const nb=e.target.closest('.nibbtn');if(nb){ensureAudio();replay();return}const sp=e.target.closest('.spk');if(sp){const on=!(S.settings.voice||S.settings.sfx);S.settings.voice=on;S.settings.sfx=on;if(!on)try{speechSynthesis.cancel()}catch(_){}save();speakerIcons();if(on){ensureAudio();sfx('tap');speak('Sound on!')}}});
+ $('#crystalBtn').onclick=async()=>{ensureAudio();sfx('burst');speak(' ');
+  if(S.pending&&S.pending.length){showRewards();return}
+  if(!S.seen.intro){show('map');renderMap();ovShow(`<div class="stage"><div style="width:220px;height:220px">${nibSVG({})}</div></div>${capHTML}<button class="btn gold" id="introNext" style="min-width:200px">Next</button>`);fillNibs($('#ov'));
+   say("Hello! I'm Nib, the new Nook Keeper. Last night the Mountain gave a big sleepy sneeze, and the Gemlings tumbled out of their nooks. Can you help me tuck them back in?");
+   $('#introNext').onclick=async()=>{sfx('tap');await ruleCard(1);S.seen.intro=true;S.firstRun=false;save();goMap()};return}
+  if(S.current){cur=S.current;startPuzzleScreen(false);return}goMap()};
+ $('.tapme').addEventListener('click',()=>$('#crystalBtn').click());$('#exploreBtn').onclick=explore;$('#bBinder').onclick=openBinder;$('#bShelf').onclick=openShelf;$('#bNook').onclick=openNook;
+ setupHold($('#bGrown'),3000,openGrown);
+ $('#bLantern').onclick=useHint;$('#bTools').onclick=()=>{sfx('tap');$('#toolsMenu').classList.toggle('show')};
+ $('#bGlasses').onclick=()=>{if(!cur)return;cur.glasses=!cur.glasses;if(cur.glasses)cur.usedGlasses=true;sfx(cur.glasses?'gem':'tap');$('#toolsMenu').classList.remove('show');renderPuzzle();say(cur.glasses?'Sparkle Glasses on! Now you can see every sparkle.':'Sparkle Glasses off.');persistCurrent()};
+ $('#bRules').onclick=()=>{$('#toolsMenu').classList.remove('show');sfx('tap');showRuleCards()};
+ $('#collectBtn').onclick=collect;
+ $('#pgPrev').onclick=()=>{ui.binderPage--;sfx('tap');renderBinder()};$('#pgNext').onclick=()=>{ui.binderPage++;sfx('tap');renderBinder()};
+ $('#cards6').addEventListener('click',e=>{const c=e.target.closest('[data-card]');if(!c)return;ensureAudio();sfx('tap');if(S.cards.owned.indexOf(c.dataset.card)>=0)cardBig(c.dataset.card);else say('This Gemling is still hiding in a geode. Keep lighting walls to find it!')});
+ $('#bLineup').onclick=()=>{sfx('tap');startLineup()};
+ $('#nookScene').addEventListener('click',e=>{if(e.target.closest('#nookNib')){ensureAudio();sfx('mip');const g=$('#nookNib');g.style.transition='transform .2s';say(NIB_LINES[Math.floor(Math.random()*NIB_LINES.length)])}});
+ $('#hats').addEventListener('click',e=>{const b=e.target.closest('[data-hat]');if(!b)return;sfx('pop');S.nib.wearing=b.dataset.hat==='none'?null:b.dataset.hat;save();renderNook();say(S.nib.wearing?'Do you like my '+NIB_ITEMS.find(x=>x.id===S.nib.wearing).name+'?':'Ahh, no hat today!')});
+ setupPuzzleInput();setupShelfInput();
+ addEventListener('resize',()=>{if(ui.screen==='pz'&&cur){layoutPuzzle();renderPuzzle()}});
+ addEventListener('orientationchange',()=>setTimeout(()=>{if(ui.screen==='pz'&&cur){layoutPuzzle();renderPuzzle()}},250));
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){if(cur&&!cur.solved)persistCurrent();else save()}});
+ addEventListener('pagehide',()=>{if(cur&&!cur.solved)persistCurrent();else save()});
+ document.addEventListener('pointerdown',()=>{ui.lastInteract=Date.now()},true);
+ document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('gesturestart',e=>e.preventDefault());
+ setInterval(()=>{if(document.visibilityState!=='visible')return;const idle=Date.now()-ui.lastInteract;if(idle<120000){const k=today();S.dailyMinutes[k]=(+(S.dailyMinutes[k]||0))+5/60;if(cur&&ui.screen==='pz'&&!cur.solved)cur.activeMs=(cur.activeMs||0)+5000}
+  if(cur&&ui.screen==='pz'&&!cur.solved&&idle>45000&&!ui.lanternGlow){ui.lanternGlow=true;$('#bLantern').classList.add('glow')}},5000);
+ setInterval(()=>{if(cur&&!cur.solved)persistCurrent();else save()},30000);
+ if(/[?&]selftest/.test(location.search)){setTimeout(()=>{const r=selfTest(200);console.log('SELFTEST',JSON.stringify(r))},50)}}
+window.GG={get S(){return S},get cur(){return cur},selfTest,generate,countSolutions,board:()=>cur&&board(),
+ solve(){if(!cur)return;const P=cur.P;for(let i=0;i<P.n*P.n;i++)if(!P.givens[i]&&cur.place[i]!==P.sol[i]){cur.place[i]=P.sol[i];if(cur.order.indexOf(i)<0)cur.order.push(i)}const last=cur.order[cur.order.length-1];afterChange(last,true)},
+ place:(i,v)=>place(i,v,null),remove:i=>removeAt(i),useHint,makeDoorSet,openDoor,pickTarget};
+init();
+</script>
+</body>
+</html>
