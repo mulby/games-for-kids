@@ -197,7 +197,8 @@
     "gemling-grids": ["Gemling Grids", ["gemlingGrids.v1"]],
     "egypt-puzzles": ["Miu's Magic Pyramids", ["games-for-kids.egypt-puzzles.v1"]],
     "mouse-shop": ["Acorn Bakery", ["acornBakery.v1"]],
-    "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]]
+    "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]],
+    "toadstool-shop": ["The Toadstool Shop", ["toadstoolShop.v1"]]
   };
   // Tucked away under "Grown-ups", and each reset needs a two-second press so a stray tap can't wipe anything.
   function resetPanel() {
