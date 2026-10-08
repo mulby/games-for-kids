@@ -23,5 +23,14 @@ It picks the most natural voice the device has (Premium or Enhanced iPad voices 
 For recorded voices: `python3 tools/collect-voice-lines.py` lists the lines, then `ELEVENLABS_API_KEY=... node tools/make-voice-clips.mjs <voice_id>`
 records them into `voice/`. The games play those clips when they exist and fall back to the device voice for anything not recorded.
 
+## Cards and the binder
+`shared/cards.js` (GFKCards) gives every game the same card look and pack-opening moment. Games call
+`GFKCards.collect({game, id, name, emoji, rarity})`; new cards wait in a glowing pack button until she taps it.
+Rarities: Common, Rare, Shiny (holo) and Legendary. Chance is kind: a card can come out Shiny (at least one in
+every 7 packs), and some packs hold a bonus Wonder Charm (at least one in every 3 packs, never a duplicate).
+The best are saved for last: each game's finale card is Legendary, and Crown Cards unlock at 8, 20, 35, 55
+and 80 cards. Nothing is bought or lost. After editing `shared/cards.js`, run `python3 tools/sync-cards.py`
+to copy it into every page.
+
 ## Reading
 Coming later.
