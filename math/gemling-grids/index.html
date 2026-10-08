@@ -596,7 +596,11 @@ h1,h2,h3{font-family:var(--head);margin:0}
 
 .gfk-view{position:fixed;inset:0;z-index:99996;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;
   background:radial-gradient(circle at 50% 40%,#3a2a6a,#120c24 75%);color:#fff;font-family:"Grandstander","Andika",system-ui,sans-serif;touch-action:none;overflow:hidden}
-.gfk-view .stage{width:min(80vw,380px,calc((100dvh - 200px) * 5 / 7));transition:transform .25s ease-out,opacity .25s}
+.gfk-gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.gfk-ov.gl,.gfk-view.gl{background:#0d0820}.gfk-ov.gl::before{display:none}
+.gfk-ov.gl .gfk-flip,.gfk-ov.gl .gfk-halo,.gfk-view.gl .stage>*{visibility:hidden}
+.gfk-view .info,.gfk-view .nav,.gfk-view .x{position:relative}
+.gfk-view .stage{position:relative;aspect-ratio:5/7;width:min(80vw,380px,calc((100dvh - 200px) * 5 / 7));transition:transform .25s ease-out,opacity .25s}
 .gfk-view .info{text-align:center;display:flex;flex-direction:column;gap:2px;min-height:3.2em}
 .gfk-view .info b{font-size:22px}.gfk-view .info span{opacity:.8;font-size:16px}
 .gfk-view .nav{display:flex;gap:14px;align-items:center}
@@ -688,6 +692,330 @@ h1,h2,h3{font-family:var(--head);margin:0}
     btn.innerHTML = `<b>🎁</b>Open!<i>${queue.length}</i>`;
   }
 
+  /* ---------- WebGL: the card as a real 3D object ----------
+     The pack opening and the big viewer draw the card with WebGL: it tilts in 3D under her finger,
+     a foil shader makes Shiny cards shift through the rainbow and Legendary cards shine gold, glitter
+     catches the light, and a night sky with light rays and sparks sits behind it. The card face is
+     painted onto a 2D canvas first and used as a texture. With no WebGL the CSS cards are used. */
+  const TW = 600, TH = 840;
+  function rr(x, y, w, h, r, ctx) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  const FONT = '"Grandstander","Andika","Trebuchet MS",system-ui,sans-serif';
+  const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  function canvas2d() { const c = document.createElement("canvas"); c.width = TW; c.height = TH; return c; }
+  function fitText(ctx, text, max, size, weight) {
+    let s = size;
+    do { ctx.font = `${weight} ${s}px ${FONT}`; if (ctx.measureText(text).width <= max) break; s -= 2; } while (s > 20);
+    return s;
+  }
+  function paintFace(c) {
+    const set = SETS[c.game] || { name: "Treasures", icon: "⭐", a: "#eadcc4", b: "#8a6a45" }, t = tierOf(c);
+    const cv = canvas2d(), x = cv.getContext("2d"), mk = canvas2d(), m = mk.getContext("2d");
+    // outer frame
+    let g = x.createLinearGradient(0, 0, TW, TH);
+    const frames = { common: ["#fffdf7", "#f3ebdd", "#e4d8c3"], rare: ["#e8f0ff", "#7c98ea", "#dfe8ff"], sparkly: ["#ffd1f0", "#c3f0ff", "#fff3b0", "#d6c8ff"], legendary: ["#fff1a8", "#e7a91d", "#fff6c2", "#c98a12"] }[t];
+    frames.forEach((col, i) => g.addColorStop(i / (frames.length - 1), col));
+    rr(0, 0, TW, TH, 44, x); x.fillStyle = g; x.fill();
+    // inner panel
+    g = x.createLinearGradient(0, 30, 0, TH - 30);
+    if (t === "legendary") { g.addColorStop(0, "#fff4c9"); g.addColorStop(0.6, "#ffd36b"); g.addColorStop(1, "#e9a52a"); }
+    else { g.addColorStop(0, set.a); g.addColorStop(1, set.b); }
+    rr(26, 26, TW - 52, TH - 52, 28, x); x.fillStyle = g; x.fill();
+    x.lineWidth = 6; x.strokeStyle = "rgba(255,255,255,.6)"; x.stroke();
+    // art window
+    const ax = 46, ay = 150, aw = TW - 92, ah = 548;
+    x.save(); rr(ax, ay, aw, ah, 24, x); x.clip();
+    g = x.createRadialGradient(TW / 2, ay + ah * 0.45, 10, TW / 2, ay + ah * 0.45, ah * 0.75);
+    if (t === "legendary") { g.addColorStop(0, "#fff3c0"); g.addColorStop(0.4, "#ffc93f"); g.addColorStop(0.8, "#d98a12"); g.addColorStop(1, "#8a4f06"); }
+    else { g.addColorStop(0, "#ffffff"); g.addColorStop(0.35, set.a); g.addColorStop(1, set.b); }
+    x.fillStyle = g; x.fillRect(ax, ay, aw, ah);
+    if (t === "legendary" || t === "sparkly") {
+      x.save(); x.translate(TW / 2, ay + ah * 0.45); x.fillStyle = t === "legendary" ? "rgba(255,255,255,.28)" : "rgba(255,255,255,.18)";
+      for (let i = 0; i < 18; i++) { x.rotate(Math.PI * 2 / 18); x.beginPath(); x.moveTo(0, 0); x.lineTo(-40, -700); x.lineTo(40, -700); x.closePath(); x.fill(); }
+      x.restore();
+    }
+    x.fillStyle = "rgba(255,255,255,.22)";
+    for (let yy = ay + 20; yy < ay + ah; yy += 42) for (let xx = ax + 20; xx < ax + aw; xx += 42) { x.beginPath(); x.arc(xx, yy, 5, 0, 7); x.fill(); }
+    x.restore();
+    rr(ax, ay, aw, ah, 24, x); x.lineWidth = 8; x.strokeStyle = "rgba(255,255,255,.75)"; x.stroke();
+    // emoji, with a soft shadow
+    const emo = c.emoji || "⭐", ey = ay + ah * 0.5;
+    x.font = `250px ${EMOJI_FONT}`; x.textAlign = "center"; x.textBaseline = "middle";
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 18; x.fillText(emo, TW / 2, ey); x.restore();
+    // name plate
+    rr(46, 46, TW - 92, 88, 20, x); x.fillStyle = "rgba(255,255,255,.88)"; x.fill();
+    const name = (c.name || "Card") + (c.shiny ? " ✨" : "");
+    const fs = fitText(x, name, TW - 130, 54, 800);
+    x.fillStyle = "#2c2118"; x.font = `800 ${fs}px ${FONT}`; x.fillText(name, TW / 2, 92);
+    // footer: set pill and rarity gems
+    const label = `${set.icon} ${set.name}`, lfs = fitText(x, label, 330, 34, 800);
+    x.font = `800 ${lfs}px ${FONT}`; const lw = Math.min(360, x.measureText(label).width + 44);
+    rr(46, 718, lw, 66, 33, x); x.fillStyle = "rgba(255,255,255,.88)"; x.fill();
+    x.fillStyle = "#2c2118"; x.textAlign = "left"; x.fillText(label, 68, 752);
+    x.textAlign = "right"; x.font = `800 44px ${FONT}`; x.fillStyle = "#fff";
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowOffsetY = 3; x.fillText(TIER_GEMS[t], TW - 56, 752); x.restore();
+    // holo mask: foil everywhere except the picture and the writing
+    rr(0, 0, TW, TH, 44, m); m.fillStyle = "#fff"; m.fill();
+    m.fillStyle = "#555"; rr(46, 46, TW - 92, 88, 20, m); m.fill(); rr(46, 718, lw, 66, 33, m); m.fill();
+    const em = canvas2d(), e = em.getContext("2d");
+    e.font = `250px ${EMOJI_FONT}`; e.textAlign = "center"; e.textBaseline = "middle"; e.fillText(emo, TW / 2, ey);
+    e.globalCompositeOperation = "source-in"; e.fillStyle = "#000"; e.fillRect(0, 0, TW, TH);
+    m.drawImage(em, 0, 0);
+    return { face: cv, mask: mk };
+  }
+  let backCache = null;
+  function paintBack() {
+    if (backCache) return backCache;
+    const cv = canvas2d(), x = cv.getContext("2d");
+    rr(0, 0, TW, TH, 44, x); x.fillStyle = "#fff"; x.fill();
+    x.save(); rr(18, 18, TW - 36, TH - 36, 32, x); x.clip();
+    x.fillStyle = "#6b4fd0"; x.fillRect(0, 0, TW, TH);
+    x.translate(TW / 2, TH / 2); x.fillStyle = "#8a6ff0";
+    for (let i = 0; i < 24; i += 2) { x.beginPath(); x.moveTo(0, 0); x.arc(0, 0, 900, i * Math.PI / 12, (i + 1) * Math.PI / 12); x.closePath(); x.fill(); }
+    const g = x.createRadialGradient(0, 0, 0, 0, 0, 170); g.addColorStop(0, "#fff6c8"); g.addColorStop(0.7, "#ffe27a"); g.addColorStop(1, "rgba(255,226,122,0)");
+    x.fillStyle = g; x.beginPath(); x.arc(0, 0, 170, 0, 7); x.fill();
+    x.font = `170px ${EMOJI_FONT}`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("🎁", 0, 6);
+    x.fillStyle = "#fff"; x.font = `800 46px ${FONT}`; x.fillText("WONDER PACK", 0, -300); x.fillText("✦  ✦  ✦", 0, 300);
+    x.restore();
+    return (backCache = cv);
+  }
+
+  const VS_BG = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
+  const FS_BG = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 uRes,uC;uniform float uT,uRays,uFlash,uRainbow;uniform vec3 uCol;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}
+void main(){
+  vec2 fc=gl_FragCoord.xy;float m=min(uRes.x,uRes.y);vec2 p=(fc-uC)/m;float r=length(p),a=atan(p.y,p.x);
+  vec3 col=mix(vec3(.05,.03,.12),vec3(.2,.11,.36),smoothstep(1.3,0.,r));
+  float nb=fbm(p*2.4+vec2(uT*.03,-uT*.02));
+  col+=mix(vec3(.45,.25,.8),uCol,.5)*pow(nb,2.2)*.75*smoothstep(1.5,.1,r);
+  col+=vec3(.2,.35,.7)*pow(fbm(p*4.1-uT*.04),3.)*.5;
+  vec2 cl=fc/(7.*m/900.);vec2 sp=floor(cl);float s=h(sp);vec2 sf=fract(cl)-.5+(vec2(h(sp+3.1),h(sp+7.7))-.5)*.5;col+=step(.985,s)*smoothstep(.22,0.,length(sf))*(.6+.4*sin(uT*2.5+s*90.));
+  float ry=pow(.5+.5*sin(a*12.+uT*.5),7.)+.7*pow(.5+.5*sin(a*7.-uT*.35),9.);
+  vec3 rc=mix(uCol,.6+.4*cos(6.2832*(a/6.2832+uT*.06+vec3(0.,.33,.67))),uRainbow);
+  col+=rc*ry*uRays*smoothstep(1.2,.06,r)*.6;
+  col+=rc*uRays*.45*smoothstep(.55,0.,r);
+  col+=vec3(1.,.97,.9)*uFlash*smoothstep(1.1,0.,r);
+  gl_FragColor=vec4(col,1.);
+}`;
+  const VS_CARD = `attribute vec2 p;uniform vec2 uRes,uC,uSize;uniform vec3 uRot;uniform float uScale;varying vec2 vUv;varying float vFace;
+void main(){
+  vec3 q=vec3(p*uSize*uScale,0.);vec3 nn=vec3(0.,0.,1.);
+  float cz=cos(uRot.z),sz=sin(uRot.z);q.xy=vec2(cz*q.x-sz*q.y,sz*q.x+cz*q.y);
+  float cy=cos(uRot.y),sy=sin(uRot.y);q=vec3(cy*q.x+sy*q.z,q.y,-sy*q.x+cy*q.z);nn=vec3(cy*nn.x+sy*nn.z,nn.y,-sy*nn.x+cy*nn.z);
+  float cx=cos(uRot.x),sx=sin(uRot.x);q=vec3(q.x,cx*q.y-sx*q.z,sx*q.y+cx*q.z);nn=vec3(nn.x,cx*nn.y-sx*nn.z,sx*nn.y+cx*nn.z);
+  float f=uSize.y*3.2;float w=f/(f-q.z);vec2 s=uC+q.xy*w;
+  gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,0.,1.);
+  vUv=p+.5;vFace=nn.z;
+}`;
+  const FS_CARD = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform sampler2D uFace,uMask,uBack;uniform float uTier,uT,uGlow;uniform vec2 uTilt;varying vec2 vUv;varying float vFace;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+vec3 pal(float t){return .5+.5*cos(6.2832*(t+vec3(0.,.33,.67)));}
+void main(){
+  vec2 uv=vUv;
+  vec2 L=vec2(.5,.45)+uTilt*vec2(.9,-.9);
+  float spec=pow(max(0.,1.-distance(uv,L)*1.5),3.);
+  float sweep=smoothstep(.13,0.,abs(uv.x*.9+uv.y*.5-(.7+uTilt.x*1.3-uTilt.y*.7+sin(uT*.5)*.2)));
+  if(vFace<0.){
+    vec4 b=texture2D(uBack,vec2(1.-uv.x,uv.y));if(b.a<.01)discard;
+    vec3 c=b.rgb+(spec*.25+sweep*.15)*b.a+vec3(1.,.85,.4)*uGlow*.35*b.a;
+    gl_FragColor=vec4(c,b.a);return;
+  }
+  vec4 c=texture2D(uFace,uv);if(c.a<.01)discard;
+  float mk=texture2D(uMask,uv).r;
+  vec3 col=c.rgb;
+  vec2 gc=uv*vec2(64.,90.);vec2 g=floor(gc);float r=h(g);vec2 gf=fract(gc)-.5;
+  float tw=pow(max(0.,sin(r*50.+uTilt.x*18.+uTilt.y*13.+uT*1.5)),24.)*step(.72,r)*smoothstep(.42,.05,length(gf));
+  if(uTier<.5){col+=(spec*.10+sweep*.07)*c.a;}
+  else if(uTier<1.5){col+=(spec*.2+sweep*.25)*vec3(.85,.92,1.)*c.a+tw*mk*.35*c.a;}
+  else if(uTier<2.5){
+    float t=uv.x*1.3+uv.y*.9+uTilt.x*1.6+uTilt.y*1.1+uT*.04;
+    vec3 rb=pal(t)*c.a;
+    col=mix(col,col*.55+rb*.75,mk*(.45+.3*sweep));
+    col+=tw*mk*1.1*c.a*mix(vec3(1.),pal(r),.5)+spec*.25*c.a;
+  } else {
+    float t=uv.x-uv.y*.6+uTilt.x*1.4+uTilt.y*.6+uT*.07;
+    float sh=pow(.5+.5*sin(t*8.),5.);
+    col+=vec3(1.,.82,.35)*sh*.38*mk*c.a+spec*.3*c.a;
+    col=mix(col,col*.7+pal(t*.5)*.4*c.a,mk*.18*sweep);
+    col+=tw*mk*1.3*c.a*vec3(1.,.92,.6);
+  }
+  float edge=min(min(uv.x,1.-uv.x),min(uv.y,1.-uv.y));
+  col+=vec3(1.,.9,.6)*uGlow*smoothstep(.06,0.,edge)*c.a*.8;
+  gl_FragColor=vec4(col,c.a);
+}`;
+  const VS_PT = `attribute vec2 p;attribute float sz;attribute vec4 col;uniform vec2 uRes;varying vec4 vC;
+void main(){gl_Position=vec4(p.x/uRes.x*2.-1.,1.-p.y/uRes.y*2.,0.,1.);gl_PointSize=sz;vC=col;}`;
+  const FS_PT = `precision mediump float;varying vec4 vC;
+void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
+  float a=smoothstep(.5,0.,d)*.6+pow(max(0.,1.-abs(q.x)*14.),2.)*smoothstep(.5,0.,abs(q.y))*.8+pow(max(0.,1.-abs(q.y)*14.),2.)*smoothstep(.5,0.,abs(q.x))*.8;
+  a=clamp(a,0.,1.)*vC.a;gl_FragColor=vec4(vC.rgb*a,a);}`;
+
+  const TIER_LOOK = { // background tint, ray strength when open, rainbow rays, sparks
+    common: { col: [0.95, 0.85, 1.0], rays: 0.18, rainbow: 0, sparks: [[1, 0.95, 0.8], [0.85, 0.8, 1]] },
+    rare: { col: [0.45, 0.65, 1.0], rays: 0.4, rainbow: 0, sparks: [[0.6, 0.75, 1], [1, 1, 1]] },
+    sparkly: { col: [0.9, 0.6, 1.0], rays: 0.65, rainbow: 1, sparks: [[1, 0.5, 0.85], [1, 0.9, 0.4], [0.5, 1, 0.7], [0.5, 0.8, 1], [0.8, 0.5, 1]] },
+    legendary: { col: [1.0, 0.78, 0.3], rays: 1.0, rainbow: 0.15, sparks: [[1, 0.85, 0.35], [1, 0.95, 0.7], [1, 0.7, 0.2]] }
+  };
+
+  function glStage(host, stageEl) {
+    let gl = null;
+    const cv = document.createElement("canvas");
+    cv.className = "gfk-gl"; cv.setAttribute("aria-hidden", "true");
+    try { gl = cv.getContext("webgl", { alpha: false, antialias: true, premultipliedAlpha: true }) || cv.getContext("experimental-webgl"); } catch (e) {}
+    if (!gl) return null;
+    function prog(vs, fs) {
+      const mk = (t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh)); return sh; };
+      const p = gl.createProgram(); gl.attachShader(p, mk(gl.VERTEX_SHADER, vs)); gl.attachShader(p, mk(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+      for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); u[a.name] = gl.getUniformLocation(p, a.name); }
+      return { p, u };
+    }
+    let P;
+    try { P = { bg: prog(VS_BG, FS_BG), card: prog(VS_CARD, FS_CARD), pt: prog(VS_PT, FS_PT) }; } catch (e) { console.warn("card WebGL off:", e); return null; }
+    host.insertBefore(cv, host.firstChild);
+    host.classList.add("gl");
+    const full = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, full); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    const Q = [], N = 12; // a finely split quad so the perspective bend stays smooth
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const x0 = i / N - 0.5, x1 = (i + 1) / N - 0.5, y0 = j / N - 0.5, y1 = (j + 1) / N - 0.5;
+      Q.push(x0, y0, x1, y0, x0, y1, x1, y0, x1, y1, x0, y1);
+    }
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(Q), gl.STATIC_DRAW);
+    const ptBuf = gl.createBuffer();
+    function tex(src) {
+      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      return t;
+    }
+    let T = { back: tex(paintBack()), face: null, mask: null };
+    const S = {
+      ry: Math.PI, rx: 0, rz: 0, scale: 1, ox: 0, oy: 0, tier: "common", rays: 0.15, raysTo: 0.15, flash: 0, glow: 0,
+      tilt: [0, 0], tiltTo: [0, 0], touching: false, anims: [], parts: [], ambient: 0, t0: performance.now(), dpr: 1, rect: null
+    };
+    function setCard(c) {
+      S.tier = tierOf(c);
+      let p;
+      try { p = paintFace(c); } catch (e) { console.warn("card paint failed:", e); return; }
+      if (T.face) { gl.deleteTexture(T.face); gl.deleteTexture(T.mask); }
+      T.face = tex(p.face); T.mask = tex(p.mask);
+    }
+    function anim(dur, fn, done) { S.anims.push({ start: performance.now(), dur, fn, done }); }
+    function burst(n, spread) {
+      const look = TIER_LOOK[S.tier], r = S.rect; if (!r) return;
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2, sp = (200 + Math.random() * spread) * S.dpr;
+        const c = look.sparks[i % look.sparks.length];
+        S.parts.push({ x: r.cx + Math.cos(a) * r.w * 0.2, y: r.cy + Math.sin(a) * r.h * 0.2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120 * S.dpr, life: 0, max: 1.1 + Math.random() * 1.1, size: (10 + Math.random() * 22) * S.dpr, c });
+      }
+    }
+    function sparkle() {
+      const r = S.rect, look = TIER_LOOK[S.tier]; if (!r) return;
+      const side = Math.random();
+      const x = r.cx + (Math.random() - 0.5) * r.w * 1.25, y = r.cy + (Math.random() - 0.5) * r.h * 1.15;
+      S.parts.push({ x, y, vx: (Math.random() - 0.5) * 30 * S.dpr, vy: (-30 - Math.random() * 40) * S.dpr, life: 0, max: 1 + side, size: (8 + Math.random() * 16) * S.dpr, c: look.sparks[Math.floor(Math.random() * look.sparks.length)] });
+    }
+    function resize() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1), w = host.clientWidth, h = host.clientHeight;
+      S.dpr = dpr;
+      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      const hb = host.getBoundingClientRect(), sb = stageEl.getBoundingClientRect();
+      S.rect = { cx: (sb.left - hb.left + sb.width / 2) * dpr, cy: (sb.top - hb.top + sb.height / 2) * dpr, w: sb.width * dpr, h: sb.height * dpr };
+    }
+    function move(e) {
+      const r = stageEl.getBoundingClientRect(), pnt = e.touches ? e.touches[0] : e;
+      if (!pnt) return;
+      S.touching = true;
+      S.tiltTo = [Math.max(-1, Math.min(1, (pnt.clientX - r.left - r.width / 2) / (r.width * 0.6))), Math.max(-1, Math.min(1, (pnt.clientY - r.top - r.height / 2) / (r.height * 0.6)))];
+    }
+    const leave = () => { S.touching = false; };
+    host.addEventListener("pointermove", move); host.addEventListener("pointerdown", move);
+    host.addEventListener("pointerleave", leave); host.addEventListener("pointerup", leave); host.addEventListener("pointercancel", leave);
+    host.addEventListener("touchmove", move, { passive: true });
+    let raf = 0, last = performance.now(), alive = true;
+    const ptData = new Float32Array(400 * 7);
+    function frame(now) {
+      if (!alive) return;
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - last) / 1000), t = (now - S.t0) / 1000; last = now;
+      resize();
+      const running = S.anims; S.anims = [];
+      const kept = running.filter(a => {
+        const k = Math.min(1, (now - a.start) / a.dur);
+        try { a.fn(k); if (k >= 1 && a.done) a.done(); } catch (e) { console.warn(e); return false; }
+        return k < 1;
+      });
+      S.anims = kept.concat(S.anims);
+      if (!S.touching) S.tiltTo = reduced() ? [0, 0] : [Math.sin(t * 0.7) * 0.35, Math.cos(t * 0.55) * 0.22];
+      S.tilt[0] += (S.tiltTo[0] - S.tilt[0]) * Math.min(1, dt * 8); S.tilt[1] += (S.tiltTo[1] - S.tilt[1]) * Math.min(1, dt * 8);
+      S.rays += (S.raysTo - S.rays) * Math.min(1, dt * 3); S.flash = Math.max(0, S.flash - dt * 1.8);
+      if (S.ambient > 0 && !reduced()) { S.ambientAcc = (S.ambientAcc || 0) + dt * S.ambient; while (S.ambientAcc > 1) { S.ambientAcc--; sparkle(); } }
+      const W = cv.width, H = cv.height, r = S.rect, look = TIER_LOOK[S.tier];
+      gl.viewport(0, 0, W, H);
+      gl.disable(gl.BLEND);
+      gl.useProgram(P.bg.p); gl.bindBuffer(gl.ARRAY_BUFFER, full);
+      let loc = gl.getAttribLocation(P.bg.p, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform2f(P.bg.u.uRes, W, H); gl.uniform2f(P.bg.u.uC, r.cx, H - r.cy); gl.uniform1f(P.bg.u.uT, t);
+      gl.uniform1f(P.bg.u.uRays, S.rays); gl.uniform1f(P.bg.u.uFlash, S.flash); gl.uniform1f(P.bg.u.uRainbow, look.rainbow); gl.uniform3fv(P.bg.u.uCol, look.col);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.disableVertexAttribArray(loc);
+      // card
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(P.card.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      loc = gl.getAttribLocation(P.card.p, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      const u = P.card.u;
+      gl.uniform2f(u.uRes, W, H); gl.uniform2f(u.uC, r.cx + S.ox * r.w, r.cy + S.oy * r.h); gl.uniform2f(u.uSize, r.w, r.h);
+      gl.uniform3f(u.uRot, S.rx - S.tilt[1] * 0.32, S.ry + S.tilt[0] * 0.42, S.rz); gl.uniform1f(u.uScale, S.scale);
+      gl.uniform1f(u.uTier, TIERS[S.tier]); gl.uniform1f(u.uT, t); gl.uniform2f(u.uTilt, S.tilt[0], S.tilt[1]); gl.uniform1f(u.uGlow, S.glow);
+      [["uFace", T.face || T.back], ["uMask", T.mask || T.back], ["uBack", T.back]].forEach(([n, tx], i) => { gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, tx); gl.uniform1i(u[n], i); });
+      gl.drawArrays(gl.TRIANGLES, 0, Q.length / 2);
+      gl.disableVertexAttribArray(loc);
+      // sparks
+      S.parts = S.parts.filter(q => (q.life += dt) < q.max);
+      if (S.parts.length > 400) S.parts.splice(0, S.parts.length - 400);
+      if (S.parts.length) {
+        let k = 0;
+        for (const q of S.parts) {
+          q.vx *= 1 - dt * 1.6; q.vy = q.vy * (1 - dt * 1.6) + 60 * S.dpr * dt; q.x += q.vx * dt; q.y += q.vy * dt;
+          const f = q.life / q.max, a = f < 0.15 ? f / 0.15 : 1 - (f - 0.15) / 0.85;
+          ptData.set([q.x, q.y, q.size * (0.6 + 0.4 * Math.sin(q.life * 9 + q.size)), q.c[0], q.c[1], q.c[2], Math.max(0, a)], k); k += 7;
+        }
+        gl.blendFunc(gl.ONE, gl.ONE);
+        gl.useProgram(P.pt.p); gl.bindBuffer(gl.ARRAY_BUFFER, ptBuf); gl.bufferData(gl.ARRAY_BUFFER, ptData.subarray(0, k), gl.DYNAMIC_DRAW);
+        gl.uniform2f(P.pt.u.uRes, W, H);
+        const lp = gl.getAttribLocation(P.pt.p, "p"), ls_ = gl.getAttribLocation(P.pt.p, "sz"), lc = gl.getAttribLocation(P.pt.p, "col");
+        [lp, ls_, lc].forEach(l => gl.enableVertexAttribArray(l));
+        gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 28, 0); gl.vertexAttribPointer(ls_, 1, gl.FLOAT, false, 28, 8); gl.vertexAttribPointer(lc, 4, gl.FLOAT, false, 28, 12);
+        gl.drawArrays(gl.POINTS, 0, k / 7);
+        [lp, ls_, lc].forEach(l => gl.disableVertexAttribArray(l));
+      }
+    }
+    raf = requestAnimationFrame(frame);
+    cv.addEventListener("webglcontextlost", e => { e.preventDefault(); alive = false; cancelAnimationFrame(raf); host.classList.remove("gl"); cv.remove(); });
+    return {
+      S, setCard, anim, burst,
+      look: () => TIER_LOOK[S.tier],
+      destroy() { alive = false; cancelAnimationFrame(raf); try { const x = gl.getExtension("WEBGL_lose_context"); if (x) x.loseContext(); } catch (e) {} cv.remove(); }
+    };
+  }
+  const ease = k => 1 - Math.pow(1 - k, 3);
+  const easeBack = k => { const c = 1.6; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+
   /* ---------- the reveal ---------- */
   let opening = false;
   function burst(stage, t) {
@@ -722,8 +1050,8 @@ h1,h2,h3{font-family:var(--head);margin:0}
     requestAnimationFrame(() => ov.classList.add("on"));
     const $ = s => ov.querySelector(s);
     const stage = $(".gfk-stage"), flip = $(".gfk-flip"), back = $(".gfk-back"), halo = $(".gfk-halo"), tierEl = $(".gfk-tier"), msg = $(".msg"), sub = $(".sub"), go = $(".gfk-btn");
-    const tl = tilt(stage, 22);
-    stage.addEventListener("touchmove", e => tl.move(e), { passive: true });
+    const G = glStage(ov, stage);
+    if (!G) { const tl = tilt(stage, 22); stage.addEventListener("touchmove", e => tl.move(e), { passive: true }); }
     return new Promise(done => {
       let c = null, state = "closed";
       function next() {
@@ -735,25 +1063,52 @@ h1,h2,h3{font-family:var(--head);margin:0}
         msg.textContent = c.crown ? `You have ${c.crown} cards! A Crown Card appears…` : c.bonus ? "And a lucky bonus charm!" : "You won a card pack!";
         sub.textContent = "Tap the pack to open it!";
         if (t === "legendary") back.classList.add("glow");
+        if (G) {
+          const S = G.S;
+          G.setCard(c); S.ry = Math.PI; S.rz = 0; S.ambient = 0; S.raysTo = 0.15; S.glow = t === "legendary" ? 0.5 : 0;
+          if (!reduced()) G.anim(550, k => { S.scale = 0.25 + 0.75 * easeBack(k); S.ry = Math.PI - (1 - ease(k)) * 1.2; });
+          else S.scale = 1;
+        }
+      }
+      function reveal(t) {
+        halo.classList.add("t-" + t, "on");
+        tierEl.textContent = (c.shiny ? "✨ " : "") + TIER_NAME[t].toUpperCase() + (t === "legendary" ? " 👑" : "");
+        tierEl.classList.add("t-" + t, "on");
+        msg.textContent = pick(HYPE[t]);
+        sub.textContent = c.name;
+        state = "open"; go.hidden = false;
+        go.textContent = queue.length ? `Next pack (${queue.length}) ➜` : "Put it in my binder";
+        go.focus({ preventScroll: true });
+      }
+      function openGL(t, shakes) {
+        const S = G.S, look = G.look();
+        const shakeMs = reduced() ? 0 : 420 * Math.min(3, shakes) * (shakes > 2 ? 0.7 : 1);
+        if (t === "legendary") S.raysTo = 0.45;
+        G.anim(shakeMs || 1, k => { S.rz = Math.sin(k * shakeMs / 1000 * 36) * 0.13 * (1 - k * 0.4); S.scale = 1 + 0.05 * Math.sin(k * shakeMs / 1000 * 50) * (shakes > 2 ? 1.5 : 1); }, () => {
+          S.rz = 0;
+          const turns = t === "legendary" ? 3 : t === "sparkly" ? 3 : 1, flipMs = reduced() ? 1 : t === "legendary" ? 1500 : t === "sparkly" ? 1200 : 850;
+          const start = S.ry;
+          let landed = false;
+          G.anim(flipMs, k => {
+            S.ry = start + turns * Math.PI * ease(k); S.scale = 1 + 0.18 * Math.sin(Math.PI * k);
+            if (!landed && k > 0.55) { landed = true; chime(t); S.flash = t === "legendary" ? 1 : t === "sparkly" ? 0.8 : 0.5; G.burst({ common: 40, rare: 70, sparkly: 130, legendary: 200 }[t], t === "legendary" ? 520 : 380); S.raysTo = look.rays; }
+          }, () => {
+            S.ambient = { common: 0.5, rare: 2, sparkly: 6, legendary: 12 }[t];
+            S.glow = t === "legendary" ? 0.35 : 0;
+            setTimeout(() => reveal(t), 200);
+          });
+        });
       }
       function open() {
         if (state !== "closed") return;
         state = "opening"; sub.textContent = "";
         const t = tierOf(c), shakes = TIERS[t] + 1;
         rustle();
+        if (G) return openGL(t, shakes);
         back.classList.add("shake" + Math.min(3, shakes));
         setTimeout(() => {
           flip.classList.add("open"); chime(t); burst(stage, t);
-          setTimeout(() => {
-            halo.classList.add("t-" + t, "on");
-            tierEl.textContent = (c.shiny ? "✨ " : "") + TIER_NAME[t].toUpperCase() + (t === "legendary" ? " 👑" : "");
-            tierEl.classList.add("t-" + t, "on");
-            msg.textContent = pick(HYPE[t]);
-            sub.textContent = c.name;
-            state = "open"; go.hidden = false;
-            go.textContent = queue.length ? `Next pack (${queue.length}) ➜` : "Put it in my binder";
-            go.focus({ preventScroll: true });
-          }, reduced() ? 50 : 650);
+          setTimeout(() => reveal(t), reduced() ? 50 : 650);
         }, reduced() ? 0 : 450 * Math.min(3, shakes) * (shakes > 2 ? 0.6 : 1));
       }
       stage.addEventListener("click", open);
@@ -761,7 +1116,7 @@ h1,h2,h3{font-family:var(--head);margin:0}
         e.stopPropagation();
         if (queue.length) return next();
         ov.classList.remove("on");
-        setTimeout(() => { ov.remove(); opening = false; showButton(); done(); }, 260);
+        setTimeout(() => { if (G) G.destroy(); ov.remove(); opening = false; showButton(); done(); }, 260);
       });
       next();
     });
@@ -779,19 +1134,29 @@ h1,h2,h3{font-family:var(--head);margin:0}
     document.body.appendChild(v);
     const stage = v.querySelector(".stage"), info = v.querySelector(".info"), pos = v.querySelector(".pos");
     const prevB = v.querySelector(".prev"), nextB = v.querySelector(".nextb");
-    const tl = tilt(stage, 26);
+    const G = glStage(v, stage);
+    if (G) { G.S.ry = 0; G.S.scale = 1; }
+    const tl = G ? { move() {}, reset() {} } : tilt(stage, 26);
     function when(s) { try { return new Date(s).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }); } catch (e) { return ""; } }
     function draw(dir) {
       const c = cards[i], t = tierOf(c), set = SETS[c.game];
       stage.innerHTML = face(c, { big: true });
-      if (dir && !reduced()) { stage.style.transition = "none"; stage.style.transform = `translateX(${dir * 60}px)`; stage.style.opacity = "0"; requestAnimationFrame(() => { stage.style.transition = ""; stage.style.transform = ""; stage.style.opacity = "1"; }); }
+      if (G) {
+        const S = G.S;
+        if (!dir || reduced()) { G.setCard(c); }
+        else {
+          const start = S.ry; let swapped = false;
+          G.anim(560, k => { S.ry = start + dir * 2 * Math.PI * ease(k); S.scale = 1 - 0.12 * Math.sin(Math.PI * k); if (!swapped && k > 0.3) { swapped = true; G.setCard(c); S.raysTo = G.look().rays * 0.55; } });
+        }
+        S.raysTo = G.look().rays * 0.55; S.ambient = { common: 0, rare: 1, sparkly: 4, legendary: 8 }[t]; S.glow = t === "legendary" ? 0.3 : 0;
+      } else if (dir && !reduced()) { stage.style.transition = "none"; stage.style.transform = `translateX(${dir * 60}px)`; stage.style.opacity = "0"; requestAnimationFrame(() => { stage.style.transition = ""; stage.style.transform = ""; stage.style.opacity = "1"; }); }
       info.innerHTML = `<b>${esc(c.name)}</b><span>${c.shiny ? "✨ Shiny" : TIER_NAME[t]} · ${esc(set ? set.name : "Treasures")}</span>${c.earnedAt ? `<span>Won on ${esc(when(c.earnedAt))}</span>` : ""}`;
       pos.textContent = `${i + 1} of ${cards.length}`;
       prevB.disabled = i === 0; nextB.disabled = i === cards.length - 1;
       if (opts.onShow) opts.onShow(c);
     }
     const go = d => { const j = i + d; if (j < 0 || j >= cards.length) return; i = j; draw(d); };
-    function close() { v.remove(); document.removeEventListener("keydown", key); if (opts.onClose) opts.onClose(); }
+    function close() { if (G) G.destroy(); v.remove(); document.removeEventListener("keydown", key); if (opts.onClose) opts.onClose(); }
     function key(e) { if (e.key === "ArrowLeft") go(-1); else if (e.key === "ArrowRight") go(1); else if (e.key === "Escape") close(); }
     prevB.onclick = () => go(-1); nextB.onclick = () => go(1); v.querySelector(".x").onclick = close;
     document.addEventListener("keydown", key);

@@ -29,7 +29,8 @@ records them into `voice/`. The games play those clips when they exist and fall 
 Rarities: Common, Rare, Shiny (holo) and Legendary. Chance is kind: a card can come out Shiny (at least one in
 every 7 packs), and some packs hold a bonus Wonder Charm (at least one in every 3 packs, never a duplicate).
 The best are saved for last: each game's finale card is Legendary, and Crown Cards unlock at 8, 20, 35, 55
-and 80 cards. Nothing is bought or lost. After editing `shared/cards.js`, run `python3 tools/sync-cards.py`
+and 80 cards. The pack opening and the big binder viewer draw the card in WebGL (3D tilt, holo foil and gold shaders,
+glitter, light rays and sparks), falling back to the CSS cards when WebGL is missing. Nothing is bought or lost. After editing `shared/cards.js`, run `python3 tools/sync-cards.py`
 to copy it into every page.
 
 ## Reading
