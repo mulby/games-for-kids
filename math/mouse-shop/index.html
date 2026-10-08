@@ -1135,6 +1135,33 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
   window.GFKCards = { collect, face, locked, view, openPacks, list, SETS, CROWNS, CHARMS, TIERS, TIER_NAME, pending: () => queue.length };
 })();
 </script>
+<style id="g3dstyle">
+/* ===== 3D world (body.g3d is set only when the 3D module starts; see world3d.js) ===== */
+#gl3d{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;display:block;z-index:0}
+body.g3d{background:#e9d6b5}
+body.g3d #title,body.g3d #setup,body.g3d #dayend,body.g3d #home,body.g3d #album{background:transparent}
+body.g3d #sceneBg,body.g3d #counterBand{display:none}
+body.g3d #customer .who,body.g3d #room>svg.bg{visibility:hidden}
+body.g3d #titleMouse svg,body.g3d #setupMouse svg,body.g3d #pip svg,body.g3d #deMouse svg,body.g3d #roomPip svg{visibility:hidden}
+img.e3{display:inline-block;width:1.1em;height:1.1em;vertical-align:middle;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.decor img.e3{display:block;width:1.2em;height:1.2em}
+.fcard img.e3.crit{width:1.5em;height:1.5em}
+.order .pics img.e3{margin-right:-.12em}
+/* soft paper behind words that sit over the 3D world */
+body.g3d #title h1{text-shadow:0 3px 0 #fff,0 0 14px #fffaf0,0 0 26px #fffaf0,0 0 40px #fffaf0}
+body.g3d #title .sub,body.g3d #title .purse{background:rgba(255,250,240,.86);border-radius:999px;padding:.1em .8em;box-shadow:0 2px 10px #5a3e2b22}
+body.g3d #title .sub{margin-top:0}
+body.g3d #grownBtn{background:rgba(255,250,240,.8);border-radius:12px;opacity:1}
+body.g3d #setup h2,body.g3d #dayend h2{text-shadow:0 3px 0 #fff,0 0 14px #fffaf0,0 0 26px #fffaf0,0 0 40px #fffaf0}
+body.g3d #setup .lbl{background:rgba(255,250,240,.9);border-radius:999px;padding:.05em .9em;margin-bottom:0;box-shadow:0 2px 8px #5a3e2b22}
+body.g3d #setup .choices{background:rgba(255,250,240,.55);border-radius:999px;padding:6px 12px}
+body.g3d #dayend .big{background:rgba(255,250,240,.9);border-radius:22px;padding:.4em 1em;box-shadow:0 4px 18px #5a3e2b33}
+body.g3d #dayend .stars{filter:drop-shadow(0 2px 6px #5a3e2b55)}
+.big img.e3.crit{width:1.5em;height:1.5em}
+body.g3d #shop .panel{background:rgba(255,250,240,.95)}
+body.g3d #roomWrap{padding:10px 10px 6px}
+</style>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2150,6 +2177,10 @@ tap($('#homeBtn'), goHome);
 tap($('#shopHome'), () => { try { speechSynthesis.cancel(); } catch (e) {} task && (task.done = true); goTitle(); });
 window.__bakery = { get S() { return S; }, get task() { return task; }, get day() { return day; } };
 goTitle();
+</script>
+<script type="module" id="gl3d-loader">
+/* Load the 3D world unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
 </script>
 </body>
 </html>

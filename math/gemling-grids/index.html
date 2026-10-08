@@ -1177,6 +1177,38 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
   window.GFKCards = { collect, face, locked, view, openPacks, list, SETS, CROWNS, CHARMS, TIERS, TIER_NAME, pending: () => queue.length };
 })();
 </script>
+<style id="g3dstyle">
+/* ===== 3D crystal cave (body.g3d is set only when the 3D module starts; see world3d.js) ===== */
+#gl3d{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;display:block;z-index:0}
+body.g3d{background:#120e22}
+body.g3d .doorwall{display:none}
+body.g3d .gridwrap{background:none;box-shadow:none}
+body.g3d .gridwrap.glowall{box-shadow:0 0 0 3px #ffd86b99,0 0 60px #ffd86b88}
+body.g3d .nook,body.g3d .cell.given .nook{background:none;box-shadow:none}
+body.g3d .tray{background:none;box-shadow:none}
+body.g3d .tpiece{background:none}
+body.g3d .shelf{background:none;box-shadow:none}
+body.g3d .plank{border-bottom-color:transparent;box-shadow:none}
+body.g3d .pouch{background:none}
+body.g3d #crystalBtn{filter:none}
+body.g3d #crystalBtn>svg{visibility:hidden}
+body.g3d #pz .nibbtn,body.g3d #doors .nibbtn{background:radial-gradient(circle at 50% 60%,#ffffff1a,transparent 70%);box-shadow:none}
+body.g3d #pz .nibbtn>svg,body.g3d #doors .nibbtn>svg{visibility:hidden}
+body.g3d .mapsvg text{paint-order:stroke;stroke:#1a1430;stroke-width:5px;stroke-linejoin:round}
+body.g3d .maptop{background:linear-gradient(#120e22cc,#120e2200)}
+body.g3d .mapbottom{background:linear-gradient(#120e2200,#120e22cc 35%)}
+body.g3d .door .lbl{background:#1a1430b8;box-shadow:0 2px 8px #0006}
+body.g3d .doorrow{background:radial-gradient(55% 30px at 50% 100%,#000000aa,transparent)}
+body.g3d .hdr h2{text-shadow:0 3px 0 #6b4a00,0 0 18px #000c}
+body.g3d #title h1{text-shadow:0 0 24px #ffd86b66,0 4px 0 #6b4a00,0 0 30px #000a}
+body.g3d #title .sub{text-shadow:0 2px 10px #000c}
+body.g3d .tapme{background:#1a1430a8}
+body.g3d .pageinfo,body.g3d .stickers{text-shadow:0 2px 6px #000}
+body.g3d #pz{background:radial-gradient(70% 75% at 50% 55%,#120e22a0 0%,#120e2270 45%,#120e2210 80%)}
+body.g3d #map .mapscroll{background:linear-gradient(90deg,#120e2200 0%,#120e2280 28%,#120e2290 50%,#120e2280 72%,#120e2200 100%)}
+body.g3d #binder,body.g3d #shelfScr{background:radial-gradient(70% 70% at 50% 50%,#120e2288,#120e2233 70%,transparent)}
+</style>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 </head>
 <body>
 
@@ -2226,6 +2258,10 @@ window.GG={get S(){return S},get cur(){return cur},selfTest,generate,countSoluti
  solve(){if(!cur)return;const P=cur.P;for(let i=0;i<P.n*P.n;i++)if(!P.givens[i]&&cur.place[i]!==P.sol[i]){cur.place[i]=P.sol[i];if(cur.order.indexOf(i)<0)cur.order.push(i)}const last=cur.order[cur.order.length-1];afterChange(last,true)},
  place:(i,v)=>place(i,v,null),remove:i=>removeAt(i),useHint,makeDoorSet,openDoor,pickTarget};
 init();
+</script>
+<script type="module" id="gl3d-loader">
+/* Load the 3D cave unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
 </script>
 </body>
 </html>
