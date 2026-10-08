@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+<title>The Moonlit Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@500;700;800&display=swap">
+<style>
+/* Layout: one storybook screen at a time over a twilight sky; parchment cards hold the story, big buttons for small fingers. Single deliberate night-time look. */
+:root{
+  --sky-deep:#191e47; --sky:#2b3576; --parch:#fbf3df; --parch-2:#f1e4c3;
+  --ink:#2b2540; --ink-soft:#6a6080; --gold:#f3c34a; --gold-deep:#c8901a;
+  --berry:#d9577a; --leaf:#3f9a73; --mist:#c9cdea; --sea:#4b7bd1;
+  --display:"Grandstander","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+  --body:"Andika","Trebuchet MS",system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:var(--sky-deep);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.45;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%,#fff9 50%,transparent 51%),
+    radial-gradient(1px 1px at 33% 8%,#fff8 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 58% 14%,#fffa 50%,transparent 51%),
+    radial-gradient(1px 1px at 81% 26%,#fff7 50%,transparent 51%),
+    radial-gradient(2px 2px at 91% 9%,#ffe9a8 50%,transparent 51%),
+    radial-gradient(1px 1px at 6% 52%,#fff6 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 95% 61%,#fff7 50%,transparent 51%),
+    radial-gradient(1px 1px at 47% 44%,#fff5 50%,transparent 51%),
+    radial-gradient(1px 1px at 22% 83%,#fff6 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 72% 90%,#fff7 50%,transparent 51%),
+    linear-gradient(180deg,var(--sky-deep),var(--sky) 70%,#3a3f86);
+  min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+.card{background:var(--parch);border-radius:22px;padding:22px;box-shadow:0 10px 0 #0003,0 0 0 3px var(--parch-2) inset}
+.sky-title{color:var(--parch);text-align:center}
+.sky-title h1{font-size:clamp(34px,8vw,54px);color:var(--gold);text-shadow:0 3px 0 #0004}
+.sky-title p{margin:4px 0 0;color:var(--mist)}
+.moon{width:88px;height:88px;border-radius:50%;margin:0 auto 6px;background:radial-gradient(circle at 35% 35%,#fff8dc,#f3d77a 60%,#d8b24c);box-shadow:0 0 40px #f3c34a66}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sea);outline-offset:3px}
+.btn{font-family:var(--display);font-weight:700;font-size:22px;border:0;border-radius:18px;padding:14px 26px;background:var(--gold);color:var(--ink);box-shadow:0 5px 0 var(--gold-deep);transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--gold-deep)}
+.btn.ghost{background:transparent;color:var(--ink-soft);box-shadow:none;border:2px dashed var(--ink-soft);font-size:17px;padding:10px 18px}
+.btn.sky{background:transparent;color:var(--mist);border:2px solid #ffffff33;box-shadow:none;font-size:16px;padding:8px 14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.center{justify-content:center;text-align:center}
+label.field{display:flex;flex-direction:column;gap:6px;font-weight:700}
+input[type=text]{font:inherit;font-size:22px;padding:12px 14px;border-radius:14px;border:2px solid var(--parch-2);background:#fff;color:var(--ink);min-width:0}
+.pals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pal{background:#fff;border:3px solid var(--parch-2);border-radius:18px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--display);font-size:15px;color:var(--ink)}
+.pal .e{font-size:42px;line-height:1.1}
+.pal[aria-pressed=true]{border-color:var(--gold-deep);background:#fff6d6;box-shadow:0 0 0 3px var(--gold)}
+.toggle{display:flex;gap:10px;align-items:center;font-weight:700}
+.toggle input{width:26px;height:26px;accent-color:var(--leaf)}
+
+/* Map */
+.map{position:relative;width:100%;max-width:560px;margin:8px auto 0;aspect-ratio:3/4;max-height:72vh}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.land{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:var(--parch);font-family:var(--display);font-weight:700;font-size:15px;width:130px;text-align:center}
+.land .isle{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-size:38px;background:radial-gradient(circle at 40% 35%,#5d6bc0,#2d3780);border:3px solid #ffffff44;box-shadow:0 6px 0 #0005}
+.land.done .isle{background:radial-gradient(circle at 40% 35%,#ffe9a8,var(--gold) 60%,var(--gold-deep));border-color:#fff}
+.land.open .isle{animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 6px 0 #0005,0 0 26px 8px #f3c34a88}}
+.land .nm{text-shadow:0 2px 0 #0007;line-height:1.1}
+.land .gem{font-size:13px;color:var(--gold)}
+.pal-say{display:flex;gap:12px;align-items:center}
+.pal-say .av{font-size:54px;line-height:1;flex:none}
+.bubble{background:var(--parch);color:var(--ink);border-radius:18px;padding:12px 16px;position:relative;font-size:19px;min-width:0}
+.bubble:before{content:"";position:absolute;left:-9px;top:20px;border:10px solid transparent;border-right-color:var(--parch);border-left:0}
+
+/* Question */
+.qhead{display:flex;justify-content:space-between;align-items:center;color:var(--parch);gap:10px;flex-wrap:wrap}
+.qhead h2{font-size:22px;color:var(--gold)}
+.pebbles{display:flex;gap:6px}
+.pebbles i{width:16px;height:16px;border-radius:50%;background:#ffffff26;border:2px solid #ffffff44}
+.pebbles i.lit{background:var(--gold);border-color:#fff;box-shadow:0 0 10px var(--gold)}
+.prompt{font-size:clamp(21px,4.4vw,27px);font-weight:700;margin:0}
+.visual{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 4px;min-height:10px}
+.visual:empty{display:none}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.choice{font-family:var(--display);font-weight:800;font-size:clamp(26px,6vw,36px);padding:18px 8px;border-radius:18px;border:3px solid var(--parch-2);background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--parch-2);font-variant-numeric:tabular-nums}
+.choice.small{font-size:clamp(19px,4.4vw,24px)}
+.choice:active{transform:translateY(3px);box-shadow:0 2px 0 var(--parch-2)}
+.choice.picked{background:#fff3c4;border-color:var(--gold-deep)}
+.qfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+.speak{background:var(--mist);border:0;border-radius:14px;padding:10px 14px;font-weight:700;color:var(--ink)}
+.cheer{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--leaf);color:#fff;font-family:var(--display);font-weight:700;font-size:20px;padding:12px 22px;border-radius:999px;box-shadow:0 6px 0 #0004;z-index:5;max-width:calc(100% - 32px);text-align:center}
+
+/* math pictures */
+.objs{display:grid;grid-template-columns:repeat(5,auto);gap:4px 8px;font-size:30px;line-height:1}
+.objs .gone{opacity:.25;filter:grayscale(1)}
+.plus{font-family:var(--display);font-size:34px;font-weight:800;color:var(--ink-soft)}
+.blocks{display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap;justify-content:center}
+.flat{width:60px;height:60px;background:#7fb6ea;background-image:linear-gradient(#2d5f9a55 1px,transparent 1px),linear-gradient(90deg,#2d5f9a55 1px,transparent 1px);background-size:6px 6px;border:2px solid #2d5f9a;border-radius:3px}
+.rod{width:10px;height:60px;background:#9ad3a8;background-image:linear-gradient(#2e7a4c66 1px,transparent 1px);background-size:10px 6px;border:2px solid #2e7a4c;border-radius:2px}
+.cube{width:10px;height:10px;background:#f5b3c4;border:2px solid #b0465f;border-radius:2px}
+.ones{display:grid;grid-template-columns:repeat(3,auto);gap:3px;align-content:end}
+.gap{width:14px}
+.coin{border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#3b3b3b;box-shadow:inset 0 -3px 0 #0002,0 2px 0 #0003}
+.coin.q{width:66px;height:66px;background:radial-gradient(circle at 35% 30%,#fafafa,#bfc4cc);font-size:17px}
+.coin.d{width:48px;height:48px;background:radial-gradient(circle at 35% 30%,#fafafa,#bfc4cc);font-size:14px}
+.coin.n{width:56px;height:56px;background:radial-gradient(circle at 35% 30%,#f3f3f3,#a9aeb6);font-size:15px}
+.coin.p{width:50px;height:50px;background:radial-gradient(circle at 35% 30%,#f6c39a,#b8693b);font-size:14px;color:#3a1e0c}
+.basket{border:3px solid #a8743c;border-top-width:6px;background:#f6deb0;border-radius:6px 6px 22px 22px;padding:8px 8px 10px;display:flex;flex-wrap:wrap;gap:2px;max-width:96px;justify-content:center;font-size:24px;line-height:1}
+.seq{font-family:var(--display);font-weight:800;font-size:clamp(26px,6vw,34px);display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-variant-numeric:tabular-nums}
+.seq span{background:#fff;border:2px solid var(--parch-2);border-radius:12px;padding:4px 12px}
+.seq .blank{border-style:dashed;border-color:var(--gold-deep);color:var(--gold-deep)}
+.bigsum{font-family:var(--display);font-weight:800;font-size:clamp(30px,7vw,42px);font-variant-numeric:tabular-nums}
+
+/* story screens */
+.story{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.story .hero{font-size:84px;line-height:1}
+.story p{margin:0;max-width:34em;font-size:20px}
+.gemflash{font-size:90px;animation:pop .7s ease-out}
+@keyframes pop{0%{transform:scale(.2) rotate(-20deg)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.cert{border:4px double var(--gold-deep)}
+
+/* grown-ups */
+.hold{position:relative;overflow:hidden}
+.hold .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#ffffff22}
+.report{font-size:16px}
+.report h2{font-size:26px}
+.report h3{font-size:19px;margin-top:4px}
+.report .muted{color:var(--ink-soft)}
+.strand{display:grid;gap:6px;padding:14px 0;border-top:2px solid var(--parch-2)}
+.strand .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.meter{display:flex;gap:4px}
+.meter i{width:30px;height:12px;border-radius:6px;background:var(--parch-2)}
+.meter i.on{background:var(--leaf)}
+.meter i.next{background:repeating-linear-gradient(45deg,var(--gold),var(--gold) 4px,#f8e3a3 4px,#f8e3a3 8px)}
+.pill{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:2px 10px;background:var(--parch-2)}
+.pill.ok{background:#cfe9db;color:#1d5a3f}.pill.mid{background:#fbe6b0;color:#7a5410}.pill.low{background:#f6d0da;color:#7d2440}
+.report ul{margin:4px 0 0;padding-left:20px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--parch-2);vertical-align:top}
+td.n{font-variant-numeric:tabular-nums}
+.ok-t{color:var(--leaf);font-weight:700}.no-t{color:var(--berry);font-weight:700}
+details summary{cursor:pointer;font-weight:700;margin-top:8px}
+.note{font-size:14px;color:var(--ink-soft)}
+@media (max-width:480px){
+  .pals{grid-template-columns:repeat(2,1fr)}
+  .land{width:104px;font-size:13px}
+  .land .isle{width:60px;height:60px;font-size:30px}
+  .card{padding:18px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap" id="app">
+
+  <!-- START -->
+  <section id="s-start">
+    <div class="sky-title"><div class="moon"></div><h1>The Moonlit Map</h1><p>A map that only lights up when an explorer walks it.</p></div>
+    <div class="card" style="margin-top:14px">
+      <div id="resume" hidden class="story" style="margin-bottom:18px">
+        <p id="resume-msg"></p>
+        <div class="row center"><button class="btn" id="b-resume">Back to the map</button></div>
+        <button class="btn ghost" id="b-fresh">Start a brand new adventure</button>
+      </div>
+      <div id="newgame" style="display:flex;flex-direction:column;gap:18px">
+        <label class="field">What is your explorer name?
+          <input type="text" id="in-name" maxlength="20" placeholder="Your name" autocomplete="off"></label>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <b>Pick a friend to travel with</b>
+          <div class="pals" id="pals"></div>
+        </div>
+        <label class="field">What is your friend's name?
+          <input type="text" id="in-pal" maxlength="20" autocomplete="off"></label>
+        <label class="toggle"><input type="checkbox" id="in-read"> Read the questions out loud to me</label>
+        <div class="row center"><button class="btn" id="b-begin">Begin the adventure</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section id="s-map" hidden>
+    <div class="pal-say"><div class="av" id="map-av"></div><div class="bubble" id="map-say"></div></div>
+    <div class="map" id="map"></div>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn sky" id="b-home">Rest for now</button>
+      <button class="btn sky hold" id="b-grown"><span class="fill"></span>Grown-ups (press and hold)</button>
+    </div>
+  </section>
+
+  <!-- LAND INTRO -->
+  <section id="s-intro" hidden>
+    <div class="card story">
+      <div class="hero" id="in-hero"></div>
+      <h2 id="in-title" style="font-size:32px"></h2>
+      <p id="in-text"></p>
+      <p class="note" id="in-tip"></p>
+      <div class="row center"><button class="btn" id="b-go">Let's go!</button></div>
+      <button class="btn ghost" id="b-back">Back to the map</button>
+    </div>
+  </section>
+
+  <!-- QUESTION -->
+  <section id="s-q" hidden>
+    <div class="qhead"><h2 id="q-land"></h2><div class="pebbles" id="q-peb"></div></div>
+    <div class="card">
+      <p class="prompt" id="q-prompt"></p>
+      <div class="visual" id="q-vis"></div>
+      <div class="choices" id="q-choices"></div>
+      <div class="qfoot">
+        <button class="speak" id="b-speak">🔊 Read it to me</button>
+        <button class="btn ghost" id="b-unsure">I haven't learned this yet</button>
+      </div>
+    </div>
+    <div class="pal-say"><div class="av" id="q-av"></div><div class="bubble" id="q-say"></div></div>
+  </section>
+
+  <!-- LAND DONE -->
+  <section id="s-done" hidden>
+    <div class="card story">
+      <div class="gemflash" id="d-gem"></div>
+      <h2 id="d-title" style="font-size:30px"></h2>
+      <p id="d-text"></p>
+      <div class="row center"><button class="btn" id="b-tomap">Back to the map</button></div>
+    </div>
+  </section>
+
+  <!-- FINALE -->
+  <section id="s-final" hidden>
+    <div class="card story cert">
+      <div class="hero" id="f-hero"></div>
+      <h2 style="font-size:34px;color:var(--gold-deep)">The whole map is glowing!</h2>
+      <p id="f-text"></p>
+      <p style="font-family:var(--display);font-size:24px" id="f-cert"></p>
+      <div class="row center"><button class="btn" id="b-fmap">See my glowing map</button></div>
+    </div>
+  </section>
+
+  <!-- GROWN-UPS -->
+  <section id="s-grown" hidden>
+    <div class="card report" id="report"></div>
+  </section>
+</div>
+<div class="cheer" id="cheer" hidden></div>
+
+<script>
+(() => {
+"use strict";
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const pad = n => String(n).padStart(2,"0");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+
+const PALS = [
+  {e:"🐉", kind:"dragon", def:"Ember"},
+  {e:"🦄", kind:"unicorn", def:"Starla"},
+  {e:"🦊", kind:"fox", def:"Pip"},
+  {e:"🦉", kind:"owl", def:"Hoot"}
+];
+
+const LANDS = [
+  {key:"N", name:"Starlight Meadow", skill:"Number sense", icon:"🌟", gem:"Starlight Gem", gemE:"🌟", start:2, guide:"Luma the firefly queen",
+   intro:"Every night, the fireflies of Starlight Meadow line up to glow. But Luma, the firefly queen, keeps losing count! Can you help her?",
+   levels:["Counts up to 10 objects and compares small numbers","Counts objects and knows what comes next, up to 20","Compares 2-digit numbers and crosses into the next ten","Skip-counts by 5s and 10s","Compares 3-digit numbers","Rounds to the nearest 10 or 100"]},
+  {key:"P", name:"Crystal Caves", skill:"Place value", icon:"💎", gem:"Cave Crystal", gemE:"💎", start:2, guide:"Pebble the gnome",
+   intro:"Deep in the Crystal Caves, gnomes tie crystals into sticks of ten, and stack ten sticks into big flat hundreds. Pebble the gnome needs help reading his piles.",
+   levels:["Knows teen numbers are a ten and some ones","Reads tens and ones from blocks","Knows what each digit in a 2-digit number is worth","Reads 3-digit numbers from blocks, including zeros","Finds 10 more, 10 less, 100 more, 100 less","Puts numbers back together from their parts"]},
+  {key:"A", name:"Honeycake Bakery", skill:"Addition", icon:"🧁", gem:"Golden Honeycake", gemE:"🍯", start:2, guide:"Bramble the bear",
+   intro:"Bramble the bear is baking treats for the Moon Festival. He has so many trays that he needs a helper to add them all up!",
+   levels:["Adds within 5 with pictures","Adds within 10","Adds within 20, crossing ten","Adds 2-digit numbers without regrouping","Adds 2-digit numbers with regrouping (carrying)","Adds 3-digit numbers with regrouping"]},
+  {key:"S", name:"Whispering River", skill:"Subtraction", icon:"🦦", gem:"River Pearl", gemE:"🫧", start:2, guide:"Otto the otter",
+   intro:"Otto the otter carries fish across the Whispering River in his little boat. But some fish are sneaky and swim away! Help Otto keep track.",
+   levels:["Takes away within 5 with pictures","Subtracts within 10","Subtracts within 20, crossing ten","Subtracts 2-digit numbers without regrouping","Subtracts 2-digit numbers with regrouping (borrowing)","Subtracts 3-digit numbers across a zero"]},
+  {key:"M", name:"Moonberry Garden", skill:"Multiplication", icon:"🍇", gem:"Moonberry Seed", gemE:"🌱", start:2, guide:"Clover the bunny",
+   intro:"In the Moonberry Garden, berries grow in neat little groups. Clover the bunny is filling baskets for the feast and wants a quick counter.",
+   levels:["Puts together two equal groups (doubles)","Counts by 2s","Understands equal groups (3 groups of 4)","Knows ×2, ×5 and ×10","Knows ×3 and ×4","Harder facts (×6 to ×9) and fair sharing"]},
+  {key:"F", name:"Clocktower Market", skill:"Fractions, time & money", icon:"🕰️", gem:"Clocktower Key", gemE:"🗝️", start:2, guide:"Madame Whiskers the cat",
+   intro:"When the great clock chimes, the market opens! Madame Whiskers sells pies, ribbons and moon-cheese, and she always needs help with the clock and the coins.",
+   levels:["Counts pennies","Halves and o'clock times","Half-past times and dimes & pennies","Mixed coins and fourths or thirds","Time to 5 minutes and time that passes","Fraction of a group and making change"]}
+];
+const GRADE = ["kindergarten to early 1st grade","end of 1st grade","early 2nd grade","middle of 2nd grade","end of 2nd grade","3rd grade"];
+const TOP = 6;
+const ITEMS_PER_LAND = 5;
+
+// ---------- pictures ----------
+const objs = (n, e, gone=0) => `<div class="objs">${Array.from({length:n},(_,i)=>`<span class="${i>=n-gone?"gone":""}">${e}</span>`).join("")}</div>`;
+const blocks = (h,t,o) => `<div class="blocks">${"<div class=flat></div>".repeat(h)}${h?'<div class="gap"></div>':""}${"<div class=rod></div>".repeat(t)}${t&&o?'<div class="gap"></div>':""}<div class="ones">${"<div class=cube></div>".repeat(o)}</div></div>`;
+function clock(h,m){
+  const ha=((h%12)+m/60)*30, ma=m*6; let s="";
+  for(let i=1;i<=12;i++){const a=i*Math.PI/6; s+=`<text x="${(50+36*Math.sin(a)).toFixed(1)}" y="${(50-36*Math.cos(a)+4.5).toFixed(1)}" text-anchor="middle" font-size="12" font-family="Andika,sans-serif" font-weight="700" fill="#2b2540">${i}</text>`;}
+  for(let i=0;i<60;i++){const a=i*Math.PI/30, r1=i%5?44:42; s+=`<line x1="${(50+r1*Math.sin(a)).toFixed(1)}" y1="${(50-r1*Math.cos(a)).toFixed(1)}" x2="${(50+46*Math.sin(a)).toFixed(1)}" y2="${(50-46*Math.cos(a)).toFixed(1)}" stroke="#6a6080" stroke-width="${i%5?0.6:1.4}"/>`;}
+  return `<svg viewBox="0 0 100 100" width="190" height="190" role="img" aria-label="clock"><circle cx="50" cy="50" r="48" fill="#fffdf6" stroke="#c8901a" stroke-width="3"/>${s}
+  <line x1="50" y1="50" x2="${(50+22*Math.sin(ha*Math.PI/180)).toFixed(1)}" y2="${(50-22*Math.cos(ha*Math.PI/180)).toFixed(1)}" stroke="#2b2540" stroke-width="5" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="${(50+35*Math.sin(ma*Math.PI/180)).toFixed(1)}" y2="${(50-35*Math.cos(ma*Math.PI/180)).toFixed(1)}" stroke="#d9577a" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="50" cy="50" r="3" fill="#2b2540"/></svg>`;
+}
+function pie(n,k){
+  let s=""; for(let i=0;i<n;i++){const a0=i/n*2*Math.PI, a1=(i+1)/n*2*Math.PI;
+    const x0=50+45*Math.sin(a0), y0=50-45*Math.cos(a0), x1=50+45*Math.sin(a1), y1=50-45*Math.cos(a1);
+    s+=`<path d="M50 50 L${x0.toFixed(2)} ${y0.toFixed(2)} A45 45 0 ${1/n>0.5?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${i<k?"#d9577a":"#f6deb0"}" stroke="#7a4b1e" stroke-width="2"/>`;}
+  return `<svg viewBox="0 0 100 100" width="170" height="170" role="img" aria-label="pie">${s}</svg>`;
+}
+function bar(n,k){
+  let s=""; const w=180/n; for(let i=0;i<n;i++) s+=`<rect x="${(10+i*w).toFixed(1)}" y="10" width="${w.toFixed(1)}" height="60" fill="${i<k?"#d9577a":"#f6deb0"}" stroke="#7a4b1e" stroke-width="2"/>`;
+  return `<svg viewBox="0 0 200 80" width="240" height="96" role="img" aria-label="ribbon cake">${s}</svg>`;
+}
+const coinHTML = {q:'<div class="coin q">25¢</div>', d:'<div class="coin d">10¢</div>', n:'<div class="coin n">5¢</div>', p:'<div class="coin p">1¢</div>'};
+const coins = list => list.map(c=>coinHTML[c]).join("");
+const baskets = (g,n,e) => Array.from({length:g},()=>`<div class="basket">${e.repeat(n)}</div>`).join("");
+const seq = (arr) => `<div class="seq">${arr.map(v=>v==="?"?'<span class="blank">?</span>':`<span>${v}</span>`).join("")}</div>`;
+const big = s => `<div class="bigsum">${s}</div>`;
+
+// ---------- item builder ----------
+// d = [[value, misconceptionTag|null], ...]
+function mk(prompt, answer, d, o={}){
+  const seen=new Set([String(answer)]); const choices=[{v:answer,tag:null,correct:true}];
+  for(const [v,tag] of d){ const k=String(v); if(seen.has(k) || (typeof v==="number" && v<0)) continue; seen.add(k); choices.push({v,tag:tag||null}); if(choices.length===4) break; }
+  if(typeof answer==="number"){ for(const off of [1,-1,2,10,-2,-10,3,5]){ if(choices.length>=4) break; const v=answer+off; if(v<0||seen.has(String(v))) continue; seen.add(String(v)); choices.push({v,tag:null}); } }
+  return {prompt, answer, choices:shuffle(choices), vis:o.vis||"", unit:o.unit||"", say:o.say||prompt, kind:o.kind||""};
+}
+const fmt = (v,unit) => unit==="¢" ? v+"¢" : String(v);
+
+// ---------- generators: G[strand][level-1]() ----------
+const G = {
+N:[
+  () => pick([
+    () => { const n=rnd(4,10); return mk(`Luma's little fireflies are waking up. How many fireflies?`, n, [[n-1,"Miscounted a small group by one"],[n+1,"Miscounted a small group by one"],[n+2,null]], {vis:objs(n,"🌟"), kind:"count to 10"}); },
+    () => { const a=rnd(2,9); let b; do{b=rnd(1,9);}while(b===a); const big=Math.max(a,b), small=Math.min(a,b); return mk(`One jar has ${a} fireflies. Another jar has ${b}. Which number is BIGGER?`, big, [[small,"Picked the smaller number when comparing"],[big+1,null],[small-1,null]], {vis:`${objs(a,"🌟")}<span class="plus">or</span>${objs(b,"🌟")}`, kind:"compare within 10"}); }
+  ])(),
+  () => pick([
+    () => { const n=rnd(6,17); return mk(`Luma counts her fireflies: ${n-2}, ${n-1}, ${n}… What number comes next?`, n+1, [[n-1,"Counted backward instead of forward"],[n+2,"Skipped a number when counting on"],[n+10,null]], {vis:seq([n-2,n-1,n,"?"]), kind:"count on"}); },
+    () => { const n=rnd(8,16); return mk(`How many fireflies are glowing?`, n, [[n-1,"Miscounted a group of objects by one"],[n+1,"Miscounted a group of objects by one"],[n+2,null]], {vis:objs(n,"🌟"), kind:"count objects"}); }
+  ])(),
+  () => pick([
+    () => { const t=rnd(2,8), n=t*10+9; return mk(`Luma's fireflies count up to ${n}. What number comes right after ${n}?`, n+1, [[`${t}10`,"Didn't cross into the next ten (said “"+t+"-ten” after "+n+")"],[n-1,"Counted backward"],[n+10,null]], {kind:"next number across a ten"}); },
+    () => { const a=rnd(5,9), b=rnd(2,a-2); const big=a*10+b; return mk(`Four jars of fireflies! Which jar has the MOST fireflies?`, big, [[b*10+9,"Compared the ones digits instead of the tens"],[b*10+a,"Mixed up tens and ones when comparing"],[a*10-10+rnd(0,b),null]], {kind:"compare 2-digit"}); }
+  ])(),
+  () => pick([
+    () => { const s=5*rnd(2,14); return mk(`The fireflies blink by 5s. What number comes next?`, s+15, [[s+11,"Switched to counting by 1s"],[s+20,"Skipped a step when skip-counting"],[s+25,null]], {vis:seq([s,s+5,s+10,"?"]), kind:"skip count 5s"}); },
+    () => { let s; do{s=rnd(11,59);}while(s%10===0); return mk(`The fireflies blink by 10s. What number comes next?`, s+30, [[s+21,"Switched to counting by 1s"],[s+31,"Mixed counting by 10s and 1s"],[s+40,"Skipped a step when skip-counting"]], {vis:seq([s,s+10,s+20,"?"]), kind:"skip count 10s"}); }
+  ])(),
+  () => { const h=rnd(3,8), ans=h*100+rnd(0,2)*10+rnd(0,3); return mk(`The firefly kingdoms are counting their fireflies. Which kingdom has the MOST?`, ans, [[(h-1)*100+90+rnd(5,9),"Compared tens and ones before hundreds"],[(h-1)*100+rnd(10,60),null],[(h-2)*100+rnd(50,99),null]], {kind:"compare 3-digit"}); },
+  () => pick([
+    () => { let n; do{n=rnd(12,94);}while(n%5===0); const r=Math.round(n/10)*10, other=(n%10<5)?r+10:r-10; return mk(`Luma has ${n} fireflies. About how many is that, to the nearest ten?`, r, [[other,"Rounded the wrong way"],[n,"Kept the exact number instead of rounding"],[r+10===other?r-10:r+10,null]], {kind:"round to 10"}); },
+    () => { let n; do{n=rnd(120,880);}while(Math.floor(n/10)%10===5||n%100<10); const r=Math.round(n/100)*100, other=(n%100<50)?r+100:r-100; return mk(`The meadow has ${n} fireflies. To the nearest hundred, about how many?`, r, [[other,"Rounded the wrong way"],[Math.round(n/10)*10,"Rounded to the nearest ten instead of hundred"],[n,"Kept the exact number"]], {kind:"round to 100"}); }
+  ])()
+],
+P:[
+  () => { const o=rnd(1,9); return mk(`Pebble has one stick of 10 crystals and ${o} single crystal${o>1?"s":""}. How many crystals?`, 10+o, [[1+o,"Counted the stick of ten as just 1"],[o,"Left out the ten"],[o*10+1,"Mixed up tens and ones"]], {vis:blocks(0,1,o), kind:"teen numbers"}); },
+  () => { const t=rnd(2,4); let o; do{o=rnd(1,9);}while(o===t); return mk(`Pebble has crystal sticks (each stick is 10) and single crystals. How many crystals in all?`, 10*t+o, [[10*o+t,"Mixed up the tens and the ones"],[t+o,"Counted each stick of ten as just 1"],[10*t+o+10,null]], {vis:blocks(0,t,o), kind:"tens & ones from blocks"}); },
+  () => { const d=rnd(2,9); let o; do{o=rnd(1,9);}while(o===d); const n=d*10+o; return mk(`In the number ${n}, how much is the ${d} worth?`, d*10, [[d,"Thinks the tens digit is worth its face value"],[d*100,null],[o,null]], {vis:big(n), kind:"value of a digit"}); },
+  () => { const h=rnd(1,4), o=rnd(1,9), zero=Math.random()<.5, t=zero?0:rnd(1,9); const ans=h*100+t*10+o;
+    const d = zero ? [[h*10+o,"Left out the zero (no tens) and wrote a 2-digit number"],[h*100+o*10,"Put the ones in the tens place"],[h+o,"Counted blocks instead of their values"]]
+                   : [[h*100+o*10+t,"Mixed up the tens and the ones"],[h+t+o,"Counted blocks instead of their values"],[ans+100,null]];
+    return mk(`Pebble stacked flats (100 each), sticks (10 each) and single crystals. How many crystals?`, ans, d, {vis:blocks(h,t,o), kind:zero?"3-digit with a zero":"3-digit from blocks"}); },
+  () => pick([
+    () => { const n=rnd(120,880); return mk(`Pebble has ${n} crystals and finds 10 more. How many now?`, n+10, [[n+1,"Added 1 instead of 10"],[n+100,"Added 100 instead of 10"],[n+20,null]], {kind:"10 more"}); },
+    () => { const n=rnd(220,980); return mk(`Pebble has ${n} crystals and gives away 100. How many are left?`, n-100, [[n-10,"Took away 10 instead of 100"],[n-1,"Took away 1 instead of 100"],[n+100,"Added instead of subtracting"]], {kind:"100 less"}); }
+  ])(),
+  () => { const h=rnd(2,8); let t=rnd(1,9), o=rnd(1,9); while(o===t) o=rnd(1,9);
+    if(Math.random()<.5){ return mk(`Pebble wrote his crystals as parts: ${h}00 + ${o} + ${t}0. What is the whole number?`, h*100+t*10+o, [[h*100+o*10+t,"Read the parts in the order written instead of by place"],[h+o+t,null],[h*100+t+o,null]], {vis:big(`${h}00 + ${o} + ${t}0`), kind:"expanded form, mixed order"}); }
+    return mk(`Pebble has ${h}00 + ${o} crystals. What is the whole number?`, h*100+o, [[h*10+o,"Left out the zero placeholder"],[h*100+o*10,"Put the ones in the tens place"],[h+o,null]], {vis:big(`${h}00 + ${o}`), kind:"expanded form with a zero"}); }
+],
+A:[
+  () => { const a=rnd(1,3), b=rnd(1,5-a); return mk(`Bramble has ${a} cupcake${a>1?"s":""}. He bakes ${b} more. How many cupcakes now?`, a+b, [[Math.abs(a-b)||a+b+2,"Subtracted instead of adding"],[a+b-1,"Counting slip"],[a+b+1,null]], {vis:`${objs(a,"🧁")}<span class="plus">+</span>${objs(b,"🧁")}`, kind:"add within 5"}); },
+  () => { const a=rnd(2,6), b=rnd(1,10-a); return mk(`Bramble baked ${a} cupcakes, then ${b} more. How many cupcakes now?`, a+b, [[Math.abs(a-b),"Subtracted instead of adding"],[a+b-1,"Counting-on slip (counted the first number twice)"],[a+b+1,null]], {vis:`${objs(a,"🧁")}<span class="plus">+</span>${objs(b,"🧁")}`, kind:"add within 10"}); },
+  () => { const a=rnd(6,9), b=rnd(11-a,9); return mk(`One tray has ${a} honey buns and another has ${b}. How many honey buns?`, a+b, [[a+b-1,"Counting-on slip (counted the first number twice)"],[a+b+1,null],[a+b-10,"Lost the ten when crossing 10"]], {vis:big(`${a} + ${b} = ?`), kind:"add within 20"}); },
+  () => { const ta=rnd(1,5), tb=rnd(1,8-ta), oa=rnd(1,8), ob=rnd(0,9-oa); const a=ta*10+oa, b=tb*10+ob; return mk(`Bramble has ${a} cookies and bakes ${b} more. How many cookies?`, a+b, [[a+b+10,null],[a+b-1,null],[a+b-10,null]], {vis:big(`${a} + ${b} = ?`), kind:"2-digit add, no regrouping"}); },
+  () => { const ta=rnd(1,4), tb=rnd(1,7-ta), oa=rnd(4,9), ob=rnd(10-oa,9); const a=ta*10+oa, b=tb*10+ob, s=a+b; return mk(`${a} blueberry muffins and ${b} lemon muffins. How many muffins?`, s, [[s-10,"Forgot to carry the ten"],[Number(`${ta+tb}${oa+ob}`),"Wrote the whole ones total without regrouping"],[s+1,null]], {vis:big(`${a} + ${b} = ?`), kind:"2-digit add with regrouping"}); },
+  () => { let a,b; do{a=rnd(120,580); b=rnd(110,390);}while(!((a%10+b%10)>=10 && (Math.floor(a/10)%10+Math.floor(b/10)%10+1)>=10 && a+b<1000));
+    const s=a+b, nc=((a%10+b%10)%10)+((Math.floor(a/10)%10+Math.floor(b/10)%10)%10)*10+(Math.floor(a/100)+Math.floor(b/100))*100;
+    return mk(`For the Moon Festival, Bramble made ${a} tarts and ${b} pies. How many treats?`, s, [[nc,"Forgot to carry (in more than one column)"],[s-10,"Forgot one carry"],[s-100,"Forgot one carry"]], {vis:big(`${a} + ${b} = ?`), kind:"3-digit add with regrouping"}); }
+],
+S:[
+  () => { const a=rnd(3,5), b=rnd(1,a-1); return mk(`Otto had ${a} fish. ${b} swam away. How many fish are left?`, a-b, [[a+b,"Added instead of taking away"],[a,"Didn't take any away"],[a-b+1,null]], {vis:objs(a,"🐟",b), kind:"take away within 5"}); },
+  () => { const a=rnd(5,10), b=rnd(1,a-2); return mk(`Otto had ${a} fish in his boat. ${b} jumped out and swam away! How many are left?`, a-b, [[a+b,"Added instead of subtracting"],[a-b+1,null],[a-b-1,null]], {vis:objs(a,"🐟",b), kind:"subtract within 10"}); },
+  () => { const o=rnd(1,7), a=10+o, b=rnd(o+1,9); return mk(`Otto had ${a} fish. ${b} swam away. How many are left?`, a-b, [[b-o,"Took the smaller digit from the bigger one"],[a+b,"Added instead of subtracting"],[a-b+1,null]], {vis:big(`${a} − ${b} = ?`), kind:"subtract within 20"}); },
+  () => { const ta=rnd(4,9), tb=rnd(1,ta-1), oa=rnd(3,9), ob=rnd(0,oa); const a=ta*10+oa, b=tb*10+ob; return mk(`There were ${a} lily pads. Frogs sank ${b} of them. How many lily pads are left?`, a-b, [[a+b,"Added instead of subtracting"],[a-b+10,null],[a-b-1,null]], {vis:big(`${a} − ${b} = ?`), kind:"2-digit subtract, no regrouping"}); },
+  () => { const ta=rnd(4,9), tb=rnd(1,ta-1), oa=rnd(0,6), ob=rnd(oa+1,9); const a=ta*10+oa, b=tb*10+ob; return mk(`Otto counted ${a} pebbles. He threw ${b} into the river. How many does he have left?`, a-b, [[(ta-tb)*10+(ob-oa),"Took the smaller digit from the bigger instead of regrouping"],[a-b+1,null],[a+b,"Added instead of subtracting"]], {vis:big(`${a} − ${b} = ?`), kind:"2-digit subtract with regrouping"}); },
+  () => { const h=rnd(3,9), oa=rnd(0,5), hb=rnd(1,h-1), tb=rnd(1,9), ob=rnd(oa+1,9); const a=h*100+oa, b=hb*100+tb*10+ob, d=a-b;
+    const bug=(h-hb)*100+tb*10+(ob-oa);
+    return mk(`The river carried ${a} leaves. Otto scooped out ${b}. How many leaves are still floating?`, d, [[bug,"Took the smaller digit from the bigger in each column (regrouping across zero)"],[d+100,"Borrowed but forgot to reduce the hundreds"],[d+10,null]], {vis:big(`${a} − ${b} = ?`), kind:"3-digit subtract across zero"}); }
+],
+M:[
+  () => { const n=rnd(2,5); return mk(`Clover has 2 baskets. Each basket has ${n} moonberries. How many moonberries in all?`, 2*n, [[n,"Counted only one basket"],[n+2,"Added the number of baskets instead of counting all"],[2*n+1,null]], {vis:baskets(2,n,"🍇"), kind:"doubles with pictures"}); },
+  () => { const k=rnd(3,6); return mk(`Clover puts moonberries in pairs. Count by 2s! How many berries?`, 2*k, [[k,"Counted the groups instead of the berries"],[2*k-1,null],[2*k+2,null]], {vis:baskets(k,2,"🍇"), kind:"count by 2s"}); },
+  () => { const g=rnd(2,4), n=rnd(3,5); return mk(`Clover has ${g} baskets with ${n} moonberries in each basket. How many moonberries?`, g*n, [[g+n,"Added the numbers instead of making equal groups"],[g*n+n,"Counted one group too many"],[g*n-1,null]], {vis:baskets(g,n,"🍇"), kind:"equal groups (picture)"}); },
+  () => { const f=pick([2,5,10]), k=rnd(3,9); const story={2:`${k} bunnies are hopping by. Each bunny has 2 ears. How many ears?`,5:`${k} moon-flowers are blooming. Each has 5 petals. How many petals?`,10:`${k} baskets each hold 10 moonberries. How many moonberries?`}[f];
+    return mk(story, f*k, [[f+k,"Added instead of multiplying"],[f*k+f,"Skip-counted one group too many"],[f*k-f,"Skip-counted one group too few"]], {vis:big(`${k} × ${f} = ?`), kind:`×${f} facts`}); },
+  () => { const f=pick([3,4]), k=rnd(4,9); return mk(`Clover planted ${k} rows of carrots with ${f} carrots in each row. How many carrots?`, f*k, [[f+k,"Added instead of multiplying"],[f*k+f,"Skip-counted one group too many"],[f*k-f,"Skip-counted one group too few"]], {vis:big(`${k} × ${f} = ?`), kind:`×${f} facts`}); },
+  () => pick([
+    () => { const f=rnd(6,9), k=rnd(6,9); return mk(`Clover planted ${f} rows of moon-flowers with ${k} in each row. How many moon-flowers?`, f*k, [[f+k,"Added instead of multiplying"],[f*k+f,"Skip-counted one group too many"],[f*k-k,"Skip-counted one group too few"]], {vis:big(`${f} × ${k} = ?`), kind:"×6–×9 facts"}); },
+    () => { const g=rnd(3,5), each=rnd(3,8), tot=g*each; return mk(`${tot} moonberries are shared fairly among ${g} bunnies. How many does each bunny get?`, each, [[tot-g,"Subtracted instead of sharing"],[g,null],[each+1,null]], {vis:big(`${tot} ÷ ${g} = ?`), kind:"sharing (division)"}); }
+  ])()
+],
+F:[
+  () => { const n=rnd(3,9); return mk(`Madame Whiskers gives you some pennies. Each penny is 1 cent. How much money?`, n, [[n-1,"Miscounted the coins by one"],[n+1,"Miscounted the coins by one"],[n+2,null]], {vis:coins(Array(n).fill("p")), unit:"¢", say:"How many cents? Each penny is one cent.", kind:"count pennies"}); },
+  () => pick([
+    () => mk(`Madame Whiskers cut a pie into 2 equal pieces. What part is cherry (pink)?`, "one half", [["one third",null],["one fourth",null],["two","Named the number of pieces, not the fraction"]], {vis:pie(2,1), kind:"halves"}),
+    () => { const h=rnd(1,11); return mk(`The great clock chimes! What time is it?`, `${h}:00`, [[`12:${pad(h*5)}`,"Mixed up the hour hand and the minute hand"],[`${h+1}:00`,null],[`${h}:30`,null]], {vis:clock(h,0), kind:"o'clock"}); }
+  ])(),
+  () => pick([
+    () => { const h=rnd(1,10); return mk(`The market opens at this time. What time is it?`, `${h}:30`, [[`${h+1}:30`,"Read the hour as the number after the hour hand"],[`${h}:06`,"Read the 6 as 6 minutes"],[`6:${pad(h*5+2)}`,"Mixed up the hour hand and the minute hand"]], {vis:clock(h,30), kind:"half past"}); },
+    () => { const d=rnd(1,4), p=rnd(2,6); return mk(`How much money is in Madame Whiskers' purse?`, d*10+p, [[d+p,"Counted each coin as 1 cent"],[p*10+d,"Mixed up dime and penny values"],[d*10+p+1,null]], {vis:coins([...Array(d).fill("d"),...Array(p).fill("p")]), unit:"¢", say:"How much money is in the purse? Count the cents.", kind:"dimes & pennies"}); }
+  ])(),
+  () => pick([
+    () => { const d=rnd(1,2), n=rnd(1,2), p=rnd(1,4), cs=["q",...Array(d).fill("d"),...Array(n).fill("n"),...Array(p).fill("p")], v=25+d*10+n*5+p; return mk(`You find these coins under the pie stall. How much money?`, v, [[cs.length,"Counted coins instead of their values"],[v-5,null],[v+5,null]], {vis:coins(cs), unit:"¢", say:"How much money is it? Count the cents.", kind:"mixed coins"}); },
+    () => { const n=pick([3,4]), k=rnd(1,n-1); return mk(`What part of the pie has been eaten (pink)?`, `${k}/${n}`, [[`${n-k}/${n}`,"Named the part that was NOT shaded"],[`${n}/${k}`,"Flipped the top and bottom numbers"],[`${k}/${n+1}`,null],[`1/${n}`,null]], {vis:pie(n,k), say:`What part of the pie is pink? ${k} out of ${n}?`, kind:"thirds & fourths"}); }
+  ])(),
+  () => pick([
+    () => { const h=rnd(1,10); let m; do{m=5*rnd(1,11);}while(m===30); const near = m<30 ? `${h===1?12:h-1}:${pad(m)}` : `${h+1}:${pad(m)}`;
+      return mk(`Madame Whiskers' pies come out of the oven at this time. What time is it?`, `${h}:${pad(m)}`, [[`${h}:${pad(m/5)}`,"Read the number the minute hand points to as the minutes"],[near,"Read the hour hand as the wrong hour"],[`${h}:${pad((m+5)%60)}`,null]], {vis:clock(h,m), kind:"time to 5 minutes"}); },
+    () => { const h=rnd(1,9), m=pick([15,30,45]), add=pick([15,30]); const em=m+add, eh=h+Math.floor(em/60);
+      return mk(`A pie goes in the oven at ${h}:${pad(m)} and bakes for ${add} minutes. When is it ready?`, `${eh}:${pad(em%60)}`, [[`${h+1}:${pad(m)}`,"Added an hour instead of minutes"],[`${h}:${pad(add)}`,"Wrote the baking time as the clock time"],[`${eh}:${pad((em+15)%60)}`,null],[`${h}:${pad(m+5)}`,null]], {vis:clock(h,m), kind:"time passing"}); }
+  ])(),
+  () => pick([
+    () => { const n=pick([2,3,4]), k=rnd(2,5), tot=n*k; return mk(`There are ${tot} pies. 1/${n} of them are cherry. How many cherry pies?`, k, [[n,"Used the bottom number as the answer"],[tot-k,null],[k+1,null]], {vis:objs(tot,"🥧"), say:`There are ${tot} pies. One ${n===2?"half":n===3?"third":"fourth"} of them are cherry. How many cherry pies?`, kind:"fraction of a group"}); },
+    () => { const pay=pick([50,100]), price=pay-5*rnd(2,pay===50?8:14); return mk(`A ribbon costs ${price}¢. You pay with ${pay===50?"two quarters (50¢)":"a dollar (100¢)"}. How much change do you get back?`, pay-price, [[pay+price,"Added instead of subtracting"],[pay-price+5,null],[pay-price-5,null]], {unit:"¢", say:`A ribbon costs ${price} cents. You pay with ${pay} cents. How much change do you get?`, kind:"making change"}); }
+  ])()
+]};
+
+// ---------- scoring ----------
+function estimate(items){
+  const by={}; for(let l=1;l<=TOP;l++) by[l]={c:0,n:0};
+  items.forEach(it=>{ by[it.level].n++; if(it.correct) by[it.level].c++; });
+  let secure=0;
+  for(let L=1;L<=TOP;L++){
+    if(!by[L].c) continue;
+    let ok=true; for(let l=1;l<=L;l++){ if(by[l].n && by[l].c/by[l].n<0.5) ok=false; }
+    if(ok) secure=L;
+  }
+  const times=items.filter(i=>i.correct).map(i=>i.secs).sort((a,b)=>a-b);
+  const med=times.length?times[Math.floor(times.length/2)]:null;
+  return {secure, by, medianSecs:med};
+}
+
+// ---------- state ----------
+const KEY="moonlit-map-v2";
+let S = store.get(KEY);
+let run=null, current=null, shownAt=0, busy=false;
+function save(){ store.set(KEY,S); }
+function newSession(name, pal, palName, read){
+  return {id:"s"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), startedAt:new Date().toISOString(), name, pal, palName, read, lands:{}, finishedAt:null};
+}
+const palE = () => PALS[S.pal].e;
+const who = () => S.name || "Explorer";
+
+// ---------- db ----------
+let dbp = null;
+function getDb(){ if(!dbp){ dbp = (window.claude && window.claude.use) ? window.claude.use("db").catch(()=>null) : Promise.resolve(null); } return dbp; }
+let saveChain=Promise.resolve(), lastSaved=null;
+function cloudSave(){
+  const snap=JSON.parse(JSON.stringify(S));
+  saveChain = saveChain.then(async()=>{
+    const db=await getDb(); if(!db) return;
+    const summary={}; for(const L of LANDS){ const ld=snap.lands[L.key]; if(ld){ const e=estimate(ld.items); summary[L.key]={skill:L.skill, secureLevel:e.secure, medianSecs:e.medianSecs}; } }
+    try{ await db.collection("sessions").doc(snap.id).set({...snap, summary, savedAt:new Date().toISOString()}); lastSaved=new Date(); }catch(e){ console.warn("save failed",e); }
+  });
+}
+
+// ---------- screens ----------
+const SCREENS=["s-start","s-map","s-intro","s-q","s-done","s-final","s-grown"];
+function show(id){ SCREENS.forEach(s=>$(s).hidden = s!==id); window.scrollTo(0,0); try{speechSynthesis.cancel();}catch(e){} }
+function say(t){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/¢/g," cents").replace(/−/g," minus ").replace(/×/g," times ").replace(/÷/g," divided by ")); u.rate=.9; speechSynthesis.speak(u); }catch(e){} }
+function cheer(t){ const c=$("cheer"); c.textContent=t; c.hidden=false; clearTimeout(cheer.t); cheer.t=setTimeout(()=>c.hidden=true,1400); }
+
+// start
+let palSel=0;
+function renderStart(){
+  $("pals").innerHTML = PALS.map((p,i)=>`<button class="pal" data-i="${i}" aria-pressed="${i===palSel}"><span class="e">${p.e}</span>${p.kind}</button>`).join("");
+  $("in-pal").placeholder = PALS[palSel].def;
+  const has = S && Object.keys(S.lands).length < LANDS.length;
+  const done = S && Object.keys(S.lands).length === LANDS.length;
+  $("resume").hidden = !S;
+  $("newgame").hidden = !!S;
+  if(S){ $("resume-msg").textContent = done ? `${who()} and ${S.palName} lit up the whole map!` : `Welcome back, ${who()}! ${S.palName} ${palE()} is waiting by the map.`; $("b-resume").textContent = done ? "See the glowing map" : "Back to the map"; }
+}
+$("pals").addEventListener("click",e=>{ const b=e.target.closest(".pal"); if(!b) return; palSel=+b.dataset.i; renderStart(); });
+$("b-begin").onclick=()=>{
+  S = newSession($("in-name").value.trim(), palSel, $("in-pal").value.trim()||PALS[palSel].def, $("in-read").checked);
+  save(); renderMap(); show("s-map");
+  if(S.read) say($("map-say").textContent);
+};
+$("b-resume").onclick=()=>{ renderMap(); show("s-map"); };
+let freshArm=false;
+$("b-fresh").onclick=()=>{
+  if(!freshArm){ freshArm=true; $("b-fresh").textContent="Tap again to start over (the old map is saved for grown-ups)"; setTimeout(()=>{freshArm=false; $("b-fresh").textContent="Start a brand new adventure";},4000); return; }
+  freshArm=false; store.del(KEY); S=null; renderStart(); };
+$("b-home").onclick=()=>{ renderStart(); show("s-start"); };
+
+// map
+const POS=[[26,12],[72,26],[28,42],[73,58],[27,74],[71,89]];
+function renderMap(){
+  const doneN=Object.keys(S.lands).length;
+  $("map-av").textContent=palE();
+  $("map-say").textContent = doneN===0 ? `Hi ${who()}! I'm ${S.palName}. This map only lights up when we explore it. Pick any glowing land to start!`
+    : doneN===LANDS.length ? `We did it, ${who()}! Every land on the map is shining.`
+    : pick([`${doneN} down! Where should we go next, ${who()}?`,`Look how the map is glowing! Pick our next land.`,`I'm ready for more adventure. Which land next?`]);
+  const path = "M"+POS.map(p=>`${p[0]} ${p[1]*1.333}`).join(" L");
+  let h = `<svg viewBox="0 0 100 133.3" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="#f3c34a" stroke-opacity=".55" stroke-width="2.4" stroke-dasharray="3 12" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:5px"/></svg>`;
+  LANDS.forEach((L,i)=>{ const d=!!S.lands[L.key];
+    h+=`<button class="land ${d?"done":"open"}" data-k="${L.key}" style="left:${POS[i][0]}%;top:${POS[i][1]}%"><span class="isle">${d?L.gemE:L.icon}</span><span class="nm">${L.name}</span>${d?`<span class="gem">${L.gem} found</span>`:""}</button>`; });
+  $("map").innerHTML=h;
+}
+$("map").addEventListener("click",e=>{ const b=e.target.closest(".land"); if(!b) return; const L=LANDS.find(l=>l.key===b.dataset.k);
+  if(S.lands[L.key]){ cheer(`You already found the ${L.gem} here!`); return; }
+  openIntro(L); });
+
+// grown-ups gate: press and hold
+(function(){
+  const b=$("b-grown"), f=b.querySelector(".fill"); let t0=0, raf=0;
+  const stop=()=>{ cancelAnimationFrame(raf); f.style.width="0"; t0=0; };
+  const step=()=>{ const p=(performance.now()-t0)/1500; f.style.width=Math.min(100,p*100)+"%"; if(p>=1){ stop(); openReport(); } else raf=requestAnimationFrame(step); };
+  b.addEventListener("pointerdown",e=>{ e.preventDefault(); t0=performance.now(); raf=requestAnimationFrame(step); });
+  ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,stop));
+  b.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openReport(); } });
+  b.addEventListener("contextmenu",e=>e.preventDefault());
+})();
+
+// land intro
+function openIntro(L){
+  $("in-hero").textContent=L.icon; $("in-title").textContent=L.name;
+  $("in-text").textContent=L.intro;
+  $("in-tip").textContent=`${S.palName} says: some paths are easy and some are tricky. If you haven't learned one yet, just say so. That's what explorers do!`;
+  run={L, level:L.start, items:[]};
+  show("s-intro"); if(S.read) say(L.intro);
+}
+$("b-go").onclick=()=>{ nextQ(); show("s-q"); if(S.read) say(current.say); };
+$("b-back").onclick=()=>{ renderMap(); show("s-map"); };
+
+// questions
+function nextQ(){
+  const L=run.L; let it, tries=0;
+  do{ it=G[L.key][run.level-1](); tries++; }while(tries<6 && run.items.some(x=>x.prompt===it.prompt));
+  current={...it, level:run.level};
+  $("q-land").textContent=L.name;
+  $("q-peb").innerHTML=Array.from({length:ITEMS_PER_LAND},(_,i)=>`<i class="${i<run.items.length?"lit":""}"></i>`).join("");
+  $("q-prompt").textContent=it.prompt;
+  $("q-vis").innerHTML=it.vis;
+  const small = it.choices.some(c=>String(c.v).length>5);
+  $("q-choices").innerHTML=it.choices.map((c,i)=>`<button class="choice ${small?"small":""}" data-i="${i}">${esc(fmt(c.v,it.unit))}</button>`).join("");
+  $("q-av").textContent=palE();
+  $("q-say").textContent=pick(["Take your time. There's no rush in this land.","Hmm, let's think about this one together.","You can tap the speaker if you want me to read it.","I wonder what the answer is…","Ooh, I like this one."]);
+  shownAt=performance.now(); busy=false;
+}
+function answer(idx){
+  if(busy) return; busy=true;
+  const it=current, secs=Math.round((performance.now()-shownAt)/1000);
+  const unsure = idx===null; const c = unsure?null:it.choices[idx];
+  if(!unsure) $("q-choices").children[idx].classList.add("picked");
+  const rec={level:it.level, kind:it.kind, prompt:it.prompt, answer:fmt(it.answer,it.unit), chosen:unsure?null:fmt(c.v,it.unit), correct:!!(c&&c.correct), unsure, tag:c?c.tag:null, secs};
+  run.items.push(rec);
+  run.level = rec.correct ? Math.min(TOP,run.level+1) : Math.max(1,run.level-1);
+  const l1Miss = run.items.filter(x=>x.level===1 && !x.correct).length>=2;
+  cheer(unsure ? pick(["That's okay! Explorers skip some paths.","No problem, we'll find another path!","Good to know! On we go."])
+               : pick(["Got it! The path glows brighter.","Thank you, explorer!",`${S.palName} writes it in the map book.`,"Onward!","A firefly lights up!","Nice thinking!"]));
+  setTimeout(()=>{
+    if(run.items.length>=ITEMS_PER_LAND || l1Miss) finishLand(); else { nextQ(); if(S.read) say(current.say); }
+  }, 900);
+}
+$("q-choices").addEventListener("click",e=>{ const b=e.target.closest(".choice"); if(b) answer(+b.dataset.i); });
+$("b-unsure").onclick=()=>answer(null);
+$("b-speak").onclick=()=>say(current.say + ". " + current.choices.map(c=>fmt(c.v,current.unit)).join(", or "));
+
+function finishLand(){
+  const L=run.L; S.lands[L.key]={items:run.items, at:new Date().toISOString()};
+  const all = Object.keys(S.lands).length===LANDS.length;
+  if(all) S.finishedAt=new Date().toISOString();
+  save(); cloudSave();
+  $("d-gem").textContent=L.gemE; $("d-title").textContent=`You found the ${L.gem}!`;
+  $("d-text").textContent=`${L.guide.split(" ")[0]} waves goodbye. "Thank you, ${who()} and ${S.palName}! Come back any time."`;
+  $("b-tomap").textContent = all ? "Finish the adventure" : "Back to the map";
+  show("s-done"); if(S.read) say(`You found the ${L.gem}!`);
+}
+$("b-tomap").onclick=()=>{
+  if(Object.keys(S.lands).length===LANDS.length){
+    $("f-hero").textContent=palE()+" ✨";
+    $("f-text").textContent=`${who()} and ${S.palName} walked every path of the Moonlit Map and found all six treasures: ${LANDS.map(l=>l.gemE).join(" ")}`;
+    $("f-cert").textContent=`${who()}, Master Explorer of the Moonlit Map`;
+    show("s-final");
+  } else { renderMap(); show("s-map"); }
+};
+$("b-fmap").onclick=()=>{ renderMap(); show("s-map"); };
+
+// ---------- grown-ups report ----------
+function reportText(sess){
+  const lines=[`Moonlit Map results for ${sess.name||"Explorer"} (${new Date(sess.startedAt).toLocaleDateString()})`];
+  for(const L of LANDS){ const ld=sess.lands[L.key]; if(!ld){ lines.push(`${L.skill}: not explored yet`); continue; }
+    const e=estimate(ld.items);
+    lines.push(`${L.skill}: comfortable up to level ${e.secure}/${TOP}${e.secure?` (${L.levels[e.secure-1]})`:""}${e.secure<TOP?`; next step: ${L.levels[e.secure]}`:""}`);
+    const tags=[...new Set(ld.items.filter(i=>i.tag).map(i=>i.tag))]; if(tags.length) lines.push(`  patterns: ${tags.join("; ")}`);
+  }
+  return lines.join("\n");
+}
+function strandHTML(L, ld){
+  if(!ld) return `<div class="strand"><div class="top"><h3>${L.skill}</h3><span class="pill">Not explored yet</span></div><p class="muted" style="margin:0">${L.name} is still dark on the map.</p></div>`;
+  const e=estimate(ld.items), s=e.secure;
+  const pill = s>=5?`<span class="pill ok">Strong</span>`: s>=3?`<span class="pill mid">Building</span>`:`<span class="pill low">Needs a foundation</span>`;
+  const meter=`<div class="meter" aria-label="level ${s} of ${TOP}">${[1,2,3,4,5,6].map(l=>`<i class="${l<=s?"on":l===s+1?"next":""}"></i>`).join("")}</div>`;
+  const tags={}; ld.items.forEach(i=>{ if(i.tag) tags[i.tag]=(tags[i.tag]||0)+1; });
+  const unsure=ld.items.filter(i=>i.unsure).length;
+  const slow = e.medianSecs!=null && e.medianSecs>35;
+  const notes=[];
+  Object.entries(tags).forEach(([t,n])=>notes.push(`${t}${n>1?` (${n} times)`:""}`));
+  if(unsure) notes.push(`Said "I haven't learned this yet" ${unsure} time${unsure>1?"s":""}`);
+  if(slow) notes.push(`Correct answers took a while (about ${e.medianSecs}s each), so she may still be counting rather than recalling`);
+  return `<div class="strand">
+    <div class="top"><h3>${L.skill}</h3>${pill}</div>
+    <div class="row">${meter}<span class="muted">${s?`Level ${s} of ${TOP}, roughly ${GRADE[s-1]}`:"Not yet secure at level 1"}</span></div>
+    ${s?`<div><b>Comfortable with:</b> ${L.levels[s-1]}${s>1?" and everything before it":""}.</div>`:`<div><b>Comfortable with:</b> not yet shown at the first level.</div>`}
+    ${s<TOP?`<div><b>Next to practice:</b> ${L.levels[s]}.</div>`:`<div><b>Next:</b> ready for harder 3rd-grade work here.</div>`}
+    ${notes.length?`<div><b>What her answers suggest:</b><ul>${notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}
+  </div>`;
+}
+function itemTable(sess){
+  let rows="";
+  for(const L of LANDS){ const ld=sess.lands[L.key]; if(!ld) continue;
+    ld.items.forEach(i=>{ rows+=`<tr><td>${L.skill}</td><td class="n">${i.level}</td><td>${esc(i.prompt)}</td><td class="n">${esc(i.answer)}</td><td class="n ${i.correct?"ok-t":"no-t"}">${i.unsure?"not sure":esc(i.chosen)}</td><td class="n">${i.secs}s</td></tr>`; }); }
+  return rows?`<div class="tablewrap"><table><thead><tr><th>Area</th><th>Lvl</th><th>Question</th><th>Answer</th><th>She chose</th><th>Time</th></tr></thead><tbody>${rows}</tbody></table></div>`:"";
+}
+async function openReport(){
+  show("s-grown");
+  const sess=S; const nDone=Object.keys(sess.lands).length;
+  const strong=[], next=[];
+  LANDS.forEach(L=>{ const ld=sess.lands[L.key]; if(!ld) return; const s=estimate(ld.items).secure; (s>=5?strong:next).push({L,s}); });
+  next.sort((a,b)=>a.s-b.s);
+  $("report").innerHTML=`
+    <div class="row" style="justify-content:space-between"><h2>For grown-ups</h2><button class="btn ghost" id="b-rback">Back to the map</button></div>
+    <p class="muted">${esc(sess.name||"Explorer")} has explored ${nDone} of 6 lands${sess.startedAt?`, started ${new Date(sess.startedAt).toLocaleDateString()}`:""}. Each land asks 5 questions that get harder after a right answer and easier after a miss, so she spends most of her time near the edge of what she knows. She never sees right or wrong marks.</p>
+    ${nDone?`<h3>At a glance</h3><ul>
+      ${strong.length?`<li><b>Strongest:</b> ${strong.map(x=>x.L.skill).join(", ")}</li>`:""}
+      ${next.length?`<li><b>Best places to practice first:</b> ${next.slice(0,3).map(x=>x.L.skill).join(", ")}</li>`:""}
+    </ul>`:""}
+    ${LANDS.map(L=>strandHTML(L,sess.lands[L.key])).join("")}
+    <p class="note">Levels are a quick screen from about 5 questions per area, not a formal test. One lucky guess or one slip can move a level, so treat it as a starting point and trust what you see when you work with her.</p>
+    <div class="row"><button class="btn" id="b-copy" style="font-size:17px;padding:10px 18px">Copy summary</button><span class="note" id="save-note"></span></div>
+    <textarea id="copybox" hidden readonly style="width:100%;min-height:140px;font:inherit;font-size:14px"></textarea>
+    <details><summary>Every question and answer</summary>${itemTable(sess)||'<p class="muted">No answers yet.</p>'}</details>
+    <details id="past"><summary>Earlier adventures</summary><div id="pastlist" class="muted">Loading…</div></details>`;
+  $("b-rback").onclick=()=>{ renderMap(); show("s-map"); };
+  $("b-copy").onclick=()=>{ const t=reportText(sess); const done=()=>{$("b-copy").textContent="Copied";};
+    try{ navigator.clipboard.writeText(t).then(done,()=>{ const b=$("copybox"); b.hidden=false; b.value=t; b.select(); }); }catch(e){ const b=$("copybox"); b.hidden=false; b.value=t; b.select(); } };
+  const db=await getDb();
+  $("save-note").textContent = db ? (lastSaved?`Results saved ${lastSaved.toLocaleTimeString()}.`:"Results save after each land.") : "Results are kept on this device only.";
+  if(!db){ $("pastlist").textContent="Earlier adventures show up here when you're signed in."; return; }
+  try{
+    const snap=await db.collection("sessions").orderBy("startedAt","desc").limit(10).get();
+    const rows=snap.docs.map(d=>d.data()).filter(x=>x && x.id!==sess.id);
+    $("pastlist").innerHTML = rows.length ? `<ul>${rows.map(x=>`<li>${new Date(x.startedAt).toLocaleDateString()}: ${esc(x.name||"Explorer")}, ${Object.keys(x.lands||{}).length} lands. ${LANDS.filter(L=>x.summary&&x.summary[L.key]).map(L=>`${L.skill} ${x.summary[L.key].secureLevel}/${TOP}`).join(", ")}</li>`).join("")}</ul>` : "This is the first adventure.";
+  }catch(e){ $("pastlist").textContent="Couldn't load earlier adventures right now."; }
+}
+
+// boot
+renderStart(); show("s-start");
+window.__G=G; window.__estimate=estimate; window.__LANDS=LANDS;
+})();
+</script>
+
+</body>
+</html>
