@@ -277,14 +277,21 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
     try { return (synth && synth.getVoices() || []).filter(v => /^en/i.test(v.lang)); } catch (e) { return []; }
   }
   function ranked() { return voices().map(v => ({ v, s: score(v) })).sort((a, b) => b.s - a.s).map(x => x.v); }
+  // iPad Safari hides the Premium/Enhanced voices you download from web pages and often lists
+  // only the robotic "Eloquence" voices. When nothing natural is listed, leave the voice unset so
+  // iOS uses its own default English voice instead of us picking a robot.
+  const NATURAL = 10;
   let chosen = null;
   function pick() {
     let pinned = null;
     try { pinned = localStorage.getItem('gfk-voice'); } catch (e) {}
     const list = ranked();
-    chosen = (pinned && list.find(v => v.voiceURI === pinned || v.name === pinned)) || list[0] || null;
+    if (pinned === 'default') return (chosen = null);
+    chosen = (pinned && list.find(v => v.voiceURI === pinned || v.name === pinned)) || auto(list);
     return chosen;
   }
+  function auto(list) { list = list || ranked(); return list[0] && score(list[0]) >= NATURAL ? list[0] : null; }
+  const quality = v => /premium/i.test(v.voiceURI + v.name) ? 'Premium' : /enhanced/i.test(v.voiceURI + v.name) ? 'Enhanced' : '';
   if (synth) { pick(); try { synth.addEventListener('voiceschanged', pick); } catch (e) {} }
 
   /* ---- recorded clips ---- */
@@ -340,7 +347,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
     try {
       if (!opts.queue) synth.cancel();
       const u = new SpeechSynthesisUtterance(String(text));
-      const v = chosen || pick();
+      const v = chosen;
       if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
       // A natural pitch: raised pitch is what made the old voice sound strained and creepy.
       u.rate = Math.min(1.05, Math.max(0.75, opts.rate || 0.92));
@@ -349,7 +356,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
     } catch (e) {}
   }
 
-  window.KidVoice = { speak, stop: () => { try { synth ? synth.cancel() : stopClips(); } catch (e) {} }, pick, ranked, score, current: () => chosen, key };
+  window.KidVoice = { speak, stop: () => { try { synth ? synth.cancel() : stopClips(); } catch (e) {} }, pick, auto, ranked, score, quality, current: () => chosen, key };
 })();
 </script>
 <script id="gfk-cards">
