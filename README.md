@@ -33,5 +33,14 @@ and 80 cards. The pack opening and the big binder viewer draw the card in WebGL 
 glitter, light rays and sparks), falling back to the CSS cards when WebGL is missing. Nothing is bought or lost. After editing `shared/cards.js`, run `python3 tools/sync-cards.py`
 to copy it into every page.
 
+## 3D art
+Fairy Lantern Festival is drawn in real 3D with Three.js (vendored in `shared/vendor/`, no network needed).
+Every model is built in code in one soft felt-toy style, so there are no image files or art licences to track:
+`shared/toy3d.js` is the shared kit (felt, gloss, metal and glass materials, fairies, fireflies, trees, mushrooms,
+a model baker and helpers that keep draw calls low for older iPads). The game's rules, touch, saves, voice and
+cards are unchanged; `math/fairy-lantern-festival/world3d.js` puts a 3D scene behind the page, keeps 3D fireflies,
+lanterns and fairies glued to their buttons, and bakes still things (jars, petals, cottage furniture from
+`decor3d.js`) into images. Add `?g3d=0` to the address to see the old 2D look.
+
 ## Reading
 Coming later.
