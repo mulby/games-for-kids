@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>The Wonder Shelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@600;800&display=swap">
+<style>
+/* Layout: a cozy wooden bookshelf. Each game is a storybook on a shelf; below, a card binder fills with everything she collects. */
+:root{
+  --wall:#f3e6cf; --wall-2:#ead6b3; --wood:#9a5f34; --wood-dark:#6d3f1f; --ink:#3a2a1f; --ink-soft:#7a6450;
+  --paper:#fffaf0; --gold:#e9b949; --rose:#d9577a; --sage:#5f9b7a; --sky:#5a77c9;
+  --display:"Grandstander","Trebuchet MS",system-ui,sans-serif; --body:"Andika","Trebuchet MS",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--wall);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.45;
+  background-image:radial-gradient(circle at 20% 10%,#fff6 0,transparent 40%),repeating-linear-gradient(90deg,transparent 0 46px,#0000000a 46px 48px)}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:22px 48px;display:flex;flex-direction:column;gap:26px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.1;text-wrap:balance}
+header{text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+header h1{font-size:clamp(38px,8vw,60px);color:var(--wood-dark)}
+header p{margin:0;color:var(--ink-soft);max-width:34em}
+.shelf{display:flex;flex-direction:column;gap:0}
+.books{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;padding:0 6px 14px}
+.plank{height:22px;border-radius:4px;background:linear-gradient(var(--wood),var(--wood-dark));box-shadow:0 8px 0 #0002}
+a.book{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink);background:var(--paper);border-radius:16px 16px 6px 6px;padding:16px 16px 14px;border-left:10px solid var(--c,var(--sage));box-shadow:0 6px 0 #0001,0 1px 0 #0001;transition:transform .12s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0}
+a.book:active{transform:translateY(3px) rotate(-.4deg)}
+a.book:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+.book .art{font-size:46px;line-height:1}
+.book h3{font-size:24px}
+.book p{margin:0;font-size:16px;color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;font-weight:700;background:var(--wall);border-radius:999px;padding:2px 10px}
+.play{margin-top:auto;align-self:flex-start;font-family:var(--display);font-weight:800;background:var(--gold);color:var(--ink);border-radius:12px;padding:8px 16px;box-shadow:0 4px 0 #b88a22}
+.book.check .play{background:#cfd9f5;box-shadow:0 4px 0 #8d9fd6}
+.binder{background:var(--paper);border-radius:20px;padding:20px;box-shadow:0 6px 0 #0001;display:flex;flex-direction:column;gap:14px}
+.binder .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.binder h2{font-size:30px;color:var(--wood-dark)}
+.count{font-weight:700;color:var(--ink-soft)}
+#groups{display:flex;flex-direction:column;gap:18px}
+.group h3{font-size:18px;margin-bottom:8px;color:var(--ink-soft)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.card{aspect-ratio:3/4;max-width:100%;border-radius:12px;background:#fff;border:3px solid var(--wall-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px;text-align:center;font-size:13px;font-weight:700;overflow:hidden;min-width:0}
+.card .e{font-size:34px;line-height:1}
+.card.rare{border-color:var(--sky);background:#eef2ff}
+.card.sparkly{border-color:var(--gold);background:linear-gradient(135deg,#fff7d6,#ffe1ec,#e0f2ff,#fff7d6);background-size:300% 300%;animation:shine 5s ease-in-out infinite}
+@keyframes shine{50%{background-position:100% 100%}}
+.empty{color:var(--ink-soft);margin:0}
+.note{font-size:14px;color:var(--ink-soft);text-align:center;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>The Wonder Shelf</h1>
+    <p>Pick a story to play. Every card you win in any game comes home to your binder below.</p>
+  </header>
+
+  <section class="shelf" aria-label="Games">
+    <div class="books" id="books"></div>
+    <div class="plank"></div>
+  </section>
+
+  <section class="binder" aria-label="My collection">
+    <div class="top"><h2>My Card Binder</h2><span class="count" id="count"></span></div>
+    <div id="groups"></div>
+  </section>
+
+  <p class="note">Grown-ups: start with The Moonlit Map. It's a gentle check of where she is, with a summary behind the "Grown-ups" button on its map.</p>
+</div>
+<script>
+(() => {
+const GAMES = [
+  {slug:"moonlit-map", title:"The Moonlit Map", art:"🗺️🐉", c:"#5a77c9", check:true, blurb:"Explore six lands with a dragon, unicorn, fox or owl friend. A gentle check of what she knows.", chips:["All skills","Start here"]},
+  {slug:"fairy-lantern-festival", title:"Fairy Lantern Festival", art:"🧚🏮", c:"#c56bb0", blurb:"Fill lanterns with fireflies to light the fairy queen's festival, then decorate Teapot Cottage.", chips:["Counting","Making ten","Teen numbers","Tens & ones"]},
+  {slug:"gemling-grids", title:"Gemling Grids", art:"💎🧩", c:"#3f9a8f", blurb:"Easy sudoku and sum puzzles with Nib the mole. Tuck sleepy crystal creatures into their nooks.", chips:["Logic puzzles","Adding","Missing numbers"]},
+  {slug:"egypt-puzzles", title:"Miu's Magic Pyramids", art:"🐈🔺", c:"#d39a2c", blurb:"Help Miu the temple cat rebuild magic pyramids where every stone adds the two below it.", chips:["Adding","Missing numbers","Puzzles"]},
+  {slug:"mouse-shop", title:"Acorn Bakery", art:"🐭🥐", c:"#b8784a", blurb:"Run a mouse bakery in Bramblewick Hollow and spend acorns on treasures for your mouse house.", chips:["Counting","Making 10","Adding","Taking away"]},
+  {slug:"pirate-voyage", title:"The Shining Sea", art:"🏴‍☠️⚡", c:"#2f6f9f", blurb:"Captain a ship around the islands of the Greek gods, solving their number riddles.", chips:["Adding","Taking away","Tens & ones","Equal sides"]}
+];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+document.getElementById("books").innerHTML = GAMES.map(g => `
+  <a class="book ${g.check?"check":""}" href="math/${g.slug}/index.html" style="--c:${g.c}">
+    <span class="art" aria-hidden="true">${g.art}</span>
+    <h3>${esc(g.title)}</h3>
+    <p>${esc(g.blurb)}</p>
+    <div class="chips">${g.chips.map(c=>`<span class="chip">${esc(c)}</span>`).join("")}</div>
+    <span class="play">${g.check?"Start the adventure":"Play"}</span>
+  </a>`).join("");
+
+let items = [];
+try { const v = JSON.parse(localStorage.getItem("gfk-collection") || "[]"); if (Array.isArray(v)) items = v.filter(x => x && typeof x === "object"); } catch (e) {}
+const seen = new Set(); items = items.filter(x => { const k = (x.game||"") + "/" + (x.id||x.name); if (seen.has(k)) return false; seen.add(k); return true; });
+document.getElementById("count").textContent = items.length ? `${items.length} card${items.length===1?"":"s"} collected` : "";
+const groups = document.getElementById("groups");
+if (!items.length) {
+  groups.innerHTML = `<p class="empty">Your binder is waiting for its first card. Win one in any game and it will appear here.</p>`;
+} else {
+  const order = {sparkly:0, rare:1, common:2};
+  groups.innerHTML = GAMES.concat([{slug:"__other", title:"Other treasures"}]).map(g => {
+    const mine = items.filter(x => g.slug==="__other" ? !GAMES.some(G=>G.slug===x.game) : x.game===g.slug)
+      .sort((a,b)=>(order[a.rarity]??3)-(order[b.rarity]??3));
+    if (!mine.length) return "";
+    return `<div class="group"><h3>${esc(g.title)} · ${mine.length}</h3><div class="cards">${mine.map(x=>`<div class="card ${["rare","sparkly"].includes(x.rarity)?x.rarity:""}" title="${esc(x.name||"")}"><span class="e">${esc(x.emoji||"⭐")}</span><span>${esc(x.name||"Card")}</span></div>`).join("")}</div></div>`;
+  }).join("");
+}
+})();
+</script>
+</body>
+</html>
