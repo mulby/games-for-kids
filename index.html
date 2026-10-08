@@ -62,6 +62,19 @@ a.book:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
 #cards>button:focus-visible{outline:3px solid var(--sky);outline-offset:3px;border-radius:12px}
 .empty{color:var(--ink-soft);margin:0}
 .note{font-size:14px;color:var(--ink-soft);text-align:center;margin:0}
+.path{background:var(--paper);border-radius:20px;padding:16px 18px;box-shadow:0 6px 0 #0001;display:flex;gap:14px;align-items:center}
+.path .av{font-size:52px;line-height:1;flex:none}
+.path .say{display:flex;flex-direction:column;gap:6px;min-width:0}
+.path .say > b{font-family:var(--display);font-size:22px;color:var(--wood-dark);line-height:1.15}
+.path .say > span{color:var(--ink-soft);font-size:16px}
+.path details{font-size:14px;color:var(--ink-soft);text-align:left}
+.path details b{color:var(--ink)}
+.path details summary{cursor:pointer;font-weight:700}
+.path details ul{margin:6px 0 0;padding-left:18px}
+a.book{position:relative}
+a.book.pick{box-shadow:0 0 0 4px var(--gold),0 6px 0 #0001}
+.ribbon{position:absolute;top:-10px;right:12px;background:var(--gold);color:var(--ink);font-family:var(--display);font-weight:800;font-size:14px;padding:4px 10px;border-radius:8px;box-shadow:0 3px 0 #b88a22}
+@media (max-width:480px){.path{flex-direction:column;text-align:center}}
 .voicepick{font-size:15px;color:var(--ink-soft);text-align:center}
 .voicepick summary{cursor:pointer;font-weight:700}
 .voicepick .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:10px}
@@ -973,6 +986,8 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
     <p>Pick a story to play. Every card you win in any game comes home to your binder below.</p>
   </header>
 
+  <section class="path" id="path" aria-live="polite" hidden></section>
+
   <section class="shelf" aria-label="Games">
     <div class="books" id="books"></div>
     <div class="plank"></div>
@@ -986,7 +1001,7 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
     <div id="cards"></div>
   </section>
 
-  <p class="note">Grown-ups: start with The Moonlit Map. It's a gentle check of where she is, with a summary behind the "Grown-ups" button on its map.</p>
+  <p class="note">Grown-ups: The Moonlit Map is a gentle check of where she is. Once she has explored some of it, the shelf puts the games that fit her next steps first. There is a full summary behind the "Grown-ups" button on its map.</p>
   <details class="voicepick" id="voicepick">
     <summary>Grown-ups: choose the reading voice</summary>
     <div class="row"><select id="voiceSel" aria-label="Reading voice"></select><button type="button" id="voiceHear">Hear it</button></div>
@@ -1004,14 +1019,97 @@ const GAMES = [
   {slug:"pirate-voyage", title:"The Shining Sea", art:"🏴‍☠️⚡", c:"#2f6f9f", blurb:"Captain a ship around the islands of the Greek gods, solving their number riddles.", chips:["Adding","Taking away","Tens & ones","Equal sides"]}
 ];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-document.getElementById("books").innerHTML = GAMES.map(g => `
-  <a class="book ${g.check?"check":""}" href="math/${g.slug}/index.html" style="--c:${g.c}">
+// Her path: read The Moonlit Map's results (same origin) and put the games that fit her next steps first.
+// Moonlit levels per strand: 1 kindergarten-early 1st, 2 end of 1st, 3 early 2nd, 4 mid 2nd, 5 end of 2nd, 6 3rd grade.
+const STRANDS = {
+  N:{name:"Number sense", next:["counting to 10 and comparing small numbers","counting to 20 and what comes next","comparing 2-digit numbers","skip-counting by 5s and 10s","comparing 3-digit numbers","rounding"]},
+  P:{name:"Tens and ones", next:["teen numbers as a ten and some ones","reading tens and ones","what each digit is worth","3-digit numbers","10 more and 10 less","putting numbers back together"]},
+  A:{name:"Adding", next:["adding within 5","adding within 10","adding within 20 and making ten","adding 2-digit numbers","adding with regrouping","adding 3-digit numbers"]},
+  S:{name:"Taking away", next:["taking away within 5","taking away within 10","taking away within 20","subtracting 2-digit numbers","subtracting with regrouping","subtracting across a zero"]},
+  M:{name:"Equal groups", next:["doubles","counting by 2s","equal groups","×2, ×5 and ×10","×3 and ×4","harder facts and sharing"]},
+  F:{name:"Fractions, time and money", next:["counting pennies","halves and o'clock","half past and dimes","coins and fourths","time to 5 minutes","fractions of a group and change"]}
+};
+// Which next-step levels (1-6, the level she is working toward) each game practices.
+const FITS = {
+  "fairy-lantern-festival": {N:[1,3], P:[1,3], A:[1,3]},
+  "mouse-shop": {N:[1,2], A:[1,3], S:[1,3], F:[1,1]},
+  "pirate-voyage": {A:[2,3], S:[2,3], P:[1,3]},
+  "egypt-puzzles": {A:[2,4], S:[3,4]},
+  "gemling-grids": {A:[1,4], S:[3,4]}
+};
+const PAL_E = ["🐉","🦄","🦊","🦉"];
+function secureLevel(items) {
+  const by = {}; for (let l = 1; l <= 6; l++) by[l] = {c:0, n:0};
+  items.forEach(it => { if (by[it.level]) { by[it.level].n++; if (it.correct) by[it.level].c++; } });
+  let secure = 0;
+  for (let L = 1; L <= 6; L++) {
+    if (!by[L].c) continue;
+    let ok = true; for (let l = 1; l <= L; l++) if (by[l].n && by[l].c / by[l].n < 0.5) ok = false;
+    if (ok) secure = L;
+  }
+  return secure;
+}
+function readMap() {
+  let m = null;
+  try { m = JSON.parse(localStorage.getItem("moonlit-map-v2")); } catch (e) {}
+  if (!m || typeof m !== "object" || !m.lands) return null;
+  const levels = {};
+  for (const k of Object.keys(STRANDS)) { const ld = m.lands[k]; if (ld && Array.isArray(ld.items) && ld.items.length) levels[k] = secureLevel(ld.items); }
+  return { name: m.name || "", pal: PAL_E[m.pal] || "🐉", palName: m.palName || "Ember", levels, done: Object.keys(levels).length };
+}
+function recommend(map) {
+  const scored = Object.entries(FITS).map(([slug, fit]) => {
+    let score = 0; const why = [];
+    for (const [k, [lo, hi]] of Object.entries(fit)) {
+      if (!(k in map.levels)) continue;
+      const next = map.levels[k] + 1;
+      if (next >= lo && next <= hi) { score += 7 - map.levels[k]; why.push(STRANDS[k].next[next - 1]); }
+    }
+    return { slug, score, why };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+  return scored.slice(0, 2);
+}
+const listJoin = a => a.length < 2 ? (a[0] || "") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+function renderPath() {
+  const map = readMap(), box = document.getElementById("path");
+  const picks = map && map.done ? recommend(map) : [];
+  const pickSet = new Map(picks.map((p, i) => [p.slug, i]));
+  const shown = GAMES.slice().sort((a, b) => {
+    const ra = pickSet.has(a.slug) ? pickSet.get(a.slug) : 99, rb = pickSet.has(b.slug) ? pickSet.get(b.slug) : 99;
+    if (ra !== rb) return ra - rb;
+    if (map && map.done === 6) return (a.check ? 1 : 0) - (b.check ? 1 : 0);
+    return 0;
+  });
+  document.getElementById("books").innerHTML = shown.map(g => `
+  <a class="book ${g.check?"check":""} ${pickSet.has(g.slug)?"pick":""}" href="math/${g.slug}/index.html" style="--c:${g.c}">
+    ${pickSet.has(g.slug)?`<span class="ribbon">${map.pal} Picked for you</span>`:""}
     <span class="art" aria-hidden="true">${g.art}</span>
     <h3>${esc(g.title)}</h3>
     <p>${esc(g.blurb)}</p>
     <div class="chips">${g.chips.map(c=>`<span class="chip">${esc(c)}</span>`).join("")}</div>
-    <span class="play">${g.check?"Start the adventure":"Play"}</span>
+    <span class="play">${g.check ? (map && map.done ? (map.done < 6 ? "Keep exploring" : "Explore again") : "Start the adventure") : "Play"}</span>
   </a>`).join("");
+  if (!map || !map.done) {
+    box.innerHTML = `<div class="av" aria-hidden="true">🗺️</div><div class="say"><b>Start with The Moonlit Map!</b><span>Walk the map with your animal friend, and they'll pick the best games for you.</span></div>`;
+    box.hidden = false; return;
+  }
+  const who = map.name ? `, ${esc(map.name)}` : "";
+  const titles = picks.map(p => GAMES.find(g => g.slug === p.slug).title);
+  const head = picks.length ? `${esc(map.palName)} picked ${esc(listJoin(titles))} for you${who}!` : `Every game on the shelf is ready for you${who}!`;
+  const sub = map.done < 6 ? `There are still ${6 - map.done} dark lands on The Moonlit Map. Exploring them helps ${esc(map.palName)} choose even better.` : "Play any game you like. The starred ones fit you best right now.";
+  const rows = Object.entries(STRANDS).filter(([k]) => k in map.levels).map(([k, st]) => {
+    const lv = map.levels[k];
+    return `<li><b>${st.name}:</b> ${lv >= 6 ? "strong at every level checked" : "next step is " + st.next[lv]}</li>`;
+  }).join("");
+  const why = picks.map(p => `<li><b>${esc(GAMES.find(g => g.slug === p.slug).title)}</b> practices ${esc(p.why.join(", "))}.</li>`).join("");
+  const gaps = ["M", "F"].filter(k => k in map.levels && map.levels[k] < 3).map(k => STRANDS[k].name.toLowerCase());
+  box.innerHTML = `<div class="av" aria-hidden="true">${map.pal}</div><div class="say"><b>${head}</b><span>${sub}</span>
+    <details><summary>Grown-ups: why these games</summary><ul>${why}${rows}</ul>${gaps.length ? `<p>No game practices ${esc(listJoin(gaps))} yet.</p>` : ""}</details></div>`;
+  box.hidden = false;
+}
+renderPath();
+window.addEventListener("storage", e => { if (!e.key || e.key === "moonlit-map-v2") renderPath(); });
+window.addEventListener("gfk-saves-changed", renderPath);
 
 // The binder: every card from every game, filterable, tap any card to flip through them big.
 const C = window.GFKCards, $ = id => document.getElementById(id);
