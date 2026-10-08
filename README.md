@@ -17,5 +17,11 @@ Open `index.html` (The Wonder Shelf) to pick a game. Every collectible card a ga
 
 Each game is one self-contained `index.html` that saves progress in localStorage and has a press-and-hold "Grown-ups" view.
 
+## Voice
+All games read aloud through one shared helper, `shared/voice.js` (copied into each game by `python3 tools/sync-voice.py`, so edit the shared file and re-run that).
+It picks the most natural voice the device has (Premium or Enhanced iPad voices first), and a grown-up can pin a voice on The Wonder Shelf.
+For recorded voices: `python3 tools/collect-voice-lines.py` lists the lines, then `ELEVENLABS_API_KEY=... node tools/make-voice-clips.mjs <voice_id>`
+records them into `voice/`. The games play those clips when they exist and fall back to the device voice for anything not recorded.
+
 ## Reading
 Coming later.

@@ -1,0 +1,268 @@
+that place is still far up the river	That place is still far up the river.
+let's finish	Let's finish
+hello i'm miu the temple cat	Hello, I'm Miu, the temple cat!
+a sandstorm knocked stones off pharaoh's pyramids	A sandstorm knocked stones off Pharaoh's pyramids.
+in a magic pyramid the two stones underneath add up to the stone on top	In a magic pyramid, the two stones underneath add up to the stone on top.
+and	and
+make	make...
+how many	how many?
+tap the right blue stone	Tap the right blue stone!
+now tap the empty stone where it goes	Now tap the empty stone where it goes.
+ten	Ten!
+five	Five!
+not sleepy	Not sleepy!
+one hundred	One hundred!
+lanterns with lanterns fireflies with fireflies	Lanterns with lanterns, fireflies with fireflies.
+you found	You found
+a full ten	A full ten!
+pick a treasure	Pick a treasure!
+the	The
+it's waiting in the cottage basket	It's waiting in the cottage basket.
+tap the moon to begin	Tap the moon to begin.
+welcome back	Welcome back!
+is waiting for you	is waiting for you.
+hello	Hello!
+welcome to the fairy lantern festival	Welcome to the Fairy Lantern Festival!
+meet your lamplighter fairy	Meet your lamplighter fairy!
+pick her wings and her hair	Pick her wings and her hair.
+what is her name	What is her name?
+tap a star to hear each name	Tap a star to hear each name.
+let's finish tonight's lanterns first	Let's finish tonight's lanterns first!
+sound on	Sound on!
+you have	You have
+more petals to the next treasure	more petals to the next treasure!
+opens after	opens after
+festival nights	festival nights.
+this is the teapot cottage	This is the Teapot Cottage!
+fill the petal jar to earn treasures for it	Fill the petal jar to earn treasures for it.
+welcome to	Welcome to
+'s teapot cottage	's Teapot Cottage!
+my glow number is	My glow number is
+line them up	Line them up!
+put the sprites in order	Put the sprites in order.
+smallest glow number first	Smallest glow number first.
+try the bouncing one	Try the bouncing one!
+this lantern needs 7 fireflies	This lantern needs 7 fireflies.
+can you light it	Can you light it?
+tuck in the sleepy gemlings	Tuck in the sleepy Gemlings!
+let's finish this wall	Let's finish this wall!
+almost	Almost!
+a few gemlings want to swap	A few Gemlings want to swap.
+the lantern can help	The lantern can help!
+the whole wall is glowing	The whole wall is glowing!
+a geode	A geode!
+tap it three times	Tap it three times!
+a rare	A rare
+was hiding inside	was hiding inside!
+your glowing walls made the caves so cozy	Your glowing walls made the caves so cozy.
+nib got a	Nib got a
+yawn	*Yawn!
+the caves are glowing so bright	* The caves are glowing so bright!
+want to rest or keep exploring	Want to rest or keep exploring?
+sweet dreams gemlings	Sweet dreams, Gemlings!
+come back any time	Come back any time.
+the caves will be glowing	The caves will be glowing.
+your wall is waiting	Your wall is waiting!
+tap explore to finish tucking in the gemlings	Tap Explore to finish tucking in the Gemlings.
+look	Look!
+a new light in	A new light in
+ready to explore	Ready to explore?
+sparkle number	Sparkle number
+line up	Line-Up!
+put the cards in order from the fewest sparkles to the most	Put the cards in order, from the fewest sparkles to the most.
+from fewest to most	From fewest to most!
+you earned a	You earned a
+sticker for your binder	sticker for your binder!
+hmm a couple of cards want to swap	Hmm, a couple of cards want to swap.
+look at their sparkle numbers	Look at their sparkle numbers.
+this is how fast i talk	This is how fast I talk.
+that gemling is sleeping in stone	That Gemling is sleeping in stone.
+try an empty nook	Try an empty nook!
+drag	Drag
+from the tray or tap it and then tap here	from the tray, or tap it and then tap here.
+a	A
+tap a spot on the shelf	Tap a spot on the shelf.
+i'm nib the new nook keeper	I'm Nib, the new Nook Keeper.
+last night the mountain gave a big sleepy sneeze and the gemlings tumbled out of their nooks	Last night the Mountain gave a big sleepy sneeze, and the Gemlings tumbled out of their nooks.
+can you help me tuck them back in	Can you help me tuck them back in?
+this gemling is still hiding in a geode	This Gemling is still hiding in a geode.
+keep lighting walls to find it	Keep lighting walls to find it!
+you found the	You found the
+welcome to your very own bakery in bramblewick hollow	Welcome to your very own bakery in Bramblewick Hollow.
+the animals of the hedgerow are hungry	The animals of the hedgerow are hungry.
+let's open the shop	Let's open the shop!
+here reward 1	Here ${reward === 1 ?
+'is 1 acorn'	'is 1 acorn' :
+new card for your album	New card for your album!
+wow	Wow!
+a sparkly card	A sparkly card!
+gave you a sparkly card	gave you a sparkly card!
+new kinds of customers are coming to your bakery	New kinds of customers are coming to your bakery!
+let's look at my order together	Let's look at my order together.
+fill up each empty spot	Fill up each empty spot!
+tap the	Tap the
+on the shelf to put them in the basket	on the shelf to put them in the basket!
+let's count the	Let's count the
+in the basket	in the basket.
+here i'll show you where each one goes	Here, I'll show you where each one goes.
+it's full	It's full!
+thank you	Thank you!
+did you put in	did you put in?
+let's peek inside the box	Let's peek inside the box!
+count the empty spaces	Count the empty spaces.
+here's a peek inside the box	Here's a peek inside the box.
+on the shelf to put them in the box until there are no empty spaces	on the shelf to put them in the box, until there are no empty spaces.
+let's count the dots on the price tags together	Let's count the dots on the price tags together.
+so it's	So it's
+acorns altogether	acorns altogether!
+fill up each empty spot with an acorn	Fill up each empty spot with an acorn.
+here are dots to help	Here are dots to help.
+count them all	Count them all!
+count all the dots on the price tags	Count all the dots on the price tags.
+start with the first tag then keep going	Start with the first tag, then keep going!
+only costs	only costs
+now the rest go back to me	Now the rest go back to me.
+how many acorns go back	How many acorns go back?
+acorns go in the till for the	acorns go in the till for the
+now count the ones that are left	Now count the ones that are left.
+tap the acorns to move them into the till one at a time	Tap the acorns to move them into the till, one at a time.
+stop at	Stop at
+i put	I put
+in the till for the	in the till for the
+count the acorns that are left	Count the acorns that are left!
+those go back	Those go back!
+the bakery is closed for today	The bakery is closed for today!
+you helped	You helped
+customers and earned	customers and earned
+acorns	acorns.
+now you have	Now you have
+acorns to spend on your mouse house	acorns to spend on your mouse house.
+this is your mouse house	This is your mouse house!
+it's a bit empty	It's a bit empty.
+use your acorns to make it cozy	Use your acorns to make it cozy.
+you can drag your treasures to move them anywhere you like	You can drag your treasures to move them anywhere you like!
+costs	costs
+open the bakery to earn	Open the bakery to earn
+more	more!
+loves	loves
+you have helped	You have helped
+these are your friend cards	These are your friend cards.
+every animal you help at the bakery gives you a card	Every animal you help at the bakery gives you a card.
+some rare cards and sparkly cards are very hard to find	Some rare cards and sparkly cards are very hard to find!
+what's your name captain	What's your name, Captain?
+and what shall we call our ship	And what shall we call our ship?
+that's the most gold the forge can hold	That's the most gold the forge can hold!
+ten coins	Ten coins!
+hephaestus melts them into one gold bar	Hephaestus melts them into one gold bar!
+you need	You need
+more gold coins for that	more gold coins for that.
+solve some puzzles to earn more	Solve some puzzles to earn more!
+nine bars is all the forge can hold	Nine bars is all the forge can hold!
+0	0
+1	1
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+11	11
+12	12
+13	13
+14	14
+15	15
+16	16
+17	17
+18	18
+19	19
+20	20
+21	21
+22	22
+23	23
+24	24
+25	25
+26	26
+27	27
+28	28
+29	29
+30	30
+31	31
+32	32
+33	33
+34	34
+35	35
+36	36
+37	37
+38	38
+39	39
+40	40
+41	41
+42	42
+43	43
+44	44
+45	45
+46	46
+47	47
+48	48
+49	49
+50	50
+51	51
+52	52
+53	53
+54	54
+55	55
+56	56
+57	57
+58	58
+59	59
+60	60
+61	61
+62	62
+63	63
+64	64
+65	65
+66	66
+67	67
+68	68
+69	69
+70	70
+71	71
+72	72
+73	73
+74	74
+75	75
+76	76
+77	77
+78	78
+79	79
+80	80
+81	81
+82	82
+83	83
+84	84
+85	85
+86	86
+87	87
+88	88
+89	89
+90	90
+91	91
+92	92
+93	93
+94	94
+95	95
+96	96
+97	97
+98	98
+99	99
+100	100
+plus	plus
+minus	minus
+equals	equals
+makes	makes
+is	is
+take away	take away
+times	times

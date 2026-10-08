@@ -11,7 +11,7 @@
 
    First load with the db migrates whatever is already in localStorage up to it. */
 (function () {
-  const COL = "saves", META = "gfk-sync-meta", BIG = 240 * 1024;
+  const COL = "saves", META = "gfk-sync-meta", BIG = 240 * 1024, GONE = "reset";
   const skip = k => !k || k === META || k.startsWith("gfk-sync") || k.endsWith(".conflict-backup") || k.length > 150;
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -44,7 +44,8 @@
   async function writeKey(k) {
     const ref = db.collection(COL).doc(docId(k));
     const v = ls.get(k);
-    if (v == null) { if (meta[k] !== undefined) { await ref.delete(); delete meta[k]; } return; }
+    // A removed key leaves a tombstone, so another device's old copy can't bring it back.
+    if (v == null) { if (meta[k] !== undefined && meta[k] !== GONE) { await ref.set({ key: k, value: null, deleted: true, hash: GONE, updatedAt: Date.now() }); meta[k] = GONE; } return; }
     const h = hash(v);
     if (h === meta[k] || v.length > BIG) return;
     await ref.set({ key: k, value: v, hash: h, updatedAt: Date.now() });
@@ -76,11 +77,16 @@
   async function hydrate() {
     const snap = await db.collection(COL).limit(1000).get();
     const remote = {};
-    for (const d of snap.docs) { const v = d.data(); if (v && typeof v.key === "string" && typeof v.value === "string") remote[v.key] = v; }
+    for (const d of snap.docs) { const v = d.data(); if (v && typeof v.key === "string" && (typeof v.value === "string" || v.deleted)) remote[v.key] = v; }
     let touched = false;
     for (const k of new Set(Object.keys(remote).concat(ls.keys()))) {
       if (skip(k)) continue;
       const r = remote[k], l = ls.get(k);
+      if (r && r.deleted) {                                            // reset on some device
+        if (meta[k] !== GONE) { if (l != null) { try { localStorage.removeItem(k); } catch (e) {} touched = true; } meta[k] = GONE; }
+        else if (l != null) pending.add(k);                            // played again here since the reset
+        continue;
+      }
       const lh = l == null ? null : hash(l), rh = r ? hash(r.value) : null, m = meta[k];
       if (!r) { if (l != null) pending.add(k); continue; }           // only here: upload (migration)
       if (lh === rh) { meta[k] = rh; continue; }                       // already in step
@@ -170,5 +176,19 @@
   }
   if (document.body) wire(); else document.addEventListener("DOMContentLoaded", wire);
 
-  window.SaveSync = { ready, flush: () => queue("", true), close, play, docId };
+  /* Grown-ups' reset: forget a game's save keys and its cards in the binder, here and in the db. */
+  function reset(keys, game) {
+    for (const k of keys) { try { localStorage.removeItem(k); } catch (e) {} if (meta[k] === undefined) meta[k] = "local"; pending.add(k); }
+    const cards = ls.get("gfk-collection");
+    if (cards != null) {
+      let list = []; try { list = JSON.parse(cards) || []; } catch (e) {}
+      if (!Array.isArray(list)) list = [];
+      const kept = game ? list.filter(c => !c || c.game !== game) : [];
+      if (kept.length) ls.set("gfk-collection", JSON.stringify(kept)); else { try { localStorage.removeItem("gfk-collection"); } catch (e) {} if (meta["gfk-collection"] === undefined) meta["gfk-collection"] = "local"; }
+      pending.add("gfk-collection");
+    }
+    saveMeta(); changed(); queue("", true);
+  }
+
+  window.SaveSync = { ready, flush: () => queue("", true), close, play, reset, docId };
 })();
