@@ -900,6 +900,33 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
   window.GFKCards = { collect, face, locked, view, openPacks, list, SETS, CROWNS, CHARMS, TIERS, TIER_NAME, pending: () => queue.length };
 })();
 </script>
+<style id="g3dstyle">
+/* ===== 3D world (body.g3d is set only when the 3D module starts; see world3d.js) ===== */
+#gl3d{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;display:block;z-index:0}
+body.g3d .wrap{position:relative;z-index:1}
+body.g3d .sky-title .moon{background:none;box-shadow:none}
+body.g3d .sky-title h1{text-shadow:0 3px 0 #0006,0 0 22px #10133a}
+body.g3d .sky-title p{color:#e6e8fb;text-shadow:0 1px 3px #000d,0 0 12px #10133a}
+body.g3d .map>svg{display:none}
+body.g3d .land .isle{background:none;border-color:transparent;box-shadow:none;font-size:0;animation:none;width:86px;height:86px}
+body.g3d .land .nm{background:rgba(20,24,64,.74);padding:3px 11px;border-radius:999px;text-shadow:none;box-shadow:0 2px 8px #0005}
+body.g3d .land.done .nm{background:rgba(110,72,8,.82)}
+body.g3d .land .gem{background:rgba(20,24,64,.74);color:#ffe08a;padding:1px 9px;border-radius:999px;font-size:12px;white-space:nowrap;line-height:1.5}
+body.g3d .btn.sky{background:rgba(22,26,66,.74);border-color:#ffffff55;color:#e6e8fb}
+body.g3d .pal-say .av{font-size:0;width:68px;height:76px}
+body.g3d .qhead h2{text-shadow:0 2px 6px #000c}
+body.g3d .pebbles i{background:rgba(20,24,64,.6)}
+body.g3d img.g3i{display:block;pointer-events:none;-webkit-user-drag:none;user-select:none}
+body.g3d .pal .e img{width:78px;height:85px;margin:-6px 0 -4px}
+body.g3d #in-hero img{width:160px;height:150px}
+body.g3d #d-gem img{width:140px;height:140px}
+body.g3d #f-hero img{width:130px;height:142px}
+body.g3d .objs span{display:block}
+body.g3d .objs img{width:40px;height:40px}
+body.g3d .basket img{width:28px;height:28px}
+body.g3d .coin{text-shadow:0 1px 0 #fff9}
+</style>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 </head>
 <body>
 <title>The Moonlit Map</title>
@@ -1559,6 +1586,11 @@ async function openReport(){
 renderStart(); show("s-start");
 window.__G=G; window.__estimate=estimate; window.__LANDS=LANDS;
 })();
+</script>
+
+<script type="module" id="gl3d-loader">
+/* Load the 3D world unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
 </script>
 
 </body>
