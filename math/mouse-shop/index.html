@@ -194,6 +194,28 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
 .fcard.lvl3{border-color:#e8b04b;box-shadow:0 4px 0 #e2cba3,0 0 0 4px #ffe7a8}
 .fcard.unmet .e{filter:brightness(0);opacity:.15}
 .fcard.unmet .n{color:#c9b394}
+.fcard{position:relative;aspect-ratio:5/7;justify-content:space-between;border-color:#ead9bb;padding:8px}
+.fcard .no{position:absolute;top:6px;left:8px;font-size:12px;color:var(--soft);font-weight:600}
+.fcard .rar{position:absolute;top:5px;right:8px;font-size:12px}
+.fcard .pic{flex:1;width:100%;border-radius:12px;background:radial-gradient(circle at 50% 60%,#fff8e6,#f1dfbd);display:flex;align-items:center;justify-content:center;margin-top:14px}
+.fcard.rare .pic{background:radial-gradient(circle at 50% 60%,#fff,#ead7f7)}
+.fcard .fav{font-size:12px;color:var(--soft)}
+.fcard.shiny{border-color:#f0c4ec;background:linear-gradient(115deg,#fff 15%,#ffd6f5 30%,#d6efff 45%,#fff3c4 60%,#e3ffd9 75%,#fff 90%);background-size:300% 300%;animation:holo 3.5s linear infinite}
+.fcard.shiny .pic{background:transparent}
+.fcard.shiny:after{content:"✨";position:absolute;bottom:4px;right:6px;font-size:16px}
+@keyframes holo{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+#reveal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#3a2a1c99;perspective:900px}
+#reveal.on{display:flex}
+#reveal .fcard{width:min(56vmin,300px);font-size:1.4em;animation:flip .9s cubic-bezier(.3,1.4,.5,1)}
+#reveal .fcard.shiny{animation:flip .9s cubic-bezier(.3,1.4,.5,1),holo 3.5s linear infinite}
+#reveal .fcard .e{font-size:min(24vmin,140px)}
+#reveal .fcard .n{font-size:clamp(20px,3vw,28px)}
+#reveal .fcard .fav,#reveal .fcard .no,#reveal .fcard .rar{font-size:16px}
+#reveal .msg{color:#fff;font-size:clamp(22px,3.4vw,38px);font-weight:600;text-align:center;text-shadow:0 2px 0 #0005}
+@keyframes flip{0%{transform:rotateY(180deg) scale(.4)}100%{transform:rotateY(0) scale(1)}}
+.decor{touch-action:none;z-index:2}
+.decor.drag{filter:drop-shadow(0 12px 6px #0004);z-index:5;transition:none}
+@media (prefers-reduced-motion:reduce){.fcard.shiny,#reveal .fcard{animation:none}}
 
 /* ---------- grown ups ---------- */
 #grown{padding:20px;overflow:auto;gap:14px;align-items:center}
@@ -241,7 +263,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
     <div class="buttons">
       <button class="btn berry" id="openBtn">🧁 Open the bakery</button>
       <button class="btn sage" id="homeBtn">🏡 My mouse house</button>
-      <button class="btn" id="albumBtn">📖 Friends album</button>
+      <button class="btn" id="albumBtn">🃏 Friend cards</button>
     </div>
     <button id="grownBtn">Grown-ups</button>
   </section>
@@ -310,7 +332,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
     <div class="stars" id="deStars"></div>
     <div class="big" id="deText"></div>
     <div class="row">
-      <button class="btn" id="deAlbum">📖 Album</button>
+      <button class="btn" id="deAlbum">🃏 My cards</button>
       <button class="btn sage" id="deHome">🏡 Go home</button>
       <button class="btn berry" id="deAgain">🧁 Another day</button>
     </div>
@@ -331,7 +353,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
   <section id="album" class="screen">
     <div class="topbar">
       <button class="iconbtn" id="albumBack" aria-label="Back">⬅️</button>
-      <div style="font-size:clamp(18px,2.4vw,28px);font-weight:600">📖 Friends album</div>
+      <div style="font-size:clamp(18px,2.4vw,28px);font-weight:600">📖 Friend cards</div>
       <div class="pursebox" id="albumCount"></div>
     </div>
     <div class="albumgrid" id="albumGrid"></div>
@@ -354,6 +376,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
   </section>
 </div>
 <div id="toast"></div>
+<div id="reveal"><div class="msg"></div><div class="slot-card"></div><div class="msg" style="font-size:18px;font-weight:400">tap to keep it</div></div>
 
 <script>
 "use strict";
@@ -383,15 +406,15 @@ const CUSTOMERS = [
   { e: '🐿️', name: 'Old Hazel', hi: ['Ahh, it smells lovely in here!'], bye: 'Splendid, simply splendid.' },
   { e: '🐦', name: 'Wren', hi: ['Tweet! Hello!'], bye: 'Tweet tweet, thank you!' },
   { e: '🐸', name: 'Toadflax', hi: ['Ribbit! Good day!'], bye: 'Ribbit-tastic!' },
-  { e: '🦉', name: 'Professor Hoot', hi: ['Hoo! Good evening... er, morning!'], bye: 'Most excellent work.' },
+  { e: '🦉', name: 'Professor Hoot', unc: true, hi: ['Hoo! Good evening... er, morning!'], bye: 'Most excellent work.' },
   { e: '🐞', name: 'Dot', hi: ['Hi hi hi!'], bye: 'You are the best baker!' },
   { e: '🐌', name: 'Shelly Snail', hi: ['I came as fast as I could!'], bye: 'Worth the long trip!' },
   { e: '🐝', name: 'Bumble', hi: ['Bzzz! Hello, baker!'], bye: 'Bzzz-utiful!' },
-  { e: '🦊', name: 'Sir Russet', hi: ['A fine day for baking, friend!'], bye: 'My thanks, good baker!' },
+  { e: '🦊', name: 'Sir Russet', unc: true, hi: ['A fine day for baking, friend!'], bye: 'My thanks, good baker!' },
   { e: '🐢', name: 'Grandpa Moss', hi: ['Hello there, young baker.'], bye: 'Lovely. Just lovely.' },
   { e: '🐁', name: 'Cousin Thimble', hi: ["Hiya! It's me!"], bye: 'Yum yum yum!' },
-  { e: '🦋', name: 'Flutter', hi: ['Hello from the meadow!'], bye: 'How magical!' },
-  { e: '🐓', name: 'Mother Hen', hi: ['Cluck! My chicks are hungry!'], bye: 'Cluck cluck, thank you!' },
+  { e: '🦋', name: 'Flutter', unc: true, hi: ['Hello from the meadow!'], bye: 'How magical!' },
+  { e: '🐓', name: 'Mother Hen', unc: true, hi: ['Cluck! My chicks are hungry!'], bye: 'Cluck cluck, thank you!' },
 ];
 const RARE = [
   { e: '🦄', name: 'Moonbeam the Unicorn', hi: ['Oh! I followed the smell of baking all the way from the moon meadow!'], bye: 'Magical! Simply magical!', rare: true },
@@ -402,6 +425,34 @@ const RARE = [
   { e: '🧚', name: 'Thistle the Fairy', hi: ['Shh, fairies do not usually let mice see them!'], bye: 'A sprinkle of thanks for you!', rare: true },
 ];
 const ALL_FRIENDS = CUSTOMERS.concat(RARE);
+function rarityOf(c) { return c.rare ? 'rare' : c.unc ? 'uncommon' : 'common'; }
+function favOf(c) { let h = 0; for (const ch of c.name) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return GOODS[h % GOODS.length]; }
+function cardHTML(c, n, shiny) {
+  const i = ALL_FRIENDS.indexOf(c) + 1, lv = n >= 6 ? 3 : n >= 3 ? 2 : n ? 1 : 0, r = rarityOf(c);
+  return `<button class="fcard ${n ? '' : 'unmet'} ${c.rare ? 'rare' : ''} ${shiny ? 'shiny' : ''} lvl${lv}" data-n="${c.name}">
+    <span class="no">#${String(i).padStart(2, '0')}</span><span class="rar">${r === 'rare' ? '💎' : r === 'uncommon' ? '🔷' : '⚪'}</span>
+    <span class="pic"><span class="e">${c.e}</span></span><span class="n">${n ? c.name : (c.rare ? '✨ rare ✨' : '???')}</span>
+    <span class="fav">${n ? `loves ${favOf(c).e}` : '&nbsp;'}</span><span class="st">${n ? '⭐'.repeat(lv) : ''}</span></button>`;
+}
+function addToShared(c, sparkly) {
+  try {
+    const key = 'gfk-collection', list = JSON.parse(localStorage.getItem(key) || '[]');
+    const id = 'mouse-shop-' + c.name.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '') + (sparkly ? '-sparkly' : '');
+    if (Array.isArray(list) && !list.some(x => x && x.game === 'mouse-shop' && x.id === id)) {
+      list.push({ game: 'mouse-shop', id, name: (sparkly ? 'Sparkly ' : '') + c.name, emoji: c.e, rarity: sparkly ? 'sparkly' : c.rare ? 'rare' : 'common', earnedAt: new Date().toISOString() });
+      localStorage.setItem(key, JSON.stringify(list));
+    }
+  } catch (e) {}
+}
+function reveal(c, msg) {
+  return new Promise(res => {
+    const r = $('#reveal'); r.querySelector('.msg').innerHTML = msg;
+    r.querySelector('.slot-card').innerHTML = cardHTML(c, S.friends[c.name] || 1, !!S.shiny[c.name]);
+    r.classList.add('on'); sfx.win(); setTimeout(() => sparkles(r.querySelector('.fcard'), 18, ['✨', '💖', '⭐']), 500);
+    let done = false; const close = () => { if (done) return; done = true; r.classList.remove('on'); res(); };
+    setTimeout(() => r.addEventListener('click', close, { once: true }), 700); setTimeout(close, 6000);
+  });
+}
 const PRAISE = ['Perfect!', 'Just right!', 'Wonderful!', 'You did it!', 'Hooray!', 'Exactly right!', 'Brilliant baking!'];
 const DECOR = [
   { id: 'flowers', e: '🌼', n: 'Daisy pot', c: 4, x: 20, y: 52, s: 7 },
@@ -455,12 +506,12 @@ const SKILLS = {
 
 /* =============== state =============== */
 const KEY = 'acornBakery.v1';
-const FRESH = () => ({ setup: false, name: 'Pip', fur: '#b08968', apron: '#d4677a', acorns: 0, owned: [], friends: {}, days: 0, served: 0, sound: true, voice: true,
+const FRESH = () => ({ setup: false, name: 'Pip', fur: '#b08968', apron: '#d4677a', acorns: 0, owned: [], friends: {}, shiny: {}, pos: {}, days: 0, served: 0, sound: true, voice: true,
   skills: { pack: sk(), fill: sk(), price: sk(), change: sk() } });
 function sk() { return { lvl: 1, streak: 0, struggle: 0, right: 0, total: 0 }; }
 let S;
 function load() {
-  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); S = Object.assign(FRESH(), raw || {}); S.skills = Object.assign(FRESH().skills, S.skills || {}); S.friends = S.friends || {}; }
+  try { const raw = JSON.parse(localStorage.getItem(KEY) || 'null'); S = Object.assign(FRESH(), raw || {}); S.skills = Object.assign(FRESH().skills, S.skills || {}); S.friends = S.friends || {}; S.shiny = S.shiny || {}; S.pos = S.pos || {}; }
   catch (e) { S = FRESH(); }
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -715,11 +766,16 @@ async function solved(reward) {
   day.served++; day.earned += reward; S.served++;
   const fname = task.cust.name, first = !S.friends[fname];
   S.friends[fname] = (S.friends[fname] || 0) + 1; save();
+  const gotShiny = !first && !S.shiny[fname] && Math.random() < .1;
+  if (gotShiny) { S.shiny[fname] = true; save(); }
   if (first) {
-    day.newFriends.push(task.cust);
-    toast(`<div style="font-size:2.2em">${task.cust.e}</div>${task.cust.rare ? '🌟 A rare visitor! 🌟<br>' : ''}New friend for your album: <b>${fname}</b>!`, 2600);
-    say(`${task.cust.rare ? 'A rare visitor! ' : ''}New friend for your album! ${fname}!`); sparkles($('#customer'), 16, ['✨', '💖', '⭐']);
-    await wait(2500);
+    day.newFriends.push(task.cust); addToShared(task.cust, false);
+    say(`${task.cust.rare ? 'A rare visitor! ' : ''}New card for your album! ${fname}!`);
+    await reveal(task.cust, `${task.cust.rare ? '💎 A RARE card! 💎' : 'New card!'}`);
+  } else if (gotShiny) {
+    day.newFriends.push(task.cust); addToShared(task.cust, true);
+    say(`Wow! A sparkly card! ${fname} gave you a sparkly card!`);
+    await reveal(task.cust, '✨ A SPARKLY card! ✨');
   } else if ([3, 6].includes(S.friends[fname])) {
     toast(`${task.cust.e} ${fname} is now a ${S.friends[fname] === 3 ? 'good friend ⭐⭐' : 'best friend ⭐⭐⭐'}!`, 2200); await wait(2000);
   }
@@ -1097,7 +1153,7 @@ function endDay() {
   $('#deMouse').innerHTML = mouseSVG(S.fur, S.apron, true);
   $('#deStars').textContent = '⭐'.repeat(DAY_LEN);
   $('#deText').innerHTML = `You helped ${DAY_LEN} hungry customers and earned ${day.earned} ${ACORN} acorns!<br>Now you have ${S.acorns} acorns to spend.` +
-    (day.newFriends.length ? `<br>New friends in your album: <span style="font-size:1.4em">${day.newFriends.map(c => c.e).join(' ')}</span>` : '');
+    (day.newFriends.length ? `<br>New cards: <span style="font-size:1.4em">${day.newFriends.map(c => c.e).join(' ')}</span>` : '');
   show('dayend'); sfx.win(); sparkles($('#deStars'), 24);
   say(`The bakery is closed for today! You helped ${DAY_LEN} customers and earned ${day.earned} acorns. Now you have ${S.acorns} acorns to spend on your mouse house.`);
 }
@@ -1110,15 +1166,36 @@ function goHome() {
   $('#homeTitle').textContent = `${S.name}'s mouse house`;
   refreshPurses(); drawRoom(); drawCatalog(); show('home');
   if (!S.owned.length) say(`This is your mouse house! It's a bit empty. Use your acorns to make it cozy.`);
+  else if (S.owned.length === 1 && !Object.keys(S.pos).length) say(`You can drag your treasures to move them anywhere you like!`);
 }
 function drawRoom() {
   const r = $('#room');
   r.innerHTML = roomSVG() + DECOR.filter(d => S.owned.includes(d.id)).map(d =>
-    `<div class="decor" data-id="${d.id}" style="left:${d.x}%;top:${d.y}%;font-size:${d.s * 1.05}cqh">${d.e}</div>`).join('') +
+    `<div class="decor" data-id="${d.id}" style="left:${(S.pos[d.id] || d).x}%;top:${(S.pos[d.id] || d).y}%;font-size:${d.s * 1.05}cqh">${d.e}</div>`).join('') +
     `<div id="roomPip">${mouseSVG(S.fur, S.apron, true)}</div>`;
   r.style.containerType = 'size';
-  r.querySelectorAll('.decor').forEach(el => tap(el, () => { el.classList.remove('wig'); void el.offsetWidth; el.classList.add('wig'); sfx.pop(rnd(3, 8)); }));
+  r.querySelectorAll('.decor').forEach(dragDecor);
   tap($('#roomPip'), () => { sfx.pop(8); say(pick([`I love my home!`, `So cozy!`, `Squeak!`, `Time for tea?`])); sparkles($('#roomPip'), 6); });
+}
+/* dollhouse mode: drag treasures anywhere in the room */
+function dragDecor(el) {
+  let start = null;
+  el.addEventListener('pointerdown', e => { e.preventDefault(); start = { x: e.clientX, y: e.clientY, moved: false }; el.setPointerCapture(e.pointerId); el.classList.add('drag'); });
+  el.addEventListener('pointermove', e => {
+    if (!start) return;
+    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6) start.moved = true;
+    if (!start.moved) return;
+    const rr = $('#room').getBoundingClientRect(), h = el.getBoundingClientRect().height;
+    const x = Math.max(3, Math.min(97, (e.clientX - rr.left) / rr.width * 100));
+    const y = Math.max(12, Math.min(99, (e.clientY + h / 2 - rr.top) / rr.height * 100));
+    el.style.left = x + '%'; el.style.top = y + '%'; S.pos[el.dataset.id] = { x, y };
+  });
+  const end = () => {
+    if (!start) return; el.classList.remove('drag');
+    if (start.moved) { save(); sfx.pop(5); } else { el.classList.remove('wig'); void el.offsetWidth; el.classList.add('wig'); sfx.pop(rnd(3, 8)); }
+    start = null;
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
 }
 function drawCatalog() {
   $('#catalog').innerHTML = DECOR.map(d => `<button class="card ${S.owned.includes(d.id) ? 'owned' : ''} ${S.acorns < d.c ? 'cant' : ''}" data-id="${d.id}">
@@ -1142,22 +1219,18 @@ tap($('#homeBack'), goTitle);
 /* =============== album =============== */
 function goAlbum() {
   const met = ALL_FRIENDS.filter(c => S.friends[c.name]).length;
-  $('#albumCount').innerHTML = `💖 ${met} / ${ALL_FRIENDS.length}`;
-  $('#albumGrid').innerHTML = ALL_FRIENDS.map(c => {
-    const n = S.friends[c.name] || 0, lv = n >= 6 ? 3 : n >= 3 ? 2 : n ? 1 : 0;
-    return `<button class="fcard ${n ? '' : 'unmet'} ${c.rare ? 'rare' : ''} lvl${lv}" data-n="${c.name}">
-      <span class="e">${c.e}</span><span class="n">${n ? c.name : (c.rare ? '✨ rare ✨' : '???')}</span>
-      <span class="st">${n ? '⭐'.repeat(lv) : ''}</span></button>`;
-  }).join('');
+  const sh = Object.keys(S.shiny).length;
+  $('#albumCount').innerHTML = `🃏 ${met} / ${ALL_FRIENDS.length}${sh ? ` &nbsp;✨ ${sh}` : ''}`;
+  $('#albumGrid').innerHTML = ALL_FRIENDS.map(c => cardHTML(c, S.friends[c.name] || 0, !!S.shiny[c.name])).join('');
   $('#albumGrid').querySelectorAll('.fcard').forEach(b => tap(b, () => {
     const c = ALL_FRIENDS.find(x => x.name === b.dataset.n), n = S.friends[c.name] || 0;
     if (!n) { sfx.nope(); say(c.rare ? 'A rare visitor. Maybe one day they will come to your bakery!' : 'Who could this be? Keep baking to find out!'); return; }
     sfx.pop(rnd(4, 9)); sparkles(b, 8, ['💖', '✨']);
     const next = n < 3 ? `${3 - n} more ${3 - n === 1 ? 'visit' : 'visits'} to be good friends.` : n < 6 ? `${6 - n} more ${6 - n === 1 ? 'visit' : 'visits'} to be best friends.` : 'You are best friends!';
-    say(`${c.name}. ${pick(c.hi)} You have helped ${c.name} ${n === 1 ? 'once' : n + ' times'}. ${next}`);
+    say(`${c.name}. ${S.shiny[c.name] ? 'A sparkly card! ' : ''}${c.name} loves ${favOf(c).many}. You have helped ${c.name} ${n === 1 ? 'once' : n + ' times'}. ${next}`);
   }));
   show('album');
-  if (!met) say('This is your friends album. Every animal you help at the bakery gets a card. Some rare visitors are very hard to find!');
+  if (!met) say('These are your friend cards. Every animal you help at the bakery gives you a card. Some rare cards and sparkly cards are very hard to find!');
 }
 tap($('#albumBtn'), goAlbum);
 tap($('#albumBack'), goTitle);

@@ -25,4 +25,5 @@ The small "Grown-ups" link on the title screen shows each skill's current level 
 - Ten-frames and dot price tags let her see amounts before she has to hold them in her head; the hints fade as levels rise.
 - No lives, timers or fail states. A wrong answer gets "Let's count together", then a scaffold showing where each item goes.
 - Short sessions: a bakery day is 6 customers, followed by the reward of decorating the house.
-- Two collections: every animal she serves gets a card in the Friends album (stars at 1, 3 and 6 visits), with 6 rare visitors such as a unicorn, a little dragon and a pirate octopus. House treasures are the second collection.
+- Collecting, like trading cards: every animal she serves gives her a numbered friend card (common, uncommon or rare, with stars at 1, 3 and 6 visits). Six rare visitors such as a unicorn, a little dragon and a pirate octopus turn up now and then, and repeat visits can drop a holographic sparkly card. New cards flip in with a reveal. They are also added to the shared `gfk-collection` localStorage list that all the games use.
+- Dollhouse decorating: treasures bought with acorns can be dragged anywhere in the mouse house, and their spots are saved.
