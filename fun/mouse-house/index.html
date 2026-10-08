@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f6e3c8">
+<title>Hazel's House</title>
+<style>
+:root{--font: ui-rounded,'SF Pro Rounded','Arial Rounded MT Bold','Andika','Nunito',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c8;font-family:var(--font);overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+#tray{position:fixed;left:0;right:0;bottom:0;z-index:4;padding:10px calc(env(safe-area-inset-right,0px) + 10px) calc(env(safe-area-inset-bottom,0px) + 10px) calc(env(safe-area-inset-left,0px) + 10px);
+  background:linear-gradient(rgba(255,244,224,.0),rgba(255,244,224,.92) 22%);transition:background .2s}
+#tray.drop{background:linear-gradient(rgba(242,167,181,0),rgba(242,167,181,.85) 22%)}
+#tray .rail{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:8px 4px 4px;scrollbar-width:none;touch-action:pan-x;-webkit-overflow-scrolling:touch}
+#tray .rail::-webkit-scrollbar{display:none}
+#tray .it{flex:0 0 auto;width:96px;height:96px;border-radius:22px;border:0;background:#fffaf0;box-shadow:0 4px 0 #e6c8a0,0 6px 14px rgba(110,70,30,.15);padding:4px;position:relative;cursor:pointer}
+#tray .it img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+#tray .it:active{transform:translateY(3px);box-shadow:0 1px 0 #e6c8a0}
+#tray .it.locked{background:#efe4ff;box-shadow:0 4px 0 #cbb8f0;font-size:44px;opacity:.75}
+#tray .it.new::after{content:"New!";position:absolute;top:-8px;right:-6px;background:#e2566b;color:#fff;font-weight:800;font-size:15px;border-radius:12px;padding:2px 8px}
+#tray .hint{position:absolute;left:0;right:0;top:-28px;text-align:center;font-weight:800;font-size:22px;color:#a33a58;opacity:0;transition:opacity .2s;pointer-events:none}
+#tray.drop .hint{opacity:1}
+#fun-say{bottom:calc(env(safe-area-inset-bottom,0px) + 140px) !important}
+</style>
+</head>
+<body>
+<div id="tray"><div class="hint">Put it away</div><div class="rail" id="rail"></div></div>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
+<script type="module">
+// Hazel's House: decorate a Maileg-style mouse room. Tap a thing in the tray to put it in the room, drag things around,
+// tap one to turn it, and drag it back to the tray to put it away. Every break earns a parcel with something new inside.
+import { THREE, K, stage, ui, sparkles, sfx, say, pick, planeHit, toScreen, rand, pickOne, ease, load, save, takeBreakReward } from '../../shared/funkit.js';
+import { ITEMS, STARTERS, build, mouse, animateMouse, gift, room, setWall, setFloor, WALLS, FLOORS, ROOM } from './models.js';
+
+const SAVE_KEY = 'funMouseHouse.v1';
+const MAX_THINGS = 24;
+const first = (() => { try { return !localStorage.getItem(SAVE_KEY); } catch (e) { return true; } })();
+const data = load(SAVE_KEY, { unlocked: [], things: [], wall: 0, floor: 0, night: false, fresh: [] });
+if (!data.unlocked.length) data.unlocked = STARTERS.slice();
+if (first) data.things = [
+  { id: 'rug', x: .5, z: 1, r: 0 }, { id: 'bed', x: -3.6, z: -2.6, r: 0 }, { id: 'table', x: 2.4, z: -.6, r: 0 },
+  { id: 'chair', x: 3.9, z: .2, r: -1.2 }, { id: 'plant', x: -5.4, z: 2.6, r: 0 }, { id: 'lamp', x: 5.4, z: -3.2, r: 0 }
+];
+const persist = () => save(SAVE_KEY, data);
+
+const S = stage({ bg: '#f6e3c8', fov: 34, shadows: true });
+const { scene, cam } = S;
+const U = ui({ title: "Hazel's House" });
+U.hud.innerHTML = `<button class="fun-round" id="wallBtn" type="button" aria-label="Change the wallpaper">🎨</button>
+  <button class="fun-round" id="floorBtn" type="button" aria-label="Change the floor">🪵</button>
+  <button class="fun-round" id="nightBtn" type="button" aria-label="Day or night">🌙</button>`;
+U.hud.style.display = 'inline-flex'; U.hud.style.gap = '10px';
+
+/* ---------------- lights, room ---------------- */
+const L = K.toyLights(scene, { sky: '#fff4e8', ground: '#c9a27a', hemiI: 1.35, key: '#fff1dc', keyI: 2.0, fill: '#ffd9b0', fillI: .6, dir: [4, 12, 9] });
+L.key.castShadow = true; L.key.shadow.mapSize.set(1024, 1024); L.key.shadow.bias = -.0015; L.key.shadow.radius = 4;
+Object.assign(L.key.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 }); L.key.position.set(4, 12, 9);
+const R = room(); scene.add(R);
+setWall(R, data.wall); setFloor(R, data.floor);
+// the outside: a soft table top the dollhouse stands on
+const tableTop = new THREE.Mesh(new THREE.CircleGeometry(30, 48), K.mat('#e9cfa8', { rough: .9 })); tableTop.rotation.x = -Math.PI / 2; tableTop.position.y = -.5; tableTop.receiveShadow = true; scene.add(tableTop);
+
+function frameRoom() {
+  const dir = new THREE.Vector3(.38, .52, 1).normalize();
+  const look = new THREE.Vector3(.2, 2.1, .2);
+  const halfV = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
+  const needH = 5.4, needW = 8.6;
+  const dist = Math.max(needH / halfV, needW / (halfV * cam.aspect)) * 1.1;
+  cam.position.copy(look).addScaledVector(dir, dist);
+  // nudge the room up a little so the tray doesn't cover the floor
+  cam.lookAt(look.x, look.y - 1.1 * (120 / Math.max(500, S.h)) * 3, look.z);
+}
+S.onResize = frameRoom;
+
+/* ---------------- things in the room ---------------- */
+const things = [];
+const HALF_W = ROOM.w / 2 - .5, HALF_D = ROOM.d / 2 - .5;
+const clampX = (x, r) => Math.max(-HALF_W + r * .6, Math.min(HALF_W - r * .6, x));
+const clampZ = (z, r) => Math.max(-HALF_D + r * .6, Math.min(HALF_D - r * .2, z));
+function addThing(t, drop = false) {
+  const g = build(t.id); if (!g) return null;
+  g.position.set(t.x, 0, t.z); g.rotation.y = t.r || 0;
+  g.userData.save = t; g.userData.drop = drop ? .001 : 0;
+  if (drop) g.position.y = 6;
+  scene.add(g); things.push(g);
+  applyNight(g);
+  return g;
+}
+data.things.forEach(t => addThing(t));
+function syncSave() { data.things = things.map(g => { const s = g.userData.save; s.x = +g.position.x.toFixed(2); s.z = +g.position.z.toFixed(2); s.r = +g.rotation.y.toFixed(3); return s; }); persist(); }
+function freeSpot(r) {
+  let best = { x: 0, z: 1, d: -1 };
+  for (let i = 0; i < 40; i++) {
+    const x = clampX(rand(-HALF_W, HALF_W), r), z = clampZ(rand(-HALF_D, HALF_D), r);
+    let d = 99; for (const g of things) { if (g.userData.item.flat) continue; d = Math.min(d, Math.hypot(g.position.x - x, g.position.z - z) - (g.userData.item.r || .5)); }
+    d -= Math.hypot(hazel.position.x - x, hazel.position.z - z) < 1.2 ? 2 : 0;
+    if (d > best.d) best = { x, z, d };
+  }
+  return best;
+}
+
+/* ---------------- Hazel ---------------- */
+const hazel = mouse({ fur: '#cdbcae', dress: '#f2a7b5', dot: '#ffffff' });
+hazel.scale.setScalar(1.35); hazel.position.set(-.5, 0, 2.2); scene.add(hazel);
+hazel.traverse(o => { if (o.isMesh) o.castShadow = true; });
+const hz = { target: null, wait: 2, speed: 1.6 };
+function hazelTo(x, z) { hz.target = new THREE.Vector3(clampX(x, .5), 0, clampZ(z, .5)); }
+
+/* ---------------- night and day ---------------- */
+function applyNight(g) {
+  const lamp = g.userData.item && g.userData.item.id === 'lamp';
+  if (!lamp) return;
+  g.traverse(o => {
+    if (o.isMesh && o.material.emissive && o.material.side === THREE.DoubleSide) { o.material = o.material.clone(); o.material.emissiveIntensity = data.night ? 1.6 : .25; }
+    if (o.isSprite) o.material.opacity = data.night ? .95 : 0;
+  });
+}
+function setNight(n) {
+  data.night = n; persist();
+  L.hemi.intensity = n ? .55 : 1.35; L.key.intensity = n ? .55 : 2.0; L.key.color.set(n ? '#9fb0ff' : '#fff1dc'); L.fill.intensity = n ? .35 : .6;
+  L.fill.color.set(n ? '#ffb070' : '#ffd9b0');
+  R.userData.skyM.color.set(n ? '#2b3178' : '#bfe1ff'); R.userData.hillM.color.set(n ? '#2d4f45' : '#9fd08c'); R.userData.sunM.color.set(n ? '#fff2c0' : '#fff1a8');
+  S.R.setClearColor(n ? '#2a2550' : '#f6e3c8'); document.body.style.background = n ? '#2a2550' : '#f6e3c8';
+  tableTop.material.color.set(n ? '#6b5a7a' : '#e9cfa8');
+  things.forEach(applyNight);
+  document.getElementById('nightBtn').textContent = n ? '☀️' : '🌙';
+}
+
+/* ---------------- tray ---------------- */
+const baker = new K.Baker(160);
+const thumbs = {};
+function thumb(id) { return thumbs[id] || (thumbs[id] = baker.bake(id, () => build(id), { yaw: .5, pitch: .35 })); }
+const rail = document.getElementById('rail'), tray = document.getElementById('tray');
+function drawTray() {
+  const open = ITEMS.filter(i => data.unlocked.includes(i.id)), shut = ITEMS.length - open.length;
+  rail.innerHTML = open.map(i => `<button class="it ${data.fresh.includes(i.id) ? 'new' : ''}" type="button" data-id="${i.id}" aria-label="${i.name}"><img src="${thumb(i.id)}" alt=""></button>`).join('') +
+    Array.from({ length: shut }, () => '<button class="it locked" type="button" data-locked="1" aria-label="A surprise for later">🎁</button>').join('');
+}
+rail.addEventListener('click', e => {
+  const b = e.target.closest('.it'); if (!b) return;
+  sfx.unlock();
+  if (b.dataset.locked) { say('A surprise! Do some learning games to get more parcels.', { who: 'Hazel' }); sfx.boing(); return; }
+  if (things.length >= MAX_THINGS) { say('The room is full! Drag something back to the tray first.', { who: 'Hazel' }); return; }
+  const id = b.dataset.id, it = ITEMS.find(x => x.id === id), spot = it.flat ? { x: rand(-2, 2), z: rand(-.5, 2) } : freeSpot(it.r || .5);
+  const g = addThing({ id, x: spot.x, z: spot.z, r: rand(-.4, .4) }, true);
+  data.fresh = data.fresh.filter(x => x !== id); drawTray();
+  syncSave(); sfx.whoosh();
+  hazelTo(spot.x + 1.5, spot.z + 1.2);
+});
+
+/* ---------------- touch in the room ---------------- */
+const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+let drag = null;
+function thingAt(ev) {
+  const hits = pick(S, ev, [...things, hazel, ...(parcel ? [parcel] : [])]);
+  for (const h of hits) {
+    let o = h.object; while (o && o.parent !== scene) o = o.parent;
+    if (o) return o;
+  }
+  return null;
+}
+S.canvas.addEventListener('pointerdown', ev => {
+  sfx.unlock();
+  const o = thingAt(ev); if (!o) return;
+  if (o === parcel) { openParcel(); return; }
+  if (o === hazel) { hazelHop(); return; }
+  const p = planeHit(S, ev, floorPlane) || o.position.clone();
+  drag = { o, id: ev.pointerId, off: o.position.clone().sub(p), x0: ev.clientX, y0: ev.clientY, t0: performance.now(), moved: false };
+  S.canvas.setPointerCapture(ev.pointerId);
+});
+S.canvas.addEventListener('pointermove', ev => {
+  if (!drag || ev.pointerId !== drag.id) return;
+  if (!drag.moved && Math.hypot(ev.clientX - drag.x0, ev.clientY - drag.y0) > 10) { drag.moved = true; sfx.boing(); }
+  if (!drag.moved) return;
+  const overTray = ev.clientY > tray.getBoundingClientRect().top + 20;
+  tray.classList.toggle('drop', overTray);
+  drag.over = overTray;
+  const p = planeHit(S, ev, floorPlane); if (!p) return;
+  const r = drag.o.userData.item.r || .5;
+  drag.o.position.x = clampX(p.x + drag.off.x, r); drag.o.position.z = clampZ(p.z + drag.off.z, r);
+});
+function endDrag(ev) {
+  if (!drag || (ev && ev.pointerId !== drag.id)) return;
+  const d = drag; drag = null; tray.classList.remove('drop');
+  if (!d.moved) { d.o.userData.spin = { from: d.o.rotation.y, t: 0 }; sfx.chime(Math.floor(rand(0, 6))); }
+  else if (d.over) {
+    sfx.whoosh(); things.splice(things.indexOf(d.o), 1); d.o.userData.away = 0.001;
+  } else sfx.plop();
+  syncSave();
+}
+S.canvas.addEventListener('pointerup', endDrag);
+S.canvas.addEventListener('pointercancel', endDrag);
+const away = [];
+
+function hazelHop() {
+  if (hazel.userData.hop > 0) return;
+  hazel.userData.hop = 1; sfx.squeak();
+  fx.burst(hazel.position.clone().add(new THREE.Vector3(0, 3.2, 0)), { n: 10, colors: ['#f2a7b5', '#e2566b', '#ffc4d8'], speed: 3, size: .22, up: 3, gravity: 3 });
+  say(pickOne(['Squeak!', 'Hee hee!', 'I love my room!', 'So cozy!', 'You are a great decorator!', 'Tickles!']), { who: 'Hazel' });
+}
+
+/* ---------------- parcels ---------------- */
+let parcel = null, parcelItem = null;
+function sendParcel() {
+  const locked = ITEMS.filter(i => !data.unlocked.includes(i.id));
+  if (!locked.length) return false;
+  parcelItem = pickOne(locked);
+  parcel = gift(); parcel.position.set(.5, 9, 2.4); parcel.userData.fall = 0; parcel.scale.setScalar(1.2);
+  parcel.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  scene.add(parcel);
+  setTimeout(() => { say('A parcel came for you! Tap it to open it.', { who: 'Hazel' }); hazelTo(2.4, 3); }, 700);
+  return true;
+}
+function openParcel() {
+  if (!parcel || parcel.userData.opening) return;
+  parcel.userData.opening = 0.001;
+  sfx.sparkle();
+  fx.burst(parcel.position.clone().add(new THREE.Vector3(0, 1.4, 0)), { n: 46, speed: 7, size: .3 });
+  const it = parcelItem;
+  data.unlocked.push(it.id); data.fresh.push(it.id);
+  const spot = it.flat ? { x: .5, z: 1.5 } : { x: parcel.position.x, z: parcel.position.z };
+  setTimeout(() => {
+    const g = addThing({ id: it.id, x: clampX(spot.x, it.r || .5), z: clampZ(spot.z, it.r || .5), r: 0 });
+    if (g) { g.userData.grow = 0.001; g.scale.setScalar(.01); }
+    drawTray(); syncSave();
+    say(`A ${it.name}! Hooray!`, { who: 'Hazel' }); sfx.fanfare(); hazelHop();
+  }, 650);
+}
+
+/* ---------------- loop ---------------- */
+const fx = sparkles(scene);
+S.tick = (dt, t) => {
+  // Hazel wanders between her things
+  if (hz.target) {
+    const to = hz.target.clone().sub(hazel.position); to.y = 0;
+    const d = to.length();
+    if (d < .1) { hz.target = null; hz.wait = rand(2, 5); hazel.userData.walk = 0; }
+    else {
+      hazel.userData.walk = 1;
+      hazel.position.addScaledVector(to.normalize(), Math.min(d, hz.speed * dt));
+      const want = Math.atan2(to.x, to.z); let dr = want - hazel.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr));
+      hazel.rotation.y += dr * Math.min(1, dt * 8);
+    }
+  } else if (!drag) {
+    hz.wait -= dt;
+    // turn to face you while waiting
+    let dr = .25 - hazel.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); hazel.rotation.y += dr * Math.min(1, dt * 2);
+    if (hz.wait <= 0) {
+      const near = things.filter(g => !g.userData.item.flat);
+      if (near.length && Math.random() < .75) { const g = pickOne(near), r = (g.userData.item.r || .5) + 1; const a = rand(0, Math.PI * 2); hazelTo(g.position.x + Math.cos(a) * r, g.position.z + Math.abs(Math.sin(a)) * r); }
+      else hazelTo(rand(-HALF_W, HALF_W), rand(-1, HALF_D));
+    }
+  }
+  animateMouse(hazel, t, dt);
+  for (const g of things) {
+    const u = g.userData;
+    if (u.drop) { u.drop += dt * 1.8; const k = Math.min(1, u.drop); g.position.y = 6 * (1 - k * k); if (k >= 1) { u.drop = 0; g.position.y = 0; sfx.plop(); fx.burst(g.position.clone().add(new THREE.Vector3(0, .3, 0)), { n: 8, colors: ['#fff4e0', '#ffe08a'], speed: 3, size: .16, up: 1.5 }); } }
+    if (u.grow) { u.grow += dt * 1.5; const k = Math.min(1, u.grow); g.scale.setScalar(Math.max(.01, ease.back(k))); g.position.y = Math.sin(k * Math.PI) * 1.5; if (k >= 1) { u.grow = 0; g.position.y = 0; } }
+    if (u.spin) { u.spin.t += dt * 3; const k = Math.min(1, u.spin.t); g.rotation.y = u.spin.from + ease.back(k) * Math.PI / 4; g.position.y = Math.sin(k * Math.PI) * .5; if (k >= 1) { u.spin = null; g.position.y = 0; syncSave(); } }
+    if (drag && drag.o === g && drag.moved) { g.position.y += ((.6 + Math.sin(t * 10) * .05) - g.position.y) * Math.min(1, dt * 12); g.rotation.z = Math.sin(t * 6) * .05; }
+    else if (!u.drop && !u.grow && !u.spin && g.position.y > 0) { g.position.y = Math.max(0, g.position.y - dt * 4); g.rotation.z = 0; }
+    if (u.item.id === 'lamp' && data.night) { g.children.forEach(c => { if (c.isSprite) c.material.opacity = .85 + Math.sin(t * 2) * .08; }); }
+  }
+  // things put away shrink into the tray
+  scene.children.forEach(o => { const u = o.userData; if (u && u.away) { u.away += dt * 3; o.scale.setScalar(Math.max(.001, 1 - u.away)); o.position.y += dt * 3; if (u.away >= 1) { scene.remove(o); } } });
+  if (parcel) {
+    const u = parcel.userData;
+    if (!u.opening) {
+      u.fall += dt * 1.2; const k = Math.min(1, u.fall);
+      parcel.position.y = 9 * (1 - ease.out(k)) + (k >= 1 ? Math.abs(Math.sin(t * 3)) * .25 : 0);
+      parcel.rotation.y = Math.sin(t * 1.5) * .2; parcel.rotation.z = k >= 1 ? Math.sin(t * 6) * .05 : 0;
+    } else {
+      u.opening += dt;
+      const lid = parcel.userData.lid; lid.position.y = 1 + u.opening * 6; lid.rotation.z = u.opening * 5; lid.position.x = u.opening * 3;
+      parcel.scale.setScalar(1.2 * Math.max(.01, 1 - u.opening * 1.2));
+      if (u.opening > 1) { scene.remove(parcel); parcel = null; }
+    }
+  }
+  fx.update(dt);
+};
+
+/* ---------------- buttons ---------------- */
+document.getElementById('wallBtn').addEventListener('click', () => { sfx.unlock(); data.wall = (data.wall + 1) % WALLS.length; setWall(R, data.wall); persist(); sfx.chime(data.wall); });
+document.getElementById('floorBtn').addEventListener('click', () => { sfx.unlock(); data.floor = (data.floor + 1) % FLOORS.length; setFloor(R, data.floor); persist(); sfx.chime(data.floor + 2); });
+document.getElementById('nightBtn').addEventListener('click', () => { sfx.unlock(); setNight(!data.night); sfx.chime(data.night ? 0 : 4); if (data.night) say('Night night! The lamp is on.', { who: 'Hazel' }); });
+
+window.__mh = { thingAt, things, get parcel() { return parcel; }, hazel };
+/* ---------------- start ---------------- */
+drawTray();
+setNight(data.night);
+frameRoom();
+S.start();
+persist();
+(async () => {
+  const gotBreak = takeBreakReward('mouse-house');
+  const locked = ITEMS.length - data.unlocked.length;
+  await U.card({ art: '🐭🏠', heading: "Hazel's House", text: first ? 'This is Hazel the mouse. Help her decorate her room!' : gotBreak && locked ? 'You worked hard! A parcel is on its way.' : 'Hazel is happy to see you!', buttons: [{ label: 'Decorate! 🎨', value: 'go' }],
+    extra: `${data.unlocked.length} of ${ITEMS.length} things found` });
+  if ((first || gotBreak) && sendParcel()) return;
+  say(first ? 'Tap a thing in the tray to put it in my room.' : 'Drag things around. Tap one to turn it!', { who: 'Hazel' });
+})();
+</script>
+</body>
+</html>
