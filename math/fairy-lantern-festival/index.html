@@ -1449,6 +1449,23 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
   window.GFKCards = { collect, face, locked, view, openPacks, list, SETS, CROWNS, CHARMS, TIERS, TIER_NAME, pending: () => queue.length };
 })();
 </script>
+<style id="g3dstyle">
+/* ===== 3D world (body.g3d is set only when the 3D module starts; see world3d.js) ===== */
+#gl3d{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;display:block;z-index:0}
+body.g3d #glbg{display:none}
+body.g3d #title,body.g3d #meet,body.g3d #map,body.g3d #night,body.g3d #end,body.g3d #cottage{background:transparent}
+body.g3d .stars,body.g3d #night .bgglade,body.g3d #night .brightwash{display:none}
+body.g3d .ff svg,body.g3d .ff .glow,body.g3d .mini svg,body.g3d #nfairy svg,body.g3d .meet-fairy svg,body.g3d #moonbtn svg,
+body.g3d .lan .lhandle,body.g3d .lan .lcap,body.g3d .lan .lbase,body.g3d .meadow .grass{visibility:hidden}
+body.g3d #modal .ff svg,body.g3d #modal .mini svg{visibility:visible}
+body.g3d .lan .lbody{background:none;border-color:transparent;box-shadow:none}
+body.g3d .lan .cell{background:none;border-color:transparent}
+body.g3d .meadow{background:none}
+body.g3d .ljar .lc{border-color:rgba(255,247,230,.35)}
+body.g3d .tile span{text-shadow:0 1px 0 rgba(255,255,255,.6)}
+body.g3d .cord.pulled svg{animation:pull .5s ease-out;transform-origin:50% 0}
+</style>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -4362,7 +4379,7 @@ void main(){float r=length(vUV);float a;
     root.querySelectorAll('.lan.lit .lbody').forEach(el => { const r = vis(el); if (!r) return; const cx = r.left + r.width / 2, cy = r.top + r.height / 2, s = Math.max(r.width, r.height);
       glows.push([cx, cy, s * .95, 1, .78, .38, .26, 0]); lights.push([cx, cy, s * .9, 1]); });
     let nff = 0;
-    root.querySelectorAll('.ff').forEach(el => { if (nff > 70) return; const r = vis(el); if (!r) return; nff++;
+    if (!document.body.classList.contains('g3d')) root.querySelectorAll('.ff').forEach(el => { if (nff > 70) return; const r = vis(el); if (!r) return; nff++;
       glows.push([r.left + r.width / 2, r.top + r.height * .6, r.width * 1.25, 1, .85, .4, .16, 0]); });
     root.querySelectorAll('.mini.lit').forEach(el => { const r = vis(el); if (!r) return; glows.push([r.left + r.width / 2, r.top + r.height * .55, r.width * 1.6, 1, .8, .4, .3, 0]); if (lights.length < 8) lights.push([r.left + r.width / 2, r.top + r.height / 2, r.width * 2.4, .5]); });
     root.querySelectorAll('.glade.sel .gicon').forEach(el => { const r = vis(el); if (!r) return; glows.push([r.left + r.width / 2, r.top + r.height / 2, r.width * 1.25, 1, .85, .45, .24, 0]); lights.push([r.left + r.width / 2, r.top + r.height / 2, r.width * 1.6, .9]); });
@@ -4429,7 +4446,8 @@ void main(){float r=length(vUV);float a;
     parX += (tgtPX + Math.sin(T * .05) * .025 - parX) * Math.min(1, dt * 1.5); parY = 0;
 
     /* --- background --- */
-    if (sky) {
+    const g3d = document.body.classList.contains('g3d');
+    if (sky && !g3d) {
       const gl = gbg; gl.viewport(0, 0, bg.width, bg.height); gl.disable(gl.BLEND);
       gl.useProgram(P); gl.bindBuffer(gl.ARRAY_BUFFER, fullBuf);
       const loc = gl.getAttribLocation(P, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
@@ -4494,6 +4512,10 @@ void main(){float r=length(vUV);float a;
   requestAnimationFrame(loop);
   window.__flgl = { burst, get scale() { return bgScale; } };
 })();
+</script>
+<script type="module" id="gl3d-loader">
+/* Load the 3D world unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
 </script>
 </body>
 </html>
