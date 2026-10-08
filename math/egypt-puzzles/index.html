@@ -901,6 +901,40 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
   window.GFKCards = { collect, face, locked, view, openPacks, list, SETS, CROWNS, CHARMS, TIERS, TIER_NAME, pending: () => queue.length };
 })();
 </script>
+<style id="g3dstyle">
+/* ===== 3D world (body.g3d is set only when the 3D module starts; see world3d.js) ===== */
+#gl3d{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;display:block;z-index:0}
+body.g3d{background:#e9b77a}
+body.g3d #app{background:transparent;z-index:1}
+body.g3d svg[data-miu]>*{visibility:hidden}
+/* sandstone stones and faience tiles are drawn in 3D underneath; the numbers stay here */
+body.g3d .blk:not(.hole),body.g3d .mini-pyr span{background:none;box-shadow:none;text-shadow:0 1px 0 rgba(255,240,205,.75)}
+body.g3d .blk.glow:not(.hole){box-shadow:0 0 0 5px rgba(39,163,156,.8)}
+body.g3d .blk.hole{background:rgba(255,248,230,.3);color:rgba(110,68,22,.8)}
+body.g3d .blk.hole.sel{background:rgba(255,250,240,.78);color:var(--lapis)}
+body.g3d .blk.hole.over{background:rgba(255,255,255,.85)}
+body.g3d .blk .dots b{background:rgba(70,40,12,.6)}
+body.g3d .tile{background:none;box-shadow:none;text-shadow:0 2px 0 rgba(8,28,70,.55)}
+body.g3d .tile.sel{box-shadow:0 0 0 4px var(--gold)}
+/* a tile being dragged must float above the stones, which the 3D layer cannot do: it uses its glazed 2D look */
+body.g3d .tile.drag{background:linear-gradient(#3270bf,var(--lapis) 60%,var(--lapis-lo));box-shadow:inset 0 0 0 4px var(--gold),0 14px 24px rgba(0,0,0,.3)}
+body.g3d .tile.psst{animation-name:psst3d}
+@keyframes psst3d{50%{transform:translateY(-10px) scale(1.06);box-shadow:0 0 0 5px var(--gold)}}
+/* soft papyrus panels keep the writing easy to read over the sunset */
+body.g3d #title{isolation:isolate}
+body.g3d #title::before{content:"";position:absolute;left:50%;top:calc(50% + 80px);width:min(1000px,100vw);height:300px;transform:translate(-50%,-50%);z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse closest-side,rgba(253,245,225,.9),rgba(253,245,225,.7) 60%,rgba(253,245,225,0))}
+body.g3d .bar .grow.place,body.g3d .bar .room-head{flex:0 1 auto;margin-inline:auto;padding:5px 18px;border-radius:16px;background:rgba(253,245,225,.9);box-shadow:0 3px 0 rgba(227,207,159,.9)}
+body.g3d #map .river::before{display:none}
+body.g3d .tab{background:rgba(253,245,225,.8)}
+body.g3d #shelf{background:rgba(253,245,225,.86);border-radius:22px;padding:6px 14px 20px;box-shadow:0 5px 0 rgba(227,207,159,.8)}
+body.g3d .stop .ico img{width:54px;height:54px;display:block}
+/* Miu's house: the room is a 3D diorama behind the treasure spots */
+body.g3d .scene{background:none;box-shadow:none}
+body.g3d .scene .frieze,body.g3d .scene .window,body.g3d .scene .shelfbar,body.g3d .scene .table,body.g3d .scene .rug{visibility:hidden}
+body.g3d .spot.empty{background:rgba(255,250,235,.6)}
+</style>
+<script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 </head>
 <body>
 <title>Miu's Magic Pyramids</title>
@@ -1804,6 +1838,10 @@ $("#soundBtn").onclick = () => { S.sound = !S.sound; save(); syncSound(); if (!S
 syncSound();
 window.__miu = { get P(){ return P; }, get S(){ return S; }, attempt, generate, SITES };
 })();
+</script>
+<script type="module" id="gl3d-loader">
+/* Load the 3D world unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
 </script>
 
 </body>

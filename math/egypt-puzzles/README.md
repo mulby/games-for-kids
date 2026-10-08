@@ -30,6 +30,16 @@ Built around what research and good kids' games say makes learning games fun: th
 mechanic (no quiz-then-reward split), short sessions, choice of where to go, collectible rewards,
 a character who talks to the child, and mistakes that cost nothing.
 
+## 3D
+The game is drawn in the shared felt-toy 3D style (`shared/toy3d.js`, Three.js vendored in `shared/vendor/`).
+`world3d.js` puts a desert-at-dusk world behind every screen (the Nile with a felucca, palms, papyrus,
+obelisks, a temple with flickering lamps, the great pyramids and a sleepy sun) and keeps live 3D models
+glued to the page: Miu (a felt temple cat with a gold-and-lapis collar), the sandstone puzzle stones with
+carved hieroglyphs (the numbers stay as page text on top), the blue faience tiles and Miu's house.
+The map's place icons are small baked 3D models. Models are in `models3d.js`. Rules, touch, saves, voice
+and cards are unchanged. Add `?g3d=0` to the address for the old 2D look; without WebGL it falls back by itself.
+`window.__miu3d.stats` shows draw calls per frame.
+
 ## Files
 - `game.html` is the page body (also published as a claude.ai Artifact as-is).
 - `build.sh` wraps it into the standalone `index.html`. Edit `game.html`, then run `./build.sh`.
