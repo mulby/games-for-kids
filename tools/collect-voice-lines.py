@@ -8,7 +8,7 @@ Lines built on the fly (with ${...}) are split into the pieces around each ${...
 numbers 0-100 and math words are added, so lines with numbers can be stitched together.
 Usage: python3 tools/collect-voice-lines.py
 """
-import glob, re, pathlib
+import glob, json, re, pathlib
 
 root = pathlib.Path(__file__).resolve().parent.parent
 CALL = re.compile(r'\b(?:say|speak|bubble|pipSay|KidVoice\.speak)\(\s*(["\'`])((?:\\.|(?!\1).)*?)\1', re.S)
@@ -33,42 +33,85 @@ def fun_lines(src):
 # pick([...]) for the text, and its customers' greetings sit in CAST as hi: '...'. So on lines that
 # talk or set hi:/thanks, every quoted string is collected: sentences ending in . ! or ?, and the
 # pieces of template lines (button labels and names like 'bramble' have no end mark, so they're skipped).
+# Each animal has their own voice (voice/voices.json), so each string is filed under who says it:
+# say('bramble', ...) is Bramble, say(who, ...) is any customer, the shopkeeper and speak() use the main voice.
+VOICES = json.loads((root / "voice/voices.json").read_text())
+CUSTOMERS = ["hazel", "bunbury", "hoot", "mo", "dot", "tansy", "wilf", "captain", "miu", "athena", "queen"]
 def shop_lines(src):
     for line in src.splitlines():
-        if re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =", line):
-            for q, text in STR.findall(line):
-                if "${" in text or re.search(r"[A-Za-z]{2}.*[.!?]$", text):
-                    yield q, text
-# Template pieces that sit next to a name or a word (not a number), so KidVoice can never stitch them.
-# Skipped so they don't use up the ElevenLabs allowance or The Wonder Shelf's file limit.
-NO_STITCH = {"good morning", "your shelf is full of", "of", "do you have any", "i'll come back for", "another day",
-    "may i have", "please", "ooh", "are expensive today", "cost too much for me today", "are cheap today",
-    "oh you haven't got enough", "oh no no", "left", "left over", "your", "are on the shelf", "here is a bag of",
-    "for your shop", "i won the", "card", "at", "'s shop", "s shop", "my", "for", "come in", "each", "would you like",
-    "here", "there", "in the till", "after mine ran out", "could have sold yesterday but they ran out",
-    "your notebook says", "with", "in each"}
+        if not re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =", line):
+            continue
+        who = set()
+        for w in re.findall(r"\b(?:say|talk)\(\s*'(\w+)'", line):
+            who.add(None if w == "keeper" else w)
+        if re.search(r"\b(?:say|talk)\(\s*who\b|\bthanks =", line):
+            who.update(CUSTOMERS)
+        m = re.match(r"\s*(\w+): \{.*\bhi: ", line)
+        if m:
+            who.add(m.group(1))
+        if re.search(r"(?<![.\w])speak\(", line) or not who:
+            who.add(None)
+        for q, text in STR.findall(line):
+            if "${" in text or re.search(r"[A-Za-z]{2}.*[.!?]$", text):
+                for w in who:
+                    yield w, text
+
+# Words that fill the gaps in the shop's template lines, so whole lines can be stitched together:
+# the goods, packs, coins and names. Every character who talks about goods and money gets them.
+def shop_words(src):
+    goods = re.findall(r"one: '([^']+)', many: '([^']+)'", src)
+    names = re.findall(r"'(\w+)'", re.search(r"const NAMES = \[([^\]]*)\]", src).group(1))
+    decor = re.findall(r"name: '([^']+)', cost:", src)
+    cards = re.findall(r"\[\d+, 'earn-\d+', '([^']+)'", src)
+    words = [w for pair in goods for w in pair] + ["a", "and", "is", "are", "penny", "pennies", "a dime", "dimes", "a nickel",
+        "bag", "bags", "box", "boxes", "crate", "crates", "a honey pot", "one", "is 1 penny"]
+    return words, names, [d.lower() for d in decor], cards
+
+lines = {}                      # the main voice
+char_lines = {c: {} for c in VOICES["characters"]}
+def add(table, s):
+    k = key(s)
+    if k and k not in table:
+        table[k] = s.strip()
 pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(str(root / "fun/*/index.html")))
 for page in pages:
     src = open(page).read()
-    for q, text in (fun_lines(src) if "/fun/" in page else shop_lines(src) if "/toadstool-shop/" in page else CALL.findall(src)):
+    found = fun_lines(src) if "/fun/" in page else shop_lines(src) if "/toadstool-shop/" in page else ((None, t) for q, t in CALL.findall(src))
+    if "/fun/" in page:
+        found = ((None, t) for q, t in found)
+    for who, text in found:
         if "<" in text:
             continue
         text = text.replace("\\'", "'").replace('\\"', '"')
         # Template pieces between ${...} become their own clips, so KidVoice can stitch
-        # "this lantern needs" + "7" + "fireflies". Pieces next to a name (not a number) won't match, which is fine.
+        # "this lantern needs" + "7" + "fireflies".
         pieces = re.split(r"\$\{[^}]*\}", text) if "${" in text else [text]
         for s in (x for piece in pieces for x in SENT.findall(piece)):
             if re.search(r"[${}:>]", s):  # bits of code caught between nested ${...}
                 continue
-            k = key(s)
-            if "${" in text and k in NO_STITCH:
-                continue
-            if k and k not in lines:
-                lines[k] = s.strip()
-for w in [str(n) for n in range(0, 101)] + ["plus", "minus", "equals", "and", "makes", "is", "take away", "times", "penny", "pennies"]:
+            add(lines if who is None else char_lines[who], s)
+    if "/toadstool-shop/" in page:
+        words, names, decor, cards = shop_words(src)
+        for w in words + names + [n + "'s shop" for n in names] + decor + cards:
+            add(lines, w)
+        for c in char_lines:
+            for w in words + (names if c in ("bramble", "clover") else []):
+                add(char_lines[c], w)
+numbers = [str(n) for n in range(0, 101)] + [str(n) for n in range(200, 1000, 100)]
+for w in numbers + ["plus", "minus", "equals", "and", "makes", "is", "take away", "times", "penny", "pennies"]:
     lines.setdefault(w, w)
+for c, table in char_lines.items():
+    if table:
+        for w in numbers:
+            table.setdefault(w, w)
 
 out = root / "voice/lines.txt"
 out.parent.mkdir(exist_ok=True)
 out.write_text("\n".join(f"{k}\t{v}" for k, v in lines.items()) + "\n")
 print(f"{len(lines)} lines, {sum(len(v) for v in lines.values())} characters -> {out.relative_to(root)}")
+(root / "voice/lines").mkdir(exist_ok=True)
+for c, table in char_lines.items():
+    if table:
+        f = root / f"voice/lines/{c}.txt"
+        f.write_text("\n".join(f"{k}\t{v}" for k, v in table.items()) + "\n")
+        print(f"{len(table)} lines, {sum(len(v) for v in table.values())} characters -> {f.relative_to(root)}")

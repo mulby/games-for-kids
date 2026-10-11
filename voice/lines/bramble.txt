@@ -1,0 +1,199 @@
+good morning	Good morning,
+i'm bramble	I'm Bramble.
+every morning i bring things for your shop	Every morning I bring things for your shop.
+you buy them from me and sell them to the animals of the wood	You buy them from me, and sell them to the animals of the wood.
+what would you like today	What would you like today?
+hello again	Hello again!
+my cart is full of good things	My cart is full of good things.
+morning	Morning!
+lovely day for shopping	Lovely day for shopping.
+your shelf is full of	Your shelf is full of
+a	A
+of	of
+costs	costs
+there isn't enough in your till for that today	There isn't enough in your till for that today.
+your notebook says	Your notebook says
+more	more
+could have sold yesterday but they ran out	could have sold yesterday, but they ran out!
+with	with
+in each	in each.
+that's	That's
+nothing today	Nothing today?
+that's all right	That's all right.
+see you tomorrow	See you tomorrow!
+open the shop	Open the shop!
+altogether	altogether.
+you gave me	You gave me
+here	Here
+back	back!
+thank you	Thank you!
+have a lovely day at the shop	Have a lovely day at the shop!
+here is a bag of	Here is a bag of
+for your shop	for your shop.
+it costs	It costs
+your	Your
+are on the shelf	are on the shelf.
+have a lovely first day	Have a lovely first day!
+now the price tags	Now the price tags!
+you choose how much each thing costs in your shop	You choose how much each thing costs in your shop.
+a higher price earns you more for each one	A higher price earns you more for each one.
+but some animals will think it is too expensive and buy fewer	But some animals will think it is too expensive, and buy fewer.
+nobody would pay more than	Nobody would pay more than
+for	for
+come in	come in
+each	Each
+how many	How many
+would you like	would you like?
+that's all your shelf can hold	That's all your shelf can hold!
+that's all the pennies in your till	That's all the pennies in your till!
+acorn bun	acorn bun
+acorn buns	acorn buns
+apple	apple
+apples	apples
+honey pot	honey pot
+honey pots	honey pots
+berry tart	berry tart
+berry tarts	berry tarts
+biscuit	biscuit
+biscuits	biscuits
+candle	candle
+candles	candles
+seed packet	seed packet
+seed packets	seed packets
+teacup	teacup
+teacups	teacups
+and	and
+is	is
+are	are
+penny	penny
+pennies	pennies
+a dime	a dime
+dimes	dimes
+a nickel	a nickel
+bag	bag
+bags	bags
+box	box
+boxes	boxes
+crate	crate
+crates	crates
+a honey pot	a honey pot
+one	one
+is 1 penny	is 1 penny
+ginny	Ginny
+poppy	Poppy
+primrose	Primrose
+pip	Pip
+rosie	Rosie
+juniper	Juniper
+wren	Wren
+daisy	Daisy
+maple	Maple
+0	0
+1	1
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+11	11
+12	12
+13	13
+14	14
+15	15
+16	16
+17	17
+18	18
+19	19
+20	20
+21	21
+22	22
+23	23
+24	24
+25	25
+26	26
+27	27
+28	28
+29	29
+30	30
+31	31
+32	32
+33	33
+34	34
+35	35
+36	36
+37	37
+38	38
+39	39
+40	40
+41	41
+42	42
+43	43
+44	44
+45	45
+46	46
+47	47
+48	48
+49	49
+50	50
+51	51
+52	52
+53	53
+54	54
+55	55
+56	56
+57	57
+58	58
+59	59
+60	60
+61	61
+62	62
+63	63
+64	64
+65	65
+66	66
+67	67
+68	68
+69	69
+70	70
+71	71
+72	72
+73	73
+74	74
+75	75
+76	76
+77	77
+78	78
+79	79
+80	80
+81	81
+82	82
+83	83
+84	84
+85	85
+86	86
+87	87
+88	88
+89	89
+90	90
+91	91
+92	92
+93	93
+94	94
+95	95
+96	96
+97	97
+98	98
+99	99
+100	100
+200	200
+300	300
+400	400
+500	500
+600	600
+700	700
+800	800
+900	900
