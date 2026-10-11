@@ -58,6 +58,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulat
 .opt.yes{background:#c9f0c0;box-shadow:0 6px 0 #8cc46c}
 .opt img{width:56px;height:56px}
 @keyframes glow{50%{box-shadow:0 6px 0 #e9b949,0 0 0 8px rgba(233,185,73,.45)}}
+.coach{background:#fff6c8;border-radius:16px;padding:8px 16px;font-size:21px;font-weight:700;text-align:center;box-shadow:0 4px 0 #e5d48a}
+.pulse{animation:glow 1s ease-in-out infinite}
 .hint{background:#fff6c8;border-radius:999px;padding:8px 18px;font-size:20px;font-weight:700;box-shadow:0 4px 0 #e5d48a;min-height:50px}
 .helpbox{background:#fffdf2;border:3px dashed #e5d48a;border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px}
 .helpbox:empty{display:none}
@@ -131,7 +133,7 @@ button.coin{padding:0}
 #grownups .card{background:#fffdf7;border-radius:20px;padding:20px;max-width:640px;width:100%;max-height:90vh;overflow:auto;font-family:system-ui,sans-serif;font-size:16px}
 #grownups table{width:100%;border-collapse:collapse}#grownups td,#grownups th{padding:6px;border-bottom:1px solid #eee;text-align:left}
 @media (max-height:640px){.opt{min-height:70px;font-size:36px}.btn{min-height:56px;font-size:22px}#bubble .pt{width:54px;height:54px}.gimg{width:52px;height:52px}}
-@media (prefers-reduced-motion:reduce){.pop,.opt.glow,.spark{animation:none!important}}
+@media (prefers-reduced-motion:reduce){.pop,.opt.glow,.pulse,.spark{animation:none!important}}
 </style>
 <script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 <script id="kid-voice" data-voice-base="../../voice/">
@@ -1071,7 +1073,7 @@ const GOODS = {
   seeds: { one: 'seed packet', many: 'seed packets', price: 2, emoji: '🌱' },
   teacup: { one: 'teacup', many: 'teacups', price: 6, emoji: '☕' },
 };
-const UNLOCK = { 1: ['bun', 'apple'], 2: ['honey'], 3: ['tart'], 4: ['biscuit'], 5: ['candle'], 6: ['seeds'], 7: ['teacup'] };
+const UNLOCK = { 1: ['bun'], 2: ['apple'], 3: ['honey'], 4: ['tart'], 5: ['biscuit'], 6: ['candle'], 7: ['seeds'], 8: ['teacup'] };
 const unlocked = day => Object.entries(UNLOCK).filter(([d]) => +d <= day).flatMap(([, g]) => g);
 const CAST = {
   clover: { name: 'Great-Aunt Clover', emoji: '👵', spec: { species: 'mouse', fur: '#d9d2c8', dress: '#c9b6f0', acc: ['glasses'] } },
@@ -1089,7 +1091,7 @@ const CAST = {
   queen: { name: 'The Fairy Queen', emoji: '🧚', special: true, finale: true, hi: 'I heard about your wonderful shop. I had to see it!', spec: { species: 'fairy', crown: true, wing: 'gold', dress: '#d4c4ff', hair: '#f2d27a' } },
 };
 const REGULARS = ['hazel', 'bunbury', 'hoot', 'mo', 'dot', 'tansy', 'wilf'];
-const SPECIAL_BY_DAY = { 2: 'captain', 3: 'miu', 4: 'athena', 6: 'captain', 7: 'miu', 8: 'athena', 10: 'queen' };
+const SPECIAL_BY_DAY = { 4: 'captain', 5: 'miu', 6: 'athena', 7: 'captain', 8: 'miu', 9: 'athena', 11: 'queen' };
 const DECOR = [
   { id: 'sign', name: 'Shop sign', cost: 5, emoji: '🪧', out: true },
   { id: 'vase', name: 'Flower vase', cost: 8, emoji: '💐' },
@@ -1109,22 +1111,14 @@ const NAMES = ['Ginny', 'Poppy', 'Primrose', 'Pip', 'Rosie', 'Juniper', 'Wren', 
 /* ================= levels (Moonlit Map strands) ================= */
 // 1 kindergarten to early 1st grade, 2 end of 1st, 3 early 2nd, 4 mid 2nd.
 const RANGE = { N: [1, 2], A: [1, 4], S: [1, 4], M: [1, 4], F: [1, 4], P: [1, 2] };
-const START = { N: 2, A: 2, S: 2, M: 1, F: 1, P: 1 };
+const START = { N: 1, A: 1, S: 1, M: 1, F: 1, P: 1 };
 const STRAND_NAME = { N: 'Counting (filling orders)', A: 'Adding (order totals)', S: 'Taking away (change, leftovers, savings)', M: 'Equal groups (bags, boxes, sailors)', F: 'Money (counting coins, halves)', P: 'Tens and ones (stacking the till)' };
-function mapLevels() {
-  let m = null; try { m = JSON.parse(localStorage.getItem('moonlit-map-v2')); } catch (e) {}
-  if (!m || !m.lands) return null;
-  const out = {};
-  for (const k of Object.keys(RANGE)) {
-    const items = m.lands[k] && m.lands[k].items; if (!Array.isArray(items) || !items.length) continue;
-    const by = {}; for (let l = 1; l <= 6; l++) by[l] = { c: 0, n: 0 };
-    items.forEach(it => { if (by[it.level]) { by[it.level].n++; if (it.correct) by[it.level].c++; } });
-    let secure = 0;
-    for (let L = 1; L <= 6; L++) { if (!by[L].c) continue; let ok = true; for (let l = 1; l <= L; l++) if (by[l].n && by[l].c / by[l].n < .5) ok = false; if (ok) secure = L; }
-    out[k] = clamp(secure + 1, ...RANGE[k]);
-  }
-  return out;
-}
+// The first days teach how the shop works, one new thing a day:
+// day 1 one bag from Bramble and two shoppers who pay exactly, day 2 choosing bags and a second good,
+// day 3 giving change, day 4 price tags and the special visitors, then the full shop.
+const PRICES_DAY = 4, CHANGE_DAY = 3, SUMS_DAY = 4;
+// Shows how a control works the first time she meets it, then never again.
+function coachOnce(key) { S.seen = S.seen || {}; if (S.seen[key]) return false; S.seen[key] = 1; save(); return true; }
 function record(k, ok) {
   S.log.push({ k, lv: S.lv[k], ok, day: S.day, t: Date.now() }); if (S.log.length > 400) S.log.splice(0, S.log.length - 400);
   const st = S.streak[k] || (S.streak[k] = { ok: 0, miss: 0 });
@@ -1135,7 +1129,7 @@ function record(k, ok) {
 
 /* ================= save ================= */
 function freshState() {
-  const lv = Object.assign({}, START, mapLevels() || {});
+  const lv = Object.assign({}, START);
   return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 3, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
@@ -1187,7 +1181,7 @@ if (window.ResizeObserver) { const ro = new ResizeObserver(measure); ro.observe(
 /* ================= pictures ================= */
 const has3d = () => !!window.Shop3D;
 function goodImg(id, cls = '') { return has3d() ? `<img class="gimg ${cls}" src="${Shop3D.good(id)}" alt="${GOODS[id].one}">` : `<span class="gemo ${cls}" role="img" aria-label="${GOODS[id].one}">${GOODS[id].emoji}</span>`; }
-function coinHTML(v, tag = 'span', attrs = '') { return `<${tag} class="coin v${v} ${has3d() ? 'g' : ''}" ${attrs}>${has3d() ? `<img src="${Shop3D.coin(v)}" alt="">` : ''}<b>${v}¢</b></${tag}>`; }
+function coinHTML(v, tag = 'span', attrs = '') { const pulse = /class="pulse"/.test(attrs); attrs = attrs.replace('class="pulse"', ''); return `<${tag} class="coin v${v} ${has3d() ? 'g' : ''} ${pulse ? 'pulse' : ''}" ${attrs}>${has3d() ? `<img src="${Shop3D.coin(v)}" alt="">` : ''}<b>${v}¢</b></${tag}>`; }
 function portrait(id) {
   if (id === 'keeper') return has3d() && S.keeper ? `<img src="${Shop3D.portrait(keeperSpec())}" alt="">` : '🐭';
   const c = CAST[id]; if (!c) return '🍄';
@@ -1264,7 +1258,9 @@ function ask(o) {
     const opts = o.opts || options(o.answer, o.lo || 0);
     DBG.cur = { type: 'ask', answer: o.answer, k: o.k };
     say(o.who, o.q);
+    const coach = coachOnce('ask');
     const draw = () => setPanel(`
+      ${coach && !misses ? `<div class="coach">👆 Tap the right answer.</div>` : ''}
       ${o.show ? `<div class="row">${o.show()}</div>` : ''}
       <div class="helpbox" id="hb">${helped && o.help ? o.help() : ''}</div>
       <div class="opts">${opts.map(v => `<button class="opt ${gone.has(v) ? 'no' : ''} ${misses >= 2 && v === o.answer ? 'glow' : ''}" data-v="${v}">${o.labels ? o.labels[v] : v}</button>`).join('')}</div>
@@ -1298,11 +1294,14 @@ function pickTask(order, who) {
   return new Promise(res => {
     const basket = {}; let tries = 0; DBG.cur = { type: 'pick', order };
     const goods = order.map(o => o[0]);
-    const draw = () => setPanel(`
+    const coach = coachOnce('pick');
+    if (coach) speak(`Tap the ${GOODS[goods[0]].one} to put it in the basket. Then tap Here you go!`, { queue: true });
+    const draw = () => { const full = order.every(([g, n]) => (basket[g] || 0) === n); setPanel(`
+      ${coach ? `<div class="coach">👆 Tap the ${GOODS[goods[0]].one} to put ${order[0][1] === 1 ? 'it' : 'them'} in the basket. Then tap <b>Here you go!</b></div>` : ''}
       <div class="row">${order.map(([g, n]) => `<span class="line">${n} ${goodImg(g, 'sm')}</span>`).join('')}</div>
-      <div class="row">${goods.map(g => `<button class="pickbtn" data-g="${g}">${goodImg(g)}<small>${GOODS[g].one} · ${S.stock[g] - (basket[g] || 0)} left</small></button>`).join('')}</div>
+      <div class="row">${goods.map(g => `<button class="pickbtn ${coach && !full && (basket[g] || 0) < order.find(o => o[0] === g)[1] ? 'pulse' : ''}" data-g="${g}">${goodImg(g)}<small>${GOODS[g].one} · ${S.stock[g] - (basket[g] || 0)} left</small></button>`).join('')}</div>
       <div class="tray drop basket"><span class="lbl">${CAST[who].name}'s basket</span>${goods.flatMap(g => Array.from({ length: basket[g] || 0 }, () => `<span data-g="${g}">${goodImg(g, 'sm')}</span>`)).join('')}</div>
-      <button class="btn" id="give">Here you go!</button>`, p => {
+      <button class="btn ${coach && full ? 'pulse' : ''}" id="give">Here you go!</button>`, p => {
       $$('.pickbtn', p).forEach(b => b.addEventListener('click', () => {
         const g = b.dataset.g; if ((basket[g] || 0) >= S.stock[g]) { say(who, `That's all the ${GOODS[g].many}!`); return; }
         basket[g] = (basket[g] || 0) + 1; SFX.tap(); speak(String(basket[g])); draw();
@@ -1319,20 +1318,22 @@ function pickTask(order, who) {
         const [g, n] = wrong, have = basket[g] || 0;
         say(who, have > n ? `Oops, that's too many ${GOODS[g].many}. I need ${n}. Tap one in the basket to put it back.` : `I need ${n} ${plural(n, GOODS[g].one, GOODS[g].many)}. Let's count: there ${have === 1 ? 'is' : 'are'} ${have} in the basket.`);
       });
-    });
+    }); };
     rerender = draw; draw();
   });
 }
 // She moves coins from a tray into someone's paw. mode 'pay' lets her give more and get change back.
-function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F', helpSay = '' }) {
+function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F', helpSay = '', coach = '' }) {
   return new Promise(res => {
     const src = source.map((v, i) => ({ v, i, given: false })); let tries = 0; DBG.cur = { type: 'coins', amount, mode };
     say(who, prompt);
+    if (coach) speak(coach.replace(/<[^>]+>/g, ''), { queue: true });
     const total = () => src.filter(c => c.given).reduce((s, c) => s + c.v, 0);
-    const draw = () => setPanel(`
-      <div class="tray"><span class="lbl">${title}</span>${src.map(c => coinHTML(c.v, 'button', `data-i="${c.i}" ${c.given ? 'style="visibility:hidden"' : ''}`)).join('')}</div>
+    const draw = () => { const t = total(), first = src.find(c => !c.given); setPanel(`
+      ${coach ? `<div class="coach">👆 ${coach}</div>` : ''}
+      <div class="tray"><span class="lbl">${title}</span>${src.map(c => coinHTML(c.v, 'button', `data-i="${c.i}" ${c.given ? 'style="visibility:hidden"' : coach && t < amount && c === first ? 'class="pulse"' : ''}`)).join('')}</div>
       <div class="tray drop" id="paw"><span class="lbl">${mode === 'change' ? 'Change for ' + CAST[who].name : 'For ' + CAST[who].name}</span>${src.filter(c => c.given).map(c => coinHTML(c.v, 'button', `data-i="${c.i}"`)).join('')}</div>
-      <button class="btn" id="done">Done</button>`, p => {
+      <button class="btn ${coach && t >= amount ? 'pulse' : ''}" id="done">Done</button>`, p => {
       $$('.tray:not(#paw) .coin', p).forEach(b => b.addEventListener('click', () => { const c = src[+b.dataset.i]; c.given = true; SFX.coin(total()); speak(String(total())); draw(); }));
       $$('#paw .coin', p).forEach(b => b.addEventListener('click', () => { const c = src[+b.dataset.i]; c.given = false; SFX.tap(); draw(); }));
       $('#done', p).addEventListener('click', () => {
@@ -1343,7 +1344,7 @@ function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F'
         else if (t < amount) say(who, `That's ${t}. I need ${amount}. A little more, please!`);
         else say(who, `That's ${t}. That's more than ${amount}. Tap a coin to take it back.`);
       });
-    });
+    }); };
     rerender = draw; draw();
   });
 }
@@ -1419,27 +1420,34 @@ async function morning() {
   await walkIn('bramble');
   if (S.day === 1) {
     await talk('bramble', `Good morning, ${S.keeper.name}! I'm Bramble. Every morning I bring things for your shop.`);
-    await talk('bramble', 'You buy them from me, and sell them to the animals of the wood. Let\'s fill your shelves!');
+    await talk('bramble', 'You buy them from me, and sell them to the animals of the wood.');
+    await firstCart();
+    S.wanted = {}; S.phase = 'shop'; for (const g of Object.keys(S.stock)) S.had[g] = S.stock[g]; save();
+    await walkOut();
+    return;
   } else {
     const want = Object.keys(S.wanted || {});
-    if (want.length) await talk('keeper', `My notebook says: friends asked for ${want.map(g => GOODS[g].many).join(' and ')}!`);
+    if (want.length && S.day >= PRICES_DAY) await talk('keeper', `My notebook says: friends asked for ${want.map(g => GOODS[g].many).join(' and ')}!`);
     await talk('bramble', pick(['Good morning! What would you like today?', 'Hello again! My cart is full of good things.', 'Morning! Lovely day for shopping.']));
   }
   const offer = [...new Set([...unlocked(S.day), ...Object.keys(S.wanted || {})])].filter(g => GOODS[g]);
   const cart = []; let spent = 0;
   for (const g of offer) {
     const size = packFor(), cost = packCost(g, size), room = 10 - (S.stock[g] || 0);
-    const most = Math.min(Math.floor(room / size), Math.floor((S.till - spent) / cost), 5);
+    const most = Math.min(Math.floor(room / size), Math.floor((S.till - spent) / cost), S.day < SUMS_DAY ? 2 : 5);
     if (most <= 0) { if (room < size) await talk('bramble', `Your shelf is full of ${GOODS[g].many}!`); else if (S.day > 1) await talk('bramble', `A ${PACK[size]} of ${GOODS[g].many} costs ${cost}. There isn't enough in your till for that today.`); continue; }
     // No suggestion after day 1: how much to buy is her decision, from her notebook.
     let start = S.day === 1 ? (g === 'bun' ? 4 : 2) : (S.lastBuy && S.lastBuy[g] && S.lastBuy[g].size === size ? S.lastBuy[g].n : 1);
     start = clamp(start, 1, most);
     const missed = (S.lastMissed || {})[g] || 0;
-    if (missed && most > 1) await talk('bramble', `Your notebook says ${missed} more ${plural(missed, GOODS[g].one, GOODS[g].many)} could have sold yesterday, but they ran out!`);
+    if (missed && most > 1 && S.day >= PRICES_DAY) await talk('bramble', `Your notebook says ${missed} more ${plural(missed, GOODS[g].one, GOODS[g].many)} could have sold yesterday, but they ran out!`);
     const n = await chooseQty(g, size, cost, most, start);
     S.lastBuy = S.lastBuy || {}; S.lastBuy[g] = { size, n };
     if (!n) continue;
-    if (n > 1) {
+    if (n > 1 && S.day < SUMS_DAY) {
+      await talk('bramble', `${n} ${PACKS[size]} with ${size} in each. That's ${n * size} ${GOODS[g].many}!`, 'Next',
+        `<div class="row">${Array.from({ length: n }, () => `<span class="grp">${dots(size)}</span>`).join('')}</div>`);
+    } else if (n > 1) {
       await ask({
         k: 'M', who: 'bramble', q: `${n} ${PACKS[size]} with ${size} in each. How many ${GOODS[g].many} is that?`, answer: n * size,
         show: () => Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${PACK[size]} ${i + 1}</span>${dots(size)}</span>`).join(''),
@@ -1452,7 +1460,10 @@ async function morning() {
   if (!cart.length) { await talk('bramble', 'Nothing today? That\'s all right. See you tomorrow!', 'Open the shop!'); }
   else {
     const total = cart.reduce((s, c) => s + c.cost, 0);
-    if (cart.length > 1) {
+    if (cart.length > 1 && S.day < SUMS_DAY) {
+      await talk('bramble', `${cart.map((c, i) => `${i ? 'the' : 'The'} ${GOODS[c.g].many} are ${c.cost}`).join(' and ')}. That's ${total} ${plural(total, 'penny', 'pennies')} altogether.`, 'Next',
+        `<div class="row">${cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}${dots(c.cost)}</span>`).join('')}</div>`);
+    } else if (cart.length > 1) {
       await ask({
         k: 'A', who: 'bramble', q: `${cart.map(c => `The ${GOODS[c.g].many} are ${c.cost} ${plural(c.cost, 'penny', 'pennies')}`).join('. ')}. How much is that altogether?`, answer: total,
         show: () => cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}<span class="lab">${c.cost}¢</span></span>`).join('<b style="font-size:30px">+</b>'),
@@ -1460,18 +1471,29 @@ async function morning() {
         helpSay: 'Count all the dots, one for each penny.',
       });
     }
-    await coinsTask({ who: 'bramble', amount: total, source: coinsFor(S.till), title: 'Your till', prompt: `That's ${total} ${plural(total, 'penny', 'pennies')}, please. Tap the coins to pay me.`, mode: 'pay' })
-      .then(async given => { if (given > total) { await talk('bramble', `You gave me ${given}. Here are ${given - total} back!`); } });
+    await coinsTask({ who: 'bramble', amount: total, source: S.day < SUMS_DAY ? Array(S.till).fill(1) : coinsFor(S.till), title: 'Your till', prompt: `That's ${total} ${plural(total, 'penny', 'pennies')}, please. Tap the coins to pay me.`, mode: S.day < SUMS_DAY ? 'exact' : 'pay' })
+      .then(async given => { if (given > total) { await talk('bramble', `You gave me ${given}. Here ${given - total === 1 ? 'is 1 penny' : 'are ' + (given - total)} back!`); } });
     S.till -= total; S.spent = total;
     for (const c of cart) S.stock[c.g] = (S.stock[c.g] || 0) + c.qty;
     syncView(); hud();
     mood('cust', 'happy', 1500);
     await talk('bramble', 'Thank you! Have a lovely day at the shop!', 'Price tags');
   }
-  if (inStock().length) await priceTags();
+  if (inStock().length && S.day >= PRICES_DAY) await priceTags();
   for (const g of Object.keys(S.stock)) S.had[g] = S.stock[g];
   S.wanted = {}; S.phase = 'shop'; save();
   await walkOut();
+}
+// Day 1: Bramble hands over one bag of buns and she pays with a single penny.
+async function firstCart() {
+  const g = 'bun', size = 2, cost = packCost(g, size);
+  await talk('bramble', `Here is a bag of ${size} ${GOODS[g].many} for your shop. It costs ${cost} ${plural(cost, 'penny', 'pennies')}.`, 'Next',
+    `<div class="row"><span class="grp">${Array.from({ length: size }, () => goodImg(g, 'sm')).join('')}<span class="lab">bag of ${size}</span></span><span class="tag">${cost}¢</span></div>`);
+  await coinsTask({ who: 'bramble', amount: cost, source: coinsFor(S.till), title: 'Your till', prompt: `Pay me ${cost} ${plural(cost, 'penny', 'pennies')}, please.`,
+    coach: coachOnce('pay') ? `Tap ${cost === 1 ? 'a penny' : 'the pennies'} to give ${cost === 1 ? 'it' : 'them'} to Bramble. Then tap <b>Done</b>.` : '' });
+  S.till -= cost; S.spent = cost; S.stock[g] = (S.stock[g] || 0) + size; syncView(); hud();
+  mood('cust', 'happy', 1500);
+  await talk('bramble', `Thank you! Your ${GOODS[g].many} are on the shelf. Have a lovely first day!`, 'Open the shop!');
 }
 function notebookLine(g) {
   if (S.day === 1 || !(g in S.lastSold || g in (S.lastMissed || {}) || g in (S.lastDear || {}))) return '';
@@ -1506,8 +1528,8 @@ function chooseQty(g, size, cost, most, suggest) {
     say('bramble', `${GOODS[g].many[0].toUpperCase() + GOODS[g].many.slice(1)} come in ${PACKS[size]} of ${size}. Each ${PACK[size]} costs ${cost} ${plural(cost, 'penny', 'pennies')}. How many ${PACKS[size]} would you like?`);
     const draw = () => setPanel(`
       <div class="row"><span class="grp">${goodImg(g)}<span class="lab">${PACK[size]} of ${size}</span></span><span class="tag">${cost}¢ a ${PACK[size]}</span>
-        <span class="tag">You sell at ${priceOf(g)}¢ each</span><span class="small">On the shelf: ${S.stock[g] || 0}</span></div>
-      ${notebookLine(g)}
+        ${S.day >= PRICES_DAY ? `<span class="tag">You sell at ${priceOf(g)}¢ each</span><span class="small">On the shelf: ${S.stock[g] || 0}</span>` : ''}</div>
+      ${S.day >= PRICES_DAY ? notebookLine(g) : ''}
       <div class="cnt"><button id="mi" aria-label="fewer">−</button><b>${n}</b><button id="pl" aria-label="more">+</button></div>
       <div class="row"><button class="btn alt" id="none">No, thank you</button><button class="btn" id="ok" ${n ? '' : 'disabled'}>Buy ${n} ${plural(n, PACK[size], PACKS[size])}</button></div>`, p => {
       $('#mi', p).addEventListener('click', () => { if (n > 0) { n--; SFX.tap(); speak(String(n)); draw(); } });
@@ -1521,24 +1543,23 @@ function chooseQty(g, size, cost, most, suggest) {
 
 /* ----- shop time ----- */
 function makeCustomers() {
-  if (S.day === 1) return [
-    { who: 'hazel', flow: 'count', order: makeOrder(1, true) }, { who: 'bunbury', flow: 'change', order: makeOrder(2, true) },
-    { who: 'hoot', flow: 'count', missing: 'honey', order: makeOrder(2, true) }, { who: 'mo', flow: 'change', order: makeOrder(2, true) }];
-  // Most customers pay with a bigger coin, so she gives change.
-  const regs = shuffle(REGULARS).slice(0, 4).map((who, i) => ({ who, flow: i === 0 ? 'count' : 'change' }));
-  const sp = SPECIAL_BY_DAY[S.day] || (S.day > 10 ? pick(['captain', 'miu', 'athena']) : null);
+  if (S.day === 1) return [{ who: 'hazel', flow: 'count', order: [['bun', 1]] }, { who: 'mo', flow: 'count', order: [['bun', 1]] }];
+  // From day 3 most customers pay with a bigger coin, so she gives change.
+  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4;
+  const regs = shuffle(REGULARS).slice(0, howMany).map((who, i) => ({ who, flow: i === 0 || S.day < CHANGE_DAY ? 'count' : 'change' }));
+  const sp = SPECIAL_BY_DAY[S.day] || (S.day > 11 ? pick(['captain', 'miu', 'athena']) : null);
   if (sp) regs.splice(1, 0, { who: sp, flow: 'change', special: sp });
   const notHere = Object.keys(GOODS).filter(g => !unlocked(S.day).includes(g));
-  if (notHere.length && Math.random() < .6) regs[regs.length - 1].missing = notHere[0];
-  regs.forEach(c => { if (!c.special) c.order = makeOrder(2, true); });
+  if (S.day >= PRICES_DAY && notHere.length && Math.random() < .6) regs[regs.length - 1].missing = notHere[0];
+  regs.forEach(c => { if (!c.special) c.order = makeOrder(S.day < SUMS_DAY ? 1 : 2, true); });
   return regs;
 }
 const inStock = () => Object.keys(S.stock).filter(g => S.stock[g] > 0);
 // An order whose total fits her adding level.
-const orderBand = () => S.day === 1 ? [2, Math.min(6, [5, 10, 20, 30][S.lv.A - 1])] : [[2, 5], [3, 10], [8, 20], [15, 30]][S.lv.A - 1];
+const orderBand = () => S.day < SUMS_DAY ? [1, 4] : [[2, 5], [3, 10], [8, 20], [15, 30]][S.lv.A - 1];
 // wish: what an animal would like at the usual prices, whatever is on the shelf (her stock decides what she can sell).
 function makeOrder(maxGoods = 2, wish = false) {
-  const band = orderBand(), cap = S.day === 1 ? 4 : S.lv.N >= 2 ? 6 : 5;
+  const band = orderBand(), cap = S.day < SUMS_DAY ? 2 : S.lv.N >= 2 ? 6 : 5;
   const goods = wish ? unlocked(S.day) : inStock(); if (!goods.length) return null;
   const most = g => wish ? cap : Math.min(S.stock[g], cap);
   let best = null, bestD = 1e9;
@@ -1667,7 +1688,8 @@ async function shopFor(c) {
 function coinsTaskWithHelp({ who, change, paid, total, source }) {
   return coinsTask({ who, amount: change, source, title: 'The till drawer', k: 'S', mode: 'change',
     prompt: `It costs ${total}. I gave you ${paid}. How much change do I get? Put the coins in my paw.`,
-    helpSay: `Start at ${total} and count up to ${paid}, one penny for each number you say.` });
+    helpSay: `Start at ${total} and count up to ${paid}, one penny for each number you say.`,
+      coach: coachOnce('change') ? `Start at ${total}. Tap one penny for each number as you count up to ${paid}. Then tap <b>Done</b>.` : '' });
 }
 async function captainOrder(who) {
   const M = S.lv.M, g = inStock().sort((a, b) => S.stock[b] - S.stock[a])[0]; if (!g) return null;
@@ -1715,7 +1737,7 @@ async function evening() {
   // what is left on the shelf
   const fresh = Object.keys(S.had).filter(g => GOODS[g] && GOODS[g].fresh && S.had[g] > 0);
   const g = fresh.find(x => (S.sold[x] || 0) > 0 && S.stock[x] > 0);
-  if (g) {
+  if (g && S.day >= SUMS_DAY) {
     const had = S.had[g], sold = S.sold[g], left = S.stock[g];
     await ask({
       k: 'S', who: 'keeper', q: `This morning I had ${had} ${GOODS[g].many}. I sold ${sold}. How many are left?`, answer: left,
@@ -1742,11 +1764,14 @@ async function evening() {
   await profitTask();
   // count the till in tens
   const T = S.till;
-  if (T >= 10) await stackTask(T);
+  if (T >= 10 && S.day >= 2) await stackTask(T);
   else await talk('keeper', `There ${T === 1 ? 'is' : 'are'} ${T} ${plural(T, 'penny', 'pennies')} in the till.`);
   // keep ten (or twenty, to buy more stock) for tomorrow, the rest to the jar
-  const keep = T > 10 && S.day >= 2 ? await keepChoice(Math.min(T, 20)) : 10;
-  if (T > keep) {
+  const keep = T > 10 && S.day >= PRICES_DAY ? await keepChoice(Math.min(T, 20)) : 10;
+  if (T > keep && S.day < SUMS_DAY) {
+    await talk('keeper', `${T} pennies! I'll keep 10 for Bramble's cart tomorrow. The other ${T - keep === 1 ? 'penny goes' : (T - keep) + ' go'} in my savings jar.`, 'Into the jar 🫙');
+    S.jar += T - keep; S.till = keep; hud(); SFX.coin(5);
+  } else if (T > keep) {
     const rest = T - keep;
     await ask({
       k: 'P', who: 'keeper', q: `I'll keep ${keep} pennies for Bramble's cart tomorrow. How many go in my savings jar?`, answer: rest,
@@ -1771,6 +1796,8 @@ async function profitTask() {
   if (!spent) await talk('keeper', `I took in ${took} ${plural(took, 'penny', 'pennies')} today, and I didn't buy anything from Bramble. So I earned ${took}!`);
   else if (P <= 0) {
     await talk('keeper', `I paid Bramble ${spent} ${plural(spent, 'penny', 'pennies')} and took in ${took}. ${P === 0 ? 'That\'s the same, so I earned nothing today.' : 'I took in less than I paid.'} Tomorrow I'll think about what to buy and my prices. Aunt Clover's tin will look after the till.`, 'I\'ll try again!');
+  } else if (S.day < SUMS_DAY) {
+    await talk('keeper', `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent}. So my shop earned ${P}!`, 'Hooray!');
   } else {
     await ask({
       k: 'S', who: 'keeper', q: `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent} this morning. How much did my shop earn today?`, answer: P,
@@ -1816,7 +1843,7 @@ function stackTask(T) {
         <span class="ten">${Array.from({ length: 10 }, (_, i) => i < mat ? coinHTML(1) : '<span></span>').join('')}</span></div>
       <div class="tray"><span class="lbl">The till</span>${Array.from({ length: loose }, (_, i) => coinHTML(1, 'button', `data-i="${i}"`)).join('')}</div>`, p => {
       $$('.tray .coin', p).forEach(b => b.addEventListener('click', async () => {
-        if (loose <= 0 || mat >= 10) return;
+        if (loose <= 0 || mat >= 10 || (mat === 0 && loose < 10)) return;
         loose--; mat++; SFX.coin(mat); speak(String(mat)); draw();
         if (mat === 10) { await wait(500); stacks++; mat = 0; SFX.stack(); speak('A stack of ten!'); draw(); }
         if (loose < 10 && mat === 0) { await wait(700); rerender = null; finish(); }
@@ -1896,7 +1923,7 @@ async function title() {
     }).join('');
     const box = $('#grownups'); box.hidden = false;
     $('.card', box).innerHTML = `<h2 style="margin-top:0">The Toadstool Shop: grown-ups</h2>
-      <p>Day ${S.day}. Levels follow The Moonlit Map (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses.</p>
+      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
       <p>Savings jar ${S.jar}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
