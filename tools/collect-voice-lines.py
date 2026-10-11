@@ -50,6 +50,8 @@ for page in pages:
         # "this lantern needs" + "7" + "fireflies". Pieces next to a name (not a number) won't match, which is fine.
         pieces = re.split(r"\$\{[^}]*\}", text) if "${" in text else [text]
         for s in (x for piece in pieces for x in SENT.findall(piece)):
+            if re.search(r"[${}:>]", s):  # bits of code caught between nested ${...}
+                continue
             k = key(s)
             if k and k not in lines:
                 lines[k] = s.strip()
