@@ -203,36 +203,25 @@ that's you	That's you!
 pick your fur and your dress	Pick your fur and your dress.
 what is my name	What is my name?
 tap a name to hear it	Tap a name to hear it.
-good morning	Good morning,
 i'm bramble	I'm Bramble.
 every morning i bring things for your shop	Every morning I bring things for your shop.
 you buy them from me and sell them to the animals of the wood	You buy them from me, and sell them to the animals of the wood.
+good morning	Good morning!
 what would you like today	What would you like today?
 hello again	Hello again!
 my cart is full of good things	My cart is full of good things.
 morning	Morning!
 lovely day for shopping	Lovely day for shopping.
-your shelf is full of	Your shelf is full of
-of	of
 there isn't enough in your till for that today	There isn't enough in your till for that today.
-your notebook says	Your notebook says
-could have sold yesterday but they ran out	could have sold yesterday, but they ran out!
-with	with
-in each	in each.
 nothing today	Nothing today?
 that's all right	That's all right.
 see you tomorrow	See you tomorrow!
 open the shop	Open the shop!
 altogether	altogether.
 you gave me	You gave me
-here	Here
 back	back!
 have a lovely day at the shop	Have a lovely day at the shop!
-here is a bag of	Here is a bag of
-for your shop	for your shop.
 it costs	It costs
-your	Your
-are on the shelf	are on the shelf.
 have a lovely first day	Have a lovely first day!
 now the price tags	Now the price tags!
 you choose how much each thing costs in your shop	You choose how much each thing costs in your shop.
@@ -240,10 +229,6 @@ a higher price earns you more for each one	A higher price earns you more for eac
 but some animals will think it is too expensive and buy fewer	But some animals will think it is too expensive, and buy fewer.
 what price shall i put on each tag	What price shall I put on each tag?
 nobody would pay more than	Nobody would pay more than
-for	for
-come in	come in
-each	Each
-would you like	would you like?
 that's all your shelf can hold	That's all your shelf can hold!
 that's all the pennies in your till	That's all the pennies in your till!
 my very own shop	My very own shop!
@@ -256,17 +241,12 @@ still coming to shop	still coming to shop.
 i'll write it in my notebook	I'll write it in my notebook.
 what a busy day	What a busy day!
 time to close the shop	Time to close the shop.
-do you have any	Do you have any
 not yet	Not yet!
 oh	Oh!
 could you get some from bramble's cart	Could you get some from Bramble's cart?
-i'll come back for	I'll come back for
-another day	another day.
 oh the shelves are empty	Oh, the shelves are empty!
 i'll come back tomorrow	I'll come back tomorrow.
 bye	Bye!
-may i have	May I have
-please	, please?
 here you are	Here you are!
 one penny	One penny.
 just right	Just right!
@@ -281,31 +261,20 @@ thank you so much	Thank you so much!
 hooray	Hooray!
 let's be friends	Let's be friends!
 bye bye	Bye-bye!
-ooh	Ooh,
-are expensive today	are expensive today!
 i'll buy fewer	I'll buy fewer.
-cost too much for me today	cost too much for me today.
 maybe another day	Maybe another day!
-are cheap today	are cheap today!
 i'll take extra	I'll take extra!
-oh you haven't got enough	Oh, you haven't got enough
 i'll take what you have	I'll take what you have.
-oh no no	Oh no, no
-left	left!
 i'll come back another day	I'll come back another day.
 wise shopkeeper	Wise shopkeeper!
 athena will be pleased	Athena will be pleased.
-left over	left over.
 they're best fresh so the duck family gets them for supper	They're best fresh, so the duck family gets them for supper.
 quack quack	Quack quack!
 maybe i'll buy a little less tomorrow	Maybe I'll buy a little less tomorrow.
 goodnight ducks	Goodnight, ducks!
 every single one was sold	Every single one was sold!
 maybe i'll buy more tomorrow	Maybe I'll buy more tomorrow.
-after mine ran out	after mine ran out.
 i didn't get	I didn't get!
-there	There
-in the till	in the till.
 i'll keep 10 for bramble's cart tomorrow	I'll keep 10 for Bramble's cart tomorrow.
 the other	The other
 in my savings jar	in my savings jar.
@@ -327,8 +296,6 @@ that's my best day ever	That's my best day ever!
 my old best was	My old best was
 my shop has earned	My shop has earned
 pennies so far	pennies so far!
-i won the	I won the
-card	card!
 how much shall i keep in the till for bramble's cart	How much shall I keep in the till for Bramble's cart?
 more pennies buys more things to sell	More pennies buys more things to sell.
 the rest goes in my savings jar	The rest goes in my savings jar.
@@ -339,7 +306,6 @@ tap pennies to make a stack of ten	Tap pennies to make a stack of ten.
 a stack of ten	A stack of ten!
 my savings jar has	My savings jar has
 i can buy something for my shop	I can buy something for my shop!
-my	My
 i have	I have
 take away	take away
 leaves	leaves
@@ -348,8 +314,6 @@ day	Day
 is done	is done!
 time for bed	Time for bed.
 it's day	It's day
-at	at
-'s shop	's shop.
 a golden bubble	A golden bubble!
 ooh sparkly gold	Ooh, sparkly gold!
 you found the golden one	You found the golden one!
