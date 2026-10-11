@@ -29,10 +29,20 @@ def fun_lines(src):
             for q, text in STR.findall(line):
                 if "${" not in text and re.search(r"[A-Za-z]{2}.*[.!?]$", text):
                     yield q, text
+# The Toadstool Shop calls say(who, text) and talk(who, text, button), often with a ternary or
+# pick([...]) for the text, and its customers' greetings sit in CAST as hi: '...'. So on lines that
+# talk or set hi:/thanks, every quoted string is collected: sentences ending in . ! or ?, and the
+# pieces of template lines (button labels and names like 'bramble' have no end mark, so they're skipped).
+def shop_lines(src):
+    for line in src.splitlines():
+        if re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =", line):
+            for q, text in STR.findall(line):
+                if "${" in text or re.search(r"[A-Za-z]{2}.*[.!?]$", text):
+                    yield q, text
 pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(str(root / "fun/*/index.html")))
 for page in pages:
     src = open(page).read()
-    for q, text in (fun_lines(src) if "/fun/" in page else CALL.findall(src)):
+    for q, text in (fun_lines(src) if "/fun/" in page else shop_lines(src) if "/toadstool-shop/" in page else CALL.findall(src)):
         if "<" in text:
             continue
         text = text.replace("\\'", "'").replace('\\"', '"')
@@ -43,7 +53,7 @@ for page in pages:
             k = key(s)
             if k and k not in lines:
                 lines[k] = s.strip()
-for w in [str(n) for n in range(0, 101)] + ["plus", "minus", "equals", "and", "makes", "is", "take away", "times"]:
+for w in [str(n) for n in range(0, 101)] + ["plus", "minus", "equals", "and", "makes", "is", "take away", "times", "penny", "pennies"]:
     lines.setdefault(w, w)
 
 out = root / "voice/lines.txt"
