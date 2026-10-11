@@ -1,0 +1,19 @@
+{
+ "_about": "ElevenLabs voices. default reads every game; characters get their own voice where a game passes { voice: id } to KidVoice.speak. tools/collect-voice-lines.py writes their lines to voice/lines/<id>.txt.",
+ "default": "cgSgspJ2msm6clMCkdW9",
+ "characters": {
+  "bramble": { "name": "Bramble the hedgehog (Toadstool Shop)", "voice": "JBFqnCBsd6RMkjVDRZzb", "voice_name": "George" },
+  "clover": { "name": "Great-Aunt Clover (Toadstool Shop)", "voice": "Xb7hH8MSUJpSbSDYk0k2", "voice_name": "Alice" },
+  "hazel": { "name": "Hazel the hedgehog", "voice": "FGY2WhTYpPnrIDTdsKH5", "voice_name": "Laura" },
+  "bunbury": { "name": "Mrs. Bunbury the rabbit", "voice": "XrExE9yKIg1WjnnlVkGX", "voice_name": "Matilda" },
+  "hoot": { "name": "Old Hoot the owl", "voice": "pqHfZKP75CvOlQylNhV4", "voice_name": "Bill" },
+  "mo": { "name": "Mo the mouse", "voice": "TX3LPaxmHKxFdv7VOQHJ", "voice_name": "Liam" },
+  "dot": { "name": "Dot the rabbit", "voice": "hpp4J3VqNfWAUOO0d1Us", "voice_name": "Bella" },
+  "tansy": { "name": "Tansy the cat", "voice": "EXAVITQu4vr4xnSDxMaL", "voice_name": "Sarah" },
+  "wilf": { "name": "Wilf the sailor mouse", "voice": "IKne3meq5aSn9XLyUdCD", "voice_name": "Charlie" },
+  "captain": { "name": "Captain Whiskers", "voice": "N2lVS1w4EtoT3dr4eOWO", "voice_name": "Callum" },
+  "miu": { "name": "Miu the temple cat", "voice": "SAz9YHcvj6GT2YYXdXww", "voice_name": "River" },
+  "athena": { "name": "Athena's owl", "voice": "onwK4e9ZLuTAKqWW03F9", "voice_name": "Daniel" },
+  "queen": { "name": "The Fairy Queen", "voice": "pFZP5JQG7iQjIQuC4Bku", "voice_name": "Lily" }
+ }
+}
