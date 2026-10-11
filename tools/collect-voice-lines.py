@@ -29,10 +29,28 @@ def fun_lines(src):
             for q, text in STR.findall(line):
                 if "${" not in text and re.search(r"[A-Za-z]{2}.*[.!?]$", text):
                     yield q, text
+# The Toadstool Shop calls say(who, text) and talk(who, text, button), often with a ternary or
+# pick([...]) for the text, and its customers' greetings sit in CAST as hi: '...'. So on lines that
+# talk or set hi:/thanks, every quoted string is collected: sentences ending in . ! or ?, and the
+# pieces of template lines (button labels and names like 'bramble' have no end mark, so they're skipped).
+def shop_lines(src):
+    for line in src.splitlines():
+        if re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =", line):
+            for q, text in STR.findall(line):
+                if "${" in text or re.search(r"[A-Za-z]{2}.*[.!?]$", text):
+                    yield q, text
+# Template pieces that sit next to a name or a word (not a number), so KidVoice can never stitch them.
+# Skipped so they don't use up the ElevenLabs allowance or The Wonder Shelf's file limit.
+NO_STITCH = {"good morning", "your shelf is full of", "of", "do you have any", "i'll come back for", "another day",
+    "may i have", "please", "ooh", "are expensive today", "cost too much for me today", "are cheap today",
+    "oh you haven't got enough", "oh no no", "left", "left over", "your", "are on the shelf", "here is a bag of",
+    "for your shop", "i won the", "card", "at", "'s shop", "s shop", "my", "for", "come in", "each", "would you like",
+    "here", "there", "in the till", "after mine ran out", "could have sold yesterday but they ran out",
+    "your notebook says", "with", "in each"}
 pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(str(root / "fun/*/index.html")))
 for page in pages:
     src = open(page).read()
-    for q, text in (fun_lines(src) if "/fun/" in page else CALL.findall(src)):
+    for q, text in (fun_lines(src) if "/fun/" in page else shop_lines(src) if "/toadstool-shop/" in page else CALL.findall(src)):
         if "<" in text:
             continue
         text = text.replace("\\'", "'").replace('\\"', '"')
@@ -40,10 +58,14 @@ for page in pages:
         # "this lantern needs" + "7" + "fireflies". Pieces next to a name (not a number) won't match, which is fine.
         pieces = re.split(r"\$\{[^}]*\}", text) if "${" in text else [text]
         for s in (x for piece in pieces for x in SENT.findall(piece)):
+            if re.search(r"[${}:>]", s):  # bits of code caught between nested ${...}
+                continue
             k = key(s)
+            if "${" in text and k in NO_STITCH:
+                continue
             if k and k not in lines:
                 lines[k] = s.strip()
-for w in [str(n) for n in range(0, 101)] + ["plus", "minus", "equals", "and", "makes", "is", "take away", "times"]:
+for w in [str(n) for n in range(0, 101)] + ["plus", "minus", "equals", "and", "makes", "is", "take away", "times", "penny", "pennies"]:
     lines.setdefault(w, w)
 
 out = root / "voice/lines.txt"
