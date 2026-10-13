@@ -190,11 +190,8 @@ const SAVE_KEY = 'funMouseHouse.v1';
 const MAX_THINGS = 24;
 const first = (() => { try { return !localStorage.getItem(SAVE_KEY); } catch (e) { return true; } })();
 const data = load(SAVE_KEY, { unlocked: [], things: [], wall: 0, floor: 0, night: false, fresh: [] });
+// The room starts empty: the starter things wait in the tray, so everything in the room is hers.
 if (!data.unlocked.length) data.unlocked = STARTERS.slice();
-if (first) data.things = [
-  { id: 'rug', x: .5, z: 1, r: 0 }, { id: 'bed', x: -3.6, z: -2.6, r: 0 }, { id: 'table', x: 2.4, z: -.6, r: 0 },
-  { id: 'chair', x: 3.9, z: .2, r: -1.2 }, { id: 'plant', x: -5.4, z: 2.6, r: 0 }, { id: 'lamp', x: 5.4, z: -3.2, r: 0 }
-];
 const persist = () => save(SAVE_KEY, data);
 
 const S = stage({ bg: '#f6e3c8', fov: 34, shadows: true });
