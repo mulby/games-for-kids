@@ -95,7 +95,8 @@ const parts = { evening: [], morning: [] };
   // a basket of apples by the door in the daytime; at dusk a stump with the savings jar
   const bk = new THREE.Group(); bk.position.set(-.55, 0, 2.5); bk.rotation.y = .4;
   bk.add(D.wickerBasket({ size: .62, liner: '#e2566b', handle: true }));
-  [[-.1, .4, -.05], [.12, .42, .06], [.0, .46, .12]].forEach(([x, y, z], i) => { const a = D.apple({ seed: i + 3 }); a.scale.setScalar(.5); a.position.set(x, y, z); bk.add(a); });
+  // the basket scales itself by size, so its liner floor sits at about y .07 and its rim at about .24 here
+  [[-.12, .07, -.06, 0], [.13, .07, -.05, 2.1], [.0, .07, .13, 4.2], [.01, .16, .01, 1]].forEach(([x, y, z, ry], i) => { const a = D.apple({ seed: i + 3 }); a.scale.setScalar(.5); a.position.set(x, y, z); a.rotation.set(i === 3 ? .25 : 0, ry, 0); bk.add(a); });
   D.freeze(bk); outside.add(bk); parts.morning.push(bk);
   const stump = D.treeStump(); stump.position.set(-.45, 0, 2.45); outside.add(stump); parts.evening.push(stump);
   outside.userData.stump = stump;
