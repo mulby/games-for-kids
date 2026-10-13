@@ -1085,7 +1085,6 @@ const GAMES = [
   {slug:"fairy-lantern-festival", title:"Fairy Lantern Festival", art:"🧚🏮", c:"#c56bb0", blurb:"Fill lanterns with fireflies to light the fairy queen's festival, then decorate Teapot Cottage.", chips:["Counting","Making ten","Teen numbers","Tens & ones"]},
   {slug:"gemling-grids", title:"Gemling Grids", art:"💎🧩", c:"#3f9a8f", blurb:"Easy sudoku and sum puzzles with Nib the mole. Tuck sleepy crystal creatures into their nooks.", chips:["Logic puzzles","Adding","Missing numbers"]},
   {slug:"egypt-puzzles", title:"Miu's Magic Pyramids", art:"🐈🔺", c:"#d39a2c", blurb:"Help Miu the temple cat rebuild magic pyramids where every stone adds the two below it.", chips:["Adding","Missing numbers","Puzzles"]},
-  {slug:"mouse-shop", title:"Acorn Bakery", art:"🐭🥐", c:"#b8784a", blurb:"Run a mouse bakery in Bramblewick Hollow and spend acorns on treasures for your mouse house.", chips:["Counting","Making 10","Adding","Taking away"]},
   {slug:"pirate-voyage", title:"The Shining Sea", art:"🏴‍☠️⚡", c:"#2f6f9f", blurb:"Captain a ship around the islands of the Greek gods, solving their number riddles.", chips:["Adding","Taking away","Tens & ones","Equal sides"]},
   {slug:"toadstool-shop", title:"The Toadstool Shop", art:"🍄🐭", c:"#c23f55", blurb:"Run your own little shop in a toadstool: buy from Bramble's cart, serve the animals, count the till and save up to decorate.", chips:["Money","Adding","Making change","Equal groups"]},
   {slug:"toadstool-shop-octopath", title:"Toadstool Shop: Lantern Tale", art:"🍄🏮", c:"#2b3a67", blurb:"The same toadstool shop as a glowing storybook adventure: give change to break a friend's wish shield!", chips:["Money","Adding","Making change","Equal groups"]},
@@ -1105,7 +1104,6 @@ const STRANDS = {
 // Which next-step levels (1-6, the level she is working toward) each game practices.
 const FITS = {
   "fairy-lantern-festival": {N:[1,3], P:[1,3], A:[1,3]},
-  "mouse-shop": {N:[1,2], A:[1,3], S:[1,3], F:[1,1]},
   "pirate-voyage": {A:[2,3], S:[2,3], P:[1,3]},
   "egypt-puzzles": {A:[2,4], S:[3,4]},
   "gemling-grids": {A:[1,4], S:[3,4]},
@@ -1517,7 +1515,6 @@ document.getElementById("voiceHear").onclick = hear;
     "fairy-lantern-festival": ["Fairy Lantern Festival", ["fairyLanternFestival.v1"]],
     "gemling-grids": ["Gemling Grids", ["gemlingGrids.v1"]],
     "egypt-puzzles": ["Miu's Magic Pyramids", ["games-for-kids.egypt-puzzles.v1"]],
-    "mouse-shop": ["Acorn Bakery", ["acornBakery.v1"]],
     "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]],
     "toadstool-shop": ["The Toadstool Shop", ["toadstoolShop.v1"]],
     "bubble-garden": ["Bubble Garden", ["funBubbleGarden.v1"]],
