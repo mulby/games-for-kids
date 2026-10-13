@@ -1,0 +1,15 @@
+# Extra pieces for tools/collect-voice-lines.py: voice<TAB>text (main or a character from voices.json).
+bramble	a bag of
+bramble	and the
+bramble	each bag costs
+bramble	pennies altogether
+bramble	pennies please
+main	go in my savings jar
+main	my notebook friends wanted
+main	my notebook says friends asked for
+main	stack of ten and
+main	stacks of ten and
+main	tap a penny to give it to bramble
+main	then tap done
+bramble	the
+main	penny goes

@@ -1,5 +1,6 @@
 dear little one the toadstool shop is yours now	Dear little one, the Toadstool Shop is yours now!
 look after the animals of bramble wood	Look after the animals of Bramble Wood.
+open the letter	Open the letter
 i'm off to see the world in a hot air balloon	I'm off to see the world in a hot-air balloon.
 love great aunt clover	Love, Great-Aunt Clover.
 who runs the shop	Who runs the shop?
@@ -49,6 +50,32 @@ juniper	Juniper
 wren	Wren
 daisy	Daisy
 maple	Maple
+the acorn bun	the acorn bun
+the acorn buns	the acorn buns
+the apple	the apple
+the apples	the apples
+the honey pot	the honey pot
+the honey pots	the honey pots
+the berry tart	the berry tart
+the berry tarts	the berry tarts
+the biscuit	the biscuit
+the biscuits	the biscuits
+the candle	the candle
+the candles	the candles
+the seed packet	the seed packet
+the seed packets	the seed packets
+the teacup	the teacup
+the teacups	the teacups
+the shop sign	the shop sign
+the flower vase	the flower vase
+the striped awning	the striped awning
+the rainbow rug	the rainbow rug
+the window boxes	the window boxes
+the door bell	the door bell
+the lanterns	the lanterns
+the flag bunting	the flag bunting
+the cat bed and cat	the cat bed and cat
+the fairy lights	the fairy lights
 0	0
 1	1
 2	2
