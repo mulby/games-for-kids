@@ -134,6 +134,31 @@ button.coin{padding:0}
 #grownups table{width:100%;border-collapse:collapse}#grownups td,#grownups th{padding:6px;border-bottom:1px solid #eee;text-align:left}
 @media (max-height:640px){.opt{min-height:70px;font-size:36px}.btn{min-height:56px;font-size:22px}#bubble .pt{width:54px;height:54px}.gimg{width:52px;height:52px}}
 @media (prefers-reduced-motion:reduce){.pop,.opt.glow,.pulse,.spark{animation:none!important}}
+/* felt look (3D on): self-hosted Comic Neue, stitched felt badges, paper grain, embossed coin pictures */
+@font-face{font-family:"Comic Neue";font-weight:400;font-display:swap;src:url(fonts/ComicNeue-400.woff2) format("woff2")}
+@font-face{font-family:"Comic Neue";font-weight:700;font-display:swap;src:url(fonts/ComicNeue-700.woff2) format("woff2")}
+html,body{font-family:"Chalkboard SE","Comic Neue","Comic Sans MS",ui-rounded,"Trebuchet MS",system-ui,sans-serif}
+:root{--stitch:rgba(201,138,90,.4);--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+body.g3d .chip{position:relative;background:rgba(255,253,247,.95) var(--grain);box-shadow:0 3px 0 rgba(74,52,40,.15),0 6px 14px rgba(74,52,40,.1)}
+body.g3d #hud .day{background-color:#ffe9b8}
+body.g3d .chip::after{content:"";position:absolute;inset:3px;border-radius:inherit;border:1.5px dashed var(--stitch);pointer-events:none}
+#tillChip .coin{width:38px;height:38px;margin:-4px 0 -4px -6px}#tillChip .coin b{font-size:13px}body.g3d #tillChip .coin{box-shadow:none}
+body.g3d #bubble{background:var(--paper) var(--grain);box-shadow:var(--shadow),0 10px 24px rgba(74,52,40,.14)}
+body.g3d #bubble::after{content:"";position:absolute;inset:5px;border-radius:18px;border:1.5px dashed var(--stitch);pointer-events:none}
+body.g3d #bubble .pt{background:radial-gradient(circle at 50% 35%,#fbf1e2,#efdfc8);box-shadow:inset 0 0 0 3px #fff}
+body.g3d #bubble .pt img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+body.g3d #panel{background:var(--grain),linear-gradient(#fffaf0,#fbefdc)}
+body.g3d #panel::before{content:"";position:absolute;left:10px;right:10px;top:8px;height:30px;border:2px dashed var(--stitch);border-bottom:0;border-radius:22px 22px 0 0;pointer-events:none}
+body.g3d .btn{position:relative;background:linear-gradient(#6aa76d,var(--green));text-shadow:0 1px 0 rgba(0,0,0,.15)}
+body.g3d .btn::after{content:"";position:absolute;inset:5px;border-radius:15px;border:1.5px dashed rgba(255,255,255,.45);pointer-events:none}
+body.g3d .btn.alt{background:linear-gradient(#fff,#fbf5ea);text-shadow:none}
+body.g3d .btn.alt::after{border-color:var(--stitch)}
+body.g3d .btn.red{background:linear-gradient(#ea6b7e,var(--red))}
+.coin.g b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* a long panel (two rows of till coins, a help picture) grows a little before it has to scroll, so Done stays in view */
+#panel{max-height:62vh}
+/* the card-pack button sits over the bottom-right corner: keep the decoration grid clear of it on narrow screens */
+@media (max-width:1000px){body:has(.gfk-packbtn) .decor{padding-right:84px}}
 </style>
 <script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 <script id="kid-voice" data-voice-base="../../voice/">
@@ -1841,7 +1866,7 @@ async function profitTask() {
     await ask({
       k: 'S', who: 'keeper', q: `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent} this morning. How much did my shop earn today?`, answer: P,
       show: () => `<span class="grp"><span class="lab">Took in ${took}</span>${dots(took)}</span>`,
-      help: () => `<div class="row"><span class="grp">${Array.from({ length: took }, (_, i) => `<i style="display:inline-block;width:16px;height:16px;border-radius:50%;margin:2px;background:${i < spent ? '#e6d9c6' : '#e9b949'}"></i>`).join('')}</span></div><div class="small">The pale ones went to pay Bramble. Count the gold ones.</div>`,
+      help: () => `<div class="row"><span class="dots">${Array.from({ length: took }, (_, i) => `<i style="background:${i < spent ? '#e6d9c6' : '#e9b949'}"></i>`).join('')}</span></div><div class="small">The pale ones went to pay Bramble. Count the gold ones.</div>`,
       helpSay: `Take away the ${spent} I paid Bramble. Count what is left.`,
     });
   }

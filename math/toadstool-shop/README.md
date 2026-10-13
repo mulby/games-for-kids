@@ -56,7 +56,15 @@ Each kind of problem follows one Moonlit Map strand and level (1 = kindergarten 
 ## Files
 
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
-- `shop3d.js`: the 3D world in the shared felt-toy style (`shared/toy3d.js`): the toadstool shop inside and out,
-  the shopkeeper mouse, the customers and the goods. Goods pictures in the panels are baked from the same models.
+- `shop3d.js`: the 3D world: the toadstool shop inside and out, the shopkeeper mouse, every customer, the goods,
+  coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures
+  (goods, coins, portraits, decorations) from the same models with the same lights (`window.Shop3D`).
   Add `?g3d=0` to play with plain pictures.
-- Debug: `window.__ts` (state and helpers), `window.__ts3d` (renderer stats).
+- `felt3d.js`: the richer felt kit the world is built from (three.js from `shared/vendor`). Felt fibre, normal and
+  roughness textures made once at load (512px or less, shared); running stitches and seams; embroidered eyes and
+  mouths; yarn whiskers; printed dresses with buttons; wood grain, wicker, glazed pots, crusty buns, embossed coins;
+  the stitched toadstool, the shop room and the cart; a soft-shadow light rig with morning, evening and inside looks.
+  Static parts are merged into a few vertex-coloured meshes so a scene stays under about 100 draw calls.
+- `fonts/`: Comic Neue (SIL Open Font License, `fonts/OFL-ComicNeue.txt`), used where Chalkboard SE is missing.
+- Debug: `window.__ts` (state and helpers), `window.__ts3d` (renderer stats; `__ts3d.settle(seconds)` runs walks and
+  camera moves forward and draws once, for screenshots on slow software GL).
