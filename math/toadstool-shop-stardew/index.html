@@ -1,0 +1,2000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>The Toadstool Shop: Pixel Valley</title>
+<style>
+:root{--ink:#4a3428;--cream:#fff8ec;--paper:#fffdf7;--red:#e2566b;--green:#5f9a62;--gold:#e9b949;--blue:#5a8fc7;--shadow:0 6px 0 rgba(74,52,40,.18)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:linear-gradient(#bfe3ff,#e9f6ff 55%,#a6d68a 55%,#8cc46c);color:var(--ink);
+  font-family:"Chalkboard SE","Comic Sans MS","Comic Neue",ui-rounded,"Trebuchet MS",system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+body.g3d{background:#bfe3ff}
+#gl3d{position:fixed;inset:0;z-index:0;display:block}
+#flat{position:fixed;inset:0;z-index:0;display:grid;place-items:center;font-size:min(34vw,34vh);opacity:.9;pointer-events:none}
+body.g3d #flat{display:none}
+button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
+
+/* top bar */
+#hud{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;gap:8px;align-items:center;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 6px max(12px,env(safe-area-inset-left));pointer-events:none}
+#hud>*{pointer-events:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,253,247,.94);border-radius:999px;padding:6px 14px;font-weight:700;font-size:20px;box-shadow:0 3px 0 rgba(74,52,40,.15);min-height:46px;text-decoration:none;color:var(--ink)}
+.chip img{width:28px;height:28px}
+#hud .grow{flex:1}
+#back{font-size:24px;padding:6px 12px}
+#snd,#grown{width:46px;justify-content:center;padding:0;font-size:22px}
+#grown{opacity:.55;font-size:18px}
+#hud .day{background:#ffe9b8}
+
+/* speech bubble */
+#bubble{position:fixed;z-index:4;left:50%;transform:translateX(-50%);top:calc(max(10px,env(safe-area-inset-top)) + 58px);width:min(680px,calc(100% - 24px));display:flex;gap:12px;align-items:center;
+  background:var(--paper);border-radius:22px;padding:10px 14px;box-shadow:var(--shadow);transition:opacity .2s}
+#bubble .pt{width:66px;height:66px;flex:none;border-radius:50%;background:#f3e6d2;display:grid;place-items:center;font-size:40px;overflow:hidden}
+#bubble .pt img{width:118%;height:118%;object-fit:cover;object-position:50% 8%}
+#bubble .who{font-size:15px;font-weight:700;color:#9a6a45}
+#bubble .txt{font-size:clamp(19px,2.5vw,24px);line-height:1.25}
+#bubble .rep{margin-left:auto;flex:none;width:46px;height:46px;border-radius:50%;background:#f3e6d2;font-size:20px}
+
+/* the work panel */
+#panel{position:fixed;z-index:3;left:0;right:0;bottom:0;max-height:56vh;overflow:auto;padding:16px max(14px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+  background:linear-gradient(#fffaf0,#fbefdc);border-radius:28px 28px 0 0;box-shadow:0 -6px 0 rgba(74,52,40,.08),0 -10px 30px rgba(74,52,40,.12)}
+#panel:empty{display:none}
+.task{max-width:820px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
+.big{font-size:clamp(22px,3vw,28px);text-align:center;line-height:1.3}
+.small{font-size:17px;opacity:.8;text-align:center}
+.btn{min-height:64px;min-width:150px;padding:10px 26px;border-radius:20px;background:var(--green);color:#fff;font-size:26px;font-weight:700;box-shadow:0 6px 0 #3f7342}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #3f7342}
+.btn.alt{background:#fff;color:var(--ink);box-shadow:0 6px 0 #d8c4a8}
+.btn.red{background:var(--red);box-shadow:0 6px 0 #a83a4c}
+.btn[disabled]{opacity:.45}
+.opts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.opt{min-width:96px;min-height:86px;border-radius:22px;background:#fff;font-size:44px;font-weight:700;box-shadow:0 6px 0 #d8c4a8;padding:4px 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.opt:active{transform:translateY(4px);box-shadow:0 2px 0 #d8c4a8}
+.opt.no{opacity:.3;pointer-events:none}
+.opt.glow{animation:glow 1s ease-in-out infinite;background:#fff6c8}
+.opt.yes{background:#c9f0c0;box-shadow:0 6px 0 #8cc46c}
+.opt img{width:56px;height:56px}
+@keyframes glow{50%{box-shadow:0 6px 0 #e9b949,0 0 0 8px rgba(233,185,73,.45)}}
+.coach{background:#fff6c8;border-radius:16px;padding:8px 16px;font-size:21px;font-weight:700;text-align:center;box-shadow:0 4px 0 #e5d48a}
+.pulse{animation:glow 1s ease-in-out infinite}
+.hint{background:#fff6c8;border-radius:999px;padding:8px 18px;font-size:20px;font-weight:700;box-shadow:0 4px 0 #e5d48a;min-height:50px}
+.helpbox{background:#fffdf2;border:3px dashed #e5d48a;border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.helpbox:empty{display:none}
+
+/* goods, coins, dots */
+.gimg{width:64px;height:64px;object-fit:contain;display:inline-block;vertical-align:middle}
+.gemo{font-size:44px;line-height:64px;width:64px;text-align:center;display:inline-block}
+.gimg.sm,.gemo.sm{width:42px;height:42px;font-size:30px;line-height:42px}
+.coin{position:relative;display:inline-grid;place-items:center;width:58px;height:58px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 35% 30%,#f4c49a,#c87a45 60%,#9a5a30);box-shadow:inset 0 0 0 4px rgba(255,255,255,.25),0 3px 0 rgba(74,52,40,.25)}
+.coin b{position:relative;font-size:19px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.coin.v5,.coin.v10,.coin.v25{background:radial-gradient(circle at 35% 30%,#ffffff,#c9ccd6 60%,#8e93a3)}
+.coin.v10{width:50px;height:50px}.coin.v25{width:64px;height:64px}
+.coin.g{background:none;box-shadow:none}
+.coin.g img{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
+button.coin{padding:0}
+.coin.gone{visibility:hidden}
+.tray{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;min-height:76px;padding:8px 12px;border-radius:20px;background:#f3e6d2;max-width:760px}
+.tray.drop{background:#e3f2d8;border:3px dashed #8cc46c}
+.tray .lbl{width:100%;text-align:center;font-size:17px;font-weight:700;opacity:.75}
+.dots{display:inline-grid;grid-template-columns:repeat(5,16px);gap:4px;padding:6px;background:#fff;border-radius:10px}
+.dots i{width:16px;height:16px;border-radius:50%;background:#e2566b}
+.dots i.off{background:#eee0cc}
+.dots i.done{background:#c9c0b4}
+.grp{display:inline-flex;flex-direction:column;align-items:center;gap:4px;background:#fff;border-radius:14px;padding:6px 8px}
+.grp .lab{font-size:15px;font-weight:700}
+.line{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:16px;padding:4px 12px 4px 6px;font-size:30px;font-weight:700}
+.tag{display:inline-block;background:#fff6c8;border-radius:8px;padding:0 8px;font-size:17px;font-weight:700;border:2px solid #e5d48a}
+.cnt{display:inline-flex;align-items:center;gap:10px}
+.cnt button{width:64px;height:64px;border-radius:50%;background:#fff;font-size:38px;font-weight:700;box-shadow:0 5px 0 #d8c4a8}
+.cnt b{font-size:48px;min-width:56px;text-align:center}
+.note{background:#fffaf0;border:2px dashed #d8c4a8;border-radius:12px;padding:4px 12px;font-size:17px}
+.prices{display:flex;flex-direction:column;gap:6px;width:100%}
+.prow{display:flex;align-items:center;gap:10px;justify-content:center}
+.prow .pn{display:flex;flex-direction:column;font-weight:700;font-size:19px;min-width:7em;line-height:1.1}
+.prow .pn small{font-weight:400;font-size:15px;opacity:.75}
+.prow .cnt button{width:52px;height:52px;font-size:32px}
+.prow .ptag{font-size:34px;min-width:72px;background:#fff6c8;border:2px solid #e5d48a;border-radius:10px}
+.prow .ptag.hi{background:#ffd9c9;border-color:#e59a7a}.prow .ptag.lo{background:#d9f0d0;border-color:#8cc47a}
+.pickbtn{display:inline-flex;flex-direction:column;align-items:center;background:#fff;border-radius:18px;padding:6px 10px;box-shadow:0 5px 0 #d8c4a8;min-width:92px}
+.pickbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #d8c4a8}
+.pickbtn small{font-size:15px;font-weight:700}
+.basket .gimg,.basket .gemo{cursor:pointer}
+.hl{outline:4px solid #e9b949;border-radius:12px;background:#fff6c8}
+.stack{display:inline-flex;flex-direction:column-reverse;align-items:center;gap:0}
+.stack .coin{width:46px;height:18px;border-radius:50%;margin-top:-6px}
+.stack .coin b{display:none}
+.stack .coin.g img{inset:-14px -2px}
+.ten{display:grid;grid-template-columns:repeat(5,52px);grid-template-rows:repeat(2,52px);gap:6px;padding:8px;background:#fff;border-radius:16px;border:3px dashed #d8c4a8}
+.ten span{border-radius:50%;background:#f3e6d2}
+.ten .coin{width:52px;height:52px}
+.decor{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;width:100%}
+.decor button{background:#fff;border-radius:18px;padding:8px;box-shadow:0 5px 0 #d8c4a8;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:17px;font-weight:700}
+.decor button img{width:84px;height:84px;object-fit:contain}
+.decor button .em{font-size:48px;line-height:84px}
+.decor button.cant{opacity:.5}
+.decor button.own{background:#e3f2d8;box-shadow:0 5px 0 #8cc46c}
+.swatches{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.swatch{width:62px;height:62px;border-radius:50%;box-shadow:0 4px 0 rgba(0,0,0,.15);border:4px solid #fff}
+.swatch.sel{outline:5px solid var(--gold)}
+.name{background:#fff;border-radius:16px;padding:10px 16px;font-size:22px;font-weight:700;box-shadow:0 4px 0 #d8c4a8;min-height:56px}
+.name.sel{background:#fff6c8;outline:4px solid var(--gold)}
+.letter{background:#fffdf2;border-radius:10px;padding:16px 22px;font-size:clamp(19px,2.4vw,23px);line-height:1.45;max-width:620px;box-shadow:0 3px 12px rgba(74,52,40,.15);transform:rotate(-1deg);font-style:italic}
+.title{font-size:clamp(40px,7vw,64px);font-weight:700;color:#c23f55;text-shadow:0 4px 0 #fff,0 7px 0 rgba(74,52,40,.15);text-align:center;line-height:1.05}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.spark{position:fixed;z-index:50;pointer-events:none;font-size:28px;animation:spark 1s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.4);opacity:0}}
+#grownups{position:fixed;inset:0;z-index:60;background:rgba(40,30,20,.55);display:grid;place-items:center;padding:20px}
+#grownups[hidden]{display:none}
+#grownups .card{background:#fffdf7;border-radius:20px;padding:20px;max-width:640px;width:100%;max-height:90vh;overflow:auto;font-family:system-ui,sans-serif;font-size:16px}
+#grownups table{width:100%;border-collapse:collapse}#grownups td,#grownups th{padding:6px;border-bottom:1px solid #eee;text-align:left}
+@media (max-height:640px){.opt{min-height:70px;font-size:36px}.btn{min-height:56px;font-size:22px}#bubble .pt{width:54px;height:54px}.gimg{width:52px;height:52px}}
+@media (prefers-reduced-motion:reduce){.pop,.opt.glow,.pulse,.spark{animation:none!important}}
+</style>
+<script id="kid-voice" data-voice-base="../../voice/">
+/* KidVoice: one friendly voice for every game.
+   Source of truth is shared/voice.js; tools/sync-voice.py copies it into each game
+   so every index.html stays self-contained.
+
+   1. Recorded clips first: if voice/manifest.json (made by tools/make-voice-clips.mjs)
+      has a clip for a sentence, it plays that. Lines with numbers or names in them, like
+      "7 plus 5" or "This lantern needs 7 fireflies", are stitched from shorter clips.
+      A character can have their own recorded voice: KidVoice.speak(text, { voice: 'bramble' }).
+   2. Otherwise the device's own speech, using the most natural voice it has
+      (Premium / Enhanced iPad voices first, never the novelty or robot voices).
+   A grown-up can pin a voice from The Wonder Shelf; it is saved in localStorage["gfk-voice"]. */
+(function () {
+  if (window.KidVoice) return;
+  const synth = window.speechSynthesis || null;
+  const NOVELTY = /\b(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Junior|Organ|Ralph|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Kathy)\b/i;
+  const ROBOTIC = /\b(Eddy|Flo|Reed|Rocko|Sandy|Shelley|Grandma|Grandpa)\b/i; // iOS "Eloquence" voices
+  const FAVORITES = ['Ava', 'Zoe', 'Samantha', 'Allison', 'Susan', 'Nicky', 'Serena', 'Karen', 'Moira', 'Kate', 'Tessa', 'Evan', 'Nathan', 'Tom', 'Daniel'];
+
+  function score(v) {
+    const id = (v.name || '') + ' ' + (v.voiceURI || '');
+    let s = 0;
+    if (NOVELTY.test(v.name)) s -= 100;
+    if (ROBOTIC.test(v.name)) s -= 60;
+    if (/premium/i.test(id)) s += 60;
+    else if (/enhanced/i.test(id)) s += 40;
+    if (/siri/i.test(id)) s += 35;
+    if (/Online \(Natural\)/i.test(id)) s += 45; // Edge
+    if (/^Google/i.test(v.name)) s += 20;      // Chrome
+    const fav = FAVORITES.findIndex(n => new RegExp('\\b' + n + '\\b', 'i').test(v.name));
+    if (fav >= 0) s += 15 - fav * 0.5;
+    if (/en[-_]US/i.test(v.lang)) s += 5; else if (/en[-_]GB/i.test(v.lang)) s += 4; else if (/en[-_](AU|IE|NZ|CA)/i.test(v.lang)) s += 3;
+    if (v.default) s += 1;
+    return s;
+  }
+  function voices() {
+    try { return (synth && synth.getVoices() || []).filter(v => /^en/i.test(v.lang)); } catch (e) { return []; }
+  }
+  function ranked() { return voices().map(v => ({ v, s: score(v) })).sort((a, b) => b.s - a.s).map(x => x.v); }
+  let chosen = null;
+  function pick() {
+    let pinned = null;
+    try { pinned = localStorage.getItem('gfk-voice'); } catch (e) {}
+    const list = ranked();
+    chosen = (pinned && list.find(v => v.voiceURI === pinned || v.name === pinned)) || list[0] || null;
+    return chosen;
+  }
+  if (synth) { pick(); try { synth.addEventListener('voiceschanged', pick); } catch (e) {} }
+
+  /* ---- recorded clips ---- */
+  // manifest: { lines: {key: file}, voices: {character: {lines}}, packs: {file: [pack, start, length]} }
+  // Clips can be bundled into a few "pack" files (tools/pack-voice.mjs) so the shelf stays under its file limit.
+  let clips = null;
+  const base = (document.currentScript && document.currentScript.dataset.voiceBase) || '../../voice/';
+  try {
+    if (location.protocol !== 'file:') fetch(base + 'manifest.json').then(r => r.ok ? r.json() : null)
+      .then(m => { if (m && m.lines) clips = { base, lines: m.lines, voices: m.voices || {}, packs: m.packs || {} }; }).catch(() => {});
+  } catch (e) {}
+  const key = t => String(t).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  // Cover a sentence with as few recorded pieces as possible, like "here is a bag of" + "5" + "acorn buns" + "for your shop".
+  // Too many tiny pieces would sound choppy, so then it gives up and the device voice reads the line.
+  function stitch(k, lines) {
+    if (lines[k]) return [lines[k]];
+    // Numbers past 100 are said in two pieces: 150 is "100" + "50".
+    const w = k.split(' ').flatMap(t => /^[1-9]\d\d$/.test(t) && !lines[t] ? [String(t[0] * 100)].concat(+t.slice(1) ? [String(+t.slice(1))] : []) : [t]);
+    const n = w.length, best = [[]];
+    for (let i = 1; i <= n; i++) {
+      for (let j = Math.max(0, i - 40); j < i; j++) {
+        const f = best[j] && lines[w.slice(j, i).join(' ')];
+        if (f && (!best[i] || best[j].length + 1 < best[i].length)) best[i] = best[j].concat(f);
+      }
+    }
+    const p = best[n];
+    return p && p.length <= Math.max(3, Math.ceil(n * 0.75)) ? p : null;
+  }
+  function planWith(text, lines) {
+    const plan = [];
+    for (const sentence of String(text).match(/[^.!?]+[.!?]*/g) || []) {
+      const k = key(sentence); if (!k) continue;
+      const p = stitch(k, lines);
+      if (!p) return null; // one sentence without a recording: use one voice for the whole line so it sounds even
+      plan.push(...p);
+    }
+    return plan.length ? plan : null;
+  }
+  // A character's own voice first (opts.voice, like "bramble"), then the main voice.
+  function clipPlan(text, who) {
+    if (!clips) return null;
+    const own = who && clips.voices[who];
+    return (own && planWith(text, own.lines)) || planWith(text, clips.lines);
+  }
+  const packs = {}, urls = {};
+  function clipUrl(f) {
+    const p = clips.packs[f];
+    if (!p) return Promise.resolve(clips.base + f);
+    if (!urls[f]) {
+      packs[p[0]] = packs[p[0]] || fetch(clips.base + p[0]).then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); });
+      urls[f] = packs[p[0]].then(b => URL.createObjectURL(new Blob([b.slice(p[1], p[1] + p[2])], { type: 'audio/mpeg' })));
+      urls[f].catch(() => { delete urls[f]; delete packs[p[0]]; });
+    }
+    return urls[f];
+  }
+  const audio = typeof Audio !== 'undefined' ? new Audio() : null;
+  let queue = [], turn = 0, playing = false;
+  function playNext() {
+    if (!audio || !queue.length) { playing = false; return; }
+    playing = true;
+    const t = turn;
+    clipUrl(queue.shift()).then(u => {
+      if (t !== turn) return;
+      audio.src = u;
+      return audio.play();
+    }).catch(() => { if (t === turn) { queue = []; playing = false; } });
+  }
+  if (audio) audio.addEventListener('ended', playNext);
+  function stopClips() { queue = []; turn++; playing = false; if (audio) try { audio.pause(); } catch (e) {} }
+  // Games call speechSynthesis.cancel() when they change screens; make that stop clips too.
+  if (synth) try { const cancel = synth.cancel.bind(synth); synth.cancel = function () { stopClips(); cancel(); }; } catch (e) {}
+  // iPad Safari only plays audio after a tap: unlock the player on the first touch.
+  if (audio) document.addEventListener('pointerdown', function unlock() {
+    document.removeEventListener('pointerdown', unlock, true);
+    if (!audio.src) { audio.src = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA=='; audio.play().catch(() => {}); }
+  }, true);
+
+  function speak(text, opts) {
+    opts = opts || {};
+    if (!text) return;
+    const plan = clipPlan(text, opts.voice);
+    if (plan) {
+      if (!opts.queue) { try { synth && synth.cancel(); } catch (e) { stopClips(); } }
+      plan.forEach(f => clipUrl(f).catch(() => {})); // start unpacking every piece now, so they play without gaps
+      queue.push(...plan);
+      if (!playing) playNext();
+      return;
+    }
+    if (!synth) return;
+    try {
+      if (!opts.queue) synth.cancel();
+      const u = new SpeechSynthesisUtterance(String(text));
+      const v = chosen || pick();
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+      // A natural pitch: raised pitch is what made the old voice sound strained and creepy.
+      u.rate = Math.min(1.05, Math.max(0.75, opts.rate || 0.92));
+      u.pitch = Math.min(1.05, Math.max(0.95, opts.pitch || 1));
+      synth.speak(u);
+    } catch (e) {}
+  }
+
+  window.KidVoice = { speak, stop: () => { try { synth ? synth.cancel() : stopClips(); } catch (e) {} }, pick, ranked, score, current: () => chosen, key, plan: clipPlan };
+})();
+</script>
+<script id="gfk-cards">
+/* GFKCards: one card look, one pack-opening moment and one lucky-draw system for every game.
+   Source of truth is this file; tools/sync-cards.py copies it into each game and the shelf
+   as the "gfk-cards" script block so every index.html stays self-contained.
+
+   Games call GFKCards.collect({game, id, name, emoji, rarity}) when she earns a card.
+   It writes the card to the shared "gfk-collection" list (same shape as before), then:
+   - Luck: a common or rare card can come out Shiny (holo). Never fewer than one Shiny in 7 packs.
+   - Bonus: some packs also hold a Wonder Charm from a shared set, never a duplicate.
+     Never more than 3 packs in a row without one.
+   - Saved for last: each game's finale card is Legendary, and Crown Cards unlock at
+     8, 20, 35, 55 and 80 cards collected across every game.
+   Nothing is ever bought or lost. New cards wait in a glowing pack button; tapping it opens them.
+   GFKCards.face(card) draws a card; GFKCards.view(cards, i) opens the big swipeable viewer. */
+(function () {
+  if (window.GFKCards) return;
+  const KEY = "gfk-collection", LUCK = "gfk-cards-luck";
+  const TIERS = { common: 0, rare: 1, sparkly: 2, legendary: 3 };
+  const TIER_NAME = { common: "Common", rare: "Rare", sparkly: "Shiny", legendary: "Legendary" };
+  const TIER_GEMS = { common: "●", rare: "◆◆", sparkly: "✦✦✦", legendary: "👑" };
+  const SETS = {
+    "moonlit-map": { name: "The Moonlit Map", icon: "🗺️", a: "#9fb4f0", b: "#3d5bb0" },
+    "fairy-lantern-festival": { name: "Lantern Festival", icon: "🏮", a: "#f6c6ec", b: "#a24e93" },
+    "gemling-grids": { name: "Crystal Caves", icon: "💎", a: "#a9eadf", b: "#2b7f75" },
+    "egypt-puzzles": { name: "Miu's Pyramids", icon: "🔺", a: "#ffe3a1", b: "#c08523" },
+    "mouse-shop": { name: "Acorn Bakery", icon: "🥐", a: "#f5d2b0", b: "#9a6038" },
+    "pirate-voyage": { name: "The Shining Sea", icon: "⚓", a: "#a9dcf5", b: "#235f8c" },
+    "toadstool-shop": { name: "The Toadstool Shop", icon: "🍄", a: "#ffc9c9", b: "#c23f55" },
+    "wonder-charms": { name: "Wonder Charms", icon: "🍀", a: "#d9ccff", b: "#6a4fc4" },
+    "wonder-crowns": { name: "Crown Cards", icon: "👑", a: "#fff0b3", b: "#c9931a" }
+  };
+  // Each game's very last reward is its Legendary card.
+  const FINALES = { "egypt-puzzles": ["hidden-3"], "gemling-grids": ["card-r-moonFinale"], "fairy-lantern-festival": ["starwing"], "pirate-voyage": ["sea:5"], "mouse-shop": ["mouse-shop-moonbeam-the-unicorn-sparkly"], "toadstool-shop": ["friend-queen"] };
+  const CROWNS = [
+    { at: 8, id: "scarab", name: "The Golden Scarab", emoji: "🪲" },
+    { at: 20, id: "fairy-queen", name: "The Fairy Queen", emoji: "🧚" },
+    { at: 35, id: "crystal-dragon", name: "The Crystal Dragon", emoji: "🐉" },
+    { at: 55, id: "moon-pegasus", name: "The Moon Pegasus", emoji: "🦄" },
+    { at: 80, id: "wonder-crown", name: "The Crown of Wonders", emoji: "👑" }
+  ];
+  const CHARMS = [
+    ["clover", "🍀", "Four-Leaf Clover", "common"], ["shell", "🐚", "Mermaid Shell", "common"], ["toadstool", "🍄", "Fairy Toadstool", "common"],
+    ["moon", "🌙", "Moon Pebble", "common"], ["feather", "🪶", "Owl Feather", "common"], ["daisy", "🌼", "Daisy Chain", "common"],
+    ["cupcake", "🧁", "Mouse-Size Cupcake", "common"], ["ribbon", "🎀", "Silk Ribbon", "common"], ["bell", "🔔", "Fairy Bell", "common"],
+    ["teapot", "🫖", "Tiny Teapot", "common"], ["coin", "🪙", "Pirate Coin", "common"], ["compass", "🧭", "Lucky Compass", "common"],
+    ["ladybird", "🐞", "Ladybird", "common"], ["acorn", "🌰", "Golden Acorn", "common"],
+    ["butterfly", "🦋", "Rainbow Butterfly", "rare"], ["crystal", "🔮", "Crystal Ball", "rare"], ["amphora", "🏺", "Greek Amphora", "rare"],
+    ["key", "🗝️", "Skeleton Key", "rare"], ["owl", "🦉", "Athena's Owl", "rare"], ["bastet", "🐈", "Bastet the Cat", "rare"],
+    ["rainbow", "🌈", "Bottled Rainbow", "sparkly"], ["diamond", "💎", "Pirate Diamond", "sparkly"], ["star", "⭐", "Wishing Star", "sparkly"],
+    ["wand", "🪄", "Fairy Wand", "sparkly"]
+  ];
+  const CHARM_WEIGHT = { common: 70, rare: 24, sparkly: 6 };
+  const SHINY_CHANCE = { common: 0.12, rare: 0.2 }, SHINY_PITY = 7, BONUS_CHANCE = 0.3, BONUS_PITY = 3;
+
+  const ls = {
+    get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const tierOf = c => (c && TIERS[c.rarity] != null ? c.rarity : "common");
+  const keyOf = c => (c.game || "") + "/" + (c.id || c.name);
+  const reduced = () => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
+
+  function list() {
+    const v = ls.get(KEY, []);
+    if (!Array.isArray(v)) return [];
+    return v.filter(x => x && typeof x === "object").map(x => (FINALES[x.game] || []).includes(x.id) ? Object.assign({}, x, { rarity: "legendary" }) : x);
+  }
+
+  /* ---------- card face ---------- */
+  function face(c, opts) {
+    opts = opts || {};
+    const set = SETS[c.game] || { name: "Treasures", icon: "⭐", a: "#eadcc4", b: "#8a6a45" };
+    const t = tierOf(c);
+    const cls = ["gfc", "t-" + t, c.shiny ? "shiny" : "", opts.big ? "big" : "", opts.isNew ? "is-new" : ""].join(" ");
+    return `<div class="${cls}" style="--a:${set.a};--b:${set.b}" role="img" aria-label="${esc(c.name)}, ${TIER_NAME[t]} card from ${esc(set.name)}">
+      <div class="gfc-in">
+        <div class="gfc-top"><span class="gfc-name">${esc(c.name || "Card")}</span></div>
+        <div class="gfc-art"><span class="gfc-rays"></span><span class="gfc-emo">${esc(c.emoji || "⭐")}</span></div>
+        <div class="gfc-bot"><span class="gfc-set">${set.icon} ${esc(set.name)}</span><span class="gfc-gem">${TIER_GEMS[t]}</span></div>
+      </div>
+      <div class="gfc-foil"></div><div class="gfc-glare"></div>
+      ${opts.isNew ? '<span class="gfc-new">NEW</span>' : ""}
+    </div>`;
+  }
+  function locked(crown) {
+    return `<div class="gfc t-locked" role="img" aria-label="Locked Crown Card"><div class="gfc-in">
+      <div class="gfc-top"><span class="gfc-name">Crown Card</span></div>
+      <div class="gfc-art"><span class="gfc-emo">🔒</span></div>
+      <div class="gfc-bot"><span class="gfc-set">Unlocks at ${crown.at} cards</span></div></div></div>`;
+  }
+
+  /* ---------- sounds ---------- */
+  let AC = null;
+  function tone(freq, at, dur, type, vol) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === "suspended") AC.resume();
+      const o = AC.createOscillator(), g = AC.createGain(), t0 = AC.currentTime + at;
+      o.type = type || "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol || 0.12, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+      o.connect(g); g.connect(AC.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+    } catch (e) {}
+  }
+  function soundsOn() { try { return localStorage.getItem("gfk-card-sound") !== "off"; } catch (e) { return true; } }
+  function chime(t) {
+    if (!soundsOn()) return;
+    const notes = { common: [523, 659, 784], rare: [523, 659, 784, 1047], sparkly: [587, 740, 880, 1175, 1480], legendary: [392, 523, 659, 784, 1047, 1319, 1568] }[t];
+    notes.forEach((f, i) => { tone(f, i * 0.09, 0.5, "triangle", 0.1); if (t !== "common") tone(f * 2, i * 0.09 + 0.03, 0.4, "sine", 0.04); });
+    if (t === "legendary") [523, 659, 784].forEach(f => tone(f, notes.length * 0.09 + 0.1, 1.4, "sine", 0.07));
+  }
+  const rustle = () => { if (soundsOn()) [180, 140, 220].forEach((f, i) => tone(f, i * 0.07, 0.12, "sawtooth", 0.03)); };
+
+  /* ---------- styles ---------- */
+  const CSS = `
+.gfc,.gfc *,.gfk-ov *,.gfk-view *,.gfk-packbtn{box-sizing:border-box}
+.gfc{--a:#eee;--b:#888;--mx:50%;--my:50%;--rx:0deg;--ry:0deg;position:relative;container-type:inline-size;aspect-ratio:5/7;width:100%;border-radius:7%/5%;
+  background:linear-gradient(160deg,#fffdf7,#efe6d6);padding:4.5%;box-shadow:0 2px 0 #0002,0 6px 14px #0002;overflow:hidden;isolation:isolate;
+  font-family:"Grandstander","Andika","Trebuchet MS",system-ui,sans-serif;color:#2c2118;user-select:none;-webkit-user-select:none;transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry));}
+.gfc-in{position:relative;height:100%;display:flex;flex-direction:column;gap:3cqw;border-radius:4cqw;padding:3.5cqw;background:linear-gradient(170deg,var(--a),color-mix(in srgb,var(--a) 55%,var(--b)));box-shadow:inset 0 0 0 1.2cqw #fff8}
+.gfc-top{display:flex;align-items:center;justify-content:center;min-height:15cqw;background:#fffc;border-radius:3cqw;padding:1cqw 3cqw}
+.gfc-name{font-weight:800;font-size:9.5cqw;line-height:1;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.gfc-art{position:relative;flex:1;border-radius:4cqw;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 45%,#fff 0,color-mix(in srgb,var(--a) 70%,#fff) 35%,var(--b) 110%);box-shadow:inset 0 0 0 1cqw #fff9,inset 0 -4cqw 8cqw #0002}
+.gfc-art::before{content:"";position:absolute;inset:0;opacity:.25;background-image:radial-gradient(circle,#fff 0 1.2cqw,transparent 1.5cqw);background-size:14cqw 14cqw}
+.gfc-emo{position:relative;font-size:40cqw;line-height:1;filter:drop-shadow(0 2.5cqw 2cqw #0004)}
+.gfc-rays{position:absolute;inset:-50%;display:none;background:repeating-conic-gradient(from 0deg,#fff5 0 8deg,transparent 8deg 20deg)}
+.gfc-bot{display:flex;align-items:center;justify-content:space-between;gap:2cqw;font-weight:800;font-size:6.5cqw;line-height:1.1}
+.gfc-set{background:#fffc;border-radius:99px;padding:1.2cqw 3cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.gfc-gem{color:#fff;text-shadow:0 .5cqw 0 #0005;white-space:nowrap;font-size:7.5cqw}
+.gfc-foil,.gfc-glare{position:absolute;inset:0;pointer-events:none;border-radius:inherit}
+.gfc-new{position:absolute;top:5cqw;right:-9cqw;transform:rotate(35deg);background:#e83f6f;color:#fff;font-weight:800;font-size:7cqw;padding:1cqw 12cqw;box-shadow:0 1cqw 2cqw #0003}
+.gfc.t-common{background:linear-gradient(160deg,#fffdf7,#e9dfcd)}
+.gfc.t-rare{background:linear-gradient(150deg,#e8f0ff,#6f8fe6 50%,#dfe8ff)}
+.gfc.t-rare .gfc-glare{background:linear-gradient(115deg,transparent 30%,#fff5 45%,transparent 60%);background-size:250% 250%;background-position:var(--mx) var(--my)}
+.gfc.t-sparkly{background:linear-gradient(130deg,#ffd1f0,#c3f0ff,#fff3b0,#d6c8ff,#ffd1f0);background-size:300% 300%;animation:gfc-pan 6s linear infinite}
+.gfc.t-sparkly .gfc-foil{mix-blend-mode:color-dodge;opacity:.42;
+  background:repeating-linear-gradient(110deg,#ff6ec7 0,#ffe66e 8%,#6effa8 16%,#6ed8ff 24%,#c06eff 32%,#ff6ec7 40%),radial-gradient(circle,#fff 0 .6cqw,transparent .8cqw);
+  background-size:300% 300%,7cqw 7cqw;background-position:var(--mx) var(--my),0 0;animation:gfc-foil 5s ease-in-out infinite}
+.gfc.t-sparkly .gfc-glare,.gfc.t-legendary .gfc-glare{background:radial-gradient(circle at var(--mx) var(--my),#fff9,transparent 45%);mix-blend-mode:overlay}
+.gfc.t-sparkly .gfc-gem{color:#fff}
+.gfc.t-sparkly .gfc-in{background:linear-gradient(160deg,color-mix(in srgb,var(--a) 70%,#ffd1f0),color-mix(in srgb,var(--a) 50%,#c3e8ff) 50%,color-mix(in srgb,var(--a) 60%,#fff0a8))}
+.gfc.t-legendary{background:conic-gradient(from var(--spin,0deg),#ffd75e,#fff6c2,#e7a91d,#ffcf3f,#fff6c2,#c98a12,#ffd75e);animation:gfc-spin 4s linear infinite;
+  box-shadow:0 0 0 2px #fff8,0 0 16px #ffd54f,0 6px 18px #0003}
+.gfc.t-legendary .gfc-in{background:linear-gradient(170deg,#fff4c9,#ffd36b 60%,#e9a52a);box-shadow:inset 0 0 0 1.2cqw #fffa}
+.gfc.t-legendary .gfc-art{background:radial-gradient(circle at 50% 45%,#fff3c0 0,#ffc93f 35%,#d98a12 75%,#8a4f06 120%)}
+.gfc.t-legendary .gfc-rays{display:block;animation:gfc-rot 14s linear infinite}
+.gfc.t-legendary .gfc-foil{mix-blend-mode:color-dodge;opacity:.28;
+  background:radial-gradient(circle,#fff 0 .7cqw,transparent 1cqw),repeating-linear-gradient(120deg,#ffef9a 0,#ff9de0 10%,#9ae7ff 20%,#ffef9a 30%);
+  background-size:9cqw 9cqw,300% 300%;background-position:0 0,var(--mx) var(--my);animation:gfc-foil 5s ease-in-out infinite}
+.gfc.shiny .gfc-top::after{content:"✨";margin-left:1.5cqw;font-size:8cqw}
+.gfc.t-locked{background:linear-gradient(160deg,#d8cfbf,#b6aa96);box-shadow:none;opacity:.8}
+.gfc.t-locked .gfc-in{background:repeating-linear-gradient(45deg,#cbbfa9 0 4cqw,#c1b49d 4cqw 8cqw)}
+.gfc.t-locked .gfc-art{background:#0001}.gfc.t-locked .gfc-emo{font-size:26cqw;filter:none;opacity:.7}
+.gfc.t-locked .gfc-set{font-size:6cqw;white-space:normal;text-align:center;width:100%}
+@property --spin{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes gfc-spin{to{--spin:360deg}}
+@keyframes gfc-rot{to{transform:rotate(360deg)}}
+@keyframes gfc-pan{50%{background-position:100% 100%}}
+@keyframes gfc-foil{0%,100%{background-position:0% 30%,0 0}50%{background-position:100% 70%,0 0}}
+
+.gfk-packbtn{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:99990;width:78px;height:96px;border:0;padding:0;border-radius:14px;cursor:pointer;
+  background:linear-gradient(150deg,#ffe27a,#ff9ec7 50%,#9ad8ff);box-shadow:0 0 0 4px #fff,0 8px 22px #0005;font:800 15px/1.1 "Grandstander",system-ui,sans-serif;color:#4a2a55;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;animation:gfk-bob 1.6s ease-in-out infinite;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.gfk-packbtn b{font-size:34px;line-height:1}
+.gfk-packbtn i{position:absolute;top:-10px;right:-10px;min-width:30px;height:30px;border-radius:15px;background:#e83f6f;color:#fff;font-style:normal;display:grid;place-items:center;box-shadow:0 0 0 3px #fff;font-size:16px}
+@keyframes gfk-bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+
+.gfk-ov{position:fixed;inset:0;z-index:99995;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:16px;
+  background:radial-gradient(circle at 50% 40%,#3a2a6a,#120c24 70%);color:#fff;font-family:"Grandstander","Andika",system-ui,sans-serif;text-align:center;
+  touch-action:none;-webkit-tap-highlight-color:transparent;opacity:0;transition:opacity .25s;overflow:hidden}
+.gfk-ov.on{opacity:1}
+.gfk-ov::before{content:"";position:absolute;inset:0;opacity:.6;pointer-events:none;
+  background-image:radial-gradient(1.5px 1.5px at 10% 20%,#fff,transparent),radial-gradient(2px 2px at 70% 15%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#fff,transparent),radial-gradient(2px 2px at 85% 60%,#fff,transparent),radial-gradient(1.5px 1.5px at 25% 85%,#fff,transparent),radial-gradient(1.5px 1.5px at 55% 35%,#fff,transparent)}
+.gfk-ov .msg{position:relative;font-weight:800;font-size:clamp(22px,5vw,34px);min-height:1.3em;text-shadow:0 3px 0 #0006;max-width:20em}
+.gfk-ov .sub{position:relative;font-size:18px;opacity:.85;min-height:1.4em}
+.gfk-stage{position:relative;width:min(68vw,330px,calc((100dvh - 230px) * 5 / 7));aspect-ratio:5/7}
+.gfk-flip{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,1.4,.5,1)}
+.gfk-flip.open{transform:rotateY(180deg)}
+.gfk-flip>*{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.gfk-flip>.front{transform:rotateY(180deg)}
+.gfk-back{border-radius:5%;border:5px solid #fff;display:grid;place-items:center;font-size:clamp(60px,18vw,110px);box-shadow:0 10px 30px #0008;
+  background:radial-gradient(circle at 50% 50%,#ffe9a0 0 18%,transparent 19%),repeating-conic-gradient(from 0deg,#6b4fd0 0 15deg,#8a6ff0 15deg 30deg)}
+.gfk-back.shake1{animation:gfk-shake .45s 1}.gfk-back.shake2{animation:gfk-shake .45s 2}.gfk-back.shake3{animation:gfk-shake .4s 4}
+.gfk-back.glow{box-shadow:0 0 40px 12px #ffd54f,0 10px 30px #0008}
+@keyframes gfk-shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg) scale(1.04)}75%{transform:rotate(7deg) scale(1.04)}}
+.gfk-burst{position:absolute;left:50%;top:50%;pointer-events:none;font-size:26px;animation:gfk-fly 1.2s ease-out forwards}
+@keyframes gfk-fly{from{transform:translate(-50%,-50%) scale(.3);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2) rotate(var(--r));opacity:0}}
+.gfk-halo{position:absolute;inset:-40%;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .6s}
+.gfk-halo.t-rare{background:radial-gradient(circle,#7fa6ff88,transparent 60%)}
+.gfk-halo.t-sparkly{background:conic-gradient(#ff7ad966,#ffe86a66,#7affb866,#7ad8ff66,#c07aff66,#ff7ad966);filter:blur(20px);animation:gfc-rot 8s linear infinite}
+.gfk-halo.t-legendary{background:repeating-conic-gradient(#ffd54fbb 0 10deg,transparent 10deg 22deg);animation:gfc-rot 12s linear infinite;-webkit-mask:radial-gradient(circle,#000 20%,transparent 65%);mask:radial-gradient(circle,#000 20%,transparent 65%)}
+.gfk-halo.on{opacity:1}
+.gfk-tier{position:relative;margin-top:6px;display:inline-block;font-weight:800;font-size:clamp(20px,4.5vw,28px);padding:4px 18px;border-radius:999px;background:#fff;color:#3a2a6a;transform:scale(0);transition:transform .4s cubic-bezier(.3,1.8,.5,1)}
+.gfk-tier.on{transform:scale(1)}
+.gfk-tier.t-rare{background:#6f8fe6;color:#fff}.gfk-tier.t-sparkly{background:linear-gradient(90deg,#ff7ad9,#ffd84a,#6fe8a6,#6fc8ff,#c07aff);color:#fff;text-shadow:0 2px 0 #0004}
+.gfk-tier.t-legendary{background:linear-gradient(90deg,#c98a12,#ffe27a,#c98a12);color:#4a2c00}
+.gfk-btn{position:relative;font:800 20px/1 "Grandstander",system-ui,sans-serif;border:0;border-radius:16px;padding:16px 26px;min-height:56px;background:#ffd84a;color:#3a2a1f;box-shadow:0 5px 0 #b8901a;cursor:pointer;touch-action:manipulation}
+.gfk-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #b8901a}
+.gfk-btn[hidden]{display:none}
+
+.gfk-view{position:fixed;inset:0;z-index:99996;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;
+  background:radial-gradient(circle at 50% 40%,#3a2a6a,#120c24 75%);color:#fff;font-family:"Grandstander","Andika",system-ui,sans-serif;touch-action:none;overflow:hidden}
+.gfk-gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.gfk-ov.gl,.gfk-view.gl{background:#0d0820}.gfk-ov.gl::before{display:none}
+.gfk-ov.gl .gfk-flip,.gfk-ov.gl .gfk-halo,.gfk-view.gl .stage>*{visibility:hidden}
+.gfk-view .info,.gfk-view .nav,.gfk-view .x{position:relative}
+.gfk-view .stage{position:relative;aspect-ratio:5/7;width:min(80vw,380px,calc((100dvh - 200px) * 5 / 7));transition:transform .25s ease-out,opacity .25s}
+.gfk-view .info{text-align:center;display:flex;flex-direction:column;gap:2px;min-height:3.2em}
+.gfk-view .info b{font-size:22px}.gfk-view .info span{opacity:.8;font-size:16px}
+.gfk-view .nav{display:flex;gap:14px;align-items:center}
+.gfk-view .rb{width:60px;height:60px;border-radius:50%;border:0;font-size:28px;background:#fff2;color:#fff;cursor:pointer;touch-action:manipulation}
+.gfk-view .rb:disabled{opacity:.25}
+.gfk-view .x{position:absolute;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right))}
+.gfk-view .pos{font-weight:800;min-width:5em;text-align:center}
+@media (prefers-reduced-motion:reduce){.gfc,.gfc *,.gfk-packbtn,.gfk-halo,.gfk-back{animation:none!important}.gfk-flip{transition:none}}
+`;
+  function injectCSS() {
+    if (document.getElementById("gfk-cards-css")) return;
+    const s = document.createElement("style"); s.id = "gfk-cards-css"; s.textContent = CSS;
+    (document.head || document.documentElement).appendChild(s);
+  }
+  injectCSS();
+
+  /* ---------- tilt: cards follow her finger ---------- */
+  function tilt(el, strength) {
+    const card = () => el.querySelector(".gfc") || el;
+    function move(e) {
+      const r = el.getBoundingClientRect(), p = e.touches ? e.touches[0] : e;
+      const x = Math.min(1, Math.max(0, (p.clientX - r.left) / r.width)), y = Math.min(1, Math.max(0, (p.clientY - r.top) / r.height));
+      const c = card(); c.style.setProperty("--mx", x * 100 + "%"); c.style.setProperty("--my", y * 100 + "%");
+      if (!reduced()) { c.style.setProperty("--ry", (x - 0.5) * strength + "deg"); c.style.setProperty("--rx", (0.5 - y) * strength + "deg"); }
+    }
+    function reset() { const c = card(); ["--rx", "--ry"].forEach(v => c.style.setProperty(v, "0deg")); }
+    el.addEventListener("pointermove", move); el.addEventListener("pointerleave", reset);
+    return { move, reset };
+  }
+
+  /* ---------- luck ---------- */
+  function luck() { return Object.assign({ sinceShiny: 0, sinceBonus: 0 }, ls.get(LUCK, {})); }
+  function drawCharm(have) {
+    const left = CHARMS.filter(c => !have.has("wonder-charms/" + c[0]));
+    if (!left.length) return null;
+    let total = 0; const w = left.map(c => (total += CHARM_WEIGHT[c[3]]));
+    const x = Math.random() * total, i = w.findIndex(v => x < v);
+    const c = left[i < 0 ? 0 : i];
+    return { game: "wonder-charms", id: c[0], emoji: c[1], name: c[2], rarity: c[3] };
+  }
+
+  const queue = [];
+  let btn = null;
+  function collect(item, opts) {
+    opts = opts || {};
+    if (!item || !item.game || !(item.id || item.name)) return false;
+    const all = list(), have = new Set(all.map(keyOf));
+    if (have.has(keyOf(item))) return false;
+    const c = Object.assign({}, item, { earnedAt: item.earnedAt || new Date().toISOString() });
+    if (TIERS[c.rarity] == null) c.rarity = "common";
+    const fresh = [c];
+    if ((FINALES[c.game] || []).includes(c.id)) c.rarity = "legendary";
+    if (!opts.quiet) {
+      const L = luck();
+      if (c.rarity === "common" || c.rarity === "rare") {
+        L.sinceShiny++;
+        if (Math.random() < SHINY_CHANCE[c.rarity] || L.sinceShiny >= SHINY_PITY) { c.rarity = "sparkly"; c.shiny = true; L.sinceShiny = 0; }
+      }
+      L.sinceBonus++;
+      if (Math.random() < BONUS_CHANCE || L.sinceBonus >= BONUS_PITY) {
+        const b = drawCharm(have);
+        if (b) { b.earnedAt = c.earnedAt; b.bonus = true; fresh.push(b); L.sinceBonus = 0; }
+      }
+      ls.set(LUCK, L);
+    }
+    all.push(...fresh);
+    const n = all.filter(x => x.game !== "wonder-crowns").length;
+    CROWNS.forEach(cr => {
+      if (n >= cr.at && !have.has("wonder-crowns/" + cr.id)) {
+        const k = { game: "wonder-crowns", id: cr.id, name: cr.name, emoji: cr.emoji, rarity: "legendary", earnedAt: c.earnedAt, crown: cr.at };
+        all.push(k); fresh.push(k);
+      }
+    });
+    ls.set(KEY, all);
+    if (!opts.quiet) { queue.push(...fresh); showButton(); }
+    return true;
+  }
+
+  function showButton() {
+    if (!document.body) { document.addEventListener("DOMContentLoaded", showButton, { once: true }); return; }
+    if (!queue.length) { if (btn) { btn.remove(); btn = null; } return; }
+    if (!btn) {
+      btn = document.createElement("button");
+      btn.className = "gfk-packbtn"; btn.type = "button";
+      btn.addEventListener("click", e => { e.stopPropagation(); openPacks(); });
+      document.body.appendChild(btn);
+    }
+    btn.setAttribute("aria-label", queue.length + " new card" + (queue.length === 1 ? "" : "s") + " to open");
+    btn.innerHTML = `<b>🎁</b>Open!<i>${queue.length}</i>`;
+  }
+
+  /* ---------- WebGL: the card as a real 3D object ----------
+     The pack opening and the big viewer draw the card with WebGL: it tilts in 3D under her finger,
+     a foil shader makes Shiny cards shift through the rainbow and Legendary cards shine gold, glitter
+     catches the light, and a night sky with light rays and sparks sits behind it. The card face is
+     painted onto a 2D canvas first and used as a texture. With no WebGL the CSS cards are used. */
+  const TW = 600, TH = 840;
+  function rr(x, y, w, h, r, ctx) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  const FONT = '"Grandstander","Andika","Trebuchet MS",system-ui,sans-serif';
+  const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  function canvas2d() { const c = document.createElement("canvas"); c.width = TW; c.height = TH; return c; }
+  function fitText(ctx, text, max, size, weight) {
+    let s = size;
+    do { ctx.font = `${weight} ${s}px ${FONT}`; if (ctx.measureText(text).width <= max) break; s -= 2; } while (s > 20);
+    return s;
+  }
+  function paintFace(c) {
+    const set = SETS[c.game] || { name: "Treasures", icon: "⭐", a: "#eadcc4", b: "#8a6a45" }, t = tierOf(c);
+    const cv = canvas2d(), x = cv.getContext("2d"), mk = canvas2d(), m = mk.getContext("2d");
+    // outer frame
+    let g = x.createLinearGradient(0, 0, TW, TH);
+    const frames = { common: ["#fffdf7", "#f3ebdd", "#e4d8c3"], rare: ["#e8f0ff", "#7c98ea", "#dfe8ff"], sparkly: ["#ffd1f0", "#c3f0ff", "#fff3b0", "#d6c8ff"], legendary: ["#fff1a8", "#e7a91d", "#fff6c2", "#c98a12"] }[t];
+    frames.forEach((col, i) => g.addColorStop(i / (frames.length - 1), col));
+    rr(0, 0, TW, TH, 44, x); x.fillStyle = g; x.fill();
+    // inner panel
+    g = x.createLinearGradient(0, 30, 0, TH - 30);
+    if (t === "legendary") { g.addColorStop(0, "#fff4c9"); g.addColorStop(0.6, "#ffd36b"); g.addColorStop(1, "#e9a52a"); }
+    else { g.addColorStop(0, set.a); g.addColorStop(1, set.b); }
+    rr(26, 26, TW - 52, TH - 52, 28, x); x.fillStyle = g; x.fill();
+    x.lineWidth = 6; x.strokeStyle = "rgba(255,255,255,.6)"; x.stroke();
+    // art window
+    const ax = 46, ay = 150, aw = TW - 92, ah = 548;
+    x.save(); rr(ax, ay, aw, ah, 24, x); x.clip();
+    g = x.createRadialGradient(TW / 2, ay + ah * 0.45, 10, TW / 2, ay + ah * 0.45, ah * 0.75);
+    if (t === "legendary") { g.addColorStop(0, "#fff3c0"); g.addColorStop(0.4, "#ffc93f"); g.addColorStop(0.8, "#d98a12"); g.addColorStop(1, "#8a4f06"); }
+    else { g.addColorStop(0, "#ffffff"); g.addColorStop(0.35, set.a); g.addColorStop(1, set.b); }
+    x.fillStyle = g; x.fillRect(ax, ay, aw, ah);
+    if (t === "legendary" || t === "sparkly") {
+      x.save(); x.translate(TW / 2, ay + ah * 0.45); x.fillStyle = t === "legendary" ? "rgba(255,255,255,.28)" : "rgba(255,255,255,.18)";
+      for (let i = 0; i < 18; i++) { x.rotate(Math.PI * 2 / 18); x.beginPath(); x.moveTo(0, 0); x.lineTo(-40, -700); x.lineTo(40, -700); x.closePath(); x.fill(); }
+      x.restore();
+    }
+    x.fillStyle = "rgba(255,255,255,.22)";
+    for (let yy = ay + 20; yy < ay + ah; yy += 42) for (let xx = ax + 20; xx < ax + aw; xx += 42) { x.beginPath(); x.arc(xx, yy, 5, 0, 7); x.fill(); }
+    x.restore();
+    rr(ax, ay, aw, ah, 24, x); x.lineWidth = 8; x.strokeStyle = "rgba(255,255,255,.75)"; x.stroke();
+    // emoji, with a soft shadow
+    const emo = c.emoji || "⭐", ey = ay + ah * 0.5;
+    x.font = `250px ${EMOJI_FONT}`; x.textAlign = "center"; x.textBaseline = "middle";
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 18; x.fillText(emo, TW / 2, ey); x.restore();
+    // name plate
+    rr(46, 46, TW - 92, 88, 20, x); x.fillStyle = "rgba(255,255,255,.88)"; x.fill();
+    const name = (c.name || "Card") + (c.shiny ? " ✨" : "");
+    const fs = fitText(x, name, TW - 130, 54, 800);
+    x.fillStyle = "#2c2118"; x.font = `800 ${fs}px ${FONT}`; x.fillText(name, TW / 2, 92);
+    // footer: set pill and rarity gems
+    const label = `${set.icon} ${set.name}`, lfs = fitText(x, label, 330, 34, 800);
+    x.font = `800 ${lfs}px ${FONT}`; const lw = Math.min(360, x.measureText(label).width + 44);
+    rr(46, 718, lw, 66, 33, x); x.fillStyle = "rgba(255,255,255,.88)"; x.fill();
+    x.fillStyle = "#2c2118"; x.textAlign = "left"; x.fillText(label, 68, 752);
+    x.textAlign = "right"; x.font = `800 44px ${FONT}`; x.fillStyle = "#fff";
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowOffsetY = 3; x.fillText(TIER_GEMS[t], TW - 56, 752); x.restore();
+    // holo mask: foil everywhere except the picture and the writing
+    rr(0, 0, TW, TH, 44, m); m.fillStyle = "#fff"; m.fill();
+    m.fillStyle = "#555"; rr(46, 46, TW - 92, 88, 20, m); m.fill(); rr(46, 718, lw, 66, 33, m); m.fill();
+    const em = canvas2d(), e = em.getContext("2d");
+    e.font = `250px ${EMOJI_FONT}`; e.textAlign = "center"; e.textBaseline = "middle"; e.fillText(emo, TW / 2, ey);
+    e.globalCompositeOperation = "source-in"; e.fillStyle = "#000"; e.fillRect(0, 0, TW, TH);
+    m.drawImage(em, 0, 0);
+    return { face: cv, mask: mk };
+  }
+  let backCache = null;
+  function paintBack() {
+    if (backCache) return backCache;
+    const cv = canvas2d(), x = cv.getContext("2d");
+    rr(0, 0, TW, TH, 44, x); x.fillStyle = "#fff"; x.fill();
+    x.save(); rr(18, 18, TW - 36, TH - 36, 32, x); x.clip();
+    x.fillStyle = "#6b4fd0"; x.fillRect(0, 0, TW, TH);
+    x.translate(TW / 2, TH / 2); x.fillStyle = "#8a6ff0";
+    for (let i = 0; i < 24; i += 2) { x.beginPath(); x.moveTo(0, 0); x.arc(0, 0, 900, i * Math.PI / 12, (i + 1) * Math.PI / 12); x.closePath(); x.fill(); }
+    const g = x.createRadialGradient(0, 0, 0, 0, 0, 170); g.addColorStop(0, "#fff6c8"); g.addColorStop(0.7, "#ffe27a"); g.addColorStop(1, "rgba(255,226,122,0)");
+    x.fillStyle = g; x.beginPath(); x.arc(0, 0, 170, 0, 7); x.fill();
+    x.font = `170px ${EMOJI_FONT}`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("🎁", 0, 6);
+    x.fillStyle = "#fff"; x.font = `800 46px ${FONT}`; x.fillText("WONDER PACK", 0, -300); x.fillText("✦  ✦  ✦", 0, 300);
+    x.restore();
+    return (backCache = cv);
+  }
+
+  const VS_BG = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
+  const FS_BG = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 uRes,uC;uniform float uT,uRays,uFlash,uRainbow;uniform vec3 uCol;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}
+void main(){
+  vec2 fc=gl_FragCoord.xy;float m=min(uRes.x,uRes.y);vec2 p=(fc-uC)/m;float r=length(p),a=atan(p.y,p.x);
+  vec3 col=mix(vec3(.05,.03,.12),vec3(.2,.11,.36),smoothstep(1.3,0.,r));
+  float nb=fbm(p*2.4+vec2(uT*.03,-uT*.02));
+  col+=mix(vec3(.45,.25,.8),uCol,.5)*pow(nb,2.2)*.75*smoothstep(1.5,.1,r);
+  col+=vec3(.2,.35,.7)*pow(fbm(p*4.1-uT*.04),3.)*.5;
+  vec2 cl=fc/(7.*m/900.);vec2 sp=floor(cl);float s=h(sp);vec2 sf=fract(cl)-.5+(vec2(h(sp+3.1),h(sp+7.7))-.5)*.5;col+=step(.985,s)*smoothstep(.22,0.,length(sf))*(.6+.4*sin(uT*2.5+s*90.));
+  float ry=pow(.5+.5*sin(a*12.+uT*.5),7.)+.7*pow(.5+.5*sin(a*7.-uT*.35),9.);
+  vec3 rc=mix(uCol,.6+.4*cos(6.2832*(a/6.2832+uT*.06+vec3(0.,.33,.67))),uRainbow);
+  col+=rc*ry*uRays*smoothstep(1.2,.06,r)*.6;
+  col+=rc*uRays*.45*smoothstep(.55,0.,r);
+  col+=vec3(1.,.97,.9)*uFlash*smoothstep(1.1,0.,r);
+  gl_FragColor=vec4(col,1.);
+}`;
+  const VS_CARD = `attribute vec2 p;uniform vec2 uRes,uC,uSize;uniform vec3 uRot;uniform float uScale;varying vec2 vUv;varying float vFace;
+void main(){
+  vec3 q=vec3(p*uSize*uScale,0.);vec3 nn=vec3(0.,0.,1.);
+  float cz=cos(uRot.z),sz=sin(uRot.z);q.xy=vec2(cz*q.x-sz*q.y,sz*q.x+cz*q.y);
+  float cy=cos(uRot.y),sy=sin(uRot.y);q=vec3(cy*q.x+sy*q.z,q.y,-sy*q.x+cy*q.z);nn=vec3(cy*nn.x+sy*nn.z,nn.y,-sy*nn.x+cy*nn.z);
+  float cx=cos(uRot.x),sx=sin(uRot.x);q=vec3(q.x,cx*q.y-sx*q.z,sx*q.y+cx*q.z);nn=vec3(nn.x,cx*nn.y-sx*nn.z,sx*nn.y+cx*nn.z);
+  float f=uSize.y*3.2;float w=f/(f-q.z);vec2 s=uC+q.xy*w;
+  gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,0.,1.);
+  vUv=p+.5;vFace=nn.z;
+}`;
+  const FS_CARD = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform sampler2D uFace,uMask,uBack;uniform float uTier,uT,uGlow;uniform vec2 uTilt;varying vec2 vUv;varying float vFace;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+vec3 pal(float t){return .5+.5*cos(6.2832*(t+vec3(0.,.33,.67)));}
+void main(){
+  vec2 uv=vUv;
+  vec2 L=vec2(.5,.45)+uTilt*vec2(.9,-.9);
+  float spec=pow(max(0.,1.-distance(uv,L)*1.5),3.);
+  float sweep=smoothstep(.13,0.,abs(uv.x*.9+uv.y*.5-(.7+uTilt.x*1.3-uTilt.y*.7+sin(uT*.5)*.2)));
+  if(vFace<0.){
+    vec4 b=texture2D(uBack,vec2(1.-uv.x,uv.y));if(b.a<.01)discard;
+    vec3 c=b.rgb+(spec*.25+sweep*.15)*b.a+vec3(1.,.85,.4)*uGlow*.35*b.a;
+    gl_FragColor=vec4(c,b.a);return;
+  }
+  vec4 c=texture2D(uFace,uv);if(c.a<.01)discard;
+  float mk=texture2D(uMask,uv).r;
+  vec3 col=c.rgb;
+  vec2 gc=uv*vec2(64.,90.);vec2 g=floor(gc);float r=h(g);vec2 gf=fract(gc)-.5;
+  float tw=pow(max(0.,sin(r*50.+uTilt.x*18.+uTilt.y*13.+uT*1.5)),24.)*step(.72,r)*smoothstep(.42,.05,length(gf));
+  if(uTier<.5){col+=(spec*.10+sweep*.07)*c.a;}
+  else if(uTier<1.5){col+=(spec*.2+sweep*.25)*vec3(.85,.92,1.)*c.a+tw*mk*.35*c.a;}
+  else if(uTier<2.5){
+    float t=uv.x*1.3+uv.y*.9+uTilt.x*1.6+uTilt.y*1.1+uT*.04;
+    vec3 rb=pal(t)*c.a;
+    col=mix(col,col*.55+rb*.75,mk*(.45+.3*sweep));
+    col+=tw*mk*1.1*c.a*mix(vec3(1.),pal(r),.5)+spec*.25*c.a;
+  } else {
+    float t=uv.x-uv.y*.6+uTilt.x*1.4+uTilt.y*.6+uT*.07;
+    float sh=pow(.5+.5*sin(t*8.),5.);
+    col+=vec3(1.,.82,.35)*sh*.38*mk*c.a+spec*.3*c.a;
+    col=mix(col,col*.7+pal(t*.5)*.4*c.a,mk*.18*sweep);
+    col+=tw*mk*1.3*c.a*vec3(1.,.92,.6);
+  }
+  float edge=min(min(uv.x,1.-uv.x),min(uv.y,1.-uv.y));
+  col+=vec3(1.,.9,.6)*uGlow*smoothstep(.06,0.,edge)*c.a*.8;
+  gl_FragColor=vec4(col,c.a);
+}`;
+  const VS_PT = `attribute vec2 p;attribute float sz;attribute vec4 col;uniform vec2 uRes;varying vec4 vC;
+void main(){gl_Position=vec4(p.x/uRes.x*2.-1.,1.-p.y/uRes.y*2.,0.,1.);gl_PointSize=sz;vC=col;}`;
+  const FS_PT = `precision mediump float;varying vec4 vC;
+void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
+  float a=smoothstep(.5,0.,d)*.6+pow(max(0.,1.-abs(q.x)*14.),2.)*smoothstep(.5,0.,abs(q.y))*.8+pow(max(0.,1.-abs(q.y)*14.),2.)*smoothstep(.5,0.,abs(q.x))*.8;
+  a=clamp(a,0.,1.)*vC.a;gl_FragColor=vec4(vC.rgb*a,a);}`;
+
+  const TIER_LOOK = { // background tint, ray strength when open, rainbow rays, sparks
+    common: { col: [0.95, 0.85, 1.0], rays: 0.18, rainbow: 0, sparks: [[1, 0.95, 0.8], [0.85, 0.8, 1]] },
+    rare: { col: [0.45, 0.65, 1.0], rays: 0.4, rainbow: 0, sparks: [[0.6, 0.75, 1], [1, 1, 1]] },
+    sparkly: { col: [0.9, 0.6, 1.0], rays: 0.65, rainbow: 1, sparks: [[1, 0.5, 0.85], [1, 0.9, 0.4], [0.5, 1, 0.7], [0.5, 0.8, 1], [0.8, 0.5, 1]] },
+    legendary: { col: [1.0, 0.78, 0.3], rays: 1.0, rainbow: 0.15, sparks: [[1, 0.85, 0.35], [1, 0.95, 0.7], [1, 0.7, 0.2]] }
+  };
+
+  function glStage(host, stageEl) {
+    let gl = null;
+    const cv = document.createElement("canvas");
+    cv.className = "gfk-gl"; cv.setAttribute("aria-hidden", "true");
+    try { gl = cv.getContext("webgl", { alpha: false, antialias: true, premultipliedAlpha: true }) || cv.getContext("experimental-webgl"); } catch (e) {}
+    if (!gl) return null;
+    function prog(vs, fs) {
+      const mk = (t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh)); return sh; };
+      const p = gl.createProgram(); gl.attachShader(p, mk(gl.VERTEX_SHADER, vs)); gl.attachShader(p, mk(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+      for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); u[a.name] = gl.getUniformLocation(p, a.name); }
+      return { p, u };
+    }
+    let P;
+    try { P = { bg: prog(VS_BG, FS_BG), card: prog(VS_CARD, FS_CARD), pt: prog(VS_PT, FS_PT) }; } catch (e) { console.warn("card WebGL off:", e); return null; }
+    host.insertBefore(cv, host.firstChild);
+    host.classList.add("gl");
+    const full = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, full); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    const Q = [], N = 12; // a finely split quad so the perspective bend stays smooth
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const x0 = i / N - 0.5, x1 = (i + 1) / N - 0.5, y0 = j / N - 0.5, y1 = (j + 1) / N - 0.5;
+      Q.push(x0, y0, x1, y0, x0, y1, x1, y0, x1, y1, x0, y1);
+    }
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(Q), gl.STATIC_DRAW);
+    const ptBuf = gl.createBuffer();
+    function tex(src) {
+      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      return t;
+    }
+    let T = { back: tex(paintBack()), face: null, mask: null };
+    const S = {
+      ry: Math.PI, rx: 0, rz: 0, scale: 1, ox: 0, oy: 0, tier: "common", rays: 0.15, raysTo: 0.15, flash: 0, glow: 0,
+      tilt: [0, 0], tiltTo: [0, 0], touching: false, anims: [], parts: [], ambient: 0, t0: performance.now(), dpr: 1, rect: null
+    };
+    function setCard(c) {
+      S.tier = tierOf(c);
+      let p;
+      try { p = paintFace(c); } catch (e) { console.warn("card paint failed:", e); return; }
+      if (T.face) { gl.deleteTexture(T.face); gl.deleteTexture(T.mask); }
+      T.face = tex(p.face); T.mask = tex(p.mask);
+    }
+    function anim(dur, fn, done) { S.anims.push({ start: performance.now(), dur, fn, done }); }
+    function burst(n, spread) {
+      const look = TIER_LOOK[S.tier], r = S.rect; if (!r) return;
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2, sp = (200 + Math.random() * spread) * S.dpr;
+        const c = look.sparks[i % look.sparks.length];
+        S.parts.push({ x: r.cx + Math.cos(a) * r.w * 0.2, y: r.cy + Math.sin(a) * r.h * 0.2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120 * S.dpr, life: 0, max: 1.1 + Math.random() * 1.1, size: (10 + Math.random() * 22) * S.dpr, c });
+      }
+    }
+    function sparkle() {
+      const r = S.rect, look = TIER_LOOK[S.tier]; if (!r) return;
+      const side = Math.random();
+      const x = r.cx + (Math.random() - 0.5) * r.w * 1.25, y = r.cy + (Math.random() - 0.5) * r.h * 1.15;
+      S.parts.push({ x, y, vx: (Math.random() - 0.5) * 30 * S.dpr, vy: (-30 - Math.random() * 40) * S.dpr, life: 0, max: 1 + side, size: (8 + Math.random() * 16) * S.dpr, c: look.sparks[Math.floor(Math.random() * look.sparks.length)] });
+    }
+    function resize() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1), w = host.clientWidth, h = host.clientHeight;
+      S.dpr = dpr;
+      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      const hb = host.getBoundingClientRect(), sb = stageEl.getBoundingClientRect();
+      S.rect = { cx: (sb.left - hb.left + sb.width / 2) * dpr, cy: (sb.top - hb.top + sb.height / 2) * dpr, w: sb.width * dpr, h: sb.height * dpr };
+    }
+    function move(e) {
+      const r = stageEl.getBoundingClientRect(), pnt = e.touches ? e.touches[0] : e;
+      if (!pnt) return;
+      S.touching = true;
+      S.tiltTo = [Math.max(-1, Math.min(1, (pnt.clientX - r.left - r.width / 2) / (r.width * 0.6))), Math.max(-1, Math.min(1, (pnt.clientY - r.top - r.height / 2) / (r.height * 0.6)))];
+    }
+    const leave = () => { S.touching = false; };
+    host.addEventListener("pointermove", move); host.addEventListener("pointerdown", move);
+    host.addEventListener("pointerleave", leave); host.addEventListener("pointerup", leave); host.addEventListener("pointercancel", leave);
+    host.addEventListener("touchmove", move, { passive: true });
+    let raf = 0, last = performance.now(), alive = true;
+    const ptData = new Float32Array(400 * 7);
+    function frame(now) {
+      if (!alive) return;
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - last) / 1000), t = (now - S.t0) / 1000; last = now;
+      resize();
+      const running = S.anims; S.anims = [];
+      const kept = running.filter(a => {
+        const k = Math.min(1, (now - a.start) / a.dur);
+        try { a.fn(k); if (k >= 1 && a.done) a.done(); } catch (e) { console.warn(e); return false; }
+        return k < 1;
+      });
+      S.anims = kept.concat(S.anims);
+      if (!S.touching) S.tiltTo = reduced() ? [0, 0] : [Math.sin(t * 0.7) * 0.35, Math.cos(t * 0.55) * 0.22];
+      S.tilt[0] += (S.tiltTo[0] - S.tilt[0]) * Math.min(1, dt * 8); S.tilt[1] += (S.tiltTo[1] - S.tilt[1]) * Math.min(1, dt * 8);
+      S.rays += (S.raysTo - S.rays) * Math.min(1, dt * 3); S.flash = Math.max(0, S.flash - dt * 1.8);
+      if (S.ambient > 0 && !reduced()) { S.ambientAcc = (S.ambientAcc || 0) + dt * S.ambient; while (S.ambientAcc > 1) { S.ambientAcc--; sparkle(); } }
+      const W = cv.width, H = cv.height, r = S.rect, look = TIER_LOOK[S.tier];
+      gl.viewport(0, 0, W, H);
+      gl.disable(gl.BLEND);
+      gl.useProgram(P.bg.p); gl.bindBuffer(gl.ARRAY_BUFFER, full);
+      let loc = gl.getAttribLocation(P.bg.p, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform2f(P.bg.u.uRes, W, H); gl.uniform2f(P.bg.u.uC, r.cx, H - r.cy); gl.uniform1f(P.bg.u.uT, t);
+      gl.uniform1f(P.bg.u.uRays, S.rays); gl.uniform1f(P.bg.u.uFlash, S.flash); gl.uniform1f(P.bg.u.uRainbow, look.rainbow); gl.uniform3fv(P.bg.u.uCol, look.col);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.disableVertexAttribArray(loc);
+      // card
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(P.card.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      loc = gl.getAttribLocation(P.card.p, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      const u = P.card.u;
+      gl.uniform2f(u.uRes, W, H); gl.uniform2f(u.uC, r.cx + S.ox * r.w, r.cy + S.oy * r.h); gl.uniform2f(u.uSize, r.w, r.h);
+      gl.uniform3f(u.uRot, S.rx - S.tilt[1] * 0.32, S.ry + S.tilt[0] * 0.42, S.rz); gl.uniform1f(u.uScale, S.scale);
+      gl.uniform1f(u.uTier, TIERS[S.tier]); gl.uniform1f(u.uT, t); gl.uniform2f(u.uTilt, S.tilt[0], S.tilt[1]); gl.uniform1f(u.uGlow, S.glow);
+      [["uFace", T.face || T.back], ["uMask", T.mask || T.back], ["uBack", T.back]].forEach(([n, tx], i) => { gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, tx); gl.uniform1i(u[n], i); });
+      gl.drawArrays(gl.TRIANGLES, 0, Q.length / 2);
+      gl.disableVertexAttribArray(loc);
+      // sparks
+      S.parts = S.parts.filter(q => (q.life += dt) < q.max);
+      if (S.parts.length > 400) S.parts.splice(0, S.parts.length - 400);
+      if (S.parts.length) {
+        let k = 0;
+        for (const q of S.parts) {
+          q.vx *= 1 - dt * 1.6; q.vy = q.vy * (1 - dt * 1.6) + 60 * S.dpr * dt; q.x += q.vx * dt; q.y += q.vy * dt;
+          const f = q.life / q.max, a = f < 0.15 ? f / 0.15 : 1 - (f - 0.15) / 0.85;
+          ptData.set([q.x, q.y, q.size * (0.6 + 0.4 * Math.sin(q.life * 9 + q.size)), q.c[0], q.c[1], q.c[2], Math.max(0, a)], k); k += 7;
+        }
+        gl.blendFunc(gl.ONE, gl.ONE);
+        gl.useProgram(P.pt.p); gl.bindBuffer(gl.ARRAY_BUFFER, ptBuf); gl.bufferData(gl.ARRAY_BUFFER, ptData.subarray(0, k), gl.DYNAMIC_DRAW);
+        gl.uniform2f(P.pt.u.uRes, W, H);
+        const lp = gl.getAttribLocation(P.pt.p, "p"), ls_ = gl.getAttribLocation(P.pt.p, "sz"), lc = gl.getAttribLocation(P.pt.p, "col");
+        [lp, ls_, lc].forEach(l => gl.enableVertexAttribArray(l));
+        gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 28, 0); gl.vertexAttribPointer(ls_, 1, gl.FLOAT, false, 28, 8); gl.vertexAttribPointer(lc, 4, gl.FLOAT, false, 28, 12);
+        gl.drawArrays(gl.POINTS, 0, k / 7);
+        [lp, ls_, lc].forEach(l => gl.disableVertexAttribArray(l));
+      }
+    }
+    raf = requestAnimationFrame(frame);
+    cv.addEventListener("webglcontextlost", e => { e.preventDefault(); alive = false; cancelAnimationFrame(raf); host.classList.remove("gl"); cv.remove(); });
+    return {
+      S, setCard, anim, burst,
+      look: () => TIER_LOOK[S.tier],
+      destroy() { alive = false; cancelAnimationFrame(raf); try { const x = gl.getExtension("WEBGL_lose_context"); if (x) x.loseContext(); } catch (e) {} cv.remove(); }
+    };
+  }
+  const ease = k => 1 - Math.pow(1 - k, 3);
+  const easeBack = k => { const c = 1.6; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+
+  /* ---------- the reveal ---------- */
+  let opening = false;
+  function burst(stage, t) {
+    if (reduced()) return;
+    const n = { common: 10, rare: 16, sparkly: 26, legendary: 40 }[t];
+    const bits = { common: ["⭐", "✨"], rare: ["💙", "⭐", "✨"], sparkly: ["✨", "🌈", "💖", "⭐", "🦋"], legendary: ["👑", "✨", "🌟", "💛", "⭐"] }[t];
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement("span"); s.className = "gfk-burst"; s.textContent = bits[i % bits.length];
+      const a = Math.random() * Math.PI * 2, d = 120 + Math.random() * (t === "legendary" ? 260 : 170);
+      s.style.setProperty("--dx", Math.cos(a) * d + "px"); s.style.setProperty("--dy", Math.sin(a) * d + "px"); s.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+      s.style.animationDelay = Math.random() * 0.25 + "s";
+      stage.appendChild(s); setTimeout(() => s.remove(), 1600);
+    }
+  }
+  const HYPE = {
+    common: ["A new card!", "Look what you found!", "Ooh, a new friend!"],
+    rare: ["A RARE card!", "Wow, a rare one!"],
+    sparkly: ["It's SHINY!", "A sparkly holo card!", "Shiny! How lucky!"],
+    legendary: ["LEGENDARY!", "The most special card of all!"]
+  };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  function openPacks() {
+    if (opening || !queue.length) return Promise.resolve();
+    opening = true;
+    if (btn) { btn.remove(); btn = null; }
+    const ov = document.createElement("div");
+    ov.className = "gfk-ov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", "Open your new cards");
+    ov.innerHTML = `<div class="msg"></div><div class="gfk-stage"><div class="gfk-halo"></div><div class="gfk-flip"><div class="gfk-back">🎁</div><div class="front"></div></div></div>
+      <div class="gfk-tier"></div><div class="sub"></div><button class="gfk-btn" type="button" hidden></button>`;
+    document.body.appendChild(ov);
+    requestAnimationFrame(() => ov.classList.add("on"));
+    const $ = s => ov.querySelector(s);
+    const stage = $(".gfk-stage"), flip = $(".gfk-flip"), back = $(".gfk-back"), halo = $(".gfk-halo"), tierEl = $(".gfk-tier"), msg = $(".msg"), sub = $(".sub"), go = $(".gfk-btn");
+    const G = glStage(ov, stage);
+    if (!G) { const tl = tilt(stage, 22); stage.addEventListener("touchmove", e => tl.move(e), { passive: true }); }
+    return new Promise(done => {
+      let c = null, state = "closed";
+      function next() {
+        c = queue.shift();
+        const t = tierOf(c);
+        state = "closed"; go.hidden = true; tierEl.className = "gfk-tier"; halo.className = "gfk-halo";
+        flip.classList.remove("open"); back.className = "gfk-back";
+        $(".front").innerHTML = face(c, { big: true });
+        msg.textContent = c.crown ? `You have ${c.crown} cards! A Crown Card appears…` : c.bonus ? "And a lucky bonus charm!" : "You won a card pack!";
+        sub.textContent = "Tap the pack to open it!";
+        if (t === "legendary") back.classList.add("glow");
+        if (G) {
+          const S = G.S;
+          G.setCard(c); S.ry = Math.PI; S.rz = 0; S.ambient = 0; S.raysTo = 0.15; S.glow = t === "legendary" ? 0.5 : 0;
+          if (!reduced()) G.anim(550, k => { S.scale = 0.25 + 0.75 * easeBack(k); S.ry = Math.PI - (1 - ease(k)) * 1.2; });
+          else S.scale = 1;
+        }
+      }
+      function reveal(t) {
+        halo.classList.add("t-" + t, "on");
+        tierEl.textContent = (c.shiny ? "✨ " : "") + TIER_NAME[t].toUpperCase() + (t === "legendary" ? " 👑" : "");
+        tierEl.classList.add("t-" + t, "on");
+        msg.textContent = pick(HYPE[t]);
+        sub.textContent = c.name;
+        state = "open"; go.hidden = false;
+        go.textContent = queue.length ? `Next pack (${queue.length}) ➜` : "Put it in my binder";
+        go.focus({ preventScroll: true });
+      }
+      function openGL(t, shakes) {
+        const S = G.S, look = G.look();
+        const shakeMs = reduced() ? 0 : 420 * Math.min(3, shakes) * (shakes > 2 ? 0.7 : 1);
+        if (t === "legendary") S.raysTo = 0.45;
+        G.anim(shakeMs || 1, k => { S.rz = Math.sin(k * shakeMs / 1000 * 36) * 0.13 * (1 - k * 0.4); S.scale = 1 + 0.05 * Math.sin(k * shakeMs / 1000 * 50) * (shakes > 2 ? 1.5 : 1); }, () => {
+          S.rz = 0;
+          const turns = t === "legendary" ? 3 : t === "sparkly" ? 3 : 1, flipMs = reduced() ? 1 : t === "legendary" ? 1500 : t === "sparkly" ? 1200 : 850;
+          const start = S.ry;
+          let landed = false;
+          G.anim(flipMs, k => {
+            S.ry = start + turns * Math.PI * ease(k); S.scale = 1 + 0.18 * Math.sin(Math.PI * k);
+            if (!landed && k > 0.55) { landed = true; chime(t); S.flash = t === "legendary" ? 1 : t === "sparkly" ? 0.8 : 0.5; G.burst({ common: 40, rare: 70, sparkly: 130, legendary: 200 }[t], t === "legendary" ? 520 : 380); S.raysTo = look.rays; }
+          }, () => {
+            S.ambient = { common: 0.5, rare: 2, sparkly: 6, legendary: 12 }[t];
+            S.glow = t === "legendary" ? 0.35 : 0;
+            setTimeout(() => reveal(t), 200);
+          });
+        });
+      }
+      function open() {
+        if (state !== "closed") return;
+        state = "opening"; sub.textContent = "";
+        const t = tierOf(c), shakes = TIERS[t] + 1;
+        rustle();
+        if (G) return openGL(t, shakes);
+        back.classList.add("shake" + Math.min(3, shakes));
+        setTimeout(() => {
+          flip.classList.add("open"); chime(t); burst(stage, t);
+          setTimeout(() => reveal(t), reduced() ? 50 : 650);
+        }, reduced() ? 0 : 450 * Math.min(3, shakes) * (shakes > 2 ? 0.6 : 1));
+      }
+      stage.addEventListener("click", open);
+      go.addEventListener("click", e => {
+        e.stopPropagation();
+        if (queue.length) return next();
+        ov.classList.remove("on");
+        setTimeout(() => { if (G) G.destroy(); ov.remove(); opening = false; showButton(); done(); }, 260);
+      });
+      next();
+    });
+  }
+
+  /* ---------- big viewer: swipe through cards ---------- */
+  function view(cards, start, opts) {
+    opts = opts || {};
+    if (!cards || !cards.length) return;
+    let i = Math.max(0, Math.min(cards.length - 1, start || 0));
+    const v = document.createElement("div");
+    v.className = "gfk-view"; v.setAttribute("role", "dialog"); v.setAttribute("aria-label", "Card viewer");
+    v.innerHTML = `<button class="rb x" type="button" aria-label="Close">✕</button><div class="stage"></div><div class="info"></div>
+      <div class="nav"><button class="rb prev" type="button" aria-label="Previous card">◀</button><span class="pos"></span><button class="rb nextb" type="button" aria-label="Next card">▶</button></div>`;
+    document.body.appendChild(v);
+    const stage = v.querySelector(".stage"), info = v.querySelector(".info"), pos = v.querySelector(".pos");
+    const prevB = v.querySelector(".prev"), nextB = v.querySelector(".nextb");
+    const G = glStage(v, stage);
+    if (G) { G.S.ry = 0; G.S.scale = 1; }
+    const tl = G ? { move() {}, reset() {} } : tilt(stage, 26);
+    function when(s) { try { return new Date(s).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }); } catch (e) { return ""; } }
+    function draw(dir) {
+      const c = cards[i], t = tierOf(c), set = SETS[c.game];
+      stage.innerHTML = face(c, { big: true });
+      if (G) {
+        const S = G.S;
+        if (!dir || reduced()) { G.setCard(c); }
+        else {
+          const start = S.ry; let swapped = false;
+          G.anim(560, k => { S.ry = start + dir * 2 * Math.PI * ease(k); S.scale = 1 - 0.12 * Math.sin(Math.PI * k); if (!swapped && k > 0.3) { swapped = true; G.setCard(c); S.raysTo = G.look().rays * 0.55; } });
+        }
+        S.raysTo = G.look().rays * 0.55; S.ambient = { common: 0, rare: 1, sparkly: 4, legendary: 8 }[t]; S.glow = t === "legendary" ? 0.3 : 0;
+      } else if (dir && !reduced()) { stage.style.transition = "none"; stage.style.transform = `translateX(${dir * 60}px)`; stage.style.opacity = "0"; requestAnimationFrame(() => { stage.style.transition = ""; stage.style.transform = ""; stage.style.opacity = "1"; }); }
+      info.innerHTML = `<b>${esc(c.name)}</b><span>${c.shiny ? "✨ Shiny" : TIER_NAME[t]} · ${esc(set ? set.name : "Treasures")}</span>${c.earnedAt ? `<span>Won on ${esc(when(c.earnedAt))}</span>` : ""}`;
+      pos.textContent = `${i + 1} of ${cards.length}`;
+      prevB.disabled = i === 0; nextB.disabled = i === cards.length - 1;
+      if (opts.onShow) opts.onShow(c);
+    }
+    const go = d => { const j = i + d; if (j < 0 || j >= cards.length) return; i = j; draw(d); };
+    function close() { if (G) G.destroy(); v.remove(); document.removeEventListener("keydown", key); if (opts.onClose) opts.onClose(); }
+    function key(e) { if (e.key === "ArrowLeft") go(-1); else if (e.key === "ArrowRight") go(1); else if (e.key === "Escape") close(); }
+    prevB.onclick = () => go(-1); nextB.onclick = () => go(1); v.querySelector(".x").onclick = close;
+    document.addEventListener("keydown", key);
+    let sx = null, sy = 0;
+    v.addEventListener("pointerdown", e => { sx = e.clientX; sy = e.clientY; });
+    v.addEventListener("pointerup", e => {
+      if (sx == null) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+      else if (dy > 120) close();
+      tl.reset();
+    });
+    stage.addEventListener("touchmove", e => tl.move(e), { passive: true });
+    draw(0);
+    nextB.focus({ preventScroll: true });
+  }
+
+  window.GFKCards = { collect, face, locked, view, openPacks, list, SETS, CROWNS, CHARMS, TIERS, TIER_NAME, pending: () => queue.length };
+})();
+</script>
+<link rel="stylesheet" href="skin.css"><!-- skin hook H2: pixel skin, after the base style -->
+</head>
+<body>
+<div id="flat" aria-hidden="true">🍄</div>
+<div id="hud">
+  <a class="chip" id="back" href="../../index.html" aria-label="Back to the shelf">📚</a>
+  <span class="chip day" id="dayChip" hidden></span>
+  <span class="grow"></span>
+  <span class="chip" id="tillChip" hidden aria-label="Coins in the till"></span>
+  <span class="chip" id="jarChip" hidden aria-label="Coins in the savings jar"></span>
+  <button class="chip" id="snd" aria-label="Sound on or off">🔊</button>
+  <button class="chip" id="grown" aria-label="Grown-ups: press and hold">⚙️</button>
+</div>
+<div id="bubble" hidden><div class="pt"></div><div><div class="who"></div><div class="txt"></div></div><button class="rep" aria-label="Say it again">🔊</button></div>
+<div id="panel"></div>
+<div id="grownups" hidden><div class="card"></div></div>
+<script>
+'use strict';
+/* ================= basics ================= */
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rnd = n => Math.floor(Math.random() * n);
+const pick = a => a[rnd(a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const plural = (n, one, many) => n === 1 ? one : many;
+const KEY = 'toadstoolShop.v1', GAME = 'toadstool-shop';
+const DBG = { cur: null }; // what the current task wants (for automated play-testing)
+/* skin hook: tells the pixel view about moments it decorates (level ups, hearts, the HUD). Never changes the game. */
+const skin = (...a) => { try { window.SkinEvent && window.SkinEvent(...a); } catch (e) { console.warn('[skin]', e); } };
+/* skin hook H5: pixel icons in place of emoji once the view is ready */
+const icon = (name, emoji) => window.Shop3D && Shop3D.icon ? `<img class="ico" src="${Shop3D.icon(name)}" alt="">` : emoji;
+const EMO = { '📒': 'notebook', '🫙': 'jar', '🌙': 'moon', '⭐': 'star', '👆': 'point', '💡': 'bulb', '⚓': 'anchor' };
+const emo = s => window.Shop3D && Shop3D.icon ? String(s).replace(/📒|🫙|🌙|⭐|👆|💡|⚓/gu, m => icon(EMO[m], m)) : s;
+
+/* ================= the world ================= */
+// price is what a customer pays for one; Bramble sells them to her for about a quarter of that.
+const GOODS = {
+  bun: { one: 'acorn bun', many: 'acorn buns', price: 1, emoji: '🥐', fresh: true },
+  apple: { one: 'apple', many: 'apples', price: 2, emoji: '🍎' },
+  honey: { one: 'honey pot', many: 'honey pots', price: 5, emoji: '🍯' },
+  tart: { one: 'berry tart', many: 'berry tarts', price: 3, emoji: '🥧', fresh: true },
+  biscuit: { one: 'biscuit', many: 'biscuits', price: 1, emoji: '🍪' },
+  candle: { one: 'candle', many: 'candles', price: 4, emoji: '🕯️' },
+  seeds: { one: 'seed packet', many: 'seed packets', price: 2, emoji: '🌱' },
+  teacup: { one: 'teacup', many: 'teacups', price: 6, emoji: '☕' },
+};
+const UNLOCK = { 1: ['bun'], 2: ['apple'], 3: ['honey'], 4: ['tart'], 5: ['biscuit'], 6: ['candle'], 7: ['seeds'], 8: ['teacup'] };
+const unlocked = day => Object.entries(UNLOCK).filter(([d]) => +d <= day).flatMap(([, g]) => g);
+const CAST = {
+  clover: { name: 'Great-Aunt Clover', emoji: '👵', spec: { species: 'mouse', fur: '#d9d2c8', dress: '#c9b6f0', acc: ['glasses'] } },
+  bramble: { name: 'Bramble', emoji: '🦔', spec: { species: 'hedgehog', fur: '#f0dcbc', spikes: '#6b4a33', acc: ['scarf'], scarf: '#e2566b' } },
+  hazel: { name: 'Hazel', emoji: '🦔', hi: 'Hello! I love acorn buns!', spec: { species: 'hedgehog', fur: '#f5e1c4', spikes: '#9a6a45', acc: ['bow'], bowColor: '#f6a6bd' } },
+  bunbury: { name: 'Mrs. Bunbury', emoji: '🐰', hi: 'Good morning, dear!', spec: { species: 'rabbit', fur: '#e9dcc8', dress: '#9fc7e8', acc: ['bonnet'] } },
+  hoot: { name: 'Old Hoot', emoji: '🦉', hi: 'Hoo, hoo! Good day to you.', spec: { species: 'owl', fur: '#a8865e', belly: '#f1dfc2', acc: ['glasses'] } },
+  mo: { name: 'Mo', emoji: '🐭', hi: 'Hi! Is the shop open?', spec: { species: 'mouse', fur: '#a89a8c', acc: ['scarf'], scarf: '#8cc46c' } },
+  dot: { name: 'Dot', emoji: '🐇', hi: 'Hello! What a pretty shop!', spec: { species: 'rabbit', fur: '#fbf7f2', flop: true, dress: '#ffd86b' } },
+  tansy: { name: 'Tansy', emoji: '🐱', hi: 'Meow! Hello there!', spec: { species: 'cat', fur: '#9aa0a8', dress: '#f6a6bd' } },
+  wilf: { name: 'Wilf', emoji: '🐭', hi: 'Ahoy! I mean, hello!', spec: { species: 'mouse', fur: '#c9a27a', acc: ['sailor'] } },
+  captain: { name: 'Captain Whiskers', emoji: '🏴‍☠️', special: true, hi: 'Ahoy, shopkeeper! My ship is in the harbor.', spec: { species: 'mouse', fur: '#8a7a6c', acc: ['tricorn', 'eyepatch'] } },
+  miu: { name: 'Miu the temple cat', emoji: '🐈', special: true, hi: 'Greetings! I came all the way from the pyramids.', spec: { species: 'cat', fur: '#e8c88a', acc: ['collar'] } },
+  athena: { name: "Athena's owl", emoji: '🦉', special: true, hi: 'Hoo! The goddess Athena sent me with a riddle.', spec: { species: 'owl', fur: '#cfc6b4', belly: '#fff6e6', acc: ['leaves'] } },
+  queen: { name: 'The Fairy Queen', emoji: '🧚', special: true, finale: true, hi: 'I heard about your wonderful shop. I had to see it!', spec: { species: 'fairy', crown: true, wing: 'gold', dress: '#d4c4ff', hair: '#f2d27a' } },
+};
+const REGULARS = ['hazel', 'bunbury', 'hoot', 'mo', 'dot', 'tansy', 'wilf'];
+const SPECIAL_BY_DAY = { 4: 'captain', 5: 'miu', 6: 'athena', 7: 'captain', 8: 'miu', 9: 'athena', 11: 'queen' };
+const DECOR = [
+  { id: 'sign', name: 'Shop sign', cost: 5, emoji: '🪧', out: true },
+  { id: 'vase', name: 'Flower vase', cost: 8, emoji: '💐' },
+  { id: 'awning', name: 'Striped awning', cost: 12, emoji: '⛱️', out: true },
+  { id: 'rug', name: 'Rainbow rug', cost: 15, emoji: '🌈' },
+  { id: 'windowboxes', name: 'Window boxes', cost: 18, emoji: '🌷', out: true },
+  { id: 'bell', name: 'Door bell', cost: 20, emoji: '🔔' },
+  { id: 'lanterns', name: 'Lanterns', cost: 24, emoji: '🏮', out: true },
+  { id: 'bunting', name: 'Flag bunting', cost: 25, emoji: '🎏', out: true },
+  { id: 'catbed', name: 'Cat bed and cat', cost: 30, emoji: '🐈' },
+  { id: 'fairylights', name: 'Fairy lights', cost: 35, emoji: '✨' },
+];
+const FURS = { grey: '#b9ada3', brown: '#a07c5e', cream: '#efe2cc', white: '#f7f4ef' };
+const DRESSES = { pink: '#f6a6bd', blue: '#9fc7e8', yellow: '#ffd86b', green: '#a8d8a0', lilac: '#c9b6f0' };
+const NAMES = ['Ginny', 'Poppy', 'Primrose', 'Pip', 'Rosie', 'Juniper', 'Wren', 'Daisy', 'Maple'];
+
+/* ================= levels (Moonlit Map strands) ================= */
+// 1 kindergarten to early 1st grade, 2 end of 1st, 3 early 2nd, 4 mid 2nd.
+const RANGE = { N: [1, 2], A: [1, 4], S: [1, 4], M: [1, 4], F: [1, 4], P: [1, 2] };
+const START = { N: 1, A: 1, S: 1, M: 1, F: 1, P: 1 };
+const STRAND_NAME = { N: 'Counting (filling orders)', A: 'Adding (order totals)', S: 'Taking away (change, leftovers, savings)', M: 'Equal groups (bags, boxes, sailors)', F: 'Money (counting coins, halves)', P: 'Tens and ones (stacking the till)' };
+// The first days teach how the shop works, one new thing a day:
+// day 1 one bag from Bramble and two shoppers who pay exactly, day 2 choosing bags and a second good,
+// day 3 giving change, day 4 price tags and the special visitors, then the full shop.
+const PRICES_DAY = 4, CHANGE_DAY = 3, SUMS_DAY = 4;
+// Shows how a control works the first time she meets it, then never again.
+function coachOnce(key) { S.seen = S.seen || {}; if (S.seen[key]) return false; S.seen[key] = 1; save(); return true; }
+function record(k, ok) {
+  S.log.push({ k, lv: S.lv[k], ok, day: S.day, t: Date.now() }); if (S.log.length > 400) S.log.splice(0, S.log.length - 400);
+  const st = S.streak[k] || (S.streak[k] = { ok: 0, miss: 0 });
+  if (ok) { st.ok++; st.miss = 0; if (st.ok >= 3 && S.lv[k] < RANGE[k][1]) { S.lv[k]++; st.ok = 0; skin('levelup', k, S.lv[k]); } }
+  else { st.miss++; st.ok = 0; if (st.miss >= 2 && S.lv[k] > RANGE[k][0]) { S.lv[k]--; st.miss = 0; } }
+  save();
+}
+
+/* ================= save ================= */
+function freshState() {
+  const lv = Object.assign({}, START);
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 3, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+}
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+if (!S || S.v !== 1) S = freshState(); else S = Object.assign(freshState(), S);
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ================= sound and voice ================= */
+const SFX = (() => {
+  let ac = null;
+  const ctx = () => { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ac && ac.state === 'suspended') ac.resume(); return ac; };
+  function tone(f, d, type = 'sine', v = .15, when = 0) {
+    if (!S.settings.sfx) return; const a = ctx(); if (!a) return;
+    const t = a.currentTime + when, o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.001, t + d);
+    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d + .05);
+  }
+  document.addEventListener('pointerdown', () => ctx(), { once: true, capture: true });
+  return {
+    tap() { tone(700, .07, 'triangle', .08); },
+    coin(i = 0) { tone(1400 + (i % 10) * 60, .06, 'square', .035); tone(2100 + (i % 10) * 80, .14, 'sine', .07, .04); },
+    ok() { [523, 659, 784].forEach((f, i) => tone(f, .2, 'triangle', .11, i * .08)); },
+    soft() { tone(392, .18, 'sine', .08); tone(330, .25, 'sine', .07, .12); },
+    bell() { tone(1318, .7, 'sine', .1); tone(1976, .5, 'sine', .05, .02); },
+    cheer() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .3, 'triangle', .1, i * .09)); },
+    stack() { [880, 988, 1175].forEach((f, i) => tone(f, .12, 'square', .03, i * .05)); },
+  };
+})();
+// Each animal speaks in their own recorded voice (voice/manifest.json "voices"); the shopkeeper uses the main one.
+function speak(text, opts = {}) { if (!S.settings.voice || !window.KidVoice) return; KidVoice.speak(String(text).replace(/¢/g, ' pennies'), { queue: opts.queue, rate: .92, voice: opts.who && opts.who !== 'keeper' ? opts.who : null }); }
+function stopSpeech() { try { window.KidVoice && KidVoice.stop(); } catch (e) {} }
+
+/* ================= 3D view state (read every frame by shop3d.js) ================= */
+const TSV = window.TSV = { scene: 'outside', time: 'morning', cam: null, cart: false, keeper: null, cust: null, stock: {}, decor: [], signText: '', mood: {}, top: 0, bottom: innerHeight };
+function keeperSpec() { const k = S.keeper; return k ? { species: 'mouse', fur: FURS[k.fur], dress: DRESSES[k.dress], apron: true, acc: ['bow'], bowColor: '#ffffff' } : null; }
+function syncView() {
+  TSV.stock = S.stock; TSV.decor = S.decor; TSV.signText = S.keeper ? `${S.keeper.name}'s Shop` : 'The Toadstool Shop';
+  TSV.keeper = keeperSpec();
+}
+let moodT = {};
+function mood(who, m, ms) { TSV.mood[who] = m; clearTimeout(moodT[who]); if (ms) moodT[who] = setTimeout(() => { TSV.mood[who] = 'idle'; }, ms); }
+function measure() {
+  const b = $('#bubble'), h = $('#hud'), p = $('#panel');
+  const top = b.hidden ? h.getBoundingClientRect().bottom : b.getBoundingClientRect().bottom;
+  TSV.top = top + 4; TSV.bottom = p.innerHTML ? p.getBoundingClientRect().top : innerHeight;
+}
+addEventListener('resize', measure);
+if (window.ResizeObserver) { const ro = new ResizeObserver(measure); ro.observe($('#panel')); ro.observe($('#bubble')); }
+
+/* ================= pictures ================= */
+const has3d = () => !!window.Shop3D;
+function goodImg(id, cls = '') { return has3d() ? `<img class="gimg ${cls}" src="${Shop3D.good(id)}" alt="${GOODS[id].one}">` : `<span class="gemo ${cls}" role="img" aria-label="${GOODS[id].one}">${GOODS[id].emoji}</span>`; }
+function coinHTML(v, tag = 'span', attrs = '') { const pulse = /class="pulse"/.test(attrs); attrs = attrs.replace('class="pulse"', ''); return `<${tag} class="coin v${v} ${has3d() ? 'g' : ''} ${pulse ? 'pulse' : ''}" ${attrs}>${has3d() ? `<img src="${Shop3D.coin(v)}" alt="">` : ''}<b>${v}¢</b></${tag}>`; }
+function portrait(id) {
+  if (id === 'keeper') return has3d() && S.keeper ? `<img src="${Shop3D.portrait(keeperSpec())}" alt="">` : '🐭';
+  const c = CAST[id]; if (!c) return '🍄';
+  return has3d() ? `<img src="${Shop3D.portrait(c.spec)}" alt="">` : c.emoji;
+}
+function decorImg(d) { return has3d() ? `<img src="${Shop3D.decor(d.id)}" alt="">` : `<span class="em">${d.emoji}</span>`; }
+function dots(n, of = 0, cls = '') { let s = ''; const total = Math.max(n, of); for (let i = 0; i < total; i++) s += `<i class="${i >= n ? 'off' : ''} ${cls}"></i>`; return `<span class="dots">${s}</span>`; }
+// coins that make an amount, using the coins she is ready for
+function bigCoins(n) {
+  const out = []; while (n >= 10) { out.push(10); n -= 10; } if (n >= 5) { out.push(5); n -= 5; } while (n > 0) { out.push(1); n--; }
+  return out;
+}
+function coinWords(coins) {
+  const d = coins.filter(v => v === 10).length, k = coins.filter(v => v === 5).length, p = coins.filter(v => v === 1).length;
+  const parts = [d && (d === 1 ? 'a dime' : `${d} dimes`), k && 'a nickel', p && `${p} ${plural(p, 'penny', 'pennies')}`].filter(Boolean);
+  return (coins.length === 1 ? 'is ' : 'are ') + parts.join(' and ');
+}
+function coinsFor(n) {
+  const out = [], F = S.lv.F;
+  if (F >= 3) while (n >= 10) { out.push(10); n -= 10; }
+  if (F >= 4) while (n >= 5) { out.push(5); n -= 5; }
+  while (n > 0) { out.push(1); n--; }
+  return out;
+}
+function sparkle(el, n = 12) {
+  const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+  for (let i = 0; i < n; i++) { const s = document.createElement('div'); s.className = 'spark'; if (window.Shop3D && Shop3D.icon) s.innerHTML = icon(pick(['sparkle', 'star', 'heart', 'sparkle']), ''); else s.textContent = pick(['✨', '⭐', '💛', '🌟']); s.style.left = x - 14 + 'px'; s.style.top = y - 14 + 'px'; const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 90; s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d - 30 + 'px'); document.body.appendChild(s); setTimeout(() => s.remove(), 1100); }
+}
+
+/* ================= bubble, panel, hud ================= */
+let lastSay = null;
+function say(who, text, opts = {}) {
+  const b = $('#bubble'); b.hidden = false;
+  const name = who === 'keeper' ? (S.keeper ? S.keeper.name : 'You') : (CAST[who] ? CAST[who].name : '');
+  $('.pt', b).innerHTML = portrait(who); $('.who', b).textContent = name; $('.txt', b).textContent = text;
+  lastSay = { who, text };
+  if (opts.speak !== false) speak(text, { who });
+  if (who !== 'keeper' && who !== 'clover') mood(TSV.cust && who !== 'bramble' ? 'cust' : 'cust', 'talk', 1600);
+  TSV.speaker = who; skin('say', who); // skin hook H4
+  measure();
+}
+function hush() { $('#bubble').hidden = true; TSV.speaker = null; measure(); }
+$('#bubble .rep').addEventListener('click', e => { e.stopPropagation(); if (lastSay) speak(lastSay.text, { who: lastSay.who }); });
+let rerender = null;
+function setPanel(html, bind) {
+  const p = $('#panel'); p.innerHTML = html ? `<div class="task">${html}</div>` : ''; p.scrollTop = 0;
+  if (bind) bind(p);
+  requestAnimationFrame(measure);
+}
+function hud() {
+  const on = !!S.keeper && S.phase !== 'intro';
+  $('#dayChip').hidden = !on; $('#dayChip').textContent = `Day ${S.day}`;
+  $('#tillChip').hidden = !on; $('#tillChip').innerHTML = `${coinHTML(1)} ${S.till}`;
+  $('#jarChip').hidden = !on; $('#jarChip').innerHTML = `${icon('jar', '🫙')} ${S.jar}`;
+  $('#snd').innerHTML = S.settings.voice ? icon('sound', '🔊') : icon('mute', '🔈');
+  $('#back').innerHTML = icon('shelf', '📚'); $('#grown').innerHTML = icon('gear', '⚙️');
+  skin('hud', S);
+}
+$('#snd').addEventListener('click', () => { const on = !S.settings.voice; S.settings.voice = S.settings.sfx = on; save(); hud(); if (on) { SFX.tap(); speak('Sound on!'); } else stopSpeech(); });
+function next(label = 'Next', extra = '') {
+  return new Promise(res => { const draw = () => setPanel(`${extra}<button class="btn" id="nx">${emo(label)}</button>`, p => $('#nx', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); })); rerender = draw; draw(); });
+}
+async function talk(who, text, label = 'Next', extra = '') { say(who, text); await next(label, extra); }
+
+/* ================= asking a question, gently ================= */
+function options(ans, lo = 0) {
+  const c = new Set([ans]);
+  const near = shuffle([ans - 1, ans + 1, ans + 2, ans - 2, ans + 10, ans - 10].filter(v => v >= lo && v !== ans));
+  for (const v of near) { if (c.size >= 3) break; c.add(v); }
+  let k = 3; while (c.size < 3) c.add(ans + k++);
+  return [...c].sort((a, b) => a - b);
+}
+// o: {k, who, q, show(), answer, opts, help(), helpSay, labels:{v:html}}
+function ask(o) {
+  return new Promise(res => {
+    let misses = 0, helped = false; const gone = new Set(); let done = false;
+    const opts = o.opts || options(o.answer, o.lo || 0);
+    DBG.cur = { type: 'ask', answer: o.answer, k: o.k };
+    say(o.who, o.q);
+    const coach = coachOnce('ask');
+    const draw = () => setPanel(`
+      ${coach && !misses ? `<div class="coach">${icon('point', '👆')} Tap the right answer.</div>` : ''}
+      ${o.show ? `<div class="row">${o.show()}</div>` : ''}
+      <div class="helpbox" id="hb">${helped && o.help ? o.help() : ''}</div>
+      <div class="opts">${opts.map(v => `<button class="opt ${gone.has(v) ? 'no' : ''} ${misses >= 2 && v === o.answer ? 'glow' : ''}" data-v="${v}">${o.labels ? o.labels[v] : v}</button>`).join('')}</div>
+      ${o.help && !helped ? `<button class="hint" id="hint">${icon('bulb', '💡')} Help me</button>` : ''}`, p => {
+      $$('.opt', p).forEach(b => b.addEventListener('click', () => choose(b.dataset.v, b)));
+      const h = $('#hint', p); if (h) h.addEventListener('click', () => { SFX.tap(); helped = true; draw(); if (o.helpSay) say(o.who, o.helpSay); });
+    });
+    async function choose(v, b) {
+      if (done) return;
+      v = isNaN(+v) ? v : +v;
+      if (v === o.answer) {
+        done = true; rerender = null;
+        record(o.k, misses === 0 && !helped);
+        b.classList.add('yes', 'pop'); sparkle(b); SFX.ok();
+        if (o.after !== false) speak(pick(['Yes!', 'That\'s right!', 'You got it!', 'Perfect!']));
+        await wait(900); res(misses === 0);
+        return;
+      }
+      misses++; gone.add(v); SFX.soft();
+      if (misses === 1) { helped = !!o.help; say(o.who, o.helpSay || 'Hmm, not quite. Let\'s look again together.'); }
+      else say(o.who, o.lastSay || `Let's count it together. It's ${o.answer}. Tap ${o.answer}.`);
+      draw();
+    }
+    rerender = draw; draw();
+  });
+}
+
+/* ================= tasks ================= */
+// She counts goods into the customer's basket.
+function pickTask(order, who) {
+  return new Promise(res => {
+    const basket = {}; let tries = 0; DBG.cur = { type: 'pick', order };
+    const goods = order.map(o => o[0]);
+    const coach = coachOnce('pick');
+    if (coach) speak(`Tap the ${GOODS[goods[0]].one} to put it in the basket. Then tap Here you go!`, { queue: true });
+    const draw = () => { const full = order.every(([g, n]) => (basket[g] || 0) === n); setPanel(`
+      ${coach ? `<div class="coach">${icon('point', '👆')} Tap the ${GOODS[goods[0]].one} to put ${order[0][1] === 1 ? 'it' : 'them'} in the basket. Then tap <b>Here you go!</b></div>` : ''}
+      <div class="row">${order.map(([g, n]) => `<span class="line">${n} ${goodImg(g, 'sm')}</span>`).join('')}</div>
+      <div class="row">${goods.map(g => `<button class="pickbtn ${coach && !full && (basket[g] || 0) < order.find(o => o[0] === g)[1] ? 'pulse' : ''}" data-g="${g}">${goodImg(g)}<small>${GOODS[g].one} · ${S.stock[g] - (basket[g] || 0)} left</small></button>`).join('')}</div>
+      <div class="tray drop basket"><span class="lbl">${CAST[who].name}'s basket</span>${goods.flatMap(g => Array.from({ length: basket[g] || 0 }, () => `<span data-g="${g}">${goodImg(g, 'sm')}</span>`)).join('')}</div>
+      <button class="btn ${coach && full ? 'pulse' : ''}" id="give">Here you go!</button>`, p => {
+      $$('.pickbtn', p).forEach(b => b.addEventListener('click', () => {
+        const g = b.dataset.g; if ((basket[g] || 0) >= S.stock[g]) { say(who, `That's all the ${GOODS[g].many}!`); return; }
+        basket[g] = (basket[g] || 0) + 1; SFX.tap(); speak(String(basket[g])); draw();
+      }));
+      $$('.basket [data-g]', p).forEach(b => b.addEventListener('click', () => { const g = b.dataset.g; basket[g]--; SFX.tap(); draw(); }));
+      $('#give', p).addEventListener('click', () => {
+        const wrong = order.find(([g, n]) => (basket[g] || 0) !== n);
+        if (!wrong) {
+          rerender = null; const qty = order.reduce((s, o) => s + o[1], 0);
+          if (qty >= 3) record('N', tries === 0);
+          SFX.ok(); res(); return;
+        }
+        tries++; SFX.soft();
+        const [g, n] = wrong, have = basket[g] || 0;
+        say(who, have > n ? `Oops, that's too many ${GOODS[g].many}. I need ${n}. Tap one in the basket to put it back.` : `I need ${n} ${plural(n, GOODS[g].one, GOODS[g].many)}. Let's count: there ${have === 1 ? 'is' : 'are'} ${have} in the basket.`);
+      });
+    }); };
+    rerender = draw; draw();
+  });
+}
+// She moves coins from a tray into someone's paw. mode 'pay' lets her give more and get change back.
+function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F', helpSay = '', coach = '' }) {
+  return new Promise(res => {
+    const src = source.map((v, i) => ({ v, i, given: false })); let tries = 0; DBG.cur = { type: 'coins', amount, mode };
+    say(who, prompt);
+    if (coach) speak(coach.replace(/<[^>]+>/g, ''), { queue: true });
+    const total = () => src.filter(c => c.given).reduce((s, c) => s + c.v, 0);
+    const draw = () => { const t = total(), first = src.find(c => !c.given); setPanel(`
+      ${coach ? `<div class="coach">${icon('point', '👆')} ${coach}</div>` : ''}
+      <div class="tray"><span class="lbl">${title}</span>${src.map(c => coinHTML(c.v, 'button', `data-i="${c.i}" ${c.given ? 'style="visibility:hidden"' : coach && t < amount && c === first ? 'class="pulse"' : ''}`)).join('')}</div>
+      <div class="tray drop" id="paw"><span class="lbl">${mode === 'change' ? 'Change for ' + CAST[who].name : 'For ' + CAST[who].name}</span>${src.filter(c => c.given).map(c => coinHTML(c.v, 'button', `data-i="${c.i}"`)).join('')}</div>
+      <button class="btn ${coach && t >= amount ? 'pulse' : ''}" id="done">Done</button>`, p => {
+      $$('.tray:not(#paw) .coin', p).forEach(b => b.addEventListener('click', () => { const c = src[+b.dataset.i]; c.given = true; SFX.coin(total()); speak(String(total())); draw(); }));
+      $$('#paw .coin', p).forEach(b => b.addEventListener('click', () => { const c = src[+b.dataset.i]; c.given = false; SFX.tap(); draw(); }));
+      $('#done', p).addEventListener('click', () => {
+        const t = total();
+        if (t === amount || (mode === 'pay' && t > amount)) { rerender = null; record(k, tries === 0); SFX.ok(); res(t); return; }
+        tries++; SFX.soft();
+        if (helpSay && tries === 1) say(who, `Hmm, not quite. ${helpSay}`);
+        else if (t < amount) say(who, `That's ${t}. I need ${amount}. A little more, please!`);
+        else say(who, `That's ${t}. That's more than ${amount}. Tap a coin to take it back.`);
+      });
+    }); };
+    rerender = draw; draw();
+  });
+}
+
+/* ================= the day ================= */
+function setScene(scene, opts = {}) { Object.assign(TSV, { scene, cam: opts.cam || null, time: opts.time || TSV.time, cart: !!opts.cart }); syncView(); hud(); }
+async function walkIn(id) { TSV.cust = CAST[id].spec; TSV.custId = id; /* skin hook H3 */ mood('cust', 'idle'); await wait(has3d() ? 1700 : 200); }
+async function walkOut() { TSV.cust = null; TSV.custId = null; await wait(has3d() ? 900 : 100); }
+
+async function playDay() {
+  for (;;) {
+    hud();
+    if (S.phase === 'intro') await intro();
+    else if (S.phase === 'morning') await morning();
+    else if (S.phase === 'shop') await shopTime();
+    else if (S.phase === 'evening') await evening();
+    else await night();
+  }
+}
+
+async function intro() {
+  setScene('outside', { time: 'morning' });
+  TSV.keeper = null;
+  const letter = `<div class="letter">Dear little one,<br>I'm off to see the world in a hot-air balloon! The Toadstool Shop is yours now. Look after the animals of Bramble Wood, and keep the till ready for Bramble's cart each morning. I've left 3 pennies in the savings jar to start you off.<br>With love, Great-Aunt Clover</div>`;
+  await talk('clover', 'Dear little one, the Toadstool Shop is yours now! Look after the animals of Bramble Wood.', 'Open the letter', '');
+  await talk('clover', 'I\'m off to see the world in a hot-air balloon. Love, Great-Aunt Clover.', 'Who runs the shop?', letter);
+  // meet the shopkeeper
+  const k = { fur: 'grey', dress: 'pink', name: '' };
+  S.keeper = Object.assign({}, k, { name: 'Poppy' }); syncView(); TSV.cam = 'meet';
+  say('keeper', 'That\'s you! Pick your fur and your dress.');
+  await new Promise(res => {
+    const draw = () => setPanel(`
+      <div class="row">${Object.entries(FURS).map(([n, c]) => `<button class="swatch ${k.fur === n ? 'sel' : ''}" data-f="${n}" style="background:${c}" aria-label="${n} fur"></button>`).join('')}</div>
+      <div class="row">${Object.entries(DRESSES).map(([n, c]) => `<button class="swatch ${k.dress === n ? 'sel' : ''}" data-d="${n}" style="background:${c}" aria-label="${n} dress"></button>`).join('')}</div>
+      <button class="btn" id="nx">That's me!</button>`, p => {
+      $$('[data-f]', p).forEach(b => b.addEventListener('click', () => { k.fur = b.dataset.f; S.keeper.fur = k.fur; syncView(); SFX.tap(); speak(k.fur + ' fur'); draw(); }));
+      $$('[data-d]', p).forEach(b => b.addEventListener('click', () => { k.dress = b.dataset.d; S.keeper.dress = k.dress; syncView(); SFX.tap(); speak('A ' + k.dress + ' dress'); draw(); }));
+      $('#nx', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
+    });
+    rerender = draw; draw();
+  });
+  say('keeper', 'What is my name? Tap a name to hear it.');
+  await new Promise(res => {
+    const draw = () => setPanel(`<div class="row">${NAMES.map(n => `<button class="name ${S.keeper.name === n && k.name ? 'sel' : ''}" data-n="${n}">${n}</button>`).join('')}</div>
+      <button class="btn" id="nx" ${k.name ? '' : 'disabled'}>That's my name!</button>`, p => {
+      $$('.name', p).forEach(b => b.addEventListener('click', () => { k.name = S.keeper.name = b.dataset.n; SFX.tap(); speak(k.name); syncView(); draw(); }));
+      $('#nx', p).addEventListener('click', () => { if (!k.name) return; SFX.ok(); rerender = null; res(); });
+    });
+    rerender = draw; draw();
+  });
+  mood('keeper', 'happy', 1800);
+  S.phase = 'morning'; save();
+}
+
+/* ----- morning: Bramble's cart ----- */
+function packFor() { const M = S.lv.M; return M >= 4 ? pick([2, 5, 10]) : M >= 3 ? 5 : 2; }
+const PACK = { 2: 'bag', 5: 'box', 10: 'crate' }, PACKS = { 2: 'bags', 5: 'boxes', 10: 'crates' };
+// Bramble sells at half the usual price, so every good she sells earns her something,
+// and every fresh good left over at night is pennies she spent for nothing.
+const packCost = (g, size) => Math.max(1, Math.ceil(size * GOODS[g].price / 2));
+// She sets her own prices. The usual price is GOODS[g].price; higher means fewer animals buy.
+const priceOf = g => S.prices[g] || GOODS[g].price;
+const priceMax = g => Math.max(GOODS[g].price * 2, GOODS[g].price + 3);
+// How many an animal buys at her price, if they would buy n at the usual price.
+// Steep enough that a little above the usual price earns most and a lot above earns less.
+function wantAt(g, n) {
+  const x = n * Math.pow(GOODS[g].price / priceOf(g), 1.6);
+  return Math.min(n * 2 + 1, Math.floor(x) + (Math.random() < x - Math.floor(x) ? 1 : 0));
+}
+async function morning() {
+  setScene('outside', { time: 'morning', cart: true, cam: 'cart' });
+  S.sold = {}; S.missed = {}; S.dear = {}; S.spent = 0; S.shop = null;
+  await walkIn('bramble');
+  if (S.day === 1) {
+    await talk('bramble', `Good morning, ${S.keeper.name}! I'm Bramble. Every morning I bring things for your shop.`);
+    await talk('bramble', 'You buy them from me, and sell them to the animals of the wood.');
+    await firstCart();
+    S.wanted = {}; S.phase = 'shop'; for (const g of Object.keys(S.stock)) S.had[g] = S.stock[g]; save();
+    await walkOut();
+    return;
+  } else {
+    const want = Object.keys(S.wanted || {});
+    if (want.length && S.day >= PRICES_DAY) await talk('keeper', `My notebook says: friends asked for ${want.map(g => GOODS[g].many).join(' and ')}!`);
+    await talk('bramble', pick(['Good morning! What would you like today?', 'Hello again! My cart is full of good things.', 'Morning! Lovely day for shopping.']));
+  }
+  const offer = [...new Set([...unlocked(S.day), ...Object.keys(S.wanted || {})])].filter(g => GOODS[g]);
+  const cart = []; let spent = 0;
+  for (const g of offer) {
+    const size = packFor(), cost = packCost(g, size), room = 10 - (S.stock[g] || 0);
+    const most = Math.min(Math.floor(room / size), Math.floor((S.till - spent) / cost), S.day < SUMS_DAY ? 2 : 5);
+    if (most <= 0) { if (room < size) await talk('bramble', `Your shelf is full of ${GOODS[g].many}!`); else if (S.day > 1) await talk('bramble', `A ${PACK[size]} of ${GOODS[g].many} costs ${cost}. There isn't enough in your till for that today.`); continue; }
+    // No suggestion after day 1: how much to buy is her decision, from her notebook.
+    let start = S.day === 1 ? (g === 'bun' ? 4 : 2) : (S.lastBuy && S.lastBuy[g] && S.lastBuy[g].size === size ? S.lastBuy[g].n : 1);
+    start = clamp(start, 1, most);
+    const missed = (S.lastMissed || {})[g] || 0;
+    if (missed && most > 1 && S.day >= PRICES_DAY) await talk('bramble', `Your notebook says ${missed} more ${plural(missed, GOODS[g].one, GOODS[g].many)} could have sold yesterday, but they ran out!`);
+    const n = await chooseQty(g, size, cost, most, start);
+    S.lastBuy = S.lastBuy || {}; S.lastBuy[g] = { size, n };
+    if (!n) continue;
+    if (n > 1 && S.day < SUMS_DAY) {
+      await talk('bramble', `${n} ${PACKS[size]} with ${size} in each. That's ${n * size} ${GOODS[g].many}!`, 'Next',
+        `<div class="row">${Array.from({ length: n }, () => `<span class="grp">${dots(size)}</span>`).join('')}</div>`);
+    } else if (n > 1) {
+      await ask({
+        k: 'M', who: 'bramble', q: `${n} ${PACKS[size]} with ${size} in each. How many ${GOODS[g].many} is that?`, answer: n * size,
+        show: () => Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${PACK[size]} ${i + 1}</span>${dots(size)}</span>`).join(''),
+        help: () => `<div class="row">${Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${(i + 1) * size}</span>${dots(size)}</span>`).join('')}</div><div class="small">Count by ${size}s: ${Array.from({ length: n }, (_, i) => (i + 1) * size).join(', ')}</div>`,
+        helpSay: `Count by ${size}s: ${Array.from({ length: n }, (_, i) => (i + 1) * size).join(', ')}.`,
+      });
+    }
+    cart.push({ g, qty: n * size, cost: n * cost, n, size }); spent += n * cost;
+  }
+  if (!cart.length) { await talk('bramble', 'Nothing today? That\'s all right. See you tomorrow!', 'Open the shop!'); }
+  else {
+    const total = cart.reduce((s, c) => s + c.cost, 0);
+    if (cart.length > 1 && S.day < SUMS_DAY) {
+      await talk('bramble', `${cart.map((c, i) => `${i ? 'the' : 'The'} ${GOODS[c.g].many} are ${c.cost}`).join(' and ')}. That's ${total} ${plural(total, 'penny', 'pennies')} altogether.`, 'Next',
+        `<div class="row">${cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}${dots(c.cost)}</span>`).join('')}</div>`);
+    } else if (cart.length > 1) {
+      await ask({
+        k: 'A', who: 'bramble', q: `${cart.map(c => `The ${GOODS[c.g].many} are ${c.cost} ${plural(c.cost, 'penny', 'pennies')}`).join('. ')}. How much is that altogether?`, answer: total,
+        show: () => cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}<span class="lab">${c.cost}¢</span></span>`).join('<b style="font-size:30px">+</b>'),
+        help: () => `<div class="row">${cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}${dots(c.cost)}</span>`).join('')}</div><div class="small">Count all the dots.</div>`,
+        helpSay: 'Count all the dots, one for each penny.',
+      });
+    }
+    await coinsTask({ who: 'bramble', amount: total, source: S.day < SUMS_DAY ? Array(S.till).fill(1) : coinsFor(S.till), title: 'Your till', prompt: `That's ${total} ${plural(total, 'penny', 'pennies')}, please. Tap the coins to pay me.`, mode: S.day < SUMS_DAY ? 'exact' : 'pay' })
+      .then(async given => { if (given > total) { await talk('bramble', `You gave me ${given}. Here ${given - total === 1 ? 'is 1 penny' : 'are ' + (given - total)} back!`); } });
+    S.till -= total; S.spent = total;
+    for (const c of cart) S.stock[c.g] = (S.stock[c.g] || 0) + c.qty;
+    syncView(); hud();
+    mood('cust', 'happy', 1500);
+    await talk('bramble', 'Thank you! Have a lovely day at the shop!', 'Price tags');
+  }
+  if (inStock().length && S.day >= PRICES_DAY) await priceTags();
+  for (const g of Object.keys(S.stock)) S.had[g] = S.stock[g];
+  S.wanted = {}; S.phase = 'shop'; save();
+  await walkOut();
+}
+// Day 1: Bramble hands over one bag of buns and she pays with a single penny.
+async function firstCart() {
+  const g = 'bun', size = 2, cost = packCost(g, size);
+  await talk('bramble', `Here is a bag of ${size} ${GOODS[g].many} for your shop. It costs ${cost} ${plural(cost, 'penny', 'pennies')}.`, 'Next',
+    `<div class="row"><span class="grp">${Array.from({ length: size }, () => goodImg(g, 'sm')).join('')}<span class="lab">bag of ${size}</span></span><span class="tag">${cost}¢</span></div>`);
+  await coinsTask({ who: 'bramble', amount: cost, source: coinsFor(S.till), title: 'Your till', prompt: `Pay me ${cost} ${plural(cost, 'penny', 'pennies')}, please.`,
+    coach: coachOnce('pay') ? `Tap ${cost === 1 ? 'a penny' : 'the pennies'} to give ${cost === 1 ? 'it' : 'them'} to Bramble. Then tap <b>Done</b>.` : '' });
+  S.till -= cost; S.spent = cost; S.stock[g] = (S.stock[g] || 0) + size; syncView(); hud();
+  mood('cust', 'happy', 1500);
+  await talk('bramble', `Thank you! Your ${GOODS[g].many} are on the shelf. Have a lovely first day!`, 'Open the shop!');
+}
+function notebookLine(g) {
+  if (S.day === 1 || !(g in S.lastSold || g in (S.lastMissed || {}) || g in (S.lastDear || {}))) return '';
+  const sold = S.lastSold[g] || 0, missed = (S.lastMissed || {})[g] || 0, dear = (S.lastDear || {})[g] || 0;
+  return `<div class="note">${icon('notebook', '📒')} Yesterday: sold ${sold}${missed ? ` · <b>${missed} more wanted</b> after they ran out` : ''}${dear ? ` · ${dear} not bought, too expensive` : ''}</div>`;
+}
+// Each morning she can change the price tags. Bramble explains on the first day.
+function priceTags() {
+  return new Promise(async res => {
+    if (!S.pricesSeen) {
+      await talk('bramble', 'Now the price tags! You choose how much each thing costs in your shop.');
+      await talk('bramble', 'A higher price earns you more for each one. But some animals will think it is too expensive, and buy fewer.');
+      S.pricesSeen = 1; save();
+    }
+    const goods = inStock();
+    say('keeper', 'What price shall I put on each tag?');
+    DBG.cur = { type: 'prices' };
+    const draw = () => setPanel(`
+      <div class="prices">${goods.map(g => `<div class="prow">${goodImg(g, 'sm')}<span class="pn">${GOODS[g].many}<small>usual price ${GOODS[g].price}¢</small></span>
+        <span class="cnt"><button data-m="${g}" aria-label="lower">−</button><b class="ptag ${priceOf(g) > GOODS[g].price ? 'hi' : priceOf(g) < GOODS[g].price ? 'lo' : ''}">${priceOf(g)}¢</b><button data-p="${g}" aria-label="higher">+</button></span></div>`).join('')}</div>
+      <button class="btn" id="nx">Open the shop!</button>`, p => {
+      $$('[data-m]', p).forEach(b => b.addEventListener('click', () => { const g = b.dataset.m; if (priceOf(g) > 1) { S.prices[g] = priceOf(g) - 1; SFX.tap(); speak(`${S.prices[g]} ${plural(S.prices[g], 'penny', 'pennies')}`); save(); draw(); } }));
+      $$('[data-p]', p).forEach(b => b.addEventListener('click', () => { const g = b.dataset.p; if (priceOf(g) < priceMax(g)) { S.prices[g] = priceOf(g) + 1; SFX.tap(); speak(`${S.prices[g]} ${plural(S.prices[g], 'penny', 'pennies')}`); save(); draw(); } else say('bramble', `Nobody would pay more than ${priceMax(g)} for ${GOODS[g].one === 'honey pot' ? 'a honey pot' : 'one'}!`); }));
+      $('#nx', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
+    });
+    rerender = draw; draw();
+  });
+}
+function chooseQty(g, size, cost, most, suggest) {
+  return new Promise(res => {
+    let n = suggest;
+    say('bramble', `${GOODS[g].many[0].toUpperCase() + GOODS[g].many.slice(1)} come in ${PACKS[size]} of ${size}. Each ${PACK[size]} costs ${cost} ${plural(cost, 'penny', 'pennies')}. How many ${PACKS[size]} would you like?`);
+    const draw = () => setPanel(`
+      <div class="row"><span class="grp">${goodImg(g)}<span class="lab">${PACK[size]} of ${size}</span></span><span class="tag">${cost}¢ a ${PACK[size]}</span>
+        ${S.day >= PRICES_DAY ? `<span class="tag">You sell at ${priceOf(g)}¢ each</span><span class="small">On the shelf: ${S.stock[g] || 0}</span>` : ''}</div>
+      ${S.day >= PRICES_DAY ? notebookLine(g) : ''}
+      <div class="cnt"><button id="mi" aria-label="fewer">−</button><b>${n}</b><button id="pl" aria-label="more">+</button></div>
+      <div class="row"><button class="btn alt" id="none">No, thank you</button><button class="btn" id="ok" ${n ? '' : 'disabled'}>Buy ${n} ${plural(n, PACK[size], PACKS[size])}</button></div>`, p => {
+      $('#mi', p).addEventListener('click', () => { if (n > 0) { n--; SFX.tap(); speak(String(n)); draw(); } });
+      $('#pl', p).addEventListener('click', () => { if (n < most) { n++; SFX.tap(); speak(String(n)); draw(); } else say('bramble', n * size + (S.stock[g] || 0) >= 10 - size + 1 ? 'That\'s all your shelf can hold!' : 'That\'s all the pennies in your till!'); });
+      $('#none', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(0); });
+      $('#ok', p).addEventListener('click', () => { if (!n) return; SFX.tap(); rerender = null; res(n); });
+    });
+    rerender = draw; draw();
+  });
+}
+
+/* ----- shop time ----- */
+function makeCustomers() {
+  if (S.day === 1) return [{ who: 'hazel', flow: 'count', order: [['bun', 1]] }, { who: 'mo', flow: 'count', order: [['bun', 1]] }];
+  // From day 3 most customers pay with a bigger coin, so she gives change.
+  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4;
+  const regs = shuffle(REGULARS).slice(0, howMany).map((who, i) => ({ who, flow: i === 0 || S.day < CHANGE_DAY ? 'count' : 'change' }));
+  const sp = SPECIAL_BY_DAY[S.day] || (S.day > 11 ? pick(['captain', 'miu', 'athena']) : null);
+  if (sp) regs.splice(1, 0, { who: sp, flow: 'change', special: sp });
+  const notHere = Object.keys(GOODS).filter(g => !unlocked(S.day).includes(g));
+  if (S.day >= PRICES_DAY && notHere.length && Math.random() < .6) regs[regs.length - 1].missing = notHere[0];
+  regs.forEach(c => { if (!c.special) c.order = makeOrder(S.day < SUMS_DAY ? 1 : 2, true); });
+  return regs;
+}
+const inStock = () => Object.keys(S.stock).filter(g => S.stock[g] > 0);
+// An order whose total fits her adding level.
+const orderBand = () => S.day < SUMS_DAY ? [1, 4] : [[2, 5], [3, 10], [8, 20], [15, 30]][S.lv.A - 1];
+// wish: what an animal would like at the usual prices, whatever is on the shelf (her stock decides what she can sell).
+function makeOrder(maxGoods = 2, wish = false) {
+  const band = orderBand(), cap = S.day < SUMS_DAY ? 2 : S.lv.N >= 2 ? 6 : 5;
+  const goods = wish ? unlocked(S.day) : inStock(); if (!goods.length) return null;
+  const most = g => wish ? cap : Math.min(S.stock[g], cap);
+  let best = null, bestD = 1e9;
+  for (let t = 0; t < 60; t++) {
+    const gs = shuffle(goods).slice(0, 1 + rnd(Math.min(maxGoods, goods.length)));
+    const order = gs.map(g => [g, 1 + rnd(most(g))]);
+    const total = order.reduce((s, [g, n]) => s + n * GOODS[g].price, 0), qty = order.reduce((s, o) => s + o[1], 0);
+    const d = total < band[0] ? band[0] - total : total > band[1] ? total - band[1] : 0;
+    if (qty > cap) continue;
+    if (d < bestD) { best = order; bestD = d; }
+    if (!d) break;
+  }
+  return best;
+}
+const orderTotal = order => order.reduce((s, [g, n]) => s + n * priceOf(g), 0);
+const orderWords = order => order.map(([g, n]) => `${n} ${plural(n, GOODS[g].one, GOODS[g].many)}`).join(' and ');
+async function shopTime() {
+  setScene('inside');
+  if (!S.shop) { S.shop = { list: makeCustomers(), i: 0, earned: 0 }; save(); }
+  if (S.shop.i === 0) {
+    mood('keeper', 'happy', 1500);
+    await talk('keeper', S.day === 1 ? 'My very own shop! I\'ll flip the sign to Open.' : 'Time to open the shop!', 'Open the door');
+  }
+  while (S.shop.i < S.shop.list.length) {
+    if (!inStock().length) {
+      const rest = S.shop.list.slice(S.shop.i).filter(c => c.order);
+      rest.forEach(c => c.order.forEach(([g, n]) => { S.missed[g] = (S.missed[g] || 0) + n; }));
+      await talk('keeper', rest.length ? `The shelves are empty! Everything is sold! But ${rest.length} more ${plural(rest.length, 'friend was', 'friends were')} still coming to shop. I'll write it in my notebook.` : 'The shelves are empty! Everything is sold!', 'Close the shop');
+      break;
+    }
+    const c = S.shop.list[S.shop.i];
+    hush(); setPanel('');
+    SFX.bell(); await walkIn(c.who);
+    await serve(c);
+    S.shop.i++; S.served++; save(); hud();
+    await walkOut();
+  }
+  if (S.shop.i >= S.shop.list.length) { mood('keeper', 'happy', 1500); await talk('keeper', 'What a busy day! Time to close the shop.', 'Close the shop'); }
+  S.phase = 'evening'; save();
+}
+async function serve(c) {
+  const who = c.who, me = CAST[who];
+  await talk(who, me.hi, 'Hello!');
+  if (c.missing && !(S.stock[c.missing] > 0)) {
+    const g = GOODS[c.missing];
+    await talk(who, `Do you have any ${g.many}?`, 'Not yet!');
+    say(who, `Oh! Could you get some from Bramble's cart? I'll come back for ${g.many} another day.`);
+    S.wanted[c.missing] = 1; save();
+    await next('I\'ll write it down 📒');
+  }
+  let order = null;
+  if (c.special === 'captain') order = await captainOrder(who);
+  else if (c.special === 'miu') order = await miuOrder(who);
+  else if (c.special === 'athena') await athenaRiddle(who);
+  else if (c.special === 'queen') order = inStock().slice(0, 4).map(g => [g, 1]);
+  if (!order && c.order) { order = await shopFor(c); if (!order) return; }
+  if (!order) order = makeOrder(2);
+  if (!order) { await talk(who, 'Oh, the shelves are empty! I\'ll come back tomorrow.', 'Bye!'); return; }
+  say(who, `May I have ${orderWords(order)}, please?`);
+  await pickTask(order, who);
+  for (const [g, n] of order) { S.stock[g] -= n; S.sold[g] = (S.sold[g] || 0) + n; }
+  syncView(); save();
+  const total = orderTotal(order);
+  const priceShow = () => order.map(([g, n]) => `<span class="grp"><span class="row">${Array.from({ length: n }, () => goodImg(g, 'sm')).join('')}</span><span class="lab">${priceOf(g)}¢ each</span></span>`).join('');
+  const priceHelp = () => `<div class="row">${order.map(([g, n]) => Array.from({ length: n }, () => `<span class="grp">${goodImg(g, 'sm')}${dots(priceOf(g))}</span>`).join('')).join('')}</div><div class="small">One dot for each penny. Count them all.</div>`;
+  if (c.flow === 'count' && c.special !== 'queen') {
+    const coins = coinsFor(total);
+    say(who, `Here you are!`);
+    await ask({
+      k: 'F', who, q: 'Here are my coins. How much did I give you?', answer: total,
+      show: () => `<div class="tray">${coins.map(v => coinHTML(v)).join('')}</div>`,
+      help: () => { let run = 0; return `<div class="row">${coins.map(v => { run += v; return `<span class="grp">${coinHTML(v)}<span class="lab">${run}</span></span>`; }).join('')}</div>`; },
+      helpSay: coins[0] === 10 ? 'Count the dimes by tens, then the pennies by ones.' : 'Touch each coin and count.',
+    });
+    await talk('keeper', total === 1 ? 'One penny. Just right!' : `${orderTotal(order)} pennies. ${order.length > 1 || order[0][1] > 1 ? 'Just right!' : 'Thank you!'}`, 'Into the till');
+  } else {
+    await ask({
+      k: 'A', who, q: 'How much do I owe you?', answer: total, show: priceShow, help: priceHelp,
+      helpSay: 'Each dot is a penny. Let\'s count them all.',
+    });
+    const S_ = S.lv.S, F = S.lv.F;
+    let paid = S_ <= 1 ? (total < 5 ? 5 : total) : S_ === 2 ? (total < 10 ? 10 : total) : S_ === 3 ? (total < 20 ? (total < 10 ? 10 : 20) : total) : Math.ceil((total + 1) / 10) * 10;
+    if (c.special === 'queen') paid = total;
+    const change = paid - total;
+    // Customers who need change pay with a real coin: a nickel, a dime, or a few dimes.
+    const paidCoins = change ? bigCoins(paid) : coinsFor(paid);
+    if (!change) {
+      await talk(who, `Here are ${paid} ${plural(paid, 'penny', 'pennies')}. Just right!`, 'Into the till', `<div class="tray">${paidCoins.map(v => coinHTML(v)).join('')}</div>`);
+    } else {
+      await talk(who, `Here ${coinWords(paidCoins)}. That's ${paid} pennies.`, 'Thank you!', `<div class="tray">${paidCoins.map(v => coinHTML(v)).join('')}</div>`);
+      const tens = change >= 10 && F >= 3 ? [10, 10, 10] : [];
+      const ones = Array.from({ length: change >= 10 && F >= 3 ? 12 : Math.max(10, change + 3) }, () => 1);
+      await coinsTaskWithHelp({ who, change, paid, total, source: tens.concat(ones) });
+    }
+  }
+  S.till += total; S.shop.earned += total; hud(); save();
+  mood('cust', 'happy', 2200); SFX.cheer();
+  const thanks = c.special === 'queen' ? 'Thank you! Your shop is the most wonderful shop in all of Bramble Wood. Here is a gift from fairyland!' : pick(['Thank you! See you soon!', 'Thank you, shopkeeper!', 'Lovely! Thank you so much!', 'Hooray! Thank you!']);
+  if (!S.friends[who]) {
+    S.friends[who] = S.day; save();
+    if (window.GFKCards) GFKCards.collect({ game: GAME, id: 'friend-' + who, name: me.name, emoji: me.emoji, rarity: me.finale ? 'legendary' : me.special ? 'rare' : 'common' });
+    skin('served', who, true); await talk(who, thanks + ' Let\'s be friends!', 'Bye-bye!');
+  } else { skin('served', who, false); await talk(who, thanks, 'Bye-bye!'); }
+}
+// An animal's wish list meets her price tags, then her shelf.
+async function shopFor(c) {
+  const who = c.who, budget = orderBand()[1] + 2;
+  let order = [], dear = [], cheap = [], short = [];
+  for (const [g, n] of c.order) {
+    const at = wantAt(g, n);
+    if (at < n) { dear.push(g); S.dear[g] = (S.dear[g] || 0) + (n - at); }
+    if (at > n) cheap.push(g);
+    if (at > 0) order.push([g, at]);
+  }
+  // nobody spends more than they have in their purse
+  while (order.length && orderTotal(order) > budget) { const o = order.reduce((a, b) => (b[1] * priceOf(b[0]) > a[1] * priceOf(a[0]) ? b : a)); o[1]--; if (!o[1]) order.splice(order.indexOf(o), 1); }
+  // then what is actually on the shelf
+  order = order.map(([g, n]) => { const have = Math.min(n, S.stock[g] || 0); if (have < n) { short.push(g); S.missed[g] = (S.missed[g] || 0) + (n - have); } return [g, have]; }).filter(o => o[1] > 0);
+  save();
+  const many = gs => gs.map(g => GOODS[g].many).join(' and ');
+  if (dear.length) { mood('cust', 'think', 1800); await talk(who, order.length || short.length ? `Ooh, ${many(dear)} are expensive today! I'll buy fewer.` : `Ooh, ${many(dear)} cost too much for me today. Maybe another day!`, order.length || short.length ? 'Okay' : 'Bye!'); }
+  else if (cheap.length) { mood('cust', 'happy', 1800); await talk(who, `${many(cheap)[0].toUpperCase() + many(cheap).slice(1)} are cheap today! I'll take extra!`, 'Hooray!'); }
+  if (short.length) await talk(who, order.length ? `Oh, you haven't got enough ${many(short)}. I'll take what you have.` : `Oh no, no ${many(short)} left! I'll come back another day.`, order.length ? 'Okay' : 'Bye!');
+  return order.length ? order : null;
+}
+function coinsTaskWithHelp({ who, change, paid, total, source }) {
+  return coinsTask({ who, amount: change, source, title: 'The till drawer', k: 'S', mode: 'change',
+    prompt: `It costs ${total}. I gave you ${paid}. How much change do I get? Put the coins in my paw.`,
+    helpSay: `Start at ${total} and count up to ${paid}, one penny for each number you say.`,
+      coach: coachOnce('change') ? `Start at ${total}. Tap one penny for each number as you count up to ${paid}. Then tap <b>Done</b>.` : '' });
+}
+async function captainOrder(who) {
+  const M = S.lv.M, g = inStock().sort((a, b) => S.stock[b] - S.stock[a])[0]; if (!g) return null;
+  let size = M >= 3 ? 5 : 2, groups = M <= 1 ? 2 : 2 + rnd(3);
+  while (groups > 1 && groups * size > S.stock[g]) groups--;
+  if (groups * size > S.stock[g]) size = 1;
+  if (size === 1) { groups = Math.min(groups, S.stock[g]); }
+  const n = groups * size;
+  await ask({
+    k: 'M', who, q: `I have ${groups} sailors. Each sailor wants ${size} ${plural(size, GOODS[g].one, GOODS[g].many)}. How many ${GOODS[g].many} do I need?`, answer: n,
+    show: () => Array.from({ length: groups }, (_, i) => `<span class="grp"><span class="lab">${icon('anchor', '⚓')} sailor ${i + 1}</span>${dots(size)}</span>`).join(''),
+    help: () => `<div class="row">${Array.from({ length: groups }, (_, i) => `<span class="grp"><span class="lab">${(i + 1) * size}</span>${dots(size)}</span>`).join('')}</div>`,
+    helpSay: `Count by ${size}s for each sailor.`,
+  });
+  return [[g, n]];
+}
+async function miuOrder(who) {
+  const g = inStock().sort((a, b) => S.stock[b] - S.stock[a])[0]; if (!g) return null;
+  let n = Math.min(S.stock[g], S.lv.F >= 2 ? 10 : 6); if (n % 2) n--; if (n < 2) return null;
+  await ask({
+    k: 'F', who, q: `My sister and I will share ${n} ${GOODS[g].many}, half each. How many does each of us get?`, answer: n / 2,
+    show: () => `<span class="grp">${dots(n)}</span>`,
+    help: () => `<div class="row"><span class="grp"><span class="lab">Miu</span>${dots(n / 2)}</span><span class="grp"><span class="lab">Sister</span>${dots(n / 2)}</span></div>`,
+    helpSay: 'Give one to Miu, one to her sister, one to Miu, one to her sister.',
+  });
+  return [[g, n]];
+}
+async function athenaRiddle(who) {
+  const gs = inStock().filter(g => S.stock[g] > 0); if (gs.length < 2) return;
+  const [a, b] = shuffle(gs).slice(0, 2); if (S.stock[a] === S.stock[b]) return;
+  const more = S.stock[a] > S.stock[b] ? a : b;
+  await ask({
+    k: 'N', who, q: `Here is my riddle. Look at your shelf. Do you have more ${GOODS[a].many} or more ${GOODS[b].many}?`, answer: more, opts: [a, b],
+    labels: { [a]: `${goodImg(a)} ${S.stock[a]}`, [b]: `${goodImg(b)} ${S.stock[b]}` },
+    help: () => `<div class="row"><span class="grp">${goodImg(a, 'sm')}${dots(S.stock[a], 10)}</span><span class="grp">${goodImg(b, 'sm')}${dots(S.stock[b], 10)}</span></div>`,
+    helpSay: 'Line them up and see which row is longer.',
+  });
+  await talk(who, 'Wise shopkeeper! Athena will be pleased.', 'Thank you!');
+}
+
+/* ----- evening: count the till, save up ----- */
+async function evening() {
+  setScene('outside', { time: 'evening' }); TSV.cust = null;
+  mood('keeper', 'idle');
+  // what is left on the shelf
+  const fresh = Object.keys(S.had).filter(g => GOODS[g] && GOODS[g].fresh && S.had[g] > 0);
+  const g = fresh.find(x => (S.sold[x] || 0) > 0 && S.stock[x] > 0);
+  if (g && S.day >= SUMS_DAY) {
+    const had = S.had[g], sold = S.sold[g], left = S.stock[g];
+    await ask({
+      k: 'S', who: 'keeper', q: `This morning I had ${had} ${GOODS[g].many}. I sold ${sold}. How many are left?`, answer: left,
+      show: () => `<span class="grp">${goodImg(g, 'sm')}${dots(had)}</span>`,
+      help: () => `<div class="row">${Array.from({ length: had }, (_, i) => `<span style="opacity:${i < sold ? .25 : 1}">${goodImg(g, 'sm')}</span>`).join('')}</div><div class="small">The faded ones were sold.</div>`,
+      helpSay: `Take away the ${sold} I sold, and count the ones still here.`,
+    });
+  }
+  S.soldOut = {}; for (const x of Object.keys(S.had)) if (S.had[x] > 0 && !(S.stock[x] > 0)) S.soldOut[x] = 1;
+  const gone = fresh.filter(x => S.stock[x] > 0);
+  if (gone.length) {
+    const words = gone.map(x => `${S.stock[x]} ${plural(S.stock[x], GOODS[x].one, GOODS[x].many)}`).join(' and ');
+    await talk('keeper', `${words[0].toUpperCase() + words.slice(1)} left over. They're best fresh, so the duck family gets them for supper. Quack quack! Maybe I'll buy a little less tomorrow.`, 'Goodnight, ducks!');
+    gone.forEach(x => (S.stock[x] = 0)); syncView();
+  } else if (fresh.some(x => (S.sold[x] || 0) > 0)) {
+    await talk('keeper', 'Every single one was sold! Maybe I\'ll buy more tomorrow.', 'Next');
+  }
+  S.lastSold = Object.assign({}, S.sold); S.lastMissed = Object.assign({}, S.missed); S.lastDear = Object.assign({}, S.dear);
+  const missedAll = Object.values(S.missed).reduce((a, b) => a + b, 0);
+  if (missedAll) {
+    const top = Object.keys(S.missed).sort((a, b) => S.missed[b] - S.missed[a])[0];
+    await talk('keeper', `My notebook: friends wanted ${S.missed[top]} more ${plural(S.missed[top], GOODS[top].one, GOODS[top].many)} after mine ran out. That's ${S.missed[top] * priceOf(top)} ${plural(S.missed[top] * priceOf(top), 'penny', 'pennies')} I didn't get! Maybe I'll buy more tomorrow.`, 'Into my notebook 📒');
+  }
+  await profitTask();
+  // count the till in tens
+  const T = S.till;
+  if (T >= 10 && S.day >= 2) await stackTask(T);
+  else await talk('keeper', `There ${T === 1 ? 'is' : 'are'} ${T} ${plural(T, 'penny', 'pennies')} in the till.`);
+  // keep ten (or twenty, to buy more stock) for tomorrow, the rest to the jar
+  const keep = T > 10 && S.day >= PRICES_DAY ? await keepChoice(Math.min(T, 20)) : 10;
+  if (T > keep && S.day < SUMS_DAY) {
+    await talk('keeper', `${T} pennies! I'll keep 10 for Bramble's cart tomorrow. The other ${T - keep === 1 ? 'penny goes' : (T - keep) + ' go'} in my savings jar.`, 'Into the jar 🫙');
+    S.jar += T - keep; S.till = keep; hud(); SFX.coin(5);
+  } else if (T > keep) {
+    const rest = T - keep;
+    await ask({
+      k: 'P', who: 'keeper', q: `I'll keep ${keep} pennies for Bramble's cart tomorrow. How many go in my savings jar?`, answer: rest,
+      show: () => `<span class="grp"><span class="lab">${T} pennies</span>${dots(Math.min(10, T))}${T > 10 ? dots(Math.min(10, T - 10)) : ''}${T > 20 ? dots(Math.min(10, T - 20)) : ''}${T > 30 ? dots(T - 30) : ''}</span>`,
+      help: () => `<div class="row"><span class="grp"><span class="lab">Keep for Bramble</span>${dots(10)}${keep > 10 ? dots(10) : ''}</span><span class="grp"><span class="lab">Jar</span>${dots(Math.min(rest, 10))}${rest > 10 ? dots(Math.min(rest - 10, 10)) : ''}${rest > 20 ? dots(rest - 20) : ''}</span></div>`,
+      helpSay: keep > 10 ? 'Two stacks of ten stay in the till. Count what is left over.' : 'One stack of ten stays in the till. Count what is left over.',
+    });
+    S.jar += rest; S.till = keep; hud(); SFX.coin(5);
+  } else if (T < 10) {
+    await talk('clover', `Aunt Clover's rainy-day tin adds ${10 - T} ${plural(10 - T, 'penny', 'pennies')}, so you have 10 for tomorrow. Love, Clover.`);
+    S.till = 10; hud();
+  } else await talk('keeper', `Exactly ${keep} for Bramble tomorrow!`);
+  save();
+  await decorShop();
+  S.phase = 'night'; save();
+}
+// Money in, money out: what the shop really earned today.
+async function profitTask() {
+  const took = S.shop ? S.shop.earned : 0, spent = S.spent || 0, P = took - spent;
+  S.profit = P;
+  if (!took && !spent) return;
+  if (!spent) await talk('keeper', `I took in ${took} ${plural(took, 'penny', 'pennies')} today, and I didn't buy anything from Bramble. So I earned ${took}!`);
+  else if (P <= 0) {
+    await talk('keeper', `I paid Bramble ${spent} ${plural(spent, 'penny', 'pennies')} and took in ${took}. ${P === 0 ? 'That\'s the same, so I earned nothing today.' : 'I took in less than I paid.'} Tomorrow I'll think about what to buy and my prices. Aunt Clover's tin will look after the till.`, 'I\'ll try again!');
+  } else if (S.day < SUMS_DAY) {
+    await talk('keeper', `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent}. So my shop earned ${P}!`, 'Hooray!');
+  } else {
+    await ask({
+      k: 'S', who: 'keeper', q: `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent} this morning. How much did my shop earn today?`, answer: P,
+      show: () => `<span class="grp"><span class="lab">Took in ${took}</span>${dots(took)}</span>`,
+      help: () => `<div class="row"><span class="grp">${Array.from({ length: took }, (_, i) => `<i style="display:inline-block;width:16px;height:16px;border-radius:50%;margin:2px;background:${i < spent ? '#e6d9c6' : '#e9b949'}"></i>`).join('')}</span></div><div class="small">The pale ones went to pay Bramble. Count the gold ones.</div>`,
+      helpSay: `Take away the ${spent} I paid Bramble. Count what is left.`,
+    });
+  }
+  if (P > 0) {
+    S.total += P;
+    if (P > S.best) {
+      if (S.best > 0) { SFX.cheer(); mood('keeper', 'happy', 2200); await talk('keeper', `${P} pennies! That's my best day ever! My old best was ${S.best}.`, 'Hooray! ⭐'); }
+      S.best = P;
+    }
+    for (const [at, id, name, emoji, rarity] of EARN_CARDS) if (S.total >= at && !(S.earnCards || []).includes(id)) {
+      (S.earnCards = S.earnCards || []).push(id);
+      if (window.GFKCards) GFKCards.collect({ game: GAME, id, name, emoji, rarity });
+      SFX.cheer(); await talk('keeper', `My shop has earned ${S.total} pennies so far! I won the ${name} card!`, 'Wow!');
+    }
+  }
+  save();
+}
+const EARN_CARDS = [[20, 'earn-20', 'Busy Bee Shopkeeper', '🐝', 'common'], [50, 'earn-50', 'Golden Acorn Award', '🌰', 'rare'], [100, 'earn-100', 'Hundred Penny Purse', '👛', 'rare'], [200, 'earn-200', 'Shopkeeper of Bramble Wood', '🏆', 'sparkly']];
+// More pennies in the till buys more stock tomorrow; fewer fills the savings jar faster.
+function keepChoice(more) {
+  return new Promise(res => {
+    say('keeper', 'How much shall I keep in the till for Bramble\'s cart? More pennies buys more things to sell. The rest goes in my savings jar.');
+    DBG.cur = { type: 'keep' };
+    setPanel(`<div class="row">
+      <button class="opt" id="nx" data-k="10">${dots(10)}<br>Keep 10</button>
+      <button class="opt" data-k="${more}">${dots(10)}${dots(more - 10)}<br>Keep ${more}</button></div>`, p => {
+      $$('[data-k]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); rerender = null; res(+b.dataset.k); }));
+    });
+  });
+}
+function stackTask(T) {
+  return new Promise(res => {
+    const auto = Math.max(0, Math.floor(T / 10) - 2); // beyond two stacks the coin roller helps
+    let stacks = auto, loose = T - auto * 10, mat = 0;
+    say('keeper', auto ? 'Let\'s count the till. Aunt Clover\'s coin roller made some stacks. Tap pennies to make another stack of ten!' : 'Let\'s count the till! Tap pennies to make a stack of ten.');
+    const draw = () => setPanel(`
+      <div class="row">${Array.from({ length: stacks }, () => `<span class="grp"><span class="stack">${Array.from({ length: 10 }, () => coinHTML(1)).join('')}</span><span class="lab">10</span></span>`).join('')}
+        <span class="ten">${Array.from({ length: 10 }, (_, i) => i < mat ? coinHTML(1) : '<span></span>').join('')}</span></div>
+      <div class="tray"><span class="lbl">The till</span>${Array.from({ length: loose }, (_, i) => coinHTML(1, 'button', `data-i="${i}"`)).join('')}</div>`, p => {
+      $$('.tray .coin', p).forEach(b => b.addEventListener('click', async () => {
+        if (loose <= 0 || mat >= 10 || (mat === 0 && loose < 10)) return;
+        loose--; mat++; SFX.coin(mat); speak(String(mat)); draw();
+        if (mat === 10) { await wait(500); stacks++; mat = 0; SFX.stack(); speak('A stack of ten!'); draw(); }
+        if (loose < 10 && mat === 0) { await wait(700); rerender = null; finish(); }
+      }));
+    });
+    rerender = draw; draw();
+    if (loose < 10) setTimeout(() => { rerender = null; finish(); }, 50);
+    async function finish() {
+      await ask({
+        k: 'P', who: 'keeper', q: `${stacks} ${plural(stacks, 'stack', 'stacks')} of ten and ${loose} more. How many pennies is that?`, answer: T,
+        show: () => `${Array.from({ length: stacks }, () => `<span class="grp"><span class="stack">${Array.from({ length: 10 }, () => coinHTML(1)).join('')}</span><span class="lab">10</span></span>`).join('')}<span class="grp"><span class="row">${Array.from({ length: loose }, () => coinHTML(1)).join('')}</span></span>`,
+        help: () => `<div class="small">${Array.from({ length: stacks }, (_, i) => (i + 1) * 10).join(', ')}${loose ? ', then ' + Array.from({ length: loose }, (_, i) => stacks * 10 + i + 1).join(', ') : ''}</div>`,
+        helpSay: `Count the stacks by tens, then the pennies by ones.`,
+      });
+      res();
+    }
+  });
+}
+function decorShop() {
+  return new Promise(res => {
+    const avail = DECOR.filter(d => !S.decor.includes(d.id));
+    if (!avail.length) { res(); return; }
+    const cheapest = Math.min(...avail.map(d => d.cost));
+    if (S.jar >= cheapest) say('keeper', `My savings jar has ${S.jar} ${plural(S.jar, 'penny', 'pennies')}. I can buy something for my shop!`);
+    else say('keeper', `My savings jar has ${S.jar} ${plural(S.jar, 'penny', 'pennies')}. The ${avail.find(d => d.cost === cheapest).name.toLowerCase()} costs ${cheapest}. I need ${cheapest - S.jar} more.`);
+    const draw = () => setPanel(`
+      <div class="decor">${DECOR.map(d => `<button data-d="${d.id}" class="${S.decor.includes(d.id) ? 'own' : S.jar < d.cost ? 'cant' : ''}">${decorImg(d)}<span>${d.name}</span><span class="tag">${S.decor.includes(d.id) ? '✓ yours' : d.cost + '¢'}</span></button>`).join('')}</div>
+      <button class="btn alt" id="later">${S.jar >= cheapest ? 'Save for later' : 'Keep saving'}</button>`, p => {
+      $$('.decor button', p).forEach(b => b.addEventListener('click', async () => {
+        const d = DECOR.find(x => x.id === b.dataset.d);
+        if (S.decor.includes(d.id)) { say('keeper', `My ${d.name.toLowerCase()}!`); return; }
+        if (S.jar < d.cost) { SFX.soft(); say('keeper', `The ${d.name.toLowerCase()} costs ${d.cost}. I have ${S.jar}. I need ${d.cost - S.jar} more.`); return; }
+        const left = S.jar - d.cost;
+        S.jar = left; S.decor.push(d.id); save(); syncView(); hud(); SFX.cheer(); sparkle(b, 18);
+        mood('keeper', 'happy', 2000);
+        if (!d.out) { TSV.scene = 'inside'; TSV.cam = null; }
+        say('keeper', `The ${d.name.toLowerCase()}! ${S.jar + d.cost} take away ${d.cost} leaves ${left} in my jar.`);
+        if (window.GFKCards && S.decor.length === DECOR.length) GFKCards.collect({ game: GAME, id: 'all-decor', name: 'Prettiest Shop in the Wood', emoji: '🏡', rarity: 'rare' });
+        rerender = null; await next('Lovely!');
+        TSV.scene = 'outside'; res();
+      }));
+      $('#later', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
+    });
+    rerender = draw; draw();
+  });
+}
+// The day's tally, drawn like a shipping summary: what sold, money in, money out. Same numbers as before.
+function tallyHTML(earned) {
+  const sold = Object.keys(S.sold || {}).filter(g => GOODS[g] && S.sold[g] > 0);
+  const rows = sold.map(g => `<div class="trow">${goodImg(g, 'sm')}<span class="tn">${GOODS[g].many}<small>${S.sold[g]} × ${priceOf(g)}¢</small></span><i class="lead"></i><b>${S.sold[g] * priceOf(g)}¢</b></div>`).join('');
+  const P = S.profit;
+  return `<div class="tally"><div class="th">Day ${S.day} tally</div><div class="tgoods${sold.length > 2 ? ' two' : ''}">${rows || '<div class="trow"><span class="tn">Nothing sold today</span></div>'}</div>
+    <div class="trow tot"><span class="tn">Took in</span><i class="lead"></i><b>${earned}¢</b></div>
+    ${S.spent ? `<div class="trow"><span class="tn">Paid Bramble</span><i class="lead"></i><b>${S.spent}¢</b></div>` : ''}
+    ${P > 0 ? `<div class="trow tot big"><span class="tn">Earned today</span><i class="lead"></i><b>${P}¢</b></div>` : ''}</div>
+    <div class="row"><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">Savings jar: ${S.jar}¢</span></div>`;
+}
+async function night() {
+  setScene('outside', { time: 'evening' }); TSV.cust = null;
+  const n = S.shop ? S.shop.list.length : 0, earned = S.shop ? S.shop.earned : 0;
+  if (S.day === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'clover-key', name: "Aunt Clover's Key", emoji: '🗝️', rarity: 'common' });
+  mood('keeper', 'happy', 2000);
+  await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
+    tallyHTML(earned));
+  S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
+}
+
+/* ================= title ================= */
+async function title() {
+  setScene('outside', { time: 'morning' }); syncView();
+  TSV.keeper = keeperSpec();
+  hush();
+  await next(S.keeper ? `Play (Day ${S.day})` : 'Play', `<div class="title">The Toadstool Shop</div><div class="small">A little shop in Bramble Wood</div>`);
+  if (S.keeper) say('keeper', `Welcome back! It's day ${S.day} at ${S.keeper.name}'s shop.`);
+  playDay();
+}
+
+/* ================= grown-ups (press and hold) ================= */
+(function () {
+  const b = $('#grown'); let t = 0;
+  b.addEventListener('pointerdown', () => { t = setTimeout(show, 900); });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => b.addEventListener(e, () => clearTimeout(t)));
+  b.addEventListener('click', () => say('keeper', 'Grown-ups: press and hold the gear.', { speak: false }));
+  function show() {
+    const rows = Object.keys(RANGE).map(k => {
+      const L = S.log.filter(x => x.k === k), last = L.slice(-10), ok = last.filter(x => x.ok).length;
+      return `<tr><td>${STRAND_NAME[k]}</td><td>${S.lv[k]} <small>(${RANGE[k].join('-')})</small></td><td>${L.length ? `${ok}/${last.length} first try` : '—'}</td></tr>`;
+    }).join('');
+    const box = $('#grownups'); box.hidden = false;
+    $('.card', box).innerHTML = `<h2 style="margin-top:0">The Toadstool Shop: grown-ups</h2>
+      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors.</p>
+      <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
+      <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
+      <p>Savings jar ${S.jar}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
+      <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
+      <button class="btn" id="gclose">Close</button>`;
+    $('#gclose').addEventListener('click', () => { box.hidden = true; });
+  }
+})();
+
+window.__ts = { get S() { return S; }, TSV, DBG, on3d() { if (rerender) rerender(); if (lastSay) { $('#bubble .pt').innerHTML = portrait(lastSay.who); } }, record };
+syncView(); hud(); title();
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./sdv-view.js') /* skin hook H1 */.catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
+</script>
+</body>
+</html>
