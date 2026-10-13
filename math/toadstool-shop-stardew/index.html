@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>The Toadstool Shop: Pixel Valley</title>
+<script src="../../shared/veil3d.js" data-bg="#bfe3ff" data-glow="#ffd27a" data-ink="#3b2a1a" data-text="Opening the shop…" data-webgl="no"></script>
 <style>
 :root{--ink:#4a3428;--cream:#fff8ec;--paper:#fffdf7;--red:#e2566b;--green:#5f9a62;--gold:#e9b949;--blue:#5a8fc7;--shadow:0 6px 0 rgba(74,52,40,.18)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -1994,7 +1995,7 @@ async function title() {
 
 window.__ts = { get S() { return S; }, TSV, DBG, on3d() { if (rerender) rerender(); if (lastSay) { $('#bubble .pt').innerHTML = portrait(lastSay.who); } }, record };
 syncView(); hud(); title();
-if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./sdv-view.js') /* skin hook H1 */.catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./sdv-view.js') /* skin hook H1 */.catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); }).finally(() => window.G3DVeil && G3DVeil.ready());
 </script>
 </body>
 </html>

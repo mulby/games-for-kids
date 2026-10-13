@@ -2,6 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>[hidden]{display:none!important}body{margin:0}</style>
 <title>The Shining Sea</title>
+<script src="../../shared/veil3d.js" data-bg="#9fd3f0" data-glow="#ffffff" data-ink="#17375e" data-text="Raising the sails…"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Shining Sea">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2309,6 +2310,6 @@ go("title");
 </script>
 <script type="module" id="gl3d-loader">
 /* Load the 3D world unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
-if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); }).finally(() => window.G3DVeil && G3DVeil.ready());
 </script>
 </html>

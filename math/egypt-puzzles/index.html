@@ -976,6 +976,7 @@ body.g3d .spot.empty{background:rgba(255,250,235,.6)}
 </head>
 <body>
 <title>Miu's Magic Pyramids</title>
+<script src="../../shared/veil3d.js" data-bg="#e9b77a" data-glow="#ffd86b" data-ink="#5a3410" data-text="Waking the pyramids…"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Cinzel+Decorative:wght@700&display=swap">
 <style>
@@ -1879,7 +1880,7 @@ window.__miu = { get P(){ return P; }, get S(){ return S; }, attempt, generate, 
 </script>
 <script type="module" id="gl3d-loader">
 /* Load the 3D world unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
-if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); }).finally(() => window.G3DVeil && G3DVeil.ready());
 </script>
 
 </body>
