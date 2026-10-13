@@ -968,6 +968,7 @@ body.g3d .coin{text-shadow:0 1px 0 #fff9}
 </head>
 <body>
 <title>The Moonlit Map</title>
+<script src="../../shared/veil3d.js" data-bg="#141836" data-glow="#cfe3ff" data-ink="#f2f6ff" data-text="Unrolling the map…"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@500;700;800&display=swap">
 <style>
@@ -1628,7 +1629,7 @@ window.__G=G; window.__estimate=estimate; window.__LANDS=LANDS;
 
 <script type="module" id="gl3d-loader">
 /* Load the 3D world unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
-if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); }).finally(() => window.G3DVeil && G3DVeil.ready());
 </script>
 
 </body>

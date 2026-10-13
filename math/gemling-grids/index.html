@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#23263a">
 <title>Gemling Grids</title>
+<script src="../../shared/veil3d.js" data-bg="#120e22" data-glow="#b77cff" data-ink="#f7f2ff" data-text="Polishing the crystals…"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -2299,7 +2300,7 @@ init();
 </script>
 <script type="module" id="gl3d-loader">
 /* Load the 3D cave unless ?g3d=0 (or ?gl=0). If it fails, the game keeps its 2D drawings. */
-if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); });
+if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./world3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); }).finally(() => window.G3DVeil && G3DVeil.ready());
 </script>
 </body>
 </html>
