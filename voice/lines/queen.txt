@@ -1,12 +1,16 @@
+the fairy queen	The Fairy Queen
 i heard about your wonderful shop	I heard about your wonderful shop.
 i had to see it	I had to see it!
+hmm not quite	Hmm, not quite.
+let's look again together	Let's look again together.
+let's count it together	Let's count it together.
+it's	It's
+tap	Tap
 that's all the	That's all the
 oops that's too many	Oops, that's too many
 i need	I need
 tap one in the basket to put it back	Tap one in the basket to put it back.
 in the basket	in the basket.
-hmm not quite	Hmm, not quite.
-that's	That's
 a little more please	A little more, please!
 that's more than	That's more than
 tap a coin to take it back	Tap a coin to take it back.
@@ -23,9 +27,13 @@ bye	Bye!
 may i have	May I have
 please	, please?
 here you are	Here you are!
+here are my coins	Here are my coins.
+how much did i give you	How much did I give you?
+how much do i owe you	How much do I owe you?
 here are	Here are
 just right	Just right!
-here	Here
+into the till	Into the till
+that's	That's
 pennies	pennies.
 thank you	Thank you!
 your shop is the most wonderful shop in all of bramble wood	Your shop is the most wonderful shop in all of Bramble Wood.
@@ -37,7 +45,6 @@ thank you so much	Thank you so much!
 hooray	Hooray!
 let's be friends	Let's be friends!
 bye bye	Bye-bye!
-ooh	Ooh,
 are expensive today	are expensive today!
 i'll buy fewer	I'll buy fewer.
 cost too much for me today	cost too much for me today.
@@ -49,6 +56,18 @@ i'll take what you have	I'll take what you have.
 oh no no	Oh no, no
 left	left!
 i'll come back another day	I'll come back another day.
+i have	I have
+sailors	sailors.
+each sailor wants	Each sailor wants
+how many	How many
+do i need	do I need?
+my sister and i will share	My sister and I will share
+half each	, half each.
+how many does each of us get	How many does each of us get?
+here is my riddle	Here is my riddle.
+look at your shelf	Look at your shelf.
+do you have more	Do you have more
+or more	or more
 wise shopkeeper	Wise shopkeeper!
 athena will be pleased	Athena will be pleased.
 acorn bun	acorn bun

@@ -160,35 +160,48 @@ yes	Yes!
 that's right	That's right!
 you got it	You got it!
 perfect	Perfect!
-hmm not quite	Hmm, not quite.
-let's look again together	Let's look again together.
-let's count it together	Let's count it together.
-it's	It's
-tap	Tap
 to put it in the basket	to put it in the basket.
 then tap here you go	Then tap Here you go!
 that's you	That's you!
 pick your fur and your dress	Pick your fur and your dress.
 what is my name	What is my name?
 tap a name to hear it	Tap a name to hear it.
+a penny	a penny
+the pennies	the pennies
+to give	to give
 what price shall i put on each tag	What price shall I put on each tag?
+honey pot	honey pot
+a honey pot	a honey pot
 nobody would pay more than	Nobody would pay more than
-for	for
 that's all your shelf can hold	That's all your shelf can hold!
 that's all the pennies in your till	That's all the pennies in your till!
 my very own shop	My very own shop!
 i'll flip the sign to open	I'll flip the sign to Open.
 time to open the shop	Time to open the shop!
+open the door	Open the door
+friend was	friend was
+friends were	friends were
 the shelves are empty	The shelves are empty!
 everything is sold	Everything is sold!
 but	But
 still coming to shop	still coming to shop.
 i'll write it in my notebook	I'll write it in my notebook.
+close the shop	Close the shop
 what a busy day	What a busy day!
 time to close the shop	Time to close the shop.
 one penny	One penny.
 just right	Just right!
 pennies	pennies.
+into the till	Into the till
+it costs	It costs
+i gave you	I gave you
+how much change do i get	How much change do I get?
+put the coins in my paw	Put the coins in my paw.
+start at	Start at
+tap one penny for each number as you count up to	Tap one penny for each number as you count up to
+this morning i had	This morning I had
+i sold	I sold
+how many are left	How many are left?
 left over	left over.
 they're best fresh so the duck family gets them for supper	They're best fresh, so the duck family gets them for supper.
 quack quack	Quack quack!
@@ -199,16 +212,22 @@ maybe i'll buy more tomorrow	Maybe I'll buy more tomorrow.
 after mine ran out	after mine ran out.
 that's	That's
 i didn't get	I didn't get!
-there	There
+into my notebook	Into my notebook 📒
 in the till	in the till.
+penny goes	penny goes
 i'll keep 10 for bramble's cart tomorrow	I'll keep 10 for Bramble's cart tomorrow.
 the other	The other
 in my savings jar	in my savings jar.
-exactly	Exactly
+into the jar	Into the jar 🫙
+i'll keep	I'll keep
+pennies for bramble's cart tomorrow	pennies for Bramble's cart tomorrow.
+how many go in my savings jar	How many go in my savings jar?
 for bramble tomorrow	for Bramble tomorrow!
 i took in	I took in
 today and i didn't buy anything from bramble	today, and I didn't buy anything from Bramble.
 so i earned	So I earned
+that's the same so i earned nothing today	That's the same, so I earned nothing today.
+i took in less than i paid	I took in less than I paid.
 i paid bramble	I paid Bramble
 and took in	and took in
 tomorrow i'll think about what to buy and my prices	Tomorrow I'll think about what to buy and my prices.
@@ -216,6 +235,8 @@ aunt clover's tin will look after the till	Aunt Clover's tin will look after the
 i'll try again	I'll try again!
 so my shop earned	So my shop earned
 hooray	Hooray!
+this morning	this morning.
+how much did my shop earn today	How much did my shop earn today?
 that's my best day ever	That's my best day ever!
 my old best was	My old best was
 my shop has earned	My shop has earned
@@ -230,25 +251,24 @@ aunt clover's coin roller made some stacks	Aunt Clover's coin roller made some s
 tap pennies to make another stack of ten	Tap pennies to make another stack of ten!
 tap pennies to make a stack of ten	Tap pennies to make a stack of ten.
 a stack of ten	A stack of ten!
+of ten and	of ten and
+how many pennies is that	How many pennies is that?
 my savings jar has	My savings jar has
 i can buy something for my shop	I can buy something for my shop!
 i need	I need
-my	My
 i have	I have
 take away	take away
-leaves	leaves
 in my jar	in my jar.
-day	Day
+and earned	and earned
 is done	is done!
 time for bed	Time for bed.
+sleep until morning	Sleep until morning 🌙
 it's day	It's day
-at	at
 's shop	's shop.
 acorn bun	acorn bun
 acorn buns	acorn buns
 apple	apple
 apples	apples
-honey pot	honey pot
 honey pots	honey pots
 berry tart	berry tart
 berry tarts	berry tarts
@@ -272,7 +292,6 @@ box	box
 boxes	boxes
 crate	crate
 crates	crates
-a honey pot	a honey pot
 one	one
 is 1 penny	is 1 penny
 ginny	Ginny
@@ -307,6 +326,32 @@ busy bee shopkeeper	Busy Bee Shopkeeper
 golden acorn award	Golden Acorn Award
 hundred penny purse	Hundred Penny Purse
 shopkeeper of bramble wood	Shopkeeper of Bramble Wood
+the acorn bun	the acorn bun
+the acorn buns	the acorn buns
+the apple	the apple
+the apples	the apples
+the honey pot	the honey pot
+the honey pots	the honey pots
+the berry tart	the berry tart
+the berry tarts	the berry tarts
+the biscuit	the biscuit
+the biscuits	the biscuits
+the candle	the candle
+the candles	the candles
+the seed packet	the seed packet
+the seed packets	the seed packets
+the teacup	the teacup
+the teacups	the teacups
+the shop sign	the shop sign
+the flower vase	the flower vase
+the striped awning	the striped awning
+the rainbow rug	the rainbow rug
+the window boxes	the window boxes
+the door bell	the door bell
+the lanterns	the lanterns
+the flag bunting	the flag bunting
+the cat bed and cat	the cat bed and cat
+the fairy lights	the fairy lights
 a golden bubble	A golden bubble!
 ooh sparkly gold	Ooh, sparkly gold!
 you found the golden one	You found the golden one!
@@ -350,6 +395,13 @@ your museum is full of treasures	Your museum is full of treasures.
 amazing	Amazing!
 miu is so proud of you	Miu is so proud of you.
 want to dig again	Want to dig again?
+go in my savings jar	go in my savings jar
+my notebook friends wanted	my notebook friends wanted
+my notebook says friends asked for	my notebook says friends asked for
+stack of ten and	stack of ten and
+stacks of ten and	stacks of ten and
+tap a penny to give it to bramble	tap a penny to give it to bramble
+then tap done	then tap done
 0	0
 1	1
 2	2

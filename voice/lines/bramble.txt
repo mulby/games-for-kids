@@ -8,29 +8,33 @@ my cart is full of good things	My cart is full of good things.
 morning	Morning!
 lovely day for shopping	Lovely day for shopping.
 your shelf is full of	Your shelf is full of
-a	A
-of	of
-costs	costs
 there isn't enough in your till for that today	There isn't enough in your till for that today.
 your notebook says	Your notebook says
-more	more
 could have sold yesterday but they ran out	could have sold yesterday, but they ran out!
-with	with
 in each	in each.
 that's	That's
+how many	How many
+is that	is that?
 nothing today	Nothing today?
 that's all right	That's all right.
 see you tomorrow	See you tomorrow!
 open the shop	Open the shop!
 altogether	altogether.
+how much is that altogether	How much is that altogether?
+your till	Your till
+please	, please.
+tap the coins to pay me	Tap the coins to pay me.
+is 1 penny	is 1 penny
 you gave me	You gave me
 here	Here
 back	back!
 thank you	Thank you!
 have a lovely day at the shop	Have a lovely day at the shop!
+price tags	Price tags
 here is a bag of	Here is a bag of
 for your shop	for your shop.
 it costs	It costs
+pay me	Pay me
 your	Your
 are on the shelf	are on the shelf.
 have a lovely first day	Have a lovely first day!
@@ -38,11 +42,11 @@ now the price tags	Now the price tags!
 you choose how much each thing costs in your shop	You choose how much each thing costs in your shop.
 a higher price earns you more for each one	A higher price earns you more for each one.
 but some animals will think it is too expensive and buy fewer	But some animals will think it is too expensive, and buy fewer.
+honey pot	honey pot
+a honey pot	a honey pot
 nobody would pay more than	Nobody would pay more than
-for	for
 come in	come in
 each	Each
-how many	How many
 would you like	would you like?
 that's all your shelf can hold	That's all your shelf can hold!
 that's all the pennies in your till	That's all the pennies in your till!
@@ -50,7 +54,6 @@ acorn bun	acorn bun
 acorn buns	acorn buns
 apple	apple
 apples	apples
-honey pot	honey pot
 honey pots	honey pots
 berry tart	berry tart
 berry tarts	berry tarts
@@ -62,6 +65,7 @@ seed packet	seed packet
 seed packets	seed packets
 teacup	teacup
 teacups	teacups
+a	a
 and	and
 is	is
 are	are
@@ -76,9 +80,7 @@ box	box
 boxes	boxes
 crate	crate
 crates	crates
-a honey pot	a honey pot
 one	one
-is 1 penny	is 1 penny
 ginny	Ginny
 poppy	Poppy
 primrose	Primrose
@@ -88,6 +90,38 @@ juniper	Juniper
 wren	Wren
 daisy	Daisy
 maple	Maple
+the acorn bun	the acorn bun
+the acorn buns	the acorn buns
+the apple	the apple
+the apples	the apples
+the honey pot	the honey pot
+the honey pots	the honey pots
+the berry tart	the berry tart
+the berry tarts	the berry tarts
+the biscuit	the biscuit
+the biscuits	the biscuits
+the candle	the candle
+the candles	the candles
+the seed packet	the seed packet
+the seed packets	the seed packets
+the teacup	the teacup
+the teacups	the teacups
+the shop sign	the shop sign
+the flower vase	the flower vase
+the striped awning	the striped awning
+the rainbow rug	the rainbow rug
+the window boxes	the window boxes
+the door bell	the door bell
+the lanterns	the lanterns
+the flag bunting	the flag bunting
+the cat bed and cat	the cat bed and cat
+the fairy lights	the fairy lights
+a bag of	a bag of
+and the	and the
+each bag costs	each bag costs
+pennies altogether	pennies altogether
+pennies please	pennies please
+the	the
 0	0
 1	1
 2	2

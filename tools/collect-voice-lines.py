@@ -37,22 +37,63 @@ def fun_lines(src):
 # say('bramble', ...) is Bramble, say(who, ...) is any customer, the shopkeeper and speak() use the main voice.
 VOICES = json.loads((root / "voice/voices.json").read_text())
 CUSTOMERS = ["hazel", "bunbury", "hoot", "mo", "dot", "tansy", "wilf", "captain", "miu", "athena", "queen"]
+def literals(code):
+    """Every string literal in a line of JS, with template literals split into the fixed pieces
+    around each ${...}, including the strings nested inside a ${...} (like ` and earned ${n}`)."""
+    out, i, n = [], 0, len(code)
+    def tmpl(i):  # code[i] is the opening backtick; returns (pieces, index after the closing one)
+        pieces, cur, i = [], "", i + 1
+        while i < n and code[i] != "`":
+            if code[i] == "\\" and i + 1 < n: cur += code[i:i + 2]; i += 2; continue
+            if code.startswith("${", i):
+                pieces.append(cur); cur = ""; i, inner = expr(i + 2); out.extend(inner); continue
+            cur += code[i]; i += 1
+        pieces.append(cur)
+        return pieces, i + 1
+    def expr(i):  # inside ${ ... }: returns (index after the matching }, nested literal pieces)
+        depth, found = 1, []
+        while i < n and depth:
+            c = code[i]
+            if c == "`": ps, i = tmpl(i); found.extend(ps); continue
+            if c in "'\"":
+                j = i + 1
+                while j < n and code[j] != c: j += 2 if code[j] == "\\" else 1
+                found.append(code[i + 1:j]); i = j + 1; continue
+            depth += c == "{"; depth -= c == "}"; i += 1
+        return i, found
+    while i < n:
+        c = code[i]
+        if code.startswith("//", i): break
+        if c == "`": ps, i = tmpl(i); out.extend(ps); continue
+        if c in "'\"":
+            j = i + 1
+            while j < n and code[j] != c: j += 2 if code[j] == "\\" else 1
+            out.append(code[i + 1:j]); i = j + 1; continue
+        i += 1
+    return out
+
+# A piece is worth recording if it has words in it (not a CSS class, id or a lone name like 'bramble').
+def spoken(t):
+    t = t.strip()
+    return bool(re.search(r"[A-Za-z]{2}", t)) and (" " in t or re.search(r"[.!?]$", t)) and not re.search(r"[<>{}=;#]|\b(?:px|var|div|span|class)\b", t)
+
 def shop_lines(src):
     for line in src.splitlines():
-        if not re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =", line):
+        if not re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =|\b(?:q|prompt|coach): ", line):
             continue
         who = set()
-        for w in re.findall(r"\b(?:say|talk)\(\s*'(\w+)'", line):
+        for w in re.findall(r"\b(?:say|talk)\(\s*'(\w+)'|\bwho: '(\w+)'", line):
+            w = w[0] or w[1]
             who.add(None if w == "keeper" else w)
-        if re.search(r"\b(?:say|talk)\(\s*who\b|\bthanks =", line):
+        if re.search(r"\b(?:say|talk)\(\s*who\b|\bthanks =|\bwho[,}]|\bwho: who\b", line):
             who.update(CUSTOMERS)
         m = re.match(r"\s*(\w+): \{.*\bhi: ", line)
         if m:
             who.add(m.group(1))
-        if re.search(r"(?<![.\w])speak\(", line) or not who:
+        if re.search(r"(?<![.\w])speak\(|\bcoach: ", line) or not who:
             who.add(None)
-        for q, text in STR.findall(line):
-            if "${" in text or re.search(r"[A-Za-z]{2}.*[.!?]$", text):
+        for text in literals(line):
+            if spoken(text):
                 for w in who:
                     yield w, text
 
@@ -76,7 +117,7 @@ def add(table, s):
 pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(str(root / "fun/*/index.html")))
 for page in pages:
     src = open(page).read()
-    found = fun_lines(src) if "/fun/" in page else shop_lines(src) if "/toadstool-shop/" in page else ((None, t) for q, t in CALL.findall(src))
+    found = fun_lines(src) if "/fun/" in page else shop_lines(src) if re.search(r"/toadstool-shop[^/]*/", page) else ((None, t) for q, t in CALL.findall(src))
     if "/fun/" in page:
         found = ((None, t) for q, t in found)
     for who, text in found:
@@ -90,13 +131,22 @@ for page in pages:
             if re.search(r"[${}:>]", s):  # bits of code caught between nested ${...}
                 continue
             add(lines if who is None else char_lines[who], s)
-    if "/toadstool-shop/" in page:
+    if re.search(r"/toadstool-shop[^/]*/", page):
         words, names, decor, cards = shop_words(src)
         for w in words + names + [n + "'s shop" for n in names] + decor + cards:
             add(lines, w)
+        the = ["the " + w for w in words[:words.index("a")] + decor]  # "the apples are 2 pennies", "the lanterns costs 24"
+        for w in the:
+            add(lines, w)
         for c in char_lines:
-            for w in words + (names if c in ("bramble", "clover") else []):
+            for w in words + (names + the if c in ("bramble", "clover") else []):
                 add(char_lines[c], w)
+# Pieces the scan above can't see (joined on the fly, like the 'the' in ${i ? 'the' : 'The'}), found by playing
+# the shop with voice on and listing the sentences that had no recording. "voice<TAB>text"; voice is main or a character.
+for row in (root / "voice/extra-lines.txt").read_text().splitlines():
+    if "\t" in row and not row.startswith("#"):
+        who, text = row.split("\t", 1)
+        add(lines if who == "main" else char_lines[who], text)
 numbers = [str(n) for n in range(0, 101)] + [str(n) for n in range(200, 1000, 100)]
 for w in numbers + ["plus", "minus", "equals", "and", "makes", "is", "take away", "times", "penny", "pennies"]:
     lines.setdefault(w, w)
