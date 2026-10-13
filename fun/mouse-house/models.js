@@ -373,19 +373,6 @@ export function room() {
   const curtain = mat('#f2a7b5', { felt: true });
   for (const sx of [-1, 1]) { win.add(ball(curtain, [sx * 1.65, -.1, .3], [.35, 1.55, .12])); win.add(rbox(mat('#ffd86b', { felt: true }), [.5, .1, .2], [sx * 1.6, -.2, .4])); }
   win.add(capsule(mat('#d1a65a', { metal: true }), [-2.1, 1.55, .3], [2.1, 1.55, .3], .05));
-  // a framed picture of a cheese on the left wall
-  const pic = new THREE.Group(); pic.position.set(-w / 2 + .05, 4.3, -1.2); pic.rotation.y = Math.PI / 2; g.add(pic);
-  pic.add(rbox(mat('#d1a65a', { metal: true }), [1.8, 1.4, .12], [0, 0, 0], [0, 0, 0], .05));
-  pic.add(mesh(new THREE.PlaneGeometry(1.45, 1.05), new THREE.MeshStandardMaterial({ color: '#cfe8f7' }), [0, 0, .08]));
-  pic.add(ball(mat('#cdbcae', { felt: true }), [-.15, -.15, .1], [.3, .3, .05])); pic.add(ball(mat('#cdbcae', { felt: true }), [-.35, .15, .1], [.15, .15, .03])); pic.add(ball(mat('#cdbcae', { felt: true }), [.05, .15, .1], [.15, .15, .03]));
-  pic.add(ball(mat('#ffd35a', { felt: true }), [.4, -.25, .1], [.22, .15, .04]));
-  // bunting along the top of the back wall
-  const flags = new THREE.Group(); g.add(flags);
-  const fl = ['#f2a7b5', '#ffd86b', '#a9d4ff', '#b8f0c8', '#b9a6e8'];
-  const tri = new THREE.Shape(); tri.moveTo(-.28, 0); tri.lineTo(.28, 0); tri.lineTo(0, -.55); tri.lineTo(-.28, 0);
-  const tg = new THREE.ShapeGeometry(tri);
-  for (let i = 0; i < 14; i++) { const t = i / 13, x = -w / 2 + .6 + t * (w - 1.2); flags.add(mesh(tg, mat(fl[i % 5], { felt: true, side: THREE.DoubleSide }), [x, h - .45 - Math.sin(t * Math.PI) * .4, -d / 2 + .05])); }
-  flags.add(tube(Array.from({ length: 15 }, (_, i) => { const t = i / 14; return [-w / 2 + .5 + t * (w - 1), h - .45 - Math.sin(t * Math.PI) * .4, -d / 2 + .06]; }), .02, mat('#8a7a70'), 30, 4));
   g.userData = { wallM, floorM, skyM, hillM, sunM, floor };
   return g;
 }
