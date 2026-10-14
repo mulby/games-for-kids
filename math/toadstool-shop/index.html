@@ -1186,9 +1186,28 @@ function coachOnce(key) { S.seen = S.seen || {}; if (S.seen[key]) return false; 
 function record(k, ok) {
   S.log.push({ k, lv: S.lv[k], ok, day: S.day, t: Date.now() }); if (S.log.length > 400) S.log.splice(0, S.log.length - 400);
   const st = S.streak[k] || (S.streak[k] = { ok: 0, miss: 0 });
-  if (ok) { st.ok++; st.miss = 0; if (st.ok >= 3 && S.lv[k] < RANGE[k][1]) { S.lv[k]++; st.ok = 0; } }
-  else { st.miss++; st.ok = 0; if (st.miss >= 2 && S.lv[k] > RANGE[k][0]) { S.lv[k]--; st.miss = 0; } }
+  S.lvDay = S.lvDay || {};
+  if (ok) { st.ok++; st.miss = 0; if (st.ok >= 3 && S.lv[k] < RANGE[k][1]) { S.lv[k]++; st.ok = 0; S.lvDay[k] = S.day; } }
+  else { st.miss++; st.ok = 0; if (st.miss >= 2 && S.lv[k] > RANGE[k][0]) { S.lv[k]--; st.miss = 0; S.lvDay[k] = S.day; } }
   save();
+}
+
+// The shop also gets a little harder as the days go by, after the onramp (day 4 on):
+// from day 7 one more customer and orders can hold 3 kinds of goods, and order totals
+// lean toward the top of her adding level. A skill that has not moved for 3 days moves up one level overnight
+// if most of its answers in those days were right first time (it still drops after 2 misses, as always).
+const ramp = () => S.day < SUMS_DAY ? 0 : Math.min(3, Math.floor((S.day - SUMS_DAY) / 3));
+function rampUp() {
+  if (S.day < SUMS_DAY) return [];
+  S.lvDay = S.lvDay || {}; const up = [];
+  for (const k of Object.keys(RANGE)) {
+    if (S.lv[k] >= RANGE[k][1]) continue;
+    const since = S.lvDay[k] || 0; if (S.day - since < 3) continue;
+    const L = S.log.filter(x => x.k === k && x.day > S.day - 3);
+    if (L.length >= 3 && L.filter(x => x.ok).length / L.length >= .7) { S.lv[k]++; S.lvDay[k] = S.day; S.streak[k] = { ok: 0, miss: 0 }; up.push(k); }
+  }
+  if (up.length) save();
+  return up;
 }
 
 /* ================= save ================= */
@@ -1610,18 +1629,22 @@ function chooseQty(g, size, cost, most, suggest) {
 function makeCustomers() {
   if (S.day === 1) return [{ who: 'hazel', flow: 'count', order: [['bun', 1]] }, { who: 'mo', flow: 'count', order: [['bun', 1]] }];
   // From day 3 most customers pay with a bigger coin, so she gives change.
-  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4;
+  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4 + Math.min(1, ramp()); // one more friend from day 7, so a day never gets too long
   const regs = shuffle(REGULARS).slice(0, howMany).map((who, i) => ({ who, flow: i === 0 || S.day < CHANGE_DAY ? 'count' : 'change' }));
   const sp = SPECIAL_BY_DAY[S.day] || (S.day > 11 ? pick(['captain', 'miu', 'athena']) : null);
   if (sp) regs.splice(1, 0, { who: sp, flow: 'change', special: sp });
   const notHere = Object.keys(GOODS).filter(g => !unlocked(S.day).includes(g));
   if (S.day >= PRICES_DAY && notHere.length && Math.random() < .6) regs[regs.length - 1].missing = notHere[0];
-  regs.forEach(c => { if (!c.special) c.order = makeOrder(S.day < SUMS_DAY ? 1 : 2, true); });
+  regs.forEach(c => { if (!c.special) c.order = makeOrder(S.day < SUMS_DAY ? 1 : ramp() >= 1 ? 3 : 2, true); });
   return regs;
 }
 const inStock = () => Object.keys(S.stock).filter(g => S.stock[g] > 0);
 // An order whose total fits her adding level.
-const orderBand = () => S.day < SUMS_DAY ? [1, 4] : [[2, 5], [3, 10], [8, 20], [15, 30]][S.lv.A - 1];
+const orderBand = () => {
+  if (S.day < SUMS_DAY) return [1, 4];
+  const [lo, hi] = [[2, 5], [3, 10], [8, 20], [15, 30]][S.lv.A - 1];
+  return [Math.round(lo + (hi - lo) * ramp() * .15), hi]; // later days lean toward the top of her level
+};
 // wish: what an animal would like at the usual prices, whatever is on the shelf (her stock decides what she can sell).
 function makeOrder(maxGoods = 2, wish = false) {
   const band = orderBand(), cap = S.day < SUMS_DAY ? 2 : S.lv.N >= 2 ? 6 : 5;
@@ -1962,6 +1985,7 @@ async function night() {
   mood('keeper', 'happy', 2000);
   await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
     `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">Savings jar: ${S.jar}¢</span></div>`);
+  rampUp();
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
 }
 
@@ -1988,7 +2012,7 @@ async function title() {
     }).join('');
     const box = $('#grownups'); box.hidden = false;
     $('.card', box).innerHTML = `<h2 style="margin-top:0">The Toadstool Shop: grown-ups</h2>
-      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors.</p>
+      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors. After that it slowly gets harder: from day 7 one more customer and orders with up to 3 kinds of goods, order totals that creep up every 3 days, and a skill that has not moved for 3 days moves up overnight if at least 70% of its answers in those days were right first time.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
       <p>Savings jar ${S.jar}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
