@@ -1193,10 +1193,12 @@ function record(k, ok) {
 }
 
 // The shop also gets a little harder as the days go by, after the onramp (day 4 on):
-// from day 7 one more customer and orders can hold 3 kinds of goods, and order totals
-// lean toward the top of her adding level. A skill that has not moved for 3 days moves up one level overnight
+// from day 7 one more customer when she is doing well and (once she adds past level 1) orders with up to 3 kinds
+// of goods, and every 3 days (to day 13) the smallest orders get a little bigger within her adding level. A skill that has not moved for 3 days moves up one level overnight
 // if most of its answers in those days were right first time (it still drops after 2 misses, as always).
 const ramp = () => S.day < SUMS_DAY ? 0 : Math.min(3, Math.floor((S.day - SUMS_DAY) / 3));
+// at least 70% of the last 2 days' answers right first time
+function goingWell() { const L = S.log.filter(x => x.day >= S.day - 2 && x.day < S.day); return L.length >= 3 && L.filter(x => x.ok).length / L.length >= .7; }
 function rampUp() {
   if (S.day < SUMS_DAY) return [];
   S.lvDay = S.lvDay || {}; const up = [];
@@ -1217,7 +1219,7 @@ function freshState() {
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-if (!S || S.v !== 1) S = freshState(); else S = Object.assign(freshState(), S);
+if (!S || S.v !== 1) S = freshState(); else { const had = S.lvDay; S = Object.assign(freshState(), S); if (!had) S.lvDay = Object.fromEntries(Object.keys(RANGE).map(k => [k, S.day])); } // older saves start the 3-day wait fresh
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 /* ================= sound and voice ================= */
@@ -1629,13 +1631,14 @@ function chooseQty(g, size, cost, most, suggest) {
 function makeCustomers() {
   if (S.day === 1) return [{ who: 'hazel', flow: 'count', order: [['bun', 1]] }, { who: 'mo', flow: 'count', order: [['bun', 1]] }];
   // From day 3 most customers pay with a bigger coin, so she gives change.
-  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4 + Math.min(1, ramp()); // one more friend from day 7, so a day never gets too long
+  // From day 7 one more friend, but only while she is doing well (a long day is no fun when the sums are hard)
+  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4 + (ramp() >= 1 && goingWell() ? 1 : 0);
   const regs = shuffle(REGULARS).slice(0, howMany).map((who, i) => ({ who, flow: i === 0 || S.day < CHANGE_DAY ? 'count' : 'change' }));
   const sp = SPECIAL_BY_DAY[S.day] || (S.day > 11 ? pick(['captain', 'miu', 'athena']) : null);
   if (sp) regs.splice(1, 0, { who: sp, flow: 'change', special: sp });
   const notHere = Object.keys(GOODS).filter(g => !unlocked(S.day).includes(g));
   if (S.day >= PRICES_DAY && notHere.length && Math.random() < .6) regs[regs.length - 1].missing = notHere[0];
-  regs.forEach(c => { if (!c.special) c.order = makeOrder(S.day < SUMS_DAY ? 1 : ramp() >= 1 ? 3 : 2, true); });
+  regs.forEach(c => { if (!c.special) c.order = makeOrder(S.day < SUMS_DAY ? 1 : ramp() >= 1 && S.lv.A >= 2 ? 3 : 2, true); });
   return regs;
 }
 const inStock = () => Object.keys(S.stock).filter(g => S.stock[g] > 0);
@@ -2012,7 +2015,7 @@ async function title() {
     }).join('');
     const box = $('#grownups'); box.hidden = false;
     $('.card', box).innerHTML = `<h2 style="margin-top:0">The Toadstool Shop: grown-ups</h2>
-      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors. After that it slowly gets harder: from day 7 one more customer and orders with up to 3 kinds of goods, order totals that creep up every 3 days, and a skill that has not moved for 3 days moves up overnight if at least 70% of its answers in those days were right first time.</p>
+      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors. After that it slowly gets harder: from day 7 one more customer on days when she has been getting at least 70% right, orders with up to 3 kinds of goods once her adding is past level 1, the smallest orders get a little bigger every 3 days up to day 13, and a skill that has not moved for 3 days moves up overnight if at least 70% of its answers in those days were right first time.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
       <p>Savings jar ${S.jar}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
