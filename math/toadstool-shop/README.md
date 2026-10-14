@@ -44,6 +44,11 @@ The first time she meets each control (answer buttons, the basket, paying, givin
 Each kind of problem follows one Moonlit Map strand and level (1 = kindergarten to early 1st grade, 2 = end of 1st,
 3 = early 2nd, 4 = mid 2nd). The game starts every strand at level 1, moves up after 3 first-try answers in a row and down after 2 misses.
 
+After the onramp the shop also gets slowly harder as the days go by: from day 7 a fifth regular friend on days after she has been
+getting at least 70% right, orders with up to 3 kinds of goods once her adding is past level 1, and every 3 days (up to
+day 13) the smallest orders get a little bigger within her adding level. A strand that has not moved for 3 days moves up one level overnight when at least 70% of its
+answers in those days were right first time; it still drops after 2 misses, so a hard patch never piles up.
+
 | Strand | Levels | In the shop |
 | --- | --- | --- |
 | N Number sense | 1-2 (start 1) | Filling the basket: up to 5, then up to 10 |
