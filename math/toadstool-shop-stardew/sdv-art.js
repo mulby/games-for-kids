@@ -1107,6 +1107,7 @@
         body = BODIES.dress;
         Object.assign(pal, { d: dress, D: shade(dress, 0.25), g: d2, G: shade(d2, 0.15) });
         if (spec.apron) Object.assign(pal, { a: '#FFFAF0', A: '#E6D2B4', g: light(dress, 0.3), G: dress });
+        else if (spec.keeper) Object.assign(pal, { a: dress, A: shade(dress, 0.25), g: light(dress, 0.3), G: dress });
         else Object.assign(pal, { a: light(dress, 0.12), A: shade(dress, 0.12) });
       } else {
         body = BODIES.fur;
@@ -1134,6 +1135,36 @@
     if (hasAcc(spec, 'collar')) { for (var cx = 3; cx < 13; cx++) g.px(cx, 18, cx % 2 ? GOLD : '#3A7BD5'); for (cx = 4; cx < 12; cx++) g.px(cx, 19, cx % 3 ? GOLD : '#3A7BD5'); g.px(7, 20, GOLD); g.px(8, 20, GOLD); }
     if (hasAcc(spec, 'leaves')) { for (var lx = 2; lx < 14; lx++) g.px(lx, 8, lx % 2 ? '#7CB36A' : '#4F8A3A'); [3, 6, 9, 12].forEach(function (x) { g.px(x, 7, '#9BD08A'); }); }
     if (sp === 'fairy') { g.rect(6, 1, 1, 1, null); }
+    if (spec.keeper) keeperClothes(g, spec);
+  }
+  // The shopkeeper's wardrobe (wardrobe.js): the dress fabric over the dress pixels, and what she wears.
+  function printAt(pr, x, y, base, light2) {
+    if (pr === 'dots') return (x + (y % 4 < 2 ? 0 : 2)) % 4 === 0 && y % 2 === 0 ? '#FFFFFF' : base;
+    if (pr === 'stripes') return x % 3 === 0 ? light2 : base;
+    if (pr === 'gingham') return x % 2 && y % 2 ? shade(base, 0.12) : (x % 2 || y % 2) ? light(base, 0.2) : light(base, 0.45);
+    if (pr === 'hearts') return (x * 3 + y * 5) % 11 === 0 ? '#E2566B' : base;
+    if (pr === 'stars') return (x * 5 + y * 3) % 11 === 0 ? '#FFF3A8' : base;
+    return base;
+  }
+  function paintPrint(g, spec, y0, y1) {
+    var pr = spec.print || 'flowers'; if (pr === 'flowers' || pr === 'plain' || !spec.dress) return;
+    var d = spec.dress, D = shade(d, 0.25), lt = light(d, 0.5);
+    for (var y = y0; y < y1; y++) for (var x = 0; x < g.w; x++) { var c = g.get(x, y); if (c === d || c === D) g.px(x, y, printAt(pr, x, y, c, c === D ? light(D, 0.4) : lt)); }
+  }
+  function keeperClothes(g, spec) {
+    paintPrint(g, spec, 18, 30);
+    var GOLDS = GOLD, straw = '#E6C27A', strawS = '#B8904A', rib = '#F58FB1';
+    if (hasAcc(spec, 'scarf')) { var sc = '#E2566B'; g.hline(4, 18, 8, sc); g.hline(5, 19, 6, shade(sc, 0.25)); g.rect(10, 19, 2, 4, sc); g.vline(11, 19, 4, shade(sc, 0.25)); }
+    if (hasAcc(spec, 'pearls')) { for (var px = 4; px < 12; px++) g.px(px, 18, px % 2 ? '#FBF3EA' : '#D8CCC0'); g.px(7, 19, '#FBF3EA'); g.px(8, 19, '#F58FB1'); }
+    if (hasAcc(spec, 'sunhat')) { g.hline(0, 7, 16, straw); g.px(0, 7, strawS); g.px(15, 7, strawS); g.hline(1, 8, 14, strawS); g.rect(4, 4, 8, 3, straw); g.hline(5, 3, 6, straw); g.hline(4, 6, 8, rib); g.px(10, 5, '#FFFFFF'); g.px(11, 6, '#FFFFFF'); g.px(9, 6, '#FFFFFF'); g.px(10, 6, '#F7C531'); }
+    if (hasAcc(spec, 'flowercrown')) { var cols = ['#F6A6BD', '#FFD86B', '#FFFFFF', '#C9B6F0']; for (var lx = 2; lx < 14; lx++) g.px(lx, 8, '#7CB36A'); [2, 5, 8, 11].forEach(function (x, i) { g.px(x, 7, cols[i]); g.px(x + 1, 7, cols[i]); g.px(x, 8, cols[i]); g.px(x + 1, 8, shade(cols[i], 0.15)); }); }
+    if (hasAcc(spec, 'tiara')) { g.hline(4, 7, 8, GOLDS); [4, 11].forEach(function (x) { g.px(x, 6, GOLDS); }); g.px(7, 5, GOLDS); g.px(8, 5, GOLDS); g.px(7, 4, '#FFF6B8'); g.px(7, 6, '#F58FB1'); g.px(8, 6, '#F58FB1'); }
+    if (hasAcc(spec, 'wings')) {
+      var wl = '#DCEEFF', we = GOLDS;
+      [[0, 17], [0, 18], [1, 18], [0, 19], [1, 19], [2, 19], [0, 20], [1, 20], [2, 20], [1, 21], [2, 21], [1, 23], [2, 23], [1, 24]].forEach(function (p) {
+        [p[0], 15 - p[0]].forEach(function (x) { if (!g.get(x, p[1])) g.px(x, p[1], p[0] === 0 || p[1] === 24 ? we : wl); });
+      });
+    }
   }
 
   /** SDV.character(spec) -> sprite name, frames: 0 idle, 1 breathe, 2 step left, 3 step right */
@@ -1167,6 +1198,7 @@
   function bustP(g, col, sh) { g.ellipse(24, 50, 19, 14, col); g.ellipseIn(30, 54, 19, 14, sh); g.ellipseIn(22, 50, 17, 14, col); }
   function collarP(g, spec, dress) {
     if (hasAcc(spec, 'collar')) { for (var i = 0; i < 9; i++) { var t = (i / 8) * Math.PI; g.ellipse(24 - Math.cos(t) * 11, 37 + Math.sin(t) * 4, 1.8, 1.8, i % 2 ? '#3A7BD5' : GOLD); } g.ellipse(24, 42, 2, 2, GOLD); return; }
+    if (hasAcc(spec, 'pearls')) { for (var k = 0; k < 11; k++) { var tk = (k / 10) * Math.PI; g.ellipse(24 - Math.cos(tk) * 10, 37 + Math.sin(tk) * 4, 1.5, 1.5, k % 2 ? '#FBF3EA' : '#E8DCCB'); } g.ellipse(24, 42, 1.8, 1.8, '#F58FB1'); return; }
     if (hasAcc(spec, 'scarf')) { var sc = spec.scarf || '#E2566B'; g.ellipse(24, 37, 10, 3, sc); g.hline(15, 38, 18, shade(sc, 0.25)); g.rect(28, 38, 4, 8, sc); g.vline(31, 38, 8, shade(sc, 0.25)); return; }
     if (dress) { var d2 = spec.dress2 || '#FFF3E6'; g.ellipse(19, 37.5, 4.4, 2.6, d2); g.ellipse(29, 37.5, 4.4, 2.6, d2); g.px(24, 38, shade(d2, 0.2)); }
   }
@@ -1175,6 +1207,7 @@
     var dress = spec.dress, body = dress || fur;
     bustP(g, body, shade(body, 0.25));
     if (!dress) g.ellipse(24, 46, 8, 6, belly);
+    if (spec.keeper) keeperPortrait(g, spec, body);
     if (spec.apron) { g.rect(17, 39, 14, 9, '#FFFAF0'); g.vline(17, 39, 9, '#E6D2B4'); g.vline(30, 39, 9, '#E6D2B4'); g.rect(21, 42, 6, 3, '#F5E6C8'); g.hline(21, 42, 6, '#E6D2B4'); }
     collarP(g, spec, dress);
     if (cat) {
@@ -1199,7 +1232,24 @@
     g.hline(15, 16, 4, furS); g.hline(30, 16, 4, furS);
     headAcc(g, f, spec);
   }
+  function keeperPortrait(g, spec, body) {
+    var pr = spec.print || 'flowers', D = shade(body, 0.25), lt = light(body, 0.5);
+    if (pr !== 'flowers' && pr !== 'plain') for (var y = 34; y < 48; y++) for (var x = 0; x < 48; x++) {
+      var c = g.get(x, y); if (c !== body && c !== D) continue;
+      var big = pr === 'dots' ? ((x + (Math.floor(y / 4) % 2) * 3) % 6 < 2 && y % 4 < 2 ? '#FFFFFF' : c)
+        : pr === 'stripes' ? (x % 6 < 2 ? (c === D ? light(D, 0.4) : lt) : c)
+        : pr === 'gingham' ? ((x % 6 < 3) && (y % 6 < 3) ? shade(c, 0.1) : (x % 6 < 3) || (y % 6 < 3) ? light(c, 0.2) : light(c, 0.45))
+        : pr === 'hearts' ? (((x + y * 2) % 13 === 0 || (x + 1 + y * 2) % 13 === 0) && y % 3 === 0 ? '#E2566B' : c)
+        : pr === 'stars' ? ((x * 5 + y * 3) % 17 === 0 ? '#FFF3A8' : c) : c;
+      g.px(x, y, big);
+    }
+    if (hasAcc(spec, 'wings')) { var wl = '#DCEEFF'; [[6, 33], [42, 33]].forEach(function (p) { g.ellipse(p[0], p[1], 5, 8, wl, function (x, y) { return g.get(x, y) === null; }); }); }
+  }
   function headAcc(g, f, spec) {
+    if (hasAcc(spec, 'sunhat')) { var st = '#E6C27A', ss = '#B8904A'; g.ellipse(24, 11, 22, 4.2, ss); g.ellipse(24, 10.5, 21, 3.6, st); g.ellipse(24, 6, 11, 6, st); g.ellipseIn(20, 3, 5, 2, '#F4DCA0'); g.rect(13, 8, 22, 3, '#F58FB1'); g.hline(13, 8, 22, '#F9AFC8'); g.ellipse(33, 8, 3, 3, '#FFFFFF'); g.ellipse(33, 8, 1.4, 1.4, '#F7C531'); }
+    if (hasAcc(spec, 'flowercrown')) { var cols = ['#F6A6BD', '#FFD86B', '#FFFFFF', '#C9B6F0', '#F58FB1']; g.hline(10, 12, 28, '#7CB36A'); for (var i = 0; i < 6; i++) { var fx = 11 + i * 5.2, fy = 11 - Math.sin(i / 5 * Math.PI) * 2; g.ellipse(fx, fy, 2.6, 2.6, cols[i % cols.length]); g.ellipse(fx, fy, 1, 1, '#F7C531'); } }
+    if (hasAcc(spec, 'tiara')) { g.hline(14, 11, 20, GOLD); g.hline(14, 12, 20, GOLD_D); [15, 20, 24, 28, 32].forEach(function (x, i) { tri(g, x + 0.5, i === 2 ? 4 : i % 2 ? 7 : 8, 11, 1.4, GOLD); }); g.ellipse(24, 11, 1.6, 1.6, '#F58FB1'); }
+    if (hasAcc(spec, 'leaves')) { for (var j = 0; j < 9; j++) { var lx = 10 + j * 3.6, ly = 12 - Math.sin(j / 8 * Math.PI) * 3; g.ellipse(lx, ly, 2.2, 1.4, j % 2 ? '#7CB36A' : '#4F8A3A'); } }
     if (hasAcc(spec, 'glasses')) { ring(g, 17.5, 21.5, 5.4, GOLD); ring(g, 31.5, 21.5, 5.4, GOLD); g.hline(22, 20, 4, GOLD); g.px(12, 20, GOLD); g.px(36, 20, GOLD); }
     if (hasAcc(spec, 'eyepatch')) { var ep = '#1E1A24'; g.ellipse(31.5, 21.5, 4.6, 4.2, ep); g.px(30, 19, '#4A4458'); g.line(28, 18, 13, 12, ep); g.line(35, 19, 39, 22, ep); }
     if (hasAcc(spec, 'bow')) { var bc = spec.bowColor || '#FFFFFF', bs = bc.toLowerCase() === '#ffffff' ? '#D8CCC4' : shade(bc, 0.25); g.ellipse(32, 6, 4, 3, bs); g.ellipse(31.6, 5.6, 3.4, 2.4, bc); g.ellipse(42, 6, 4, 3, bs); g.ellipse(41.6, 5.6, 3.4, 2.4, bc); g.ellipse(37, 6.5, 2, 2, bs); g.px(36, 5, '#FFFFFF'); }

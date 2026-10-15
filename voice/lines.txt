@@ -533,3 +533,97 @@ today for careful counting	today for careful counting!
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+i can buy something for my shop or something to wear	I can buy something for my shop, or something to wear!
+things to wear	Things to wear
+things for my shop	Things for my shop
+i can wear it with the dress button	I can wear it with the dress button.
+dress	dress!
+i took off my	I took off my
+gave me	gave me
+i'm wearing	I'm wearing
+now	now.
+i can change my clothes any time with the dress button	I can change my clothes any time with the dress button.
+white bow	white bow
+pink bow	pink bow
+blue bow	blue bow
+straw sun hat	straw sun hat
+flower crown	flower crown
+sparkly tiara	sparkly tiara
+pirate hat	pirate hat
+laurel wreath	laurel wreath
+knitted scarf	knitted scarf
+pearl necklace	pearl necklace
+golden collar	golden collar
+round glasses	round glasses
+fairy wings	fairy wings
+shop apron	shop apron
+flowery dress	flowery dress
+plain dress	plain dress
+spotty dress	spotty dress
+stripy dress	stripy dress
+picnic check dress	picnic check dress
+heart dress	heart dress
+starry dress	starry dress
+i can buy the	i can buy the
+in the evening	in the evening
+is a present	is a present
+maybe a friend will bring it one day	maybe a friend will bring it one day
+captain whiskers gave me a	captain whiskers gave me a
+miu the temple cat gave me a	miu the temple cat gave me a
+athena's owl gave me a	athena's owl gave me a
+the fairy queen gave me some	the fairy queen gave me some
+a little lane goes from my shop into bramble wood village	A little lane goes from my shop into Bramble Wood village.
+and there are other shops to visit	And there are other shops to visit!
+bird bath	bird bath
+daisy patch	daisy patch
+fairy crown	fairy crown
+fairy house	fairy house
+garden bench	garden bench
+golden apple	golden apple
+golden lyre	golden lyre
+golden scarab	golden scarab
+i can still visit the shops	I can still visit the shops.
+i helped everyone today	I helped everyone today!
+i'll put the	I'll put the
+is already in my garden	is already in my garden!
+is already in my shop	is already in my shop!
+little pyramid	little pyramid
+maybe they need some help	Maybe they need some help.
+my bird bath	my bird bath
+my daisy patch	my daisy patch
+my fairy house	my fairy house
+my friends live here	My friends live here.
+my garden bench	my garden bench
+my sunflowers	my sunflowers
+my tulip bed	my tulip bed
+my wishing well	my wishing well
+on the ledge in my shop	on the ledge in my shop!
+pearl seashell	pearl seashell
+pennies to spend	pennies to spend
+penny to spend	penny to spend
+pirate map	pirate map
+silver owl	silver owl
+sunflowers	sunflowers
+the bird bath	the bird bath
+the daisy patch	the daisy patch
+the fairy crown	the fairy crown
+the fairy house	the fairy house
+the garden bench	the garden bench
+the golden apple	the golden apple
+the golden lyre	the golden lyre
+the golden scarab	the golden scarab
+the little pyramid	the little pyramid
+the pearl seashell	the pearl seashell
+the pirate map	the pirate map
+the silver owl	the silver owl
+the sunflowers	the sunflowers
+the tulip bed	the tulip bed
+the wishing well	the wishing well
+tulip bed	tulip bed
+where next	Where next?
+where shall i go	Where shall I go?
+who shall i visit next	Who shall I visit next?
+will go in the garden by my shop	will go in the garden by my shop!
+wishing well	wishing well
+i'm wearing it now	I'm wearing it now.
+i'm wearing them now	I'm wearing them now.

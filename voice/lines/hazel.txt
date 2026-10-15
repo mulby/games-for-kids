@@ -213,3 +213,20 @@ is 1 penny	is 1 penny
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+are glowing	are glowing.
+come back tomorrow	Come back tomorrow.
+count the lanterns that are not glowing yet	Count the lanterns that are not glowing yet.
+hello again	Hello again!
+here are 2 pennies for helping	Here are 2 pennies for helping.
+here are 2 pennies for helping and 1 more for getting it right the first time	Here are 2 pennies for helping, and 1 more for getting it right the first time!
+how many more do i need to light	How many more do I need to light?
+is glowing	is glowing.
+it has	It has
+lanterns and	lanterns, and
+lanterns around the ring	lanterns around the ring.
+now the little ring by the stream	Now the little ring by the stream.
+see you tomorrow for another job	See you tomorrow for another job.
+thank you for your help today	Thank you for your help today!
+the fairies dance here tonight and the lanterns need lighting	The fairies dance here tonight, and the lanterns need lighting.
+there are	There are
+will you help me count	Will you help me count?

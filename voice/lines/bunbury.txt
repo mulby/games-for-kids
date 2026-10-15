@@ -215,3 +215,30 @@ is 1 penny	is 1 penny
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+and 1 more	and 1 more
+and 2 more	and 2 more
+and 3 more	and 3 more
+and 4 more	and 4 more
+and 5 more	and 5 more
+and the next patch has	And the next patch has
+come back tomorrow	Come back tomorrow.
+could you help me count them	Could you help me count them?
+count by 10s one row at a time	Count by 10s, one row at a time.
+count by 2s one row at a time	Count by 2s, one row at a time.
+count by 5s one row at a time	Count by 5s, one row at a time.
+count them all	Count them all.
+hello again	Hello again!
+hello dear	Hello, dear!
+here are 2 pennies for helping	Here are 2 pennies for helping.
+here are 2 pennies for helping and 1 more for getting it right the first time	Here are 2 pennies for helping, and 1 more for getting it right the first time!
+how many carrots	How many carrots?
+how many carrots is that	How many carrots is that?
+i planted	I planted
+i planted my carrots in neat rows	I planted my carrots in neat rows.
+in each	in each
+in each row	in each row
+more	more
+rows of carrots with	rows of carrots, with
+rows with	rows with
+see you tomorrow for another job	See you tomorrow for another job.
+thank you for your help today	Thank you for your help today!
