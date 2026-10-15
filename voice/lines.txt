@@ -516,3 +516,7 @@ minus	minus
 equals	equals
 makes	makes
 times	times
+that's all i have today	That's all I have today!
+left	left.
+my shop money pays bramble for things to sell	My shop money pays Bramble for things to sell.
+my savings jar is for treats for my shop like decorations	My savings jar is for treats for my shop, like decorations.

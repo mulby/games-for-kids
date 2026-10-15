@@ -109,6 +109,7 @@ button.coin{padding:0}
 .prow .say{background:none;padding:0;min-width:56px;min-height:56px}
 .prow .pn .note{font-size:14px;padding:1px 6px;margin-top:3px;font-weight:400}
 .btn.stick{position:sticky;bottom:0;z-index:2}
+.chip .clab{font-size:13px;font-weight:700;opacity:.75;line-height:1;text-transform:none;letter-spacing:0}
 .pickbtn{display:inline-flex;flex-direction:column;align-items:center;background:#fff;border-radius:18px;padding:6px 10px;box-shadow:0 5px 0 #d8c4a8;min-width:92px}
 .pickbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #d8c4a8}
 .pickbtn small{font-size:15px;font-weight:700}
@@ -1326,8 +1327,8 @@ function setPanel(html, bind) {
 function hud() {
   const on = !!S.keeper && S.phase !== 'intro';
   $('#dayChip').hidden = !on; $('#dayChip').textContent = `Day ${S.day}`;
-  $('#tillChip').hidden = !on; $('#tillChip').innerHTML = `${coinHTML(1)} ${S.till}`;
-  $('#jarChip').hidden = !on; $('#jarChip').innerHTML = `${window.Shop3D && Shop3D.icon ? `<img src="${Shop3D.icon('jar')}" alt="">` : '🫙'} ${S.jar}`; /* skin hook H5 */
+  $('#tillChip').hidden = !on; $('#tillChip').innerHTML = `${coinHTML(1)} <small class="clab">Shop money</small> ${S.till}`;
+  $('#jarChip').hidden = !on; $('#jarChip').innerHTML = `${window.Shop3D && Shop3D.icon ? `<img src="${Shop3D.icon('jar')}" alt="">` : '🫙'} <small class="clab">Savings</small> ${S.jar}`; /* skin hook H5 */
   $('#snd').textContent = S.settings.voice ? '🔊' : '🔈';
 }
 $('#snd').addEventListener('click', () => { const on = !S.settings.voice; S.settings.voice = S.settings.sfx = on; save(); hud(); if (on) { SFX.tap(); speak('Sound on!'); } else stopSpeech(); });
@@ -1638,7 +1639,7 @@ function shopCart(lines, mostFor, again) {
     const draw = () => {
       const spent = lines.reduce((s, l) => s + l.n * l.cost, 0), left = S.till - spent, any = lines.some(l => l.n);
       setPanel(`
-      <div class="tray tillbox"><span class="tb">${coinHTML(1)} Your till <b>${S.till}</b></span><span class="tb">Left after this <b>${left}</b></span>
+      <div class="tray tillbox"><span class="tb">${coinHTML(1)} Shop money <b>${S.till}</b></span><span class="tb">Left after this <b>${left}</b></span>
         ${S.till <= 30 ? `<div class="pennies" aria-hidden="true">${Array.from({ length: S.till }, (_, i) => `<i class="${i >= left ? 'gone' : ''}"></i>`).join('')}</div>` : ''}</div>
       <div class="prices cart">${lines.map(l => `<div class="prow"><button class="say" data-s="${l.g}">${goodImg(l.g, 'sm')}</button><span class="pn">${GOODS[l.g].many}<small>${PACK[l.size]} of ${l.size} · ${l.cost}¢ a ${PACK[l.size]}</small>${S.day >= PRICES_DAY ? `<small>On the shelf: ${S.stock[l.g] || 0} · you sell at ${priceOf(l.g)}¢</small>${notebookLine(l.g)}` : ''}</span>
         <span class="cnt"><button data-m="${l.g}" aria-label="fewer">−</button><b>${l.n}</b><button data-p="${l.g}" aria-label="more">+</button></span><span class="pn"><small>${plural(l.n, PACK[l.size], PACKS[l.size])}</small></span></div>`).join('')}</div>
@@ -1884,7 +1885,7 @@ async function evening() {
   const keep = T > 10 && S.day >= PRICES_DAY ? await keepChoice(Math.min(T, 20)) : 10;
   if (T > keep && S.day < SUMS_DAY) {
     await talk('keeper', `${T} pennies! I'll keep 10 for Bramble's cart tomorrow. The other ${T - keep === 1 ? 'penny goes' : (T - keep) + ' go'} in my savings jar.`, 'Into the jar 🫙');
-    S.jar += T - keep; S.till = keep; hud(); SFX.coin(5);
+    S.jar += T - keep; S.till = keep; hud(); SFX.coin(5); await moneyMoved();
   } else if (T > keep) {
     const rest = T - keep;
     await ask({
@@ -1893,7 +1894,7 @@ async function evening() {
       help: () => `<div class="row"><span class="grp"><span class="lab">Keep for Bramble</span>${dots(10)}${keep > 10 ? dots(10) : ''}</span><span class="grp"><span class="lab">Jar</span>${dots(Math.min(rest, 10))}${rest > 10 ? dots(Math.min(rest - 10, 10)) : ''}${rest > 20 ? dots(rest - 20) : ''}</span></div>`,
       helpSay: keep > 10 ? 'Two stacks of ten stay in the till. Count what is left over.' : 'One stack of ten stays in the till. Count what is left over.',
     });
-    S.jar += rest; S.till = keep; hud(); SFX.coin(5);
+    S.jar += rest; S.till = keep; hud(); SFX.coin(5); await moneyMoved();
   } else if (T < 10) {
     await talk('clover', `Aunt Clover's rainy-day tin adds ${10 - T} ${plural(10 - T, 'penny', 'pennies')}, so you have 10 for tomorrow. Love, Clover.`);
     S.till = 10; hud();
@@ -1901,6 +1902,14 @@ async function evening() {
   save();
   await decorShop();
   S.phase = 'night'; save();
+}
+// Pennies just moved from the till to the jar: the two chips glow, and the first time she hears what each is for.
+async function moneyMoved() {
+  for (const c of [$('#tillChip'), $('#jarChip')]) { c.classList.add('pulse'); setTimeout(() => c.classList.remove('pulse'), 2400); }
+  if (S.jarSeen) return;
+  S.jarSeen = 1; save();
+  await talk('keeper', 'My shop money pays Bramble for things to sell. My savings jar is for treats for my shop, like decorations.', 'Next',
+    `<div class="row"><span class="line">${coinHTML(1)} Shop money ${S.till}</span><span class="line">🫙 Savings ${S.jar}</span></div>`);
 }
 // Money in, money out: what the shop really earned today.
 async function profitTask() {

@@ -386,3 +386,4 @@ body:not(.sdv) .coin b { font-size: 24px; }
   .pop, .opt.glow, .pulse, .spark, .sdv-toast, .sdv-level, .sdv-hearts img.pop { animation: none !important; }
   .sdv-toast.out, .sdv-level.out { transition: none; }
 }
+#tillChip .clab { color: #f6dfae; opacity: 1; }
