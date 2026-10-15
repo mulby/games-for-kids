@@ -213,3 +213,12 @@ is 1 penny	is 1 penny
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+back	back!
+bye for now	Bye for now!
+come back soon	Come back soon!
+flowers and pretty things for your garden	Flowers and pretty things for your garden!
+is 1 penny back	is 1 penny back!
+pennies please	pennies, please.
+you gave me	You gave me
+you have everything from my stall	You have everything from my stall!
+your garden must be beautiful	Your garden must be beautiful.

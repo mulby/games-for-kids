@@ -36,6 +36,21 @@ The list lives in `wardrobe.js` (shared by all three looks, and meant to be reus
 A special visitor leaves their present after their first visit and she puts it on at once; older saves get the presents of friends who already came.
 Owning every piece of clothing earns the "Best Dressed in Bramble Wood" card.
 
+## The village (from day 5)
+
+After closing time on day 5 and later, she walks down the lane into Bramble Wood village. Tap a place on the map (or on the 3D lane) and her mouse walks there; "Go home" walks her back to count the till. It is all optional: she can go straight home.
+
+| Place | Who | What she does | Math |
+| --- | --- | --- | --- |
+| The burrow | Mrs. Bunbury | Count carrots planted in rows | Equal groups, skip counting |
+| The oak library | Old Hoot | Count books in stacks of ten | Tens and ones |
+| The fairy ring | Fern the fairy | How many more lanterns to light | How many more |
+| The duck pond | Captain Whiskers | Count the coins in his chest | Counting coins |
+| Dot's flower stall | Dot | Buy garden things that appear outside her shop (daisies 4¢ up to a fairy house 20¢) | Paying, change, taking away |
+| Miu's treasure stall | Miu | Buy treasures from Egypt, the Greek gods, pirates and fairies for a ledge on her counter (3¢ to 16¢), each a binder card | Paying, change, taking away |
+
+Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter". The save keeps `garden`, `treasures` and `village` (today's jobs). The village walk is only in the felt look so far; Lantern Tale and Pixel Valley skip it.
+
 ## The first days (onramp)
 
 The first trip through the shop is very easy on purpose. Every skill starts at level 1 (The Moonlit Map is not used to start higher), and the shop teaches one new thing a day:
@@ -99,6 +114,7 @@ answers in those days were right first time; it still drops after 2 misses, so a
   coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures
   (goods, coins, portraits, decorations) from the same models with the same lights (`window.Shop3D`).
   Add `?g3d=0` to play with plain pictures.
+- `village3d.js`: the village lane and its places (burrow, stall, oak library, treasure stall, fairy ring, pond), plus the garden and treasure models shown at the shop.
 - `felt3d.js`: the richer felt kit the world is built from (three.js from `shared/vendor`). Felt fibre, normal and
   roughness textures made once at load (512px or less, shared); running stitches and seams; embroidered eyes and
   mouths; yarn whiskers; printed dresses with buttons; wood grain, wicker, glazed pots, crusty buns, embossed coins;

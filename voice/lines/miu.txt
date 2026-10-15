@@ -215,3 +215,30 @@ is 1 penny	is 1 penny
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+a tiny pyramid from egypt	A tiny pyramid from Egypt.
+apollo plays one just like it	Apollo plays one just like it.
+back	back!
+bye for now	Bye for now!
+captain whiskers drew it	Captain Whiskers drew it.
+come back soon	Come back soon!
+each one is one of a kind	Each one is one of a kind!
+from the garden of the greek gods	From the garden of the Greek gods.
+is 1 penny back	is 1 penny back!
+it comes from the pyramids like me	It comes from the pyramids, like me!
+it washed up on a pirate island	It washed up on a pirate island.
+pennies please	pennies, please.
+the fairy crown	The fairy crown!
+the fairy queen wore it when she was little	The Fairy Queen wore it when she was little.
+the goddess athena loves owls	The goddess Athena loves owls.
+the golden apple	The golden apple!
+the golden lyre	The golden lyre!
+the golden scarab	The golden scarab!
+the little pyramid	The little pyramid!
+the pearl seashell	The pearl seashell!
+the pirate map	The pirate map!
+the silver owl	The silver owl!
+treasures from faraway lands	Treasures from faraway lands.
+what a collection	What a collection!
+x marks the spot	 X marks the spot!
+you gave me	You gave me
+you have every treasure i brought	You have every treasure I brought!

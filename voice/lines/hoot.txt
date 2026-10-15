@@ -215,3 +215,18 @@ is 1 penny	is 1 penny
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+and on this shelf	And on this shelf:
+come back tomorrow	Come back tomorrow.
+count the stacks by tens then the books by ones	Count the stacks by tens, then the books by ones.
+hello again	Hello again!
+here are 2 pennies for helping	Here are 2 pennies for helping.
+here are 2 pennies for helping and 1 more for getting it right the first time	Here are 2 pennies for helping, and 1 more for getting it right the first time!
+hoo	Hoo!
+how many books is that	How many books is that?
+i keep my books in stacks of ten	I keep my books in stacks of ten.
+more	more
+see you tomorrow for another job	See you tomorrow for another job.
+stack of ten books	stack of ten books
+stacks of ten books	stacks of ten books
+thank you for your help today	Thank you for your help today!
+will you help me count them	Will you help me count them?
