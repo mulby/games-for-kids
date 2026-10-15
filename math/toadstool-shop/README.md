@@ -49,7 +49,7 @@ After closing time on day 5 and later, she walks down the lane into Bramble Wood
 | Dot's flower stall | Dot | Buy garden things that appear outside her shop (daisies 4¢ up to a fairy house 20¢) | Paying, change, taking away |
 | Miu's treasure stall | Miu | Buy treasures from Egypt, the Greek gods, pirates and fairies for a ledge on her counter (3¢ to 16¢), each a binder card | Paying, change, taking away |
 
-Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter". The save keeps `garden`, `treasures` and `village` (today's jobs). The village walk is only in the felt look so far; Lantern Tale and Pixel Valley skip it.
+Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter". The save keeps `garden`, `treasures` and `village` (today's jobs). Lantern Tale and Pixel Valley have the same village, drawn in their own styles (octo-view.js, sdv-view.js).
 
 ## The first days (onramp)
 
