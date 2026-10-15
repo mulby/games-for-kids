@@ -210,3 +210,6 @@ is 1 penny	is 1 penny
 700	700
 800	800
 900	900
+whoa quick paws	Whoa, quick paws!
+you got it right the first time	You got it right the first time!
+here is a penny tip	Here is a penny tip.

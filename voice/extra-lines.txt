@@ -21,3 +21,29 @@ bramble	penny left
 bramble	a box of
 bramble	a crate of
 bramble	costs
+hazel	You got it right the first time!
+hazel	Here is a penny tip.
+bunbury	You got it right the first time!
+bunbury	Here is a penny tip.
+hoot	You got it right the first time!
+hoot	Here is a penny tip.
+mo	You got it right the first time!
+mo	Here is a penny tip.
+dot	You got it right the first time!
+dot	Here is a penny tip.
+tansy	You got it right the first time!
+tansy	Here is a penny tip.
+wilf	You got it right the first time!
+wilf	Here is a penny tip.
+captain	You got it right the first time!
+captain	Here is a penny tip.
+miu	You got it right the first time!
+miu	Here is a penny tip.
+athena	You got it right the first time!
+athena	Here is a penny tip.
+queen	You got it right the first time!
+queen	Here is a penny tip.
+bramble	Whoa, quick paws!
+main	Whoa, quick paws!
+main	You got it right the first time!
+main	Here is a penny tip.
