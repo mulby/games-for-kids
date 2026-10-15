@@ -2168,7 +2168,8 @@ async function village() {
 async function walkTo(id) {
   TSV.go = id; TSV.at = null;
   if (!has3d()) return;
-  const t0 = Date.now(); while (TSV.at !== id && Date.now() - t0 < 9000) await wait(100);
+  // 9s of walking at most; the clock waits while the iPad is away, since the walk does too
+  let t0 = Date.now(); while (TSV.at !== id && Date.now() - t0 < 9000) { await wait(100); if (document.hidden) t0 = Date.now(); }
 }
 // Where shall I go? A button for each place, or she can tap a house, a stall or the lane itself.
 function villageMap() {
@@ -2305,7 +2306,7 @@ function stallPick(who, kind, list) {
 }
 async function buy(who, kind, it) {
   if (kind === 'treasures') await talk(who, `The ${it.name.toLowerCase()}! ${it.from}`, 'I\'d like it!', `<div class="decor one"><button>${itemImg(kind, it)}<span>${it.name}</span><span class="tag">${it.cost}¢</span></button></div>`);
-  const given = await coinsTask({ who, amount: it.cost, source: coinsFor(S.till), title: 'My money', prompt: `That's ${it.cost} ${plural(it.cost, 'penny', 'pennies')}, please.`, mode: S.day >= SUMS_DAY ? 'pay' : 'exact', back: 'Not today' });
+  const given = await coinsTask({ who, amount: it.cost, source: coinsFor(spare()), title: 'My money to spend', prompt: `That's ${it.cost} ${plural(it.cost, 'penny', 'pennies')}, please.`, mode: S.day >= SUMS_DAY ? 'pay' : 'exact', back: 'Not today' });
   if (given === null) return;
   if (given > it.cost) await talk(who, `You gave me ${given}. Here ${given - it.cost === 1 ? 'is 1 penny' : 'are ' + (given - it.cost)} back!`);
   const had = S.till, left = had - it.cost;
