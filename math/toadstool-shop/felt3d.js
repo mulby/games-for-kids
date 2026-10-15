@@ -1,7 +1,7 @@
 // felt3d.js: the felt-toy kit for The Toadstool Shop (Three.js r170). shop3d.js builds the shop from it.
 // A Maileg-style felt world with real fabric detail:
 // triplanar felt fibre (colour, bump, roughness), procedural wood grain, wicker, knit, crust and glaze,
-// blanket and running stitches, satin-stitch embroidered eyes, twisted-yarn whiskers, buttons,
+// blanket and running stitches, glossy toy eyes that blink, twisted-yarn whiskers, buttons,
 // soft shadow maps, a warm key / cool fill / rim light rig and a small image-based environment.
 // Every texture is drawn once at load (512 px or less) and shared. Plain felt, thread and wood parts are merged
 // into one draw call per material kind with per-vertex colour (see freeze), which keeps an iPad smooth.
@@ -755,20 +755,100 @@ function blush(head, x, y, z, s = .1) {
     c.position.set(sx * x, y, z); c.scale.setScalar(s * 2.2); c.lookAt(sx * x * 4, y, z * 4); c.renderOrder = 3; head.add(c);
   }
 }
-// embroidered eyes: navy satin stitch, a white highlight stitch, optional lashes
-function embroideredEyes(head, c, R, { x = .2, y = .06, z = .45, w = .15, h = .19, lashes = false, ink = PAL.ink } = {}) {
-  const im = thread(ink), wm = thread('#fffaf0');
-  for (const sx of [-1, 1]) {
-    const dir = [sx * x, y, z];
-    const e = satin(w, h, im, { threads: 8, dome: .02 }); onSurface(e, c, R, dir, -.004); head.add(e);
-    const hl = satin(w * .32, h * .26, wm, { threads: 2, dome: .004 }); onSurface(hl, c, R, [sx * x + .035, y + .05, z], .012); head.add(hl);
-    const hl2 = satin(w * .16, h * .12, wm, { threads: 1, dome: .002 }); onSurface(hl2, c, R, [sx * x - .03, y - .045, z], .01); head.add(hl2);
-    if (lashes) for (let i = 0; i < 3; i++) {
-      const a = .5 + i * .45, base = ellPoint(c, R, [sx * (x + Math.cos(a) * .07), y + Math.sin(a) * .09, z], .006).p;
-      const tip = ellPoint(c, R, [sx * (x + Math.cos(a) * .12), y + Math.sin(a) * .135, z], .02).p;
-      head.add(dashMesh([[base, tip]], .009, im));
+// Smooth toy eyes: a glossy dark dome, a painted iris that can glance about, two bright catchlights and optional
+// lashes. They are live parts so the scene can blink them, close them into happy arcs and move the iris.
+// Names: eyes > eyesOpen (domes, lights, lashes) > eyesIrisL/R; eyes > eyesHappy (hidden until happy).
+function irisTexture(ink) {
+  return cached('iris' + ink, () => {
+    const [c, x] = canvas(128), lo = new THREE.Color(ink).lerp(new THREE.Color('#ffffff'), .42).offsetHSL(0, .12, .04).getStyle();
+    const g = x.createLinearGradient(0, 0, 0, 128); g.addColorStop(0, ink); g.addColorStop(.4, ink); g.addColorStop(1, lo);
+    x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+    const p = x.createRadialGradient(64, 58, 0, 64, 58, 34); p.addColorStop(0, '#0b0812'); p.addColorStop(.8, '#0b0812'); p.addColorStop(1, 'rgba(11,8,18,0)');
+    x.fillStyle = p; x.beginPath(); x.arc(64, 58, 34, 0, TAU); x.fill();
+    const rim = x.createRadialGradient(64, 64, 46, 64, 64, 64); rim.addColorStop(0, 'rgba(10,8,18,0)'); rim.addColorStop(1, 'rgba(10,8,18,.55)');
+    x.fillStyle = rim; x.fillRect(0, 0, 128, 128);
+    return toTex(c, { srgb: true, repeat: false });
+  });
+}
+const eyeShell = ink => mc('eyeShell' + ink, () => new THREE.MeshPhysicalMaterial({ color: lighten(ink, -.12), roughness: .2, clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: 1.2 }));
+const eyeIris = ink => mc('eyeIris' + ink, () => new THREE.MeshPhysicalMaterial({ map: irisTexture(ink), roughness: .2, clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: 1.2 }));
+const eyeShine = () => mc('eyeShine', () => { const m = new THREE.MeshBasicMaterial({ color: '#ffffff' }); m.userData.noCast = true; return m; });
+// a dome of half-width a, half-height b and depth d whose rim curves back by the head's curvature (radius rc).
+// on: {a, b, d, ox, oy, lift} lays this patch over a bigger dome instead (painted iris, catchlights).
+function eyeDome(a, b, d, rc, on) {
+  return geo('eyeDome' + [a, b, d, rc].map(v => v.toFixed(3)).join(',') + (on ? JSON.stringify(on) : ''), () => {
+    const g = new THREE.RingGeometry(.0001, 1, sg(36, 12), sg(8, 4)), p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), X = x * a, Y = y * b;
+      let z;
+      if (on) { const u = (X + on.ox) / on.a, v = (Y + on.oy) / on.b; z = on.d * Math.sqrt(Math.max(0, 1 - u * u - v * v)) - ((X + on.ox) ** 2 + (Y + on.oy) ** 2) / (2 * rc) + on.lift; }
+      else z = d * Math.sqrt(Math.max(0, 1 - x * x - y * y)) - (X * X + Y * Y) / (2 * rc);
+      p.setXYZ(i, X, Y, z);
     }
+    g.computeVertexNormals(); return g;
+  });
+}
+// spots: [{p, n}] eye centres and outward normals in head space. o: {w, h, ink, lashes, rc, skip}
+function toyEyes(head, spots, { w = .15, h = .19, ink = PAL.ink, lashes = false, rc = .5 } = {}) {
+  const yc = spots.reduce((s, e) => s + e.p.y, 0) / spots.length;
+  const eyes = new THREE.Group(); eyes.name = 'eyes'; eyes.userData.live = true; eyes.position.set(0, yc, 0); head.add(eyes);
+  const open = new THREE.Group(); open.name = 'eyesOpen'; open.userData.live = true; eyes.add(open);
+  const happy = new THREE.Group(); happy.name = 'eyesHappy'; happy.userData.live = true; happy.visible = false; eyes.add(happy);
+  const a = w / 2, b = h / 2, d = Math.min(a, b) * .42, ia = a * .84, ib = b * .8, ink2 = glossy(ink, { rough: .25 });
+  const place = (obj, e, lx, ly, lift, parent) => {
+    const q = new THREE.Quaternion().setFromUnitVectors(V3(0, 0, 1), e.n);
+    obj.position.copy(e.p).add(V3(lx, ly, lift).applyQuaternion(q)).sub(V3(0, yc, 0)); obj.quaternion.copy(q); parent.add(obj); return obj;
+  };
+  for (const e of spots) {
+    const sx = Math.sign(e.p.x) || 1;
+    place(mesh(eyeDome(a, b, d, rc), eyeShell(ink)), e, 0, 0, -.006, open);
+    const sh = (ox, oy, lift) => ({ a, b, d, ox: +ox.toFixed(4), oy: +oy.toFixed(4), lift });
+    // the iris sits in its own pivot facing out of the eye, so a glance slides it across the dome
+    const iris = place(new THREE.Group(), e, 0, 0, 0, open); iris.name = 'eyesIris' + (sx < 0 ? 'L' : 'R'); iris.userData.live = true; iris.userData.rest = iris.position.toArray();
+    iris.add(mesh(eyeDome(ia, ib, 0, rc, sh(0, -b * .06, .006)), eyeIris(ink), [0, -b * .06, -.006]));
+    // catchlights: a big one up and to the right, a small one low on the left (same side on both eyes, like one lamp)
+    place(mesh(eyeDome(a * .25, b * .2, 0, rc, sh(a * .28, b * .34, .007)), eyeShine()), e, a * .28, b * .34, -.006, open);
+    place(mesh(eyeDome(a * .11, b * .09, 0, rc, sh(-a * .3, -b * .36, .007)), eyeShine()), e, -a * .3, -b * .36, -.006, open);
+    if (lashes) {
+      const q = new THREE.Quaternion().setFromUnitVectors(V3(0, 0, 1), e.n), at = (lx, ly, lz) => e.p.clone().add(V3(lx, ly, lz).applyQuaternion(q)).sub(V3(0, yc, 0));
+      for (let i = 0; i < 3; i++) {
+        const t = .35 + i * .42, cx = Math.cos(t) * sx, cy = Math.sin(t);
+        open.add(taperTube([at(cx * a * .92, cy * b * .92, .004), at(cx * a * 1.22, cy * b * 1.18, .012), at(cx * a * 1.42, cy * b * 1.3 + .012, .018)], .011, .003, ink2, 8, 6));
+      }
+    }
+    // happy: closed eyes curving up like little rainbows
+    const q = new THREE.Quaternion().setFromUnitVectors(V3(0, 0, 1), e.n), arc = [];
+    for (let i = 0; i <= 10; i++) { const t = i / 10 * Math.PI, X = Math.cos(t) * a * 1.05, Y = Math.sin(t) * b * .55 - b * .2; arc.push(e.p.clone().add(V3(X, Y, .012 - (X * X + Y * Y) / (2 * rc)).applyQuaternion(q)).sub(V3(0, yc, 0))); }
+    happy.add(taperTube(arc, .02, .02, ink2, 20, 8));
+    if (lashes) happy.add(taperTube([arc[sx > 0 ? 0 : 10], arc[sx > 0 ? 0 : 10].clone().add(V3(sx * .05, .035, .01))], .012, .004, ink2, 4, 6));
   }
+  return eyes;
+}
+function embroideredEyes(head, c, R, { x = .2, y = .06, z = .45, w = .15, h = .19, lashes = false, ink = PAL.ink, skip = 0 } = {}) {
+  const spots = [-1, 1].filter(sx => sx !== skip).map(sx => ellPoint(c, R, [sx * x, y, z], 0));
+  return toyEyes(head, spots, { w: w * 1.12, h: h * 1.08, ink, lashes, rc: Math.min(...R) });
+}
+// The scene calls this every frame: blinks, glances, thinking looks up, happy closes into arcs.
+const _gaze = V3();
+export function faceLife(o, t) {
+  const u = o.userData; if (!u.eyesOpen) return;
+  const m = u.mood, k = t + (u.t0 || 0), happy = m === 'happy';
+  u.eyesHappy.visible = happy; u.eyesOpen.visible = !happy;
+  if (u.blinkAt == null || u.blinkAt > t + 8) u.blinkAt = t + 1 + Math.random() * 3;
+  let s = 1;
+  if (t >= u.blinkAt) {
+    const p = (t - u.blinkAt) / .18;
+    if (p >= 1) u.blinkAt = t + (Math.random() < .2 ? .12 : 2.2 + Math.random() * 3.5);
+    else s = Math.max(.08, Math.abs(p * 2 - 1));
+  }
+  // the iris drifts and now and then glances to one side; thinking looks up and away
+  const glance = Math.sin(k * .23) > .55 ? 1 : Math.sin(k * .31) < -.6 ? -1 : 0;
+  let gx = glance * .011 + Math.sin(k * .9) * .002, gy = Math.sin(k * .5) * .002, wide = 1;
+  if (m === 'think') { gx = .011; gy = .014; }
+  if (m === 'talk') wide = 1.05 + Math.sin(k * 3) * .02;
+  if (m === 'walk') { gx = 0; gy = -.004; }
+  for (const ir of [u.eyesIrisL, u.eyesIrisR]) if (ir) { const b = ir.userData.rest; ir.position.set(b[0], b[1], b[2]).add(_gaze.set(gx, gy, 0).applyQuaternion(ir.quaternion)); }
+  u.eyesOpen.scale.set(1, s * wide, 1);
 }
 function embroideredMouth(head, c, R, pts, color = '#7a4a52', r = .009) {
   head.add(tube(pts.map(d => ellPoint(c, R, d, .003).p), r, thread(color), 16, 6));
@@ -839,6 +919,7 @@ function rig(root, body, head, armL, armR, name) {
   root.add(contactShadow(.8));
   freeze(root);
   root.traverse(o => { if (o.name === 'armLPaw') root.userData.pawL = o; if (o.name === 'armRPaw') root.userData.pawR = o; });
+  for (const n of ['eyes', 'eyesOpen', 'eyesIrisL', 'eyesIrisR', 'eyesHappy']) { const e = root.getObjectByName(n); if (e) root.userData[n] = e; }
   return root;
 }
 // knitted scarf with fringe (Bramble, Mo)
@@ -1857,7 +1938,7 @@ export function critter(spec = {}, st = {}) {
     head.add(ball(felt('#e88aa0', { clearcoat: .3 }), [0, -.06, .615], [.085, .065, .065], [0, 0, 0], 24));
     embroideredMouth(head, MC, MR, [[0, .05, 1], [0, -.3, 1], [-.25, -.45, 1], [-.42, -.3, 1]]);
     embroideredMouth(head, MC, MR, [[0, -.3, 1], [.25, -.45, 1], [.42, -.3, 1]]);
-    embroideredEyes(head, [0, 0, 0], HR, { x: .2, y: .07, z: .45, w: .14, h: .18, lashes: !!st.lashes });
+    embroideredEyes(head, [0, 0, 0], HR, { x: .2, y: .07, z: .45, w: .14, h: .18, lashes: !!st.lashes, skip: acc.includes('eyepatch') ? 1 : 0 });
     blush(head, .33, -.08, .42, .075);
     whiskers(head, .17, -.1, .53);
     for (const sx of [-1, 1]) {
@@ -1908,16 +1989,15 @@ export function critter(spec = {}, st = {}) {
   } else if (owl) {
     HR = [.66, .55, .55];
     head.add(mesh(seamSphere(56, 'x', .015, .05), F, [0, 0, 0], HR));
-    const disc = felt(spec.belly || lighten(fur, .2)), ring = felt('#ffe9a8'), im = thread(PAL.ink), wm = thread('#fffaf0');
+    const disc = felt(spec.belly || lighten(fur, .2)), ring = felt('#ffe9a8');
     for (const sx of [-1, 1]) {
       head.add(ball(disc, [sx * .25, .0, .42], [.26, .26, .09], [0, sx * .2, 0], 36));
       head.add(blanketStitch(ringPoints(1, 0, 48).map(p => V3(sx * .25 + p.x * .245, p.z * .245, .5 - Math.abs(p.x) * .05 * sx * sx)), p => V3(sx * .25, 0, .5).sub(p).setZ(0).normalize().multiplyScalar(.03), { closed: true, spacing: .05, r: .0055, color: lighten(fur, -.2) }));
       head.add(ball(ring, [sx * .25, .02, .5], [.15, .15, .035], [0, 0, 0], 28));
-      const e = satin(.15, .17, im, { threads: 8, dome: .02 }); e.position.set(sx * .25, .02, .535); head.add(e);
-      const hl = satin(.05, .045, wm, { threads: 2, dome: .004 }); hl.position.set(sx * .25 + .035, .07, .555); head.add(hl);
       head.add(mesh(geo('tuft', () => new THREE.ConeGeometry(1, 1, 16)), F, [sx * .44, .48, -.02], [.12, .3, .08], [0, 0, sx * -.45]));
       head.add(runningStitch(ellArc([0, 0, 0], HR, [sx * .08, .28, .9], [sx * .45, .32, .7], 10, .006), { len: .03, gap: .02, r: .005, color: lighten(fur, -.25) }));
     }
+    toyEyes(head, [-1, 1].map(sx => ({ p: V3(sx * .25, .02, .535), n: V3(0, 0, 1) })), { w: .16, h: .18, rc: 3 });
     head.add(mesh(geo('beak', () => new THREE.ConeGeometry(.08, .22, 18)), glossy('#e8a24a', { rough: .35 }), [0, -.15, .56], 1, [Math.PI * .62, 0, 0]));
     blush(head, .42, -.18, .38, .06);
   }
