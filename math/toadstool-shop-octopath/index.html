@@ -151,6 +151,31 @@ button.coin{padding:0}
 .countup i{font-style:normal;min-width:34px;padding:4px 6px;border-radius:12px;background:#fff;box-shadow:0 2px 0 #d8c4a8;opacity:.55}
 .countup i.on{background:#ffe08a;opacity:1}
 .tipcoin{animation:pop .6s ease-out}
+
+/* the wardrobe (👗) and the "For me" shelf */
+#wardrobe{position:fixed;inset:0;z-index:55;background:rgba(40,30,20,.45);display:grid;place-items:center;padding:max(14px,env(safe-area-inset-top)) 14px 14px}
+#wardrobe[hidden]{display:none}
+#wardrobe .card{background:#fffdf7;border-radius:24px;padding:16px;max-width:980px;width:100%;height:min(760px,92vh);display:grid;grid-template-columns:260px 1fr;gap:16px;box-shadow:0 8px 0 rgba(74,52,40,.2);overflow:hidden}
+.wside{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.wlist{overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:12px;padding:4px 6px 10px}
+.wlook.big{width:220px;height:220px}
+@media (max-width:760px),(max-aspect-ratio:1/1){#wardrobe .card{grid-template-columns:1fr;grid-template-rows:auto 1fr}.wside{flex-direction:row;flex-wrap:wrap}.wlook.big{width:150px;height:150px}.wside .wnote{flex:1;min-width:180px}}
+.wlook{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#fbf1e2,#efdfc8);box-shadow:inset 0 0 0 4px #fff;display:grid;place-items:center;font-size:80px;overflow:hidden;flex:none}
+.wlook img{width:100%;height:100%;object-fit:cover}
+.wlook.small{width:110px;height:110px;font-size:60px}
+.wnote{font-size:22px;font-weight:700;text-align:center;min-height:1.3em}
+.wsec{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.wlab{font-size:18px;font-weight:700;opacity:.75}
+.wgrid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));width:100%;align-self:stretch}
+.wgrid button .em{font-size:44px;line-height:60px}
+.decor button.on{background:#ffe9f1;box-shadow:0 5px 0 #f09ab8;outline:4px solid var(--gold)}
+.decor button.try{outline:4px solid var(--gold)}
+.wtry{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn.cant{opacity:.55}
+.tabs{display:flex;gap:10px;justify-content:center}
+.tabs button{min-height:56px;padding:8px 18px;border-radius:999px;background:#fff;font-size:21px;font-weight:700;box-shadow:0 5px 0 #d8c4a8}
+.tabs button.sel{background:#ffe9b8;box-shadow:0 5px 0 #e0b45a}
+@media (max-height:700px){.wlook{width:110px;height:110px}}
 </style>
 <script id="kid-voice" data-voice-base="../../voice/">
 /* KidVoice: one friendly voice for every game.
@@ -1098,12 +1123,15 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
   <span class="grow"></span>
   <span class="chip" id="tillChip" hidden aria-label="Coins in the till"></span>
   <span class="chip" id="jarChip" hidden aria-label="Coins in the savings jar"></span>
+  <button class="chip" id="wardBtn" hidden aria-label="My clothes">👗</button>
   <button class="chip" id="snd" aria-label="Sound on or off">🔊</button>
   <button class="chip" id="grown" aria-label="Grown-ups: press and hold">⚙️</button>
 </div>
 <div id="bubble" hidden><div class="pt"></div><div><div class="who"></div><div class="txt"></div></div><button class="rep" aria-label="Say it again">🔊</button></div>
 <div id="panel"></div>
 <div id="grownups" hidden><div class="card"></div></div>
+<div id="wardrobe" hidden><div class="card"></div></div>
+<script src="../toadstool-shop/wardrobe.js"></script>
 <script>
 'use strict';
 /* ================= basics ================= */
@@ -1222,7 +1250,7 @@ function stopSpeech() { try { window.KidVoice && KidVoice.stop(); } catch (e) {}
 
 /* ================= 3D view state (read every frame by shop3d.js) ================= */
 const TSV = window.TSV = { scene: 'outside', time: 'morning', cam: null, cart: false, keeper: null, cust: null, stock: {}, decor: [], signText: '', mood: {}, top: 0, bottom: innerHeight };
-function keeperSpec() { const k = S.keeper; return k ? { species: 'mouse', fur: FURS[k.fur], dress: DRESSES[k.dress], apron: true, acc: ['bow'], bowColor: '#ffffff' } : null; }
+function keeperSpec() { return ShopWardrobe.keeperSpec(S, FURS, DRESSES); }
 function syncView() {
   TSV.stock = S.stock; TSV.decor = S.decor; TSV.signText = S.keeper ? `${S.keeper.name}'s Shop` : 'The Toadstool Shop';
   TSV.keeper = keeperSpec();
@@ -1337,6 +1365,7 @@ function hud() {
   $('#dayChip').hidden = !on; $('#dayChip').textContent = `Day ${S.day}`;
   $('#tillChip').hidden = !on; $('#tillChip').innerHTML = `${coinHTML(1)} <small class="clab">My money</small> ${S.till}`;
   $('#jarChip').hidden = true;
+  $('#wardBtn').hidden = !on;
   $('#snd').textContent = S.settings.voice ? '🔊' : '🔈';
 }
 $('#snd').addEventListener('click', () => { const on = !S.settings.voice; S.settings.voice = S.settings.sfx = on; save(); hud(); if (on) { SFX.tap(); speak('Sound on!'); } else stopSpeech(); });
@@ -1806,6 +1835,7 @@ async function serve(c) {
     if (window.GFKCards) GFKCards.collect({ game: GAME, id: 'friend-' + who, name: me.name, emoji: me.emoji, rarity: me.finale ? 'legendary' : me.special ? 'rare' : 'common' });
     await talk(who, thanks + ' Let\'s be friends!', 'Bye-bye!', tipShow);
   } else await talk(who, thanks, 'Bye-bye!', tipShow);
+  await giftFrom(who);
 }
 // An animal's wish list meets her price tags, then her shelf.
 async function shopFor(c) {
@@ -1984,15 +2014,27 @@ function stackTask(T) {
 }
 function decorShop() {
   return new Promise(res => {
-    const avail = DECOR.filter(d => !S.decor.includes(d.id));
-    if (!avail.length) { res(); return; }
-    const cheapest = Math.min(...avail.map(d => d.cost)), spare = () => Math.max(0, S.till - 10);
-    if (spare() >= cheapest) say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} more to spend. I can buy something for my shop!`);
-    else say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} more to spend. The ${avail.find(d => d.cost === cheapest).name.toLowerCase()} costs ${cheapest}. I need ${cheapest - spare()} more.`);
+    const W = ShopWardrobe;
+    const avail = DECOR.filter(d => !S.decor.includes(d.id)), wearables = W.forSale(S);
+    if (!avail.length && !wearables.length) { res(); return; }
+    const all = avail.concat(wearables), cheapest = Math.min(...all.map(d => d.cost)), spare = () => Math.max(0, S.till - 10);
+    let tab = !avail.length ? 'me' : !wearables.length ? 'shop' : (S.shelfTab || 'shop'), trying = null;
+    if (spare() >= cheapest) say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} more to spend. I can buy something for my shop, or something to wear!`);
+    else say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} more to spend. The ${all.find(d => d.cost === cheapest).name.toLowerCase()} costs ${cheapest}. I need ${cheapest - spare()} more.`);
+    const done = async (label) => { rerender = null; await next(label); TSV.scene = 'outside'; res(); };
+    const shopGrid = () => `<div class="decor">${DECOR.map(d => `<button data-d="${d.id}" class="${S.decor.includes(d.id) ? 'own' : spare() < d.cost ? 'cant' : ''}">${decorImg(d)}<span>${d.name}</span><span class="tag">${S.decor.includes(d.id) ? '✓ yours' : d.cost + '¢'}</span></button>`).join('')}</div>`;
+    const meGrid = () => {
+      const c = trying && W.byId(trying);
+      return `<div class="wtry"><div class="wlook">${lookImg(c ? tryOnSpec(c.id) : keeperSpec())}</div>
+        ${c ? `<button class="btn ${spare() < c.cost ? 'cant' : ''}" id="buyit">Buy the ${c.name.toLowerCase()}: ${c.cost}¢</button>` : '<div class="small">Tap something to try it on!</div>'}</div>
+        <div class="decor wgrid">${W.CLOTHES.filter(x => x.cost).map(x => clothesBtn(x, W.owns(S, x.id) ? 'own' : x.id === trying ? 'try' + (spare() < x.cost ? ' cant' : '') : spare() < x.cost ? 'cant' : '')).join('')}</div>`;
+    };
     const draw = () => setPanel(`
-      <div class="decor">${DECOR.map(d => `<button data-d="${d.id}" class="${S.decor.includes(d.id) ? 'own' : spare() < d.cost ? 'cant' : ''}">${decorImg(d)}<span>${d.name}</span><span class="tag">${S.decor.includes(d.id) ? '✓ yours' : d.cost + '¢'}</span></button>`).join('')}</div>
+      ${avail.length && wearables.length ? `<div class="tabs"><button data-tab="shop" class="${tab === 'shop' ? 'sel' : ''}">🏡 For my shop</button><button data-tab="me" class="${tab === 'me' ? 'sel' : ''}">👗 For me</button></div>` : ''}
+      ${tab === 'shop' ? shopGrid() : meGrid()}
       <button class="btn alt" id="later">${spare() >= cheapest ? 'Save for later' : 'Keep saving'}</button>`, p => {
-      $$('.decor button', p).forEach(b => b.addEventListener('click', async () => {
+      $$('[data-tab]', p).forEach(b => b.addEventListener('click', () => { tab = S.shelfTab = b.dataset.tab; trying = null; SFX.tap(); speak(tab === 'me' ? 'Things to wear' : 'Things for my shop'); draw(); }));
+      $$('.decor button[data-d]', p).forEach(b => b.addEventListener('click', async () => {
         const d = DECOR.find(x => x.id === b.dataset.d);
         if (S.decor.includes(d.id)) { say('keeper', `My ${d.name.toLowerCase()}!`); return; }
         if (spare() < d.cost) { SFX.soft(); say('keeper', `The ${d.name.toLowerCase()} costs ${d.cost}. I have ${spare()} to spend. I need ${d.cost - spare()} more.`); return; }
@@ -2002,9 +2044,25 @@ function decorShop() {
         if (!d.out) { TSV.scene = 'inside'; TSV.cam = null; }
         say('keeper', `The ${d.name.toLowerCase()}! ${had} take away ${d.cost} leaves ${left}.`);
         if (window.GFKCards && S.decor.length === DECOR.length) GFKCards.collect({ game: GAME, id: 'all-decor', name: 'Prettiest Shop in the Wood', emoji: '🏡', rarity: 'rare' });
-        rerender = null; await next('Lovely!');
-        TSV.scene = 'outside'; res();
+        done('Lovely!');
       }));
+      $$('.decor button[data-c]', p).forEach(b => b.addEventListener('click', () => {
+        const c = W.byId(b.dataset.c);
+        if (W.owns(S, c.id)) { SFX.tap(); say('keeper', `My ${c.name.toLowerCase()}! I can wear it with the dress button.`); return; }
+        trying = c.id; SFX.tap();
+        say('keeper', spare() >= c.cost ? `The ${c.name.toLowerCase()} costs ${c.cost}. I have ${spare()} to spend.` : `The ${c.name.toLowerCase()} costs ${c.cost}. I have ${spare()} to spend. I need ${c.cost - spare()} more.`);
+        draw();
+      }));
+      const bi = $('#buyit', p);
+      if (bi) bi.addEventListener('click', () => {
+        const c = W.byId(trying), had = S.till;
+        if (spare() < c.cost) { SFX.soft(); say('keeper', `The ${c.name.toLowerCase()} costs ${c.cost}. I have ${spare()} to spend. I need ${c.cost - spare()} more.`); return; }
+        W.buy(S, c.id, spare()); save(); syncView(); hud(); SFX.cheer(); sparkle(bi, 18); mood('keeper', 'happy', 2000);
+        say('keeper', `The ${c.name.toLowerCase()}! ${had} take away ${c.cost} leaves ${S.till}.`);
+        bestDressed();
+        trying = null; rerender = null;
+        setPanel(`<div class="wlook">${lookImg(keeperSpec())}</div><button class="btn" id="nx">Lovely!</button>`, q => $('#nx', q).addEventListener('click', () => { SFX.tap(); TSV.scene = 'outside'; res(); }));
+      });
       $('#later', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
     });
     rerender = draw; draw();
@@ -2019,6 +2077,65 @@ async function night() {
     grewHTML() /* skin hook H6 */ + `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">My money: ${S.till}¢</span></div>`);
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
 }
+
+/* ================= the wardrobe: clothes and accessories (wardrobe.js holds the list) ================= */
+// What she would look like in one more thing (to try it on before buying, or to see it in the closet).
+function tryOnSpec(id) {
+  const W = ShopWardrobe, c = W.byId(id); if (!S.keeper || !c) return keeperSpec();
+  const k = Object.assign({}, S.keeper, { wear: Object.assign({}, W.wear(S), { [c.slot]: id }) });
+  return W.keeperSpec({ keeper: k, closet: (S.closet || []).concat(id) }, FURS, DRESSES);
+}
+function lookImg(spec) { return has3d() && spec ? `<img src="${Shop3D.portrait(spec)}" alt="">` : '🐭'; }
+function clothesBtn(c, state) {
+  const tag = state === 'on' ? '✓ wearing' : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
+  return `<button data-c="${c.id}" class="${state}"><span class="em" style="${c.css || ''}">${c.emoji}</span><span>${c.name}</span><span class="tag">${tag}</span></button>`;
+}
+// The 👗 button: change clothes any time. Only what she owns can go on; the rest shows where it comes from.
+// It sits over the game and never touches the panel or the speech bubble, so it is safe in the middle of anything.
+function openWardrobe() {
+  const W = ShopWardrobe, box = $('#wardrobe'); if (!S.keeper) return;
+  let note = 'Tap something to put it on!', look = keeperSpec();
+  const draw = () => {
+    const w = W.wear(S);
+    const keep = $('.wlist', box) ? $('.wlist', box).scrollTop : 0;
+    $('.card', box).innerHTML = `<div class="wside"><div class="wlook big">${lookImg(look)}</div>
+      <div class="wnote">${note}</div><button class="btn" id="wdone">All dressed! ✨</button></div>
+      <div class="wlist"><div class="wsec"><div class="wlab">Dress colour</div><div class="swatches">${Object.entries(DRESSES).map(([n, col]) => `<button class="swatch ${S.keeper.dress === n ? 'sel' : ''}" data-d="${n}" style="background:${col}" aria-label="${n} dress"></button>`).join('')}</div></div>
+      ${W.SLOTS.map(([slot, label]) => `<div class="wsec"><div class="wlab">${label}</div><div class="decor wgrid">${W.CLOTHES.filter(c => c.slot === slot).map(c => clothesBtn(c, w[slot] === c.id ? 'on' : W.owns(S, c.id) ? 'own' : 'cant')).join('')}</div></div>`).join('')}
+      </div>`;
+    $('.wlist', box).scrollTop = keep;
+    $$('[data-d]', box).forEach(b => b.addEventListener('click', () => {
+      S.keeper.dress = b.dataset.d; save(); syncView(); look = keeperSpec(); SFX.tap(); note = `A ${b.dataset.d} dress!`; speak(note); draw();
+    }));
+    $$('[data-c]', box).forEach(b => b.addEventListener('click', () => {
+      const c = W.byId(b.dataset.c);
+      if (!W.owns(S, c.id)) {
+        SFX.soft(); look = tryOnSpec(c.id);
+        note = c.gift ? `The ${c.name.toLowerCase()} is a present. Maybe a friend will bring it one day!` : `I can buy the ${c.name.toLowerCase()} in the evening. It costs ${c.cost} ${plural(c.cost, 'penny', 'pennies')}.`;
+        speak(note); draw(); return;
+      }
+      const r = W.put(S, c.id); save(); syncView(); look = keeperSpec(); SFX.tap(); mood('keeper', 'happy', 1200);
+      note = r === 'off' ? `I took off my ${c.name.toLowerCase()}.` : `My ${c.name.toLowerCase()}!`; speak(note); draw();
+    }));
+    $('#wdone', box).addEventListener('click', closeWardrobe);
+  };
+  box.hidden = false; draw(); SFX.tap();
+}
+function closeWardrobe() {
+  $('#wardrobe').hidden = true; SFX.ok(); syncView(); if (rerender) rerender();
+  if (lastSay && lastSay.who === 'keeper') $('#bubble .pt').innerHTML = portrait('keeper');
+}
+// Every piece of clothing (bought and presents) earns a card, whichever comes last.
+function bestDressed() { if (window.GFKCards && ShopWardrobe.allOwned(S)) GFKCards.collect({ game: GAME, id: 'all-clothes', name: 'Best Dressed in Bramble Wood', emoji: '👗', rarity: 'rare' }); }
+// A visiting friend's present: it goes in the wardrobe and on at once.
+async function giftFrom(who) {
+  const W = ShopWardrobe, c = W.giftFrom(who); if (!c || !S.keeper || !W.give(S, c.id)) return;
+  W.put(S, c.id); save(); syncView(); SFX.cheer(); mood('keeper', 'happy', 2200); bestDressed();
+  await talk('keeper', `${CAST[who].name} gave me ${c.they ? 'some' : 'a'} ${c.name.toLowerCase()}! I'm wearing ${c.they ? 'them' : 'it'} now. I can change my clothes any time with the dress button.`, 'Thank you! 👗', `<div class="wlook small">${lookImg(keeperSpec())}</div>`);
+}
+// Older saves: friends who already visited have left their presents in the wardrobe.
+if (S.keeper) { S.closet = S.closet || []; for (const who of Object.keys(S.friends || {})) { const c = ShopWardrobe.giftFrom(who); if (c) ShopWardrobe.give(S, c.id); } save(); bestDressed(); }
+$('#wardBtn').addEventListener('click', openWardrobe);
 
 /* ================= title ================= */
 async function title() {
@@ -2046,7 +2163,7 @@ async function title() {
       <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
-      <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
+      <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Clothes ${ShopWardrobe.CLOTHES.filter(c => ShopWardrobe.owns(S, c.id)).length}/${ShopWardrobe.CLOTHES.length} · Friends ${Object.keys(S.friends).length}</p>
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
     $('#gclose').addEventListener('click', () => { box.hidden = true; });

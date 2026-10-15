@@ -260,6 +260,25 @@ function palette(spec) {
   return p;
 }
 
+// The shopkeeper's dress fabric (her wardrobe's "print") drawn over the dress pixels, and no apron when she takes it off.
+function dressUp(spec, g, kind, pal, put, kindAt, tw, th) {
+  const pr = spec.print || 'flowers', light = shade(pal.r, .45);
+  for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) {
+    let k = kindAt(x, y);
+    if (spec.apron === false && (k === 'a' || k === 'A')) { put(x, y, k === 'A' ? pal.R : pal.r); k = 'r'; }
+    if (k !== 'r' && k !== 'R' && k !== 'o') continue;
+    const base = k === 'R' ? pal.R : pal.r;
+    let c = base;
+    if (pr === 'flowers') c = k === 'o' ? pal.o : base;
+    else if (pr === 'dots') c = k === 'o' ? '#FFFFFF' : base;
+    else if (pr === 'stripes') c = x % 3 === 0 ? (k === 'R' ? shade(light, -.12) : light) : base;
+    else if (pr === 'gingham') c = x % 2 && y % 2 ? shade(base, -.08) : x % 2 || y % 2 ? shade(base, .22) : shade(base, .45);
+    else if (pr === 'hearts') c = k === 'o' ? '#E2566B' : base;
+    else if (pr === 'stars') c = k === 'o' ? '#FFF3A8' : base;
+    put(x, y, c);
+  }
+}
+
 // Builds a pixel grid (array of rows of colours) for a spec and mood.
 function grid(spec, mood) {
   const t = T[spec.species] || T.mouse, pal = palette(spec);
@@ -277,6 +296,8 @@ function grid(spec, mood) {
     const ear = [[15, 6], [16, 6], [17, 6], [16, 7], [17, 7], [18, 7], [18, 8], [19, 8], [19, 9], [20, 9], [20, 10]];
     ear.forEach(([x, y], i) => put(x, y, i % 3 === 1 ? pal.p : pal.F));
   }
+  // the shopkeeper's wardrobe: dress fabric, and the apron can come off
+  if (spec.keeper) dressUp(spec, g, kind, pal, put, kindAt, tw, t.rows.length);
   // mood: eyes and mouth
   for (const [ex, ey] of t.eyes) {
     if (mood === 'happy') { put(ex, ey, pal.f); put(ex + 1, ey, pal.f); put(ex, ey + 1, '#1E1418'); put(ex + 1, ey + 1, '#1E1418'); if (spec.species === 'owl') { put(ex, ey, pal.c); put(ex + 1, ey, pal.c); } }
@@ -336,6 +357,41 @@ function grid(spec, mood) {
     for (let x = cx - 3; x <= cx + 2; x++) put(x, top - 4, k);
     put(cx - 8, top - 2, gd); put(cx + 7, top - 2, gd); put(cx - 1, top - 4, gd);
     put(cx, top - 3, '#ffffff'); put(cx + 1, top - 3, '#ffffff'); put(cx, top - 2, '#ffffff');
+  }
+  if (acc.includes('sunhat')) {
+    const st = '#E6C27A', st2 = '#B8904A', st3 = '#F4DCA0', rib = '#F58FB1';
+    for (let x = cx - 9; x <= cx + 8; x++) put(x, top - 1, x === cx - 9 || x === cx + 8 ? st2 : (x % 2 ? st : st3));
+    for (let x = cx - 8; x <= cx + 7; x++) put(x, top, st2);
+    for (let x = cx - 4; x <= cx + 3; x++) { put(x, top - 2, rib); put(x, top - 3, x % 2 ? st : st3); }
+    for (let x = cx - 3; x <= cx + 2; x++) put(x, top - 4, st);
+    put(cx - 4, top - 2, shade(rib, -.2)); put(cx + 3, top - 2, shade(rib, -.2));
+    put(cx + 3, top - 3, '#ffffff'); put(cx + 4, top - 2, '#ffffff'); put(cx + 2, top - 2, '#ffffff'); put(cx + 3, top - 1, '#ffffff'); put(cx + 3, top - 2, '#F2C75A');
+  }
+  if (acc.includes('flowercrown')) {
+    const cols = ['#F6A6BD', '#FFD86B', '#FFFFFF', '#C9B6F0'], gr = '#7CB36A', [a, b] = headRow(top + 1);
+    for (let x = a; x <= b; x++) put(x, top, gr);
+    for (let x = a, i = 0; x <= b; x += 3, i++) { const c = cols[i % cols.length]; put(x, top - 1, c); put(x + 1, top - 1, c); put(x, top, c); put(x + 1, top, shade(c, -.15)); put(x + 1, top - 2, c); }
+  }
+  if (acc.includes('tiara')) {
+    const gd = '#F2C75A', gd2 = '#B8862A', jw = '#F2A7B5';
+    for (let x = cx - 5; x <= cx + 4; x++) put(x, top - 1, x % 2 ? gd : gd2);
+    for (const x of [cx - 5, cx - 3, cx + 2, cx + 4]) put(x, top - 2, gd);
+    put(cx - 1, top - 2, gd); put(cx, top - 2, gd); put(cx - 1, top - 3, gd); put(cx, top - 3, gd); put(cx - 1, top - 4, '#FFF6A0');
+    put(cx - 1, top - 1, jw); put(cx, top - 1, jw); put(cx - 4, top - 1, jw); put(cx + 3, top - 1, jw);
+  }
+  if (acc.includes('pearls')) {
+    const pw = '#FBF3EA', ps = '#D8CCC0', [a, b] = headRow(neck);
+    if (a >= 0) for (let x = a + 1; x < b; x++) put(x, neck, x % 2 ? pw : ps);
+    put(cx - 2, neck + 1, pw); put(cx + 1, neck + 1, pw); put(cx - 1, neck + 2, pw); put(cx, neck + 2, '#F58FB1');
+  }
+  if (acc.includes('wings')) {
+    const wl = 'rgba(214,236,255,0.9)', we = '#F2C75A', wi = 'rgba(255,255,255,0.95)';
+    const UP = [[-3, 0], [-3, 1], [-2, 1], [-3, 2], [-2, 2], [-1, 2], [-3, 3], [-2, 3], [-1, 3], [0, 3], [-2, 4], [-1, 4], [0, 4], [1, 4]];
+    const LO = [[-1, 6], [0, 6], [1, 6], [-2, 7], [-1, 7], [0, 7], [-2, 8], [-1, 8]];
+    for (const [dx, dy] of UP.concat(LO)) for (const side of [-1, 1]) {
+      const x = side < 0 ? 2 + dx : tw - 3 - dx, y = neck + 1 + dy;
+      if (!has(x, y)) put(x, y, (dx === -3 || dy === 8 || (dy === 0)) ? we : (dx + dy) % 3 ? wl : wi);
+    }
   }
   if (acc.includes('leaves')) {
     const gr = '#7cb36a', gd = '#4f8a44', [a, b] = headRow(top + 1);

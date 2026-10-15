@@ -197,6 +197,17 @@ export function printTexture(kind = 'dots', o = {}) {
     } else if (kind === 'stripes') {
       const n = o.n || 4, w = size / n * (o.w || .5);
       x.fillStyle = col; for (let i = 0; i < n; i++) x.fillRect(i * size / n, 0, w, size);
+    } else if (kind === 'hearts' || kind === 'stars') {
+      const n = o.n || 5;
+      for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+        const px = (i + (j % 2) * .5 + .25) * size / n, py = (j + .5) * size / n, s = size / n * .26, rot = (r() - .5) * .6;
+        wrapStroke(x, size, px, py, s * 2, (dx, dy) => {
+          x.save(); x.translate(px + dx, py + dy); x.rotate(rot); x.fillStyle = (i + j) % 2 && o.color2 ? col2 : col; x.beginPath();
+          if (kind === 'hearts') { x.moveTo(0, s * .9); x.bezierCurveTo(-s * 1.4, -s * .1, -s * .7, -s * 1.1, 0, -s * .45); x.bezierCurveTo(s * .7, -s * 1.1, s * 1.4, -s * .1, 0, s * .9); }
+          else for (let k = 0; k < 10; k++) { const rr = k % 2 ? s * .45 : s, a = k / 10 * TAU - Math.PI / 2; k ? x.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : x.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+          x.closePath(); x.fill(); x.restore();
+        });
+      }
     } else if (kind === 'tweed') {
       for (let i = 0; i < 2600; i++) { const px = r() * size, py = r() * size; x.fillStyle = r() < .5 ? col : col2; x.globalAlpha = .35 + r() * .4; x.fillRect(px, py, 1 + r() * 3, 1); }
       x.globalAlpha = .35; x.fillStyle = col2; const n = o.n || 4;
@@ -848,14 +859,60 @@ function newRoot() {
   return { root, body, head };
 }
 
+// The shopkeeper's dress fabrics (her wardrobe's "print"); plain has none.
+const KEEPER_PRINTS = {
+  flowers: { kind: 'flowers', color: '#fff6ec', color2: '#ffd86b', leaf: '#8fc98a', scale: 2.6, n: 4 },
+  dots: { kind: 'dots', color: '#ffffff', n: 7, r: .14, scale: 3 },
+  stripes: { kind: 'stripes', color: '#fffaf2', n: 6, w: .32, scale: 2.4 },
+  gingham: { kind: 'gingham', color: '#ffffff', n: 6, scale: 3 },
+  hearts: { kind: 'hearts', color: '#ffffff', color2: '#e2566b', n: 5, scale: 2.6 },
+  stars: { kind: 'stars', color: '#fff3a8', color2: '#ffffff', n: 5, scale: 2.6 },
+};
 // Poppy: the mouse shopkeeper. Grey felt, pink flowered dress, white apron with pocket and stitched hem, white bow.
+// o.print picks the dress fabric, o.apron === false leaves the apron off, o.acc lists what she wears from her
+// wardrobe (bow, sunhat, flowercrown, tiara, tricorn, leaves, scarf, pearls, collar, glasses, wings).
 export function poppy(o = {}) {
-  const fur = o.fur || PAL.mouse, dressCol = o.dress || PAL.dressPink;
+  const fur = o.fur || PAL.mouse, dressCol = o.dress || PAL.dressPink, acc = o.acc || ['bow'];
+  const pr = o.print === 'plain' ? undefined : KEEPER_PRINTS[o.print] || KEEPER_PRINTS.flowers;
   const { root, body, head } = newRoot();
   const F = felt(fur), F2 = felt(lighten(fur, .14)), pink = felt(PAL.pinkSkin), neckY = 1.3;
-  dress(body, { color: dressCol, trim: '#fff3e6', print: { kind: 'flowers', color: '#fff6ec', color2: '#ffd86b', leaf: '#8fc98a', scale: 2.6, n: 4 } });
+  dress(body, { color: dressCol, trim: '#fff3e6', print: pr });
+  if (o.apron !== false) keeperApron(body, typeof o.apron === 'string' ? o.apron : null, dressCol);
+  // collar: two rounded felt petals
+  for (const sx of [-1, 1]) { body.add(ball(felt('#fff6ec'), [sx * .13, 1.3, .2], [.14, .035, .1], [.25, sx * .5, sx * -.25], 24)); }
+  body.add(ball(felt('#fff3e6'), [0, 1.32, .03], [.32, .09, .27], [0, 0, 0], 32));
+  feet(body, pink);
+  body.add(taperTube([[0, .4, -.5], [.1, .25, -.9], [.45, .2, -1.15], [.7, .45, -1.1], [.78, .72, -.95], [.7, .82, -.9]], .04, .018, pink, 60, 10));
+  const armL = arm(F, F2, -1, neckY, { sleeve: felt(dressCol, pr ? { print: pr } : {}), cuff: felt('#fff3e6') });
+  const armR = arm(F, F2, 1, neckY, { sleeve: felt(dressCol, pr ? { print: pr } : {}), cuff: felt('#fff3e6') });
+  body.add(armL, armR);
+  // head
+  head.position.set(0, 1.9, 0); body.add(head); body.add(feltNeck(F, neckY));
+  const HR = [.55, .5, .52];
+  head.add(mesh(seamSphere(56, 'x', .02, .05), F, [0, 0, 0], HR));
+  head.add(runningStitch(ellArc([0, 0, 0], HR, [0, 1, .12], [0, .2, -1], 26, .006), { len: .035, gap: .025, r: .006, color: lighten(fur, -.18) }));
+  const MC = [0, -.12, .36], MR = [.3, .22, .26];
+  head.add(ball(F2, MC, MR, [0, 0, 0], 40));
+  head.add(ball(felt('#e88aa0', { clearcoat: .3 }), [0, -.06, .615], [.085, .065, .065], [0, 0, 0], 24));
+  embroideredMouth(head, MC, MR, [[0, .05, 1], [0, -.3, 1], [-.25, -.45, 1], [-.42, -.3, 1]]);
+  embroideredMouth(head, MC, MR, [[0, -.3, 1], [.25, -.45, 1], [.42, -.3, 1]]);
+  embroideredEyes(head, [0, 0, 0], HR, { x: .2, y: .07, z: .45, w: .14, h: .18 });
+  blush(head, .33, -.08, .42, .075);
+  whiskers(head, .17, -.1, .53);
+  for (const sx of [-1, 1]) {
+    const ear = new THREE.Group(); ear.position.set(sx * .46, .46, -.08); ear.rotation.y = sx * -.25; head.add(ear);
+    ear.add(ball(F, [0, 0, 0], [.36, .36, .1], [0, 0, 0], 40));
+    ear.add(ball(pink, [0, -.01, .055], [.25, .25, .05], [0, 0, 0], 32));
+    ear.add(blanketStitch(ringPoints(1, 0, 48).map(p => V3(p.x * .245, -.01 + p.z * .245, .078)), (p) => V3(p.x, p.y + .01, 0).normalize().multiplyScalar(.03), { closed: true, spacing: .05, r: .0055, color: '#d97a90' }));
+  }
+  if (acc.includes('bow')) { const hb = feltBow(o.bow || '#ffffff', 1, o.bow && o.bow !== '#ffffff' ? lighten(o.bow, -.25) : '#e8b4c0'); hb.position.set(.3, .42, .14); hb.rotation.set(-.2, .2, -.3); head.add(hb); }
+  accessories(head, body, { scarf: '#e2566b' }, acc.filter(a => a !== 'bow'), { sp: 'mouse', neckY, HR });
+  return rig(root, body, head, armL, armR, 'poppy');
+}
+// the shop apron: a curved panel in front of the dress with pocket, bib, straps and a bow at the back
+function keeperApron(body, apronCol, dressCol) {
   // apron: a curved panel in front of the dress, rolled edges, pink running-stitch hem, pocket, bib and straps
-  const am = felt(o.apron || PAL.apron, { side: THREE.DoubleSide }), ast = thread(lighten(dressCol, -.18));
+  const am = felt(apronCol || PAL.apron, { side: THREE.DoubleSide }), ast = thread(lighten(dressCol, -.18));
   const aOff = .03, A0 = -1.05, A1 = 1.05, y0 = .34, y1 = 1.02;
   const apronPts = []; for (let i = 0; i <= 14; i++) { const y = lerp(y0, y1, i / 14); apronPts.push([dressR(y) + aOff, y]); }
   body.add(lathe(apronPts, am, 40, { phiStart: A0, phiLen: A1 - A0 }));
@@ -887,36 +944,7 @@ export function poppy(o = {}) {
   const be = []; for (let i = 0; i <= 4; i++) be.push(onA(-.5, lerp(1.04, 1.22, i / 4), .028)); for (let i = 1; i <= 8; i++) be.push(onA(lerp(-.5, .5, i / 8), 1.22, .028)); for (let i = 1; i <= 4; i++) be.push(onA(.5, lerp(1.22, 1.04, i / 4), .028));
   body.add(runningStitch(be, { len: .03, gap: .022, r: .0055, mat: ast }));
   for (const sx of [-1, 1]) body.add(tube([onA(sx * .52, 1.23, .03), V3(sx * .26, 1.38, .05), V3(sx * .28, 1.36, -.2), onA(Math.PI + sx * -.6, 1.1, .03)], .028, am, 24, 8));
-  const bow = feltBow(o.apron || PAL.apron, 1.1, '#e6c9b8'); bow.position.set(0, 1.02, -dressR(1.02) - .06); bow.rotation.y = Math.PI; body.add(bow);
-  // collar: two rounded felt petals
-  for (const sx of [-1, 1]) { body.add(ball(felt('#fff6ec'), [sx * .13, 1.3, .2], [.14, .035, .1], [.25, sx * .5, sx * -.25], 24)); }
-  body.add(ball(felt('#fff3e6'), [0, 1.32, .03], [.32, .09, .27], [0, 0, 0], 32));
-  feet(body, pink);
-  body.add(taperTube([[0, .4, -.5], [.1, .25, -.9], [.45, .2, -1.15], [.7, .45, -1.1], [.78, .72, -.95], [.7, .82, -.9]], .04, .018, pink, 60, 10));
-  const armL = arm(F, F2, -1, neckY, { sleeve: felt(dressCol, { print: { kind: 'flowers', color: '#fff6ec', color2: '#ffd86b', leaf: '#8fc98a', scale: 2.6, n: 4 } }), cuff: felt('#fff3e6') });
-  const armR = arm(F, F2, 1, neckY, { sleeve: felt(dressCol, { print: { kind: 'flowers', color: '#fff6ec', color2: '#ffd86b', leaf: '#8fc98a', scale: 2.6, n: 4 } }), cuff: felt('#fff3e6') });
-  body.add(armL, armR);
-  // head
-  head.position.set(0, 1.9, 0); body.add(head); body.add(feltNeck(F, neckY));
-  const HR = [.55, .5, .52];
-  head.add(mesh(seamSphere(56, 'x', .02, .05), F, [0, 0, 0], HR));
-  head.add(runningStitch(ellArc([0, 0, 0], HR, [0, 1, .12], [0, .2, -1], 26, .006), { len: .035, gap: .025, r: .006, color: lighten(fur, -.18) }));
-  const MC = [0, -.12, .36], MR = [.3, .22, .26];
-  head.add(ball(F2, MC, MR, [0, 0, 0], 40));
-  head.add(ball(felt('#e88aa0', { clearcoat: .3 }), [0, -.06, .615], [.085, .065, .065], [0, 0, 0], 24));
-  embroideredMouth(head, MC, MR, [[0, .05, 1], [0, -.3, 1], [-.25, -.45, 1], [-.42, -.3, 1]]);
-  embroideredMouth(head, MC, MR, [[0, -.3, 1], [.25, -.45, 1], [.42, -.3, 1]]);
-  embroideredEyes(head, [0, 0, 0], HR, { x: .2, y: .07, z: .45, w: .14, h: .18 });
-  blush(head, .33, -.08, .42, .075);
-  whiskers(head, .17, -.1, .53);
-  for (const sx of [-1, 1]) {
-    const ear = new THREE.Group(); ear.position.set(sx * .46, .46, -.08); ear.rotation.y = sx * -.25; head.add(ear);
-    ear.add(ball(F, [0, 0, 0], [.36, .36, .1], [0, 0, 0], 40));
-    ear.add(ball(pink, [0, -.01, .055], [.25, .25, .05], [0, 0, 0], 32));
-    ear.add(blanketStitch(ringPoints(1, 0, 48).map(p => V3(p.x * .245, -.01 + p.z * .245, .078)), (p) => V3(p.x, p.y + .01, 0).normalize().multiplyScalar(.03), { closed: true, spacing: .05, r: .0055, color: '#d97a90' }));
-  }
-  const hb = feltBow(o.bow || '#ffffff', 1, '#e8b4c0'); hb.position.set(.3, .42, .14); hb.rotation.set(-.2, .2, -.3); head.add(hb);
-  return rig(root, body, head, armL, armR, 'poppy');
+  const bow = feltBow(apronCol || PAL.apron, 1.1, '#e6c9b8'); bow.position.set(0, 1.02, -dressR(1.02) - .06); bow.rotation.y = Math.PI; body.add(bow);
 }
 
 // Mrs. Bunbury: rabbit in a blue sprigged dress with lace collar and buttons, a cream bonnet with pink ribbon.
@@ -1949,6 +1977,35 @@ function accessories(head, body, spec, acc, k) {
       for (let r = 0; r < 2; r++) { const n = 22 + r * 6, rad = .4 + r * .09, y = 1.3 - r * .08; for (let i = 0; i < n; i++) { const t = i / n * TAU; body.add(bead((i + r) % 2 ? blue : gold, [Math.sin(t) * rad, y, Math.cos(t) * rad], .035)); } }
       for (let i = 0; i < 9; i++) { const t = (i - 4) * .26; body.add(mesh(geo('drop', () => latheGeo([[0, -.06], [.03, -.04], [.035, 0], [0, .04]], 12)), i % 2 ? gold : blue, [Math.sin(t) * .56, 1.08, Math.cos(t) * .53])); }
       const ear = ellPoint([0, 0, 0], HR, [.75, .45, .1], .0).p; head.add(mesh(geo('ering', () => new THREE.TorusGeometry(.05, .012, 6, 20)), gold, [ear.x + .02, ear.y - .02, ear.z + .05]));
+    } else if (a === 'sunhat') {
+      // a woven straw sun hat with a pink ribbon and a daisy, tipped back between the ears
+      const straw = wicker('#e6c27a'), rib = felt('#f58fb1');
+      const hat = new THREE.Group(); hat.position.set(0, .36, .02); hat.rotation.set(-.32, 0, .08); head.add(hat);
+      hat.add(lathe(smoothProfile([[0, .3], [.2, .29], [.3, .22], [.33, .08], [.34, 0], [.62, -.02], [.72, -.06], [.74, -.09], [.6, -.05], [.32, -.03], [0, -.03]], 24), straw, 48));
+      hat.add(mesh(geo('hatband', () => new THREE.CylinderGeometry(.335, .342, .08, 48, 1, true)), rib, [0, .05, 0]));
+      const fl = feltFlower('#ffffff', 1.1); fl.position.set(.24, .1, .24); fl.rotation.set(1.2, .8, 0); hat.add(fl);
+      const fl2 = feltFlower('#ffd86b', .8); fl2.position.set(.08, .1, .33); fl2.rotation.set(1.3, .2, 0); hat.add(fl2);
+      hat.add(runningStitch(ringPoints(.68, -.04, 72), { closed: true, len: .03, gap: .02, r: .005, color: '#b8904a' }));
+    } else if (a === 'flowercrown') {
+      // a ring of little felt flowers with leaves between them
+      const cols = ['#f6a6bd', '#ffd86b', '#ffffff', '#c9b6f0', '#f58fb1'], lm = felt('#8fc98a');
+      for (let i = 0; i < 9; i++) {
+        const t = (i - 4) * .34, p = ellPoint([0, 0, 0], HR, [Math.sin(t) * .9, .62, Math.cos(t) * .55 - .2], .03);
+        const f = feltFlower(cols[i % cols.length], 1.05); f.position.copy(p.p); f.quaternion.setFromUnitVectors(V3(0, 1, 0), p.n); head.add(f);
+        if (i < 8) { const q = ellPoint([0, 0, 0], HR, [Math.sin(t + .17) * .9, .6, Math.cos(t + .17) * .55 - .2], .02); const l = mesh(SPH(12), lm, [0, 0, 0], [.05, .1, .02]); l.position.copy(q.p); l.quaternion.setFromUnitVectors(V3(0, 0, 1), q.n); l.rotateZ(1.2); head.add(l); }
+      }
+    } else if (a === 'tiara') {
+      // a gold band with five stars and pink jewels, like the Fairy Queen's
+      const gold = metal('#ffd86b', { rough: .25 }), jewel = glossy('#f2a7b5', { rough: .15 });
+      head.add(tube(Array.from({ length: 13 }, (_, i) => { const t = (i / 12 - .5) * 2.2; return ellPoint([0, 0, 0], HR, [Math.sin(t), .7, Math.cos(t) * .8], .01).p; }), .022, gold, 30, 6));
+      for (let i = 0; i < 5; i++) { const t = (i - 2) * .42, p = ellPoint([0, 0, 0], HR, [Math.sin(t), .82, Math.cos(t) * .8], .09).p; head.add(mesh(starGeo(), gold, p.toArray(), i === 2 ? .11 : .075)); head.add(bead(jewel, [p.x, p.y, p.z + .045], i === 2 ? .036 : .025)); }
+    } else if (a === 'pearls') {
+      // a string of pearls that dips a little at the front
+      const pm = glossy('#fbf3ea', { rough: .12 }), n = 26;
+      for (let i = 0; i < n; i++) { const t = i / n * TAU, dip = Math.max(0, Math.cos(t)), y = neckY - .1 - dip * .12, r = dressR(y) + .035; body.add(bead(pm, [Math.sin(t) * r, y, Math.cos(t) * r], i % 2 ? .04 : .034)); }
+      { const y = neckY - .27, r = dressR(y) + .05; body.add(bead(glossy('#f58fb1', { rough: .15 }), [0, y, r], .055)); }
+    } else if (a === 'wings') {
+      const w = organzaWings('#d4ecff'); w.position.set(0, 1.15, -.36); w.scale.setScalar(.62); body.add(w);
     } else if (a === 'leaves') {
       const lm = felt('#7cb36a'), lm2 = felt('#94c47e'), vein = '#5a8a4a';
       for (let i = 0; i < 13; i++) {
@@ -1968,6 +2025,24 @@ function starShape(r1 = 1, r0 = .45) {
   return s;
 }
 export function starGeo() { return geo('star', () => { const g = new THREE.ExtrudeGeometry(starShape(), { depth: .3, bevelEnabled: true, bevelThickness: .15, bevelSize: .12, bevelSegments: 2 }); g.center(); return g; }); }
+// Organza fairy wings with a gold thread edge (the Fairy Queen's, and the shopkeeper's present from her).
+function organzaWings(wc) {
+  const wmat = mc('organza' + wc, () => new THREE.MeshPhysicalMaterial({ color: wc, emissive: wc, emissiveIntensity: .25, transparent: true, opacity: .55, roughness: .2, iridescence: 1, iridescenceIOR: 1.5, sheen: 1, sheenColor: new THREE.Color('#ffffff'), side: THREE.DoubleSide, depthWrite: false }));
+  const wings = new THREE.Group(); wings.name = 'wings'; wings.userData.live = true;
+  const shapes = [[[0, 0], [.3, .9], [1.4, 1.5], [1.7, 1.0], [1.9, .6], [1.2, .1]], [[0, 0], [.5, -.1], [1.2, -.5], [1.0, -.95], [.7, -1.2], [.2, -.6]]];
+  for (const sx of [-1, 1]) {
+    const side = new THREE.Group(); side.name = sx < 0 ? 'wingL' : 'wingR'; side.userData.live = true; side.scale.x = sx; side.rotation.y = sx * .5; wings.add(side);
+    shapes.forEach((sh, k) => {
+      const s = new THREE.Shape(); s.moveTo(0, 0); s.bezierCurveTo(sh[1][0], sh[1][1], sh[2][0], sh[2][1], sh[3][0], sh[3][1]); s.bezierCurveTo(sh[4][0], sh[4][1], sh[5][0], sh[5][1], 0, 0);
+      const g = new THREE.ShapeGeometry(s, 20), sc = k ? .66 : .78;
+      const w = new THREE.Mesh(g, wmat); w.scale.setScalar(sc); w.renderOrder = 3; side.add(w);
+      const pts = s.getSpacedPoints(48).map(p => V3(p.x * sc, p.y * sc, .005));
+      side.add(tube(pts, .012, metal('#e9c46a', { rough: .3 }), 96, 5));
+      side.add(runningStitch(pts.map(p => p.clone().multiplyScalar(.82).setZ(.006)), { len: .04, gap: .03, r: .006, color: '#fff3cf' }));
+    });
+  }
+  return wings;
+}
 export function fairy(spec = {}, o = {}) {
   const { root, body, head } = newRoot();
   const skin = felt('#ffdcc6'), dc = spec.dress || '#d4c4ff', d2 = spec.dress2 || '#fff3cf', hc = spec.hair || '#f2d27a', neckY = 1.3;
@@ -2017,20 +2092,7 @@ export function fairy(spec = {}, o = {}) {
   }
   // organza wings with a gold thread edge
   const wc = { gold: '#ffe08a', blue: '#a9d4ff', pink: '#ffc4d8', lilac: '#d4c4ff', green: '#b8f0c8' }[spec.wing] || (/^#/.test(spec.wing || '') ? spec.wing : '#ffe08a');
-  const wmat = mc('organza' + wc, () => new THREE.MeshPhysicalMaterial({ color: wc, emissive: wc, emissiveIntensity: .25, transparent: true, opacity: .55, roughness: .2, iridescence: 1, iridescenceIOR: 1.5, sheen: 1, sheenColor: new THREE.Color('#ffffff'), side: THREE.DoubleSide, depthWrite: false }));
-  const wings = new THREE.Group(); wings.name = 'wings'; wings.userData.live = true; wings.position.set(0, 1.2, -.28); body.add(wings);
-  const shapes = [[[0, 0], [.3, .9], [1.4, 1.5], [1.7, 1.0], [1.9, .6], [1.2, .1]], [[0, 0], [.5, -.1], [1.2, -.5], [1.0, -.95], [.7, -1.2], [.2, -.6]]];
-  for (const sx of [-1, 1]) {
-    const side = new THREE.Group(); side.name = sx < 0 ? 'wingL' : 'wingR'; side.userData.live = true; side.scale.x = sx; side.rotation.y = sx * .5; wings.add(side);
-    shapes.forEach((sh, k) => {
-      const s = new THREE.Shape(); s.moveTo(0, 0); s.bezierCurveTo(sh[1][0], sh[1][1], sh[2][0], sh[2][1], sh[3][0], sh[3][1]); s.bezierCurveTo(sh[4][0], sh[4][1], sh[5][0], sh[5][1], 0, 0);
-      const g = new THREE.ShapeGeometry(s, 20), sc = k ? .66 : .78;
-      const w = new THREE.Mesh(g, wmat); w.scale.setScalar(sc); w.renderOrder = 3; side.add(w);
-      const pts = s.getSpacedPoints(48).map(p => V3(p.x * sc, p.y * sc, .005));
-      side.add(tube(pts, .012, metal('#e9c46a', { rough: .3 }), 96, 5));
-      side.add(runningStitch(pts.map(p => p.clone().multiplyScalar(.82).setZ(.006)), { len: .04, gap: .03, r: .006, color: '#fff3cf' }));
-    });
-  }
+  const wings = organzaWings(wc); wings.position.set(0, 1.2, -.28); body.add(wings);
   const r = rig(root, body, head, armL, armR, 'queen');
   Object.assign(r.userData, { kind: 'fairy', wings: r.getObjectByName('wings'), wand: r.getObjectByName('wand') });
   return r;

@@ -387,3 +387,13 @@ body:not(.sdv) .coin b { font-size: 24px; }
   .sdv-toast.out, .sdv-level.out { transition: none; }
 }
 #tillChip .clab { color: #f6dfae; opacity: 1; }
+
+/* the wardrobe (👗) and the evening "For me" shelf */
+#wardrobe .card { border-radius: 0; background: none; border: 16px solid transparent; border-image: var(--sdv-img-box) 6 fill / 16px stretch; box-shadow: none; padding: 6px; }
+.wlook { border-radius: 0; background: #FFF6E2; box-shadow: 0 0 0 4px #5B2A0E, 0 0 0 8px #C8691F; }
+.wlook img { image-rendering: pixelated; image-rendering: crisp-edges; }
+.wlab, .wnote { color: #5B2A0E; }
+.decor button.on { outline: 4px solid #5BA03A; outline-offset: 2px; }
+.decor button.try { outline: 4px dashed #F0A040; outline-offset: 2px; }
+.tabs button { border-radius: 0; background: none; border: 12px solid transparent; border-image: var(--sdv-img-box) 6 fill / 12px stretch; box-shadow: none; color: #5B2A0E; padding: 0 10px; }
+.tabs button.sel { border-image-source: var(--sdv-img-btnGo); }

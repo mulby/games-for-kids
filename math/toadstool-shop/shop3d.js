@@ -14,7 +14,7 @@ const calm = !!(G.matchMedia && G.matchMedia('(prefers-reduced-motion: reduce)')
 const touch = (navigator.maxTouchPoints || 0) > 1;
 // the game's own state, read only (top-level consts of the classic script are visible here by name)
 const game = () => { try { return S; } catch (e) { return null; } }; // eslint-disable-line no-undef
-const castOf = spec => { try { for (const [id, c] of Object.entries(CAST)) if (c.spec === spec || JSON.stringify(c.spec) === JSON.stringify(spec)) return id; } catch (e) {} return spec && spec.apron ? 'keeper' : null; }; // eslint-disable-line no-undef
+const castOf = spec => { try { for (const [id, c] of Object.entries(CAST)) if (c.spec === spec || JSON.stringify(c.spec) === JSON.stringify(spec)) return id; } catch (e) {} return spec && (spec.keeper || spec.apron) ? 'keeper' : null; }; // eslint-disable-line no-undef
 
 /* ------------------------------------------------------------------ renderer */
 const canvas = document.createElement('canvas'); canvas.id = 'gl3d';
@@ -211,7 +211,7 @@ const STYLE = {
 };
 function makeModel(spec) {
   const id = castOf(spec);
-  if (id === 'keeper') return D.poppy({ fur: spec.fur, dress: spec.dress, bow: spec.bowColor || '#ffffff' });
+  if (id === 'keeper') return D.poppy({ fur: spec.fur, dress: spec.dress, bow: spec.bowColor || '#ffffff', print: spec.print, apron: spec.apron !== false, acc: spec.acc });
   if (id === 'bunbury') return D.bunbury({ fur: spec.fur, dress: spec.dress });
   if (id === 'bramble') return D.bramble({ fur: spec.fur, spikes: spec.spikes, scarf: spec.scarf });
   return D.critter(spec, { ...(STYLE[id] || {}), name: id || spec.species });
@@ -596,7 +596,7 @@ G.Shop3D = {
   // the value is printed flat on top (white with a dark outline) so 1, 5 and 10 read clearly at chip size
   coin: v => bake('coin:' + v, () => D.coin(+v || 1, { plain: true }), { yaw: 0, pitch: 0, focus: [0, 0, 0], height: 2.02, post: (x, px) => coinLabel(x, px, +v || 1) }),
   portrait: spec => {
-    const key = 'p:' + JSON.stringify(spec), hat = (spec.acc || []).includes('tricorn');
+    const key = 'p:' + JSON.stringify(spec), hat = (spec.acc || []).some(a => ['tricorn', 'sunhat', 'tiara', 'flowercrown'].includes(a));
     if (!pics.has(key)) bakeLog.push(key), pics.set(key, baker.portrait(portraitModel(spec), { height: spec.species === 'owl' ? 1.45 : spec.species === 'fairy' ? 1.55 : hat ? 1.5 : 1.3, dy: spec.species === 'fairy' ? .12 : spec.species === 'rabbit' ? .1 : hat ? .12 : 0 }));
     return pics.get(key);
   },
