@@ -171,10 +171,16 @@ let board = null, boardKey = '';
   // decorations
   const vase = D.flowerVase(); vase.position.set(.9, 1.12, -2.5); decor.vase = [vase];
   const rug = D.braidRug(2.2, { colors: ['#e2566b', '#ffd86b', '#7bb4d9', '#f6a6bd'] }); rug.position.set(1.0, 0, .3); decor.rug = [rug];
-  const bell = new THREE.Group(); bell.position.copy(dr.position); bell.rotation.copy(dr.rotation);
-  const b = D.doorBell(); b.position.set(-1.65, 2.3, .05); bell.add(b); decor.bell = [bell];
-  const cat = D.catBed(); cat.position.set(-4.4, 0, -.4); cat.rotation.y = .5; decor.catbed = [cat];
-  const fp = []; for (let i = 0; i <= 40; i++) { const a = Math.PI - 2.3 + i / 40 * 4.6, k = (i % 8) / 8; fp.push([Math.sin(a) * 8.15, 6.6 - Math.sin(k * Math.PI) * .5, Math.cos(a) * 8.15]); }
+  // the bell hangs from a little post at the end of the counter, where every framing (portrait too) can see it;
+  // by the door it was hidden behind the shelves, and the door itself is off screen in portrait
+  const bell = new THREE.Group(); bell.position.set(3.25, 1.12, -2.95); bell.rotation.y = -.25;
+  bell.add(D.rbox(.4, .1, .4, .03, D.wood('#6b4a33')).translateY(.05));
+  bell.add(D.rbox(.14, 1.1, .14, .03, D.wood('#8a5a36', { axis: 1 })).translateY(.6));
+  const b = D.doorBell(); b.scale.setScalar(1.25); b.position.set(0, .05, .08); bell.add(b); decor.bell = [bell];
+  // front left of the counter, inside even a portrait iPad's view (further left it was off screen)
+  const cat = D.catBed(); cat.scale.setScalar(.85); cat.position.set(-2.45, 0, .7); cat.rotation.y = .5; decor.catbed = [cat];
+  // swags under the middle shelf's front edge, one per bay (up by the ceiling they were out of the camera's view)
+  const fp = []; for (let i = 0; i <= 36; i++) { const x = -5.3 + i / 36 * 10.6, k = (i % 12) / 12; fp.push([x, SHELF_BASE + ROW_H - .06 - Math.sin(k * Math.PI) * .42, SHELF_Z + .55]); }
   const lights = D.fairyLights(fp, { n: 36 }); decor.fairylights = [lights];
   for (const k of ['vase', 'rug', 'bell', 'catbed', 'fairylights']) decor[k].forEach(o => inside.add(o));
   collectGlows(inside);

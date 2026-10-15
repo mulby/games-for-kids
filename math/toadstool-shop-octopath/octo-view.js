@@ -290,12 +290,12 @@ function paintInside(decor, stock) {
   const has = id => decor.includes(id);
   if (has('fairylights')) {
     const cols = ['#ffe680', '#ffb0d0', '#a0d8ff', '#b0ffd0'];
-    for (let x = -116; x < WW + 116; x += 2) { const t = (((x + 160) % 160) / 160); M.px(x, 78 + Math.sin(t * Math.PI) * 18 - 4, '#5a6a4a'); }
-    for (let i = 0; i < 54; i++) { const x = -112 + i * 16, t = (((x + 160) % 160) / 160), y = 76 + Math.sin(t * Math.PI) * 18; const c = cols[i % 4]; M.rect(x - 1, y - 1, 3, 4, c); M.px(x, y - 2, '#3a4a2a'); lights.push({ x, y: y + 1, r: 16, c, a: .9, fl: true, tw: i }); }
+    for (let x = -116; x < WW + 116; x += 2) { const t = (((x + 160) % 160) / 160); M.px(x, 148 + Math.sin(t * Math.PI) * 18 - 4, '#5a6a4a'); }
+    for (let i = 0; i < 54; i++) { const x = -112 + i * 16, t = (((x + 160) % 160) / 160), y = 146 + Math.sin(t * Math.PI) * 18; const c = cols[i % 4]; M.rect(x - 1, y - 1, 3, 4, c); M.px(x, y - 2, '#3a4a2a'); lights.push({ x, y: y + 1, r: 16, c, a: .9, fl: true, tw: i }); }
   }
-  if (has('bell')) { M.rect(492, 196, 20, 3, '#5a3a28'); M.rect(500, 198, 2, 8, '#5a3a28'); M.spr(DSPR.bell, 492, 200); lights.push({ x: 500, y: 214, r: 22, c: '#ffe080', a: .35 }); }
+  if (has('bell')) { M.rect(474, 188, 30, 4, '#5a3a28'); M.spr(DSPR.bell, 474, 190, 2); lights.push({ x: 488, y: 206, r: 30, c: '#ffe080', a: .4 }); }
   if (has('rug')) { const [x, y] = SPOT.inside.cust; [['#e2566b', 84, 22], ['#ffd86b', 72, 18], ['#7bb4d9', 60, 15], ['#f6a6bd', 46, 11], ['#fff3e6', 30, 7]].forEach(([c, rx, ry]) => M.ellipse(x, y + 2, rx, ry, c)); M.dither(x - 84, y - 20, 168, 44, 'rgba(0,0,0,0)', 0); }
-  if (has('catbed')) { M.ellipse(112, 440, 40, 16, '#8a78c0'); M.ellipse(112, 436, 36, 12, '#b9a6e8'); M.ellipse(112, 434, 28, 8, '#d8ccf4'); M.spr(DSPR.catbed, 88, 410, 3); }
+  if (has('catbed')) { M.ellipse(112, 400, 40, 16, '#8a78c0'); M.ellipse(112, 396, 36, 12, '#b9a6e8'); M.ellipse(112, 394, 28, 8, '#d8ccf4'); M.spr(DSPR.catbed, 88, 370, 3); }
   // the counter (drawn in front of the shopkeeper)
   const [counter, cx] = wcnv(), C = painter(cx);
   C.rect(186, 318, 290, 14, '#c88a58'); C.rect(186, 318, 290, 3, '#e0a878'); C.rect(186, 330, 290, 3, '#8a5a3a');

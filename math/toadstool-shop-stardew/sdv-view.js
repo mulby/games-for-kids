@@ -266,7 +266,7 @@ function drawInside(T, t, list) {
     spr('counterLong', 64, 104); spr('tillBlue', 76, 90); spr('basket', 150, 93);
     if (has('vase')) spr('vase', 120, 92);
   } });
-  if (has('catbed')) list.push({ z: 178, draw: () => spr('catBed', 18, 160, reduced ? 0 : Math.floor(t / 1400) % 2) });
+  if (has('catbed')) list.push({ z: 156, draw: () => spr('catBed', 54, 138, reduced ? 0 : Math.floor(t / 1400) % 2) });
 }
 function dusk(T, t) {
   b.globalCompositeOperation = 'multiply'; b.fillStyle = '#8C82CC'; b.fillRect(0, 0, BW, BH);
