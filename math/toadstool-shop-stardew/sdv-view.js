@@ -38,6 +38,9 @@ const baker = {
   portrait: spec => { const n = SDV.portrait(spec || {}); return bake('p:' + n, n, 2); },
   decor: id => bake('d:' + id, SDV.DECOR_THUMB[id] || 'missing', 4),
   icon: name => bake('i:' + name, ICON[name] || name, 2, 16),
+  // the village's garden things and treasures, for the stall panels
+  garden: id => { const n = SDV.GARDEN_SPRITE[id] || 'missing', d = DEFS[n], box = Math.max(d.w, d.h) + 2; return bake('gd:' + id, n, Math.max(2, Math.floor(96 / box)), box); },
+  treasure: id => bake('t:' + id, DEFS['t_' + id] ? 't_' + id : 'missing', 6, 16),
 };
 // self-test before going live: if any of this throws, the game keeps its emoji
 ['bun', 'apple', 'honey', 'tart', 'biscuit', 'candle', 'seeds', 'teacup'].forEach(baker.good);
@@ -134,33 +137,48 @@ const OUT_PROPS = [
   ['shroom', 206, 166], ['shroom', 300, 168], ['shroom', 120, 176], ['shroom', 392, 172], ['shroom', 54, 222],
   ['rock', 112, 230], ['rock', 350, 250], ['barrel', 196, 150],
 ];
+// garden things she buys in the village, round the shop (top-left corners)
+const GARDEN_AT = { sunflowers: [198, 118], daisies: [126, 160], tulips: [150, 200], birdbath: [370, 158], bench: [336, 196], well: [300, 126], fairyhouse: [176, 150] };
+// treasures stand in a row on a ledge along the front of the counter
+const LEDGE = [63, 124];
 const IN_PROPS = [['plant', 300, 62], ['plant', 4, 62], ['stool', 40, 124], ['barrel', 300, 120], ['sacks', 286, 170], ['crates', 60, 176], ['plant', 160, 186]];
 const sprH = n => DEFS[n].h;
 
 /* ================= actors ================= */
 let scene = null, keeper = null, cust = null, leaving = [], queued = null, lastKeeperKey = '';
-function spot(sc, who) { return SPOT[sc === 'inside' ? 'inside' : 'outside'][who]; }
+const sceneOf = T => T.scene === 'inside' ? 'inside' : T.scene === 'village' ? 'village' : 'outside';
+function spot(sc, who) {
+  if (sc === 'village') return who === 'keeper' ? [VPL.gate.stand, LANE_Y] : vMeet();
+  return SPOT[sc === 'inside' ? 'inside' : 'outside'][who];
+}
 function makeActor(spec, at) { return { spec, key: SDV.character(spec), x: at[0], y: at[1], from: at, to: at, t: 1, dur: 0, born: perf() }; }
 function walk(a, to, dur) { a.from = [a.x, a.y]; a.to = to; a.t = 0; a.dur = reduced ? 0 : dur; if (!a.dur) { a.x = to[0]; a.y = to[1]; a.t = 1; } }
 function enterPoint(sc) {
   if (sc === 'inside') return SPOT.inside.enter;
+  if (sc === 'village') return vDoor();
   // just past the right edge of what is on screen
   return [Math.max(SPOT.outside.enter[0], Math.round(cam.x + cv.width / K + 14)), SPOT.outside.enter[1]];
 }
 const perf = () => performance.now();
 function syncActors() {
-  const T = window.TSV, sc = T.scene === 'inside' ? 'inside' : 'outside';
-  if (sc !== scene) { scene = sc; keeper = null; cust = null; leaving = []; queued = null; lastKeeperKey = ''; snapCam = true; }
+  const T = window.TSV, sc = sceneOf(T);
+  if (sc !== scene) { scene = sc; keeper = null; cust = null; leaving = []; queued = null; lastKeeperKey = ''; snapCam = true; goKey = ''; }
   const kk = T.keeper ? JSON.stringify(T.keeper) : '';
-  if (kk !== lastKeeperKey) { lastKeeperKey = kk; keeper = T.keeper ? makeActor(T.keeper, spot(sc, 'keeper')) : null; }
+  if (kk !== lastKeeperKey) {
+    lastKeeperKey = kk;
+    // a change of clothes in the village keeps her where she is (and where she is going)
+    if (keeper && T.keeper && sc === 'village') { keeper.spec = T.keeper; keeper.key = SDV.character(T.keeper); }
+    else keeper = T.keeper ? makeActor(T.keeper, spot(sc, 'keeper')) : null;
+  }
   const want = T.cust || null;
   const curSpec = queued ? queued.spec : cust ? cust.spec : null;
   if (want !== curSpec) {
-    if (cust) { walk(cust, enterPoint(sc), 0.85); cust.leaving = true; leaving.push(cust); cust = null; }
+    if (cust) { walk(cust, cust.door || enterPoint(sc), 0.85); cust.leaving = true; leaving.push(cust); cust = null; }
     queued = want ? makeActor(want, enterPoint(sc)) : null;
+    if (queued && sc === 'village') { queued.door = vDoor(); queued.place = T.place; }
   }
   leaving = leaving.filter(a => a.t < 1);
-  if (queued && !leaving.length) { cust = queued; queued = null; walk(cust, spot(sc, 'cust'), 1.45); }
+  if (queued && !leaving.length) { cust = queued; queued = null; walk(cust, spot(sc, 'cust'), sc === 'village' ? 0.9 : 1.45); }
 }
 function stepActor(a, dt) {
   if (a.t < 1) { a.t = Math.min(1, a.t + dt / a.dur); const e = a.t; a.x = a.from[0] + (a.to[0] - a.from[0]) * e; a.y = a.from[1] + (a.to[1] - a.from[1]) * e; }
@@ -170,7 +188,8 @@ function stepActor(a, dt) {
 const cam = { x: 256, y: 140 };
 let snapCam = true;
 function camTarget() {
-  const T = window.TSV, sc = T.scene === 'inside' ? 'inside' : 'outside';
+  const T = window.TSV, sc = sceneOf(T);
+  if (sc === 'village') return vCam(T);
   const c = sc === 'inside' ? CAMS.inside : (CAMS[T.cam] || CAMS.outside);
   const k = K / DPR; // css px per art px
   const top = (T.top || 0) / k, bot = (T.bottom || innerHeight) / k, bh = Math.max(40, bot - top);
@@ -245,6 +264,7 @@ function drawOutside(T, t, list) {
   if (has('lanterns')) [[HX + 6, HY + 70], [HX + 66, HY + 70]].forEach(p => list.push({ z: p[1] + 26, draw: () => spr('lanternPost', p[0], p[1], ev ? 1 : 0) }));
   if (has('sign')) { const n = SDV.signBoard(T.signText || 'The Toadstool Shop'); const w = DEFS[n].w; list.push({ z: 196, draw: () => spr(n, 192 - w / 2, 174) }); }
   if (T.cart) list.push({ z: 182, draw: () => spr('cartFull', 312, 132) });
+  (T.garden || []).forEach(id => { const at = GARDEN_AT[id], n = SDV.GARDEN_SPRITE[id]; if (at && n) list.push({ z: at[1] + sprH(n), draw: () => spr(n, at[0], at[1]) }); });
   if (!ev && !reduced) {
     BUGS.forEach(k => { const x = k.x0 + Math.sin(t * k.sp * 2 + k.ph) * k.ax, y = k.y0 + Math.sin(t * k.sp * 3.1 + k.ph) * k.ay; list.push({ z: 999, draw: () => spr(k.n, x, y, Math.floor(t / 160) % 2) }); });
     list.push({ z: 998, draw() { PETALS.forEach(p => { const y = (p.y0 + t * p.sp) % 360 - 10, x = p.x0 + Math.sin(t * 0.0012 + p.ph) * 14; b.fillStyle = '#F58FB1'; b.fillRect(Math.round(x) - ox, Math.round(y) - oy, 2, 1); b.fillStyle = '#D9637F'; b.fillRect(Math.round(x) + 1 - ox, Math.round(y) + 1 - oy, 1, 1); }); } });
@@ -265,9 +285,145 @@ function drawInside(T, t, list) {
   list.push({ z: 134, draw() {
     spr('counterLong', 64, 104); spr('tillBlue', 76, 90); spr('basket', 150, 93);
     if (has('vase')) spr('vase', 120, 92);
+    const tr = T.treasures || [];
+    if (tr.length) {
+      spr('treasureLedge', LEDGE[0], LEDGE[1]);
+      SDV.TREASURE_ORDER.forEach((id, i) => { if (tr.indexOf(id) >= 0) spr('t_' + id, LEDGE[0] + 3 + i * 15, LEDGE[1] - 13); });
+    }
   } });
   if (has('catbed')) list.push({ z: 156, draw: () => spr('catBed', 54, 138, reduced ? 0 : Math.floor(t / 1400) % 2) });
 }
+/* ================= Bramble Wood village: a lane wider than the screen ================= */
+// The lane runs left to right; every home and stall stands just behind it with its door facing us.
+// x: the middle of the place; door: where its neighbour comes out; box: the tappable picture [x0, y0, x1, y1].
+const VIL = { w: 1072, h: 400 }, LANE_Y = 238, BASE = 228;
+const VPL = {
+  gate: { x: 40, stand: 60 },
+  burrow: { x: 190, door: [190, 229], box: [138, 154, 242, 230] },
+  stall: { x: 340, door: [384, 232], box: [302, 160, 378, 230] },
+  oak: { x: 500, door: [500, 230], box: [442, 126, 600, 232] },
+  market: { x: 660, door: [704, 232], box: [600, 160, 730, 230] },
+  ring: { x: 820, door: [820, 216], box: [770, 180, 870, 232] },
+  pond: { x: 975, door: [969, 202], box: [900, 168, 1050, 232] },
+};
+const STAND = 14; // the shopkeeper stands this far left of a place's middle, the neighbour this far right
+const RING_LAMPS = [-170, -125, -75, -30, 12, 122].map(a => [Math.round(820 + Math.cos(a * Math.PI / 180) * 42) - 3, Math.round(216 + Math.sin(a * Math.PI / 180) * 12) - 14]);
+let goKey = '', vLayer = null;
+const vPlace = () => VPL[window.TSV.place] || null;
+function vMeet() { const P = vPlace() || VPL.burrow; return [P.x + STAND, LANE_Y]; }
+function vDoor() { const P = vPlace() || VPL.burrow; return P.door.slice(); }
+function goX(key) {
+  if (key.startsWith('x:')) return clamp(+key.slice(2) || 0, 12, VIL.w - 12);
+  const P = VPL[key] || VPL.gate;
+  return P.stand || P.x - STAND;
+}
+// Walk her to TSV.go, and say when she gets there (TSV.at): index.html waits for it.
+function vWalk(T) {
+  if (!keeper) return;
+  const key = T.go || 'gate';
+  if (key !== goKey) {
+    goKey = key;
+    const tx = goX(key), d = Math.hypot(tx - keeper.x, LANE_Y - keeper.y);
+    walk(keeper, [tx, LANE_Y], Math.min(6.5, d / 150)); // the far end of the lane is about six seconds away
+  }
+  if (keeper.t >= 1 && T.at !== goKey) T.at = goKey;
+}
+// The camera follows her along the lane, and frames her and a neighbour during a visit.
+// Vertically: the people on the lane always show, then as much of the roofs as the free band allows.
+function vCam(T) {
+  const k = K / DPR, top = (T.top || 0) / k, bot = (T.bottom || innerHeight) / k, bh = Math.max(30, bot - top);
+  const viewW = cv.width / K;
+  const P = vPlace();
+  let fx = keeper ? keeper.x : VPL.gate.stand;
+  if (P && T.cust) fx = P.x;
+  const x = clamp(fx - viewW / 2, 0, VIL.w - viewW);
+  const want0 = BASE - 76, want1 = LANE_Y + 8; // the roofs of the burrow and the stalls .. her shadow
+  let y;
+  if (bh >= want1 - want0) y = (want0 + want1) / 2 - (top + bh / 2);
+  else if (bh >= 50) y = want1 - bot;
+  else y = LANE_Y - 38 - top;
+  return { x, y };
+}
+// Everything that never moves, painted once into one picture the first time she walks into the village.
+function buildVillage() {
+  const cols = VIL.w / 16, rows = VIL.h / 16, rnd = SDV.rng(23), m = [];
+  for (let y = 0; y < rows; y++) {
+    let r = '';
+    for (let x = 0; x < cols; x++) {
+      let ch = rnd() < 0.07 ? '*' : rnd() < 0.06 ? '+' : rnd() < 0.3 ? ',' : '.';
+      if (y < 3 || y >= rows - 2) ch = 'h';
+      if (y === 14 || y === 15) ch = ':';
+      r += ch;
+    }
+    m.push(r);
+  }
+  const c = tileCanvas(m), x = c.getContext('2d');
+  const put = (n, px, py, f = 0) => x.drawImage(DEFS[n].frames[f], px, py);
+  put('vPond', 901, 172);
+  const props = [
+    // the wood behind the village
+    ['tree', -12, 26], ['tree', 70, 18], ['tree', 150, 30], ['tree', 236, 14], ['tree', 330, 28], ['tree', 410, 20], ['tree', 560, 24], ['tree', 640, 16], ['tree', 730, 30], ['tree', 810, 18], ['tree', 890, 26], ['tree', 980, 14], ['tree', 1040, 30],
+    ['tree', 62, 104], ['tree', 250, 100], ['tree', 384, 94], ['tree', 596, 98], ['tree', 712, 112], ['tree', 858, 98], ['tree', 1016, 88],
+    ['bush', 108, 196], ['bush', 280, 194], ['bush', 744, 196], ['bush', 870, 198],
+    // the places
+    ['vGate', 14, 166], ['vPicket', -10, 214], ['vPicket', 66, 214], ['vGateSign', 82, 202],
+    ['vBurrow', 138, 154], ['vCarrots', 248, 210],
+    ['vFlowerStall', 304, 160],
+    ['vBooks', 422, 214], ['vOak', 442, 126], [SDV.signBoard('Library'), 566, 206],
+    ['vPyramid', 600, 174], ['vTreasureStall', 624, 160], ['vPalm', 700, 186],
+    ['vRing', 774, 190],
+    ['vJetty', 966, 190], ['vChest', 1040, 215], ['vLog', 1050, 202],
+    // in front of the lane: low things only, so nobody on the lane is ever covered
+    ['bush', 20, 286], ['bush', 300, 300], ['bush', 560, 292], ['bush', 838, 296], ['bush', 1010, 290],
+    ['shroom', 130, 270], ['shroom', 236, 282], ['shroom', 470, 276], ['shroom', 700, 284], ['shroom', 930, 272],
+    ['rock', 180, 300], ['rock', 400, 268], ['rock', 640, 306], ['rock', 960, 312], ['vLog', 760, 316],
+  ];
+  props.sort((p, q) => (p[2] + DEFS[p[0]].h) - (q[2] + DEFS[q[0]].h)).forEach(p => put(p[0], p[1], p[2]));
+  return c;
+}
+const VBUGS = Array.from({ length: 4 }, (_, i) => ({ x0: 120 + i * 260, y0: 170 + (i % 2) * 30, ax: 40, ay: 16, sp: 0.0004 + i * 0.00006, ph: i * 1.9, n: i % 2 ? 'butterflyY' : 'butterfly' }));
+const DUCKS = [{ x0: 932, y0: 206, ax: 20, sp: 0.00045, ph: 0 }, { x0: 1014, y0: 192, ax: 16, sp: 0.0006, ph: 2 }];
+function nearDoor(id) {
+  const P = VPL[id]; if (!P.door) return false;
+  return [cust, queued, ...leaving].some(a => a && a.place === id && Math.hypot(a.x - P.door[0], a.y - P.door[1]) < 12);
+}
+function drawVillage(T, t, list) {
+  if (!vLayer) vLayer = buildVillage();
+  b.fillStyle = '#2F6B2A'; b.fillRect(0, 0, BW, BH);
+  b.drawImage(vLayer, -ox, -oy);
+  // doors open while a neighbour is on the step
+  if (nearDoor('burrow')) spr('vBurrow', 138, 154, 1);
+  if (nearDoor('oak')) spr('vOak', 442, 126, 1);
+  // fairy ring lanterns
+  const lit = !!T.ringLit;
+  RING_LAMPS.forEach((p, i) => {
+    if (lit) spr('glowSm', p[0] + 3 - 8, p[1] + 3 - 6);
+    spr('vLantern', p[0], p[1], lit && (reduced || (Math.floor(t / 260) + i) % 7) ? 1 : 0);
+  });
+  if (lit && !reduced) { const k = Math.floor(t / 220); for (let i = 0; i < 4; i++) { const s = (k + i * 5) % 13; spr('sparkle', 790 + (s * 17) % 60, 194 + (s * 7) % 22, (k + i) % 2); } }
+  // the boat bobs by the jetty, the ducks paddle about, smoke curls from the burrow
+  const bob = reduced ? 0 : Math.round(Math.sin(t / 700));
+  spr('vBoat', 922, 176 + bob);
+  DUCKS.forEach((d, i) => { const s = reduced ? 0 : Math.sin(t * d.sp + d.ph); spr('vDuck', d.x0 + s * d.ax, d.y0 + (i ? 0 : bob), Math.floor(t / 400) % 2); });
+  if (!reduced) for (let i = 0; i < 3; i++) {
+    const p = ((t / 2600) + i / 3) % 1, x = 138 + 77 + Math.sin(p * 6 + i) * 3 + p * 6, y = 154 + 6 - p * 26, r = 1 + Math.round(p * 2);
+    b.fillStyle = p > 0.7 ? 'rgba(232,236,240,.5)' : '#E8ECF0'; b.fillRect(Math.round(x) - r - ox, Math.round(y) - r - oy, r * 2, r * 2);
+  }
+  if (!reduced) VBUGS.forEach(k => { const x = k.x0 + Math.sin(t * k.sp * 2 + k.ph) * k.ax, y = k.y0 + Math.sin(t * k.sp * 3.1 + k.ph) * k.ay; list.push({ z: 999, draw: () => spr(k.n, x, y, Math.floor(t / 160) % 2) }); });
+}
+// Tapping the village: a home or stall visits it, anywhere else walks there. The game decides (TSV.onTap).
+let tapDown = null;
+cv.addEventListener('pointerdown', e => { tapDown = [e.clientX, e.clientY, perf()]; });
+cv.addEventListener('pointerup', e => {
+  const T = window.TSV, d0 = tapDown; tapDown = null;
+  if (!d0 || scene !== 'village' || !T || typeof T.onTap !== 'function') return;
+  if (Math.hypot(e.clientX - d0[0], e.clientY - d0[1]) > 16 || perf() - d0[2] > 800) return;
+  const wx = ox + e.clientX * DPR / K, wy = oy + e.clientY * DPR / K;
+  let hit = null;
+  for (const id in VPL) { const bx = VPL[id].box; if (bx && wx >= bx[0] && wx <= bx[2] && wy >= bx[1] && wy <= bx[3]) hit = id; }
+  T.onTap(hit ? { place: hit } : { x: Math.round(wx) });
+});
+
 function dusk(T, t) {
   b.globalCompositeOperation = 'multiply'; b.fillStyle = '#8C82CC'; b.fillRect(0, 0, BW, BH);
   b.globalCompositeOperation = 'source-over';
@@ -293,12 +449,13 @@ function frame(now) {
   else { const e = Math.min(1, dt * 2.5); cam.x += (tg.x - cam.x) * e; cam.y += (tg.y - cam.y) * e; }
   ox = Math.round(cam.x); oy = Math.round(cam.y);
   const t = reduced ? 0 : now, list = [];
-  if (scene === 'inside') drawInside(T, t, list); else drawOutside(T, t, list);
+  if (scene === 'village') { vWalk(T); drawVillage(T, t, list); }
+  else if (scene === 'inside') drawInside(T, t, list); else drawOutside(T, t, list);
   if (keeper) list.push(actorDraw(keeper, 'keeper', t));
   if (cust) list.push(actorDraw(cust, 'cust', t));
   leaving.forEach(a => list.push(actorDraw(a, 'leave', t)));
   list.sort((p, q) => p.z - q.z).forEach(d => d.draw());
-  if (scene !== 'inside' && T.time === 'evening') dusk(T, t);
+  if (scene === 'outside' && T.time === 'evening') dusk(T, t);
   ctx.drawImage(buf, 0, 0, BW * K, BH * K);
 }
 
@@ -368,7 +525,7 @@ window.SkinEvent = function (type, a, c) {
 /* ================= go live ================= */
 window.Shop3D = baker;
 document.body.classList.add('g3d', 'sdv');
-window.__ts3d = { get K() { return K; }, get cam() { return cam; }, get actors() { return { keeper, cust, leaving, queued }; }, hearts: () => hearts };
+window.__ts3d = { get K() { return K; }, get cam() { return cam; }, get actors() { return { keeper, cust, leaving, queued }; }, hearts: () => hearts, settle() { snapCam = true; }, VPL };
 requestAnimationFrame(frame);
 try { if (G.__ts) { G.__ts.on3d(); } } catch (e) { console.warn('[pixel] redraw', e); }
 try { if (typeof hud === 'function') hud(); } catch (e) { /* the HUD redraws on the next change anyway */ }
