@@ -295,3 +295,14 @@ button.coin.v10::after { content: ''; position: absolute; inset: -4px; } /* the 
   .opt.glow, .pulse, .oshield.hit b, .oboost.up, .oboost.lit .pips i.on:last-of-type, .oct-break .bk, .oct-break .ty, .oct-break .shards i { animation: none !important; }
   .oct-chapter { transition: none; }
 }
+
+/* the wardrobe (👗) and the evening "For me" shelf */
+#wardrobe .card { background: linear-gradient(180deg, rgba(38,54,108,.97), rgba(16,22,48,.97)); border: 3px double var(--gold); border-radius: 12px; box-shadow: 0 0 0 2px rgba(7,11,24,.85), var(--shadow); color: var(--parch); }
+.wlab { color: var(--pale); font-family: var(--f-body); opacity: 1; }
+.wnote { color: var(--parch); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+.wlook { background: radial-gradient(circle at 50% 35%, #33478a, #141d40); box-shadow: 0 0 0 3px var(--gold), 0 0 18px rgba(242,169,59,.35); }
+.wlook img { image-rendering: pixelated; image-rendering: crisp-edges; }
+.decor button.on { background: linear-gradient(180deg, #8a5a2a, #4a2c12); border-color: var(--pale); box-shadow: 0 0 0 2px rgba(7,11,24,.85), 0 5px 0 #2a1808, 0 0 16px rgba(242,169,59,.6); outline: 0; }
+.decor button.try { outline: 3px solid var(--honey); outline-offset: 2px; }
+.tabs button { background: linear-gradient(180deg, #33478a, #1b2652 60%, #131b3c); border: 3px double var(--gold); border-radius: 10px; color: var(--parch); box-shadow: 0 0 0 2px rgba(7,11,24,.85), 0 5px 0 #0a0f22; }
+.tabs button.sel { background: linear-gradient(180deg, #f4c870, #c98a2a); color: #2a1a14; }

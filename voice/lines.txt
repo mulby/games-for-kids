@@ -533,3 +533,42 @@ today for careful counting	today for careful counting!
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+i can buy something for my shop or something to wear	I can buy something for my shop, or something to wear!
+things to wear	Things to wear
+things for my shop	Things for my shop
+i can wear it with the dress button	I can wear it with the dress button.
+dress	dress!
+i took off my	I took off my
+gave me	gave me
+i'm wearing	I'm wearing
+now	now.
+i can change my clothes any time with the dress button	I can change my clothes any time with the dress button.
+white bow	white bow
+pink bow	pink bow
+blue bow	blue bow
+straw sun hat	straw sun hat
+flower crown	flower crown
+sparkly tiara	sparkly tiara
+pirate hat	pirate hat
+laurel wreath	laurel wreath
+knitted scarf	knitted scarf
+pearl necklace	pearl necklace
+golden collar	golden collar
+round glasses	round glasses
+fairy wings	fairy wings
+shop apron	shop apron
+flowery dress	flowery dress
+plain dress	plain dress
+spotty dress	spotty dress
+stripy dress	stripy dress
+picnic check dress	picnic check dress
+heart dress	heart dress
+starry dress	starry dress
+i can buy the	i can buy the
+in the evening	in the evening
+is a present	is a present
+maybe a friend will bring it one day	maybe a friend will bring it one day
+captain whiskers gave me a	captain whiskers gave me a
+miu the temple cat gave me a	miu the temple cat gave me a
+athena's owl gave me a	athena's owl gave me a
+the fairy queen gave me some	the fairy queen gave me some

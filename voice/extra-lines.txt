@@ -47,3 +47,33 @@ bramble	Whoa, quick paws!
 main	Whoa, quick paws!
 main	You got it right the first time!
 main	Here is a penny tip.
+main	white bow
+main	pink bow
+main	blue bow
+main	straw sun hat
+main	flower crown
+main	sparkly tiara
+main	pirate hat
+main	laurel wreath
+main	knitted scarf
+main	pearl necklace
+main	golden collar
+main	round glasses
+main	fairy wings
+main	shop apron
+main	flowery dress
+main	plain dress
+main	spotty dress
+main	stripy dress
+main	picnic check dress
+main	heart dress
+main	starry dress
+main	i can buy the
+main	in the evening
+main	it costs
+main	is a present
+main	maybe a friend will bring it one day
+main	captain whiskers gave me a
+main	miu the temple cat gave me a
+main	athena's owl gave me a
+main	the fairy queen gave me some

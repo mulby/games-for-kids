@@ -14,10 +14,27 @@ pitched at her level.
 | **Shop time** | Each animal arrives with a wish list. Her prices and her shelf decide what they actually buy: too expensive means fewer, sold out means a missed sale that goes in the notebook. She fills the basket, works out the price, then takes their coins: counting them, or (most of the time) giving change. | Counting, adding, taking away, money |
 | **Special visitors** (from day 4) | Friends from the other games drop in: Captain Whiskers needs biscuits for his sailors, Miu the temple cat, Athena's owl. Each brings one bigger problem. | Equal groups, comparing, missing numbers |
 | **Evening** | Count what is left on the shelf (fresh leftovers are pennies spent for nothing), then the profit: "I took in 18 and paid Bramble 8. How much did my shop earn?" Best day and total earned are kept, with cards at 20, 50, 100 and 200 pennies earned. Stack the till into tens. If she has fewer than 10, Aunt Clover's rainy-day tin tops it up to 10. | Taking away, tens and ones, teen numbers |
-| **Saving up** | One purse ("My money", no separate jar since 2026-10-15). She always keeps 10 pennies for Bramble's cart, and anything above that can buy upgrades she can see in 3D: a shop sign, a striped awning, window boxes, lanterns, a bell, a bigger shelf (more goods), a cat bed. | How many more, taking away |
+| **Saving up** | One purse ("My money", no separate jar since 2026-10-15). She always keeps 10 pennies for Bramble's cart, and anything above that can buy things she can see: on the "For my shop" shelf a shop sign, a striped awning, window boxes, lanterns, a bell, a cat bed; on the "For me" shelf clothes for her shopkeeper (she taps one to try it on, then buys it). | How many more, taking away |
 
 Every new customer becomes a friend card in the binder; special visitors are Rare, and the Fairy Queen, who comes
 to the grand reopening, is the game's Legendary card.
+
+## The shopkeeper's wardrobe
+
+She can change her shopkeeper's clothes any time with the 👗 button in the top bar: the dress colour (all five are free), and whatever she owns.
+The list lives in `wardrobe.js` (shared by all three looks, and meant to be reused by any other clothes seller) and the save keeps `closet` (what she owns) and `keeper.wear` (what is on, by slot).
+
+| Slot | Free | To buy (evening "For me" shelf) | Presents |
+| --- | --- | --- | --- |
+| Dress | flowery, plain | spotty 6¢, stripy 10¢, picnic check 14¢, hearts 17¢, starry 22¢ | |
+| Head | white bow | pink or blue bow 4¢, straw sun hat 9¢, flower crown 12¢, sparkly tiara 25¢ | pirate hat (Captain Whiskers), laurel wreath (Athena's owl) |
+| Neck | | knitted scarf 6¢, pearl necklace 16¢ | golden collar (Miu) |
+| Nose | | round glasses 10¢ | |
+| Back | | | fairy wings (the Fairy Queen) |
+| Apron | shop apron (can come off) | | |
+
+A special visitor leaves their present after their first visit and she puts it on at once; older saves get the presents of friends who already came.
+Owning every piece of clothing earns the "Best Dressed in Bramble Wood" card.
 
 ## The first days (onramp)
 
@@ -77,6 +94,7 @@ answers in those days were right first time; it still drops after 2 misses, so a
 ## Files
 
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
+- `wardrobe.js`: the shopkeeper's clothes list and helpers (also loaded by the Lantern Tale and Pixel Valley looks).
 - `shop3d.js`: the 3D world: the toadstool shop inside and out, the shopkeeper mouse, every customer, the goods,
   coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures
   (goods, coins, portraits, decorations) from the same models with the same lights (`window.Shop3D`).
