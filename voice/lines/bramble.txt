@@ -8,17 +8,14 @@ my cart is full of good things	My cart is full of good things.
 morning	Morning!
 lovely day for shopping	Lovely day for shopping.
 your shelf is full of	Your shelf is full of
-there isn't enough in your till for that today	There isn't enough in your till for that today.
-your notebook says	Your notebook says
-could have sold yesterday but they ran out	could have sold yesterday, but they ran out!
-in each	in each.
-that's	That's
-how many	How many
-is that	is that?
 nothing today	Nothing today?
 that's all right	That's all right.
 see you tomorrow	See you tomorrow!
 open the shop	Open the shop!
+in each	in each.
+that's	That's
+how many	How many
+is that	is that?
 altogether	altogether.
 how much is that altogether	How much is that altogether?
 your till	Your till
@@ -46,13 +43,16 @@ but some animals will think it is too expensive and buy fewer	But some animals w
 honey pot	honey pot
 a honey pot	a honey pot
 nobody would pay more than	Nobody would pay more than
-come in	come in
-each	Each
-would you like	would you like?
-that's all your shelf can hold	That's all your shelf can hold!
-that's all the pennies in your till	That's all the pennies in your till!
 here is your order	Here is your order.
 you can still change it before you pay	You can still change it before you pay.
+here is everything on my cart	Here is everything on my cart.
+how many would you like	How many would you like?
+you can change it until you pay	You can change it until you pay.
+come in	come in
+each	Each
+that's all your shelf can hold	That's all your shelf can hold!
+that's all i have today	That's all I have today!
+that's all the pennies in your till	That's all the pennies in your till!
 acorn bun	acorn bun
 acorn buns	acorn buns
 apple	apple
@@ -122,6 +122,8 @@ the fairy lights	the fairy lights
 a bag of	a bag of
 and the	and the
 each bag costs	each bag costs
+each box costs	each box costs
+each crate costs	each crate costs
 pennies altogether	pennies altogether
 pennies please	pennies please
 the	the

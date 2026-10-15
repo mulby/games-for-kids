@@ -2,6 +2,8 @@
 bramble	a bag of
 bramble	and the
 bramble	each bag costs
+bramble	each box costs
+bramble	each crate costs
 bramble	pennies altogether
 bramble	pennies please
 main	go in my savings jar

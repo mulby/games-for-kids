@@ -101,6 +101,14 @@ button.coin{padding:0}
 .prow .cnt button{width:52px;height:52px;font-size:32px}
 .prow .ptag{font-size:34px;min-width:72px;background:#fff6c8;border:2px solid #e5d48a;border-radius:10px}
 .prow .ptag.hi{background:#ffd9c9;border-color:#e59a7a}.prow .ptag.lo{background:#d9f0d0;border-color:#8cc47a}
+.tillbox{gap:4px 14px;padding:6px 14px;min-height:0;width:100%;max-width:680px;margin:0 auto}
+.cart .prow{display:grid;grid-template-columns:60px minmax(0,1fr) auto 64px;width:100%;max-width:680px;margin:0 auto}
+.tillbox .tb{display:inline-flex;align-items:center;gap:8px;font-size:22px;font-weight:700;padding:2px 10px;border-radius:12px}.tillbox .tb b{font-size:34px}
+.tillbox .coin{width:40px;height:40px}
+.pennies{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;width:100%;max-width:520px}.pennies i{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#e9a46a,#b8693a);box-shadow:inset 0 0 0 2px #9a5a32}.pennies i.gone{background:#eee3d3;box-shadow:inset 0 0 0 2px #d8c4a8;opacity:.6}
+.prow .say{background:none;padding:0;min-width:56px;min-height:56px}
+.prow .pn .note{font-size:14px;padding:1px 6px;margin-top:3px;font-weight:400}
+.btn.stick{position:sticky;bottom:0;z-index:2}
 .pickbtn{display:inline-flex;flex-direction:column;align-items:center;background:#fff;border-radius:18px;padding:6px 10px;box-shadow:0 5px 0 #d8c4a8;min-width:92px}
 .pickbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #d8c4a8}
 .pickbtn small{font-size:15px;font-weight:700}
@@ -1521,32 +1529,27 @@ async function morning() {
     await talk('bramble', pick(['Good morning! What would you like today?', 'Hello again! My cart is full of good things.', 'Morning! Lovely day for shopping.']));
   }
   const offer = [...new Set([...unlocked(S.day), ...Object.keys(S.wanted || {})])].filter(g => GOODS[g]);
-  // Her order stays hers to change until she pays Bramble: Back steps to the good before, and
-  // before paying she sees the whole order with − and +, and can come back to it from the sum and the pay screen.
+  // Everything on Bramble's cart is on one screen with how many pennies she will have left,
+  // and her order stays hers to change until she pays: the sum and the pay screen both lead back to it.
   const lines = [];
   for (const g of offer) {
     const size = packFor(), cost = packCost(g, size);
     if (10 - (S.stock[g] || 0) < size) { await talk('bramble', `Your shelf is full of ${GOODS[g].many}!`); continue; }
-    lines.push({ g, size, cost, n: 0, seen: false, said: false, asked: 0 });
+    lines.push({ g, size, cost, n: 0, asked: 0 });
   }
   const spentBut = l => lines.reduce((s, o) => s + (o === l ? 0 : o.n * o.cost), 0);
   const mostFor = l => Math.min(Math.floor((10 - (S.stock[l.g] || 0)) / l.size), Math.floor((S.till - spentBut(l)) / l.cost), S.day < SUMS_DAY ? 2 : 5);
-  for (let i = 0; i < lines.length;) {
-    const l = lines[i], { g, size, cost } = l, most = mostFor(l);
-    if (most <= 0) {
-      if ((!l.said || l.n) && S.day > 1) await talk('bramble', `A ${PACK[size]} of ${GOODS[g].many} costs ${cost}. There isn't enough in your till for that today.`);
-      l.said = true; l.n = 0; i++; continue;
-    }
-    // No suggestion after day 1: how much to buy is her decision, from her notebook.
-    let start = l.seen ? l.n : S.day === 1 ? (g === 'bun' ? 4 : 2) : (S.lastBuy && S.lastBuy[g] && S.lastBuy[g].size === size ? S.lastBuy[g].n : 1);
-    start = clamp(start, l.seen ? 0 : 1, most);
-    const missed = (S.lastMissed || {})[g] || 0;
-    if (!l.seen && missed && most > 1 && S.day >= PRICES_DAY) await talk('bramble', `Your notebook says ${missed} more ${plural(missed, GOODS[g].one, GOODS[g].many)} could have sold yesterday, but they ran out!`);
-    const canBack = lines.slice(0, i).some(o => mostFor(o) > 0);
-    const n = await chooseQty(g, size, cost, most, start, canBack);
-    if (n < 0) { do i--; while (i > 0 && mostFor(lines[i]) <= 0); continue; }
-    l.seen = true; l.n = n; S.lastBuy = S.lastBuy || {}; S.lastBuy[g] = { size, n };
-    if (n > 1 && n !== l.asked) {
+  let cart = [], again = false;
+  for (;;) {
+    if (lines.length) await shopCart(lines, mostFor, again);
+    again = true;
+    S.lastBuy = S.lastBuy || {};
+    for (const l of lines) S.lastBuy[l.g] = { size: l.size, n: l.n };
+    cart = lines.filter(l => l.n).map(l => ({ g: l.g, qty: l.n * l.size, cost: l.n * l.cost, n: l.n, size: l.size }));
+    if (!cart.length) { await talk('bramble', 'Nothing today? That\'s all right. See you tomorrow!', 'Open the shop!'); break; }
+    for (const { g, size, n } of cart) {
+      const l = lines.find(o => o.g === g);
+      if (n < 2 || n === l.asked) continue;
       l.asked = n;
       if (S.day < SUMS_DAY) {
         await talk('bramble', `${n} ${PACKS[size]} with ${size} in each. That's ${n * size} ${GOODS[g].many}!`, 'Next',
@@ -1560,14 +1563,6 @@ async function morning() {
         });
       }
     }
-    i++;
-  }
-  let cart = [];
-  for (;;) {
-    if (lines.length) await reviewOrder(lines, mostFor);
-    cart = lines.filter(l => l.n).map(l => ({ g: l.g, qty: l.n * l.size, cost: l.n * l.cost, n: l.n, size: l.size }));
-    for (const l of lines) { S.lastBuy = S.lastBuy || {}; S.lastBuy[l.g] = { size: l.size, n: l.n }; }
-    if (!cart.length) { await talk('bramble', 'Nothing today? That\'s all right. See you tomorrow!', 'Open the shop!'); break; }
     const total = cart.reduce((s, c) => s + c.cost, 0);
     if (cart.length > 1 && S.day < SUMS_DAY) {
       await talk('bramble', `${cart.map((c, i) => `${i ? 'the' : 'The'} ${GOODS[c.g].many} are ${c.cost}`).join(' and ')}. That's ${total} ${plural(total, 'penny', 'pennies')} altogether.`, 'Next',
@@ -1634,40 +1629,27 @@ function priceTags() {
     rerender = draw; draw();
   });
 }
-function chooseQty(g, size, cost, most, suggest, back = false) {
+// Bramble's whole cart on one screen: how many of each, and how many pennies that leaves in her till.
+// Tapping a good says what it is. again: she came back from the sum or the pay screen.
+function shopCart(lines, mostFor, again) {
   return new Promise(res => {
-    let n = suggest;
-    say('bramble', `${GOODS[g].many[0].toUpperCase() + GOODS[g].many.slice(1)} come in ${PACKS[size]} of ${size}. Each ${PACK[size]} costs ${cost} ${plural(cost, 'penny', 'pennies')}. How many ${PACKS[size]} would you like?`);
-    const draw = () => setPanel(`
-      <div class="row"><span class="grp">${goodImg(g)}<span class="lab">${PACK[size]} of ${size}</span></span><span class="tag">${cost}¢ a ${PACK[size]}</span>
-        ${S.day >= PRICES_DAY ? `<span class="tag">You sell at ${priceOf(g)}¢ each</span><span class="small">On the shelf: ${S.stock[g] || 0}</span>` : ''}</div>
-      ${S.day >= PRICES_DAY ? notebookLine(g) : ''}
-      <div class="cnt"><button id="mi" aria-label="fewer">−</button><b>${n}</b><button id="pl" aria-label="more">+</button></div>
-      <div class="row">${back ? `<button class="btn alt" id="bk">◀ Back</button>` : ''}<button class="btn alt" id="none">No, thank you</button><button class="btn" id="ok" ${n ? '' : 'disabled'}>Buy ${n} ${plural(n, PACK[size], PACKS[size])}</button></div>`, p => {
-      $('#mi', p).addEventListener('click', () => { if (n > 0) { n--; SFX.tap(); speak(String(n)); draw(); } });
-      $('#pl', p).addEventListener('click', () => { if (n < most) { n++; SFX.tap(); speak(String(n)); draw(); } else say('bramble', n * size + (S.stock[g] || 0) >= 10 - size + 1 ? 'That\'s all your shelf can hold!' : 'That\'s all the pennies in your till!'); });
-      $('#none', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(0); });
-      if (back) $('#bk', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(-1); });
-      $('#ok', p).addEventListener('click', () => { if (!n) return; SFX.tap(); rerender = null; res(n); });
-    });
-    rerender = draw; draw();
-  });
-}
-
-// Her whole order before she pays: still hers to change with − and +.
-function reviewOrder(lines, mostFor) {
-  return new Promise(res => {
-    say('bramble', 'Here is your order. You can still change it before you pay.');
+    say('bramble', again ? 'Here is your order. You can still change it before you pay.' : 'Here is everything on my cart. How many would you like? You can change it until you pay.');
     DBG.cur = { type: 'order' };
-    const draw = () => { const any = lines.some(l => l.n); setPanel(`
-      <div class="prices">${lines.map(l => `<div class="prow">${goodImg(l.g, 'sm')}<span class="pn">${GOODS[l.g].many}<small>${PACK[l.size]} of ${l.size} · ${l.cost}¢ a ${PACK[l.size]}</small></span>
+    const draw = () => {
+      const spent = lines.reduce((s, l) => s + l.n * l.cost, 0), left = S.till - spent, any = lines.some(l => l.n);
+      setPanel(`
+      <div class="tray tillbox"><span class="tb">${coinHTML(1)} Your till <b>${S.till}</b></span><span class="tb">Left after this <b>${left}</b></span>
+        ${S.till <= 30 ? `<div class="pennies" aria-hidden="true">${Array.from({ length: S.till }, (_, i) => `<i class="${i >= left ? 'gone' : ''}"></i>`).join('')}</div>` : ''}</div>
+      <div class="prices cart">${lines.map(l => `<div class="prow"><button class="say" data-s="${l.g}">${goodImg(l.g, 'sm')}</button><span class="pn">${GOODS[l.g].many}<small>${PACK[l.size]} of ${l.size} · ${l.cost}¢ a ${PACK[l.size]}</small>${S.day >= PRICES_DAY ? `<small>On the shelf: ${S.stock[l.g] || 0} · you sell at ${priceOf(l.g)}¢</small>${notebookLine(l.g)}` : ''}</span>
         <span class="cnt"><button data-m="${l.g}" aria-label="fewer">−</button><b>${l.n}</b><button data-p="${l.g}" aria-label="more">+</button></span><span class="pn"><small>${plural(l.n, PACK[l.size], PACKS[l.size])}</small></span></div>`).join('')}</div>
-      <button class="btn" id="nx">${any ? 'Pay Bramble' : 'Nothing today'}</button>`, p => {
-      const line = g => lines.find(l => l.g === g);
-      $$('[data-m]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.m); if (l.n > 0) { l.n--; SFX.tap(); speak(String(l.n)); draw(); } }));
-      $$('[data-p]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.p); if (l.n < mostFor(l)) { l.n++; SFX.tap(); speak(String(l.n)); draw(); } else say('bramble', l.n * l.size + (S.stock[l.g] || 0) > 10 - l.size ? 'That\'s all your shelf can hold!' : 'That\'s all the pennies in your till!'); }));
-      $('#nx', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
-    }); };
+      <button class="btn stick" id="nx">${any ? 'Pay Bramble' : 'Nothing today'}</button>`, p => {
+        const line = g => lines.find(l => l.g === g);
+        $$('[data-s]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.s); say('bramble', `${GOODS[l.g].many[0].toUpperCase() + GOODS[l.g].many.slice(1)} come in ${PACKS[l.size]} of ${l.size}. Each ${PACK[l.size]} costs ${l.cost} ${plural(l.cost, 'penny', 'pennies')}.`); }));
+        $$('[data-m]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.m); if (l.n > 0) { l.n--; SFX.tap(); speak(String(l.n)); draw(); } }));
+        $$('[data-p]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.p); if (l.n < mostFor(l)) { l.n++; SFX.tap(); speak(String(l.n)); draw(); } else say('bramble', l.n * l.size + (S.stock[l.g] || 0) > 10 - l.size ? 'That\'s all your shelf can hold!' : l.n >= (S.day < SUMS_DAY ? 2 : 5) ? 'That\'s all I have today!' : 'That\'s all the pennies in your till!'); }));
+        $('#nx', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
+      });
+    };
     rerender = draw; draw();
   });
 }
