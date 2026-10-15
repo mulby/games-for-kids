@@ -1180,11 +1180,13 @@ function record(k, ok) {
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START);
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 3, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
 if (!S || S.v !== 1) S = freshState(); else S = Object.assign(freshState(), S);
+// One purse: anything in the old savings jar joins her money.
+if (S.jar) { S.till += S.jar; S.jar = 0; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 /* ================= sound and voice ================= */
@@ -1327,8 +1329,8 @@ function setPanel(html, bind) {
 function hud() {
   const on = !!S.keeper && S.phase !== 'intro';
   $('#dayChip').hidden = !on; $('#dayChip').textContent = `Day ${S.day}`;
-  $('#tillChip').hidden = !on; $('#tillChip').innerHTML = `${coinHTML(1)} <small class="clab">Shop money</small> ${S.till}`;
-  $('#jarChip').hidden = !on; $('#jarChip').innerHTML = `${window.Shop3D && Shop3D.icon ? `<img src="${Shop3D.icon('jar')}" alt="">` : '🫙'} <small class="clab">Savings</small> ${S.jar}`; /* skin hook H5 */
+  $('#tillChip').hidden = !on; $('#tillChip').innerHTML = `${coinHTML(1)} <small class="clab">My money</small> ${S.till}`;
+  $('#jarChip').hidden = true;
   $('#snd').textContent = S.settings.voice ? '🔊' : '🔈';
 }
 $('#snd').addEventListener('click', () => { const on = !S.settings.voice; S.settings.voice = S.settings.sfx = on; save(); hud(); if (on) { SFX.tap(); speak('Sound on!'); } else stopSpeech(); });
@@ -1466,7 +1468,7 @@ async function playDay() {
 async function intro() {
   setScene('outside', { time: 'morning' });
   TSV.keeper = null;
-  const letter = `<div class="letter">Dear little one,<br>I'm off to see the world in a hot-air balloon! The Toadstool Shop is yours now. Look after the animals of Bramble Wood, and keep the till ready for Bramble's cart each morning. I've left 3 pennies in the savings jar to start you off.<br>With love, Great-Aunt Clover</div>`;
+  const letter = `<div class="letter">Dear little one,<br>I'm off to see the world in a hot-air balloon! The Toadstool Shop is yours now. Look after the animals of Bramble Wood, and keep the till ready for Bramble's cart each morning. I've left you 10 pennies to start you off.<br>With love, Great-Aunt Clover</div>`;
   await talk('clover', 'Dear little one, the Toadstool Shop is yours now! Look after the animals of Bramble Wood.', 'Open the letter', '');
   await talk('clover', 'I\'m off to see the world in a hot-air balloon. Love, Great-Aunt Clover.', 'Who runs the shop?', letter);
   // meet the shopkeeper
@@ -1639,7 +1641,7 @@ function shopCart(lines, mostFor, again) {
     const draw = () => {
       const spent = lines.reduce((s, l) => s + l.n * l.cost, 0), left = S.till - spent, any = lines.some(l => l.n);
       setPanel(`
-      <div class="tray tillbox"><span class="tb">${coinHTML(1)} Shop money <b>${S.till}</b></span><span class="tb">Left after this <b>${left}</b></span>
+      <div class="tray tillbox"><span class="tb">${coinHTML(1)} My money <b>${S.till}</b></span><span class="tb">Left after this <b>${left}</b></span>
         ${S.till <= 30 ? `<div class="pennies" aria-hidden="true">${Array.from({ length: S.till }, (_, i) => `<i class="${i >= left ? 'gone' : ''}"></i>`).join('')}</div>` : ''}</div>
       <div class="prices cart">${lines.map(l => `<div class="prow"><button class="say" data-s="${l.g}">${goodImg(l.g, 'sm')}</button><span class="pn">${GOODS[l.g].many}<small>${PACK[l.size]} of ${l.size} · ${l.cost}¢ a ${PACK[l.size]}</small>${S.day >= PRICES_DAY ? `<small>On the shelf: ${S.stock[l.g] || 0} · you sell at ${priceOf(l.g)}¢</small>${notebookLine(l.g)}` : ''}</span>
         <span class="cnt"><button data-m="${l.g}" aria-label="fewer">−</button><b>${l.n}</b><button data-p="${l.g}" aria-label="more">+</button></span><span class="pn"><small>${plural(l.n, PACK[l.size], PACKS[l.size])}</small></span></div>`).join('')}</div>
@@ -1881,35 +1883,13 @@ async function evening() {
   const T = S.till;
   if (T >= 10 && S.day >= 2) await stackTask(T);
   else await talk('keeper', `There ${T === 1 ? 'is' : 'are'} ${T} ${plural(T, 'penny', 'pennies')} in the till.`);
-  // keep ten (or twenty, to buy more stock) for tomorrow, the rest to the jar
-  const keep = T > 10 && S.day >= PRICES_DAY ? await keepChoice(Math.min(T, 20)) : 10;
-  if (T > keep && S.day < SUMS_DAY) {
-    await talk('keeper', `${T} pennies! I'll keep 10 for Bramble's cart tomorrow. The other ${T - keep === 1 ? 'penny goes' : (T - keep) + ' go'} in my savings jar.`, 'Into the jar 🫙');
-    S.jar += T - keep; S.till = keep; hud(); SFX.coin(5); await moneyMoved();
-  } else if (T > keep) {
-    const rest = T - keep;
-    await ask({
-      k: 'P', who: 'keeper', q: `I'll keep ${keep} pennies for Bramble's cart tomorrow. How many go in my savings jar?`, answer: rest,
-      show: () => `<span class="grp"><span class="lab">${T} pennies</span>${dots(Math.min(10, T))}${T > 10 ? dots(Math.min(10, T - 10)) : ''}${T > 20 ? dots(Math.min(10, T - 20)) : ''}${T > 30 ? dots(T - 30) : ''}</span>`,
-      help: () => `<div class="row"><span class="grp"><span class="lab">Keep for Bramble</span>${dots(10)}${keep > 10 ? dots(10) : ''}</span><span class="grp"><span class="lab">Jar</span>${dots(Math.min(rest, 10))}${rest > 10 ? dots(Math.min(rest - 10, 10)) : ''}${rest > 20 ? dots(rest - 20) : ''}</span></div>`,
-      helpSay: keep > 10 ? 'Two stacks of ten stay in the till. Count what is left over.' : 'One stack of ten stays in the till. Count what is left over.',
-    });
-    S.jar += rest; S.till = keep; hud(); SFX.coin(5); await moneyMoved();
-  } else if (T < 10) {
+  if (T < 10) {
     await talk('clover', `Aunt Clover's rainy-day tin adds ${10 - T} ${plural(10 - T, 'penny', 'pennies')}, so you have 10 for tomorrow. Love, Clover.`);
     S.till = 10; hud();
-  } else await talk('keeper', `Exactly ${keep} for Bramble tomorrow!`);
+  }
   save();
   await decorShop();
   S.phase = 'night'; save();
-}
-// Pennies just moved from the till to the jar: the two chips glow, and the first time she hears what each is for.
-async function moneyMoved() {
-  for (const c of [$('#tillChip'), $('#jarChip')]) { c.classList.add('pulse'); setTimeout(() => c.classList.remove('pulse'), 2400); }
-  if (S.jarSeen) return;
-  S.jarSeen = 1; save();
-  await talk('keeper', 'My shop money pays Bramble for things to sell. My savings jar is for treats for my shop, like decorations.', 'Next',
-    `<div class="row"><span class="line">${coinHTML(1)} Shop money ${S.till}</span><span class="line">🫙 Savings ${S.jar}</span></div>`);
 }
 // Money in, money out: what the shop really earned today.
 async function profitTask() {
@@ -1944,18 +1924,6 @@ async function profitTask() {
   save();
 }
 const EARN_CARDS = [[20, 'earn-20', 'Busy Bee Shopkeeper', '🐝', 'common'], [50, 'earn-50', 'Golden Acorn Award', '🌰', 'rare'], [100, 'earn-100', 'Hundred Penny Purse', '👛', 'rare'], [200, 'earn-200', 'Shopkeeper of Bramble Wood', '🏆', 'sparkly']];
-// More pennies in the till buys more stock tomorrow; fewer fills the savings jar faster.
-function keepChoice(more) {
-  return new Promise(res => {
-    say('keeper', 'How much shall I keep in the till for Bramble\'s cart? More pennies buys more things to sell. The rest goes in my savings jar.');
-    DBG.cur = { type: 'keep' };
-    setPanel(`<div class="row">
-      <button class="opt" id="nx" data-k="10">${dots(10)}<br>Keep 10</button>
-      <button class="opt" data-k="${more}">${dots(10)}${dots(more - 10)}<br>Keep ${more}</button></div>`, p => {
-      $$('[data-k]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); rerender = null; res(+b.dataset.k); }));
-    });
-  });
-}
 function stackTask(T) {
   return new Promise(res => {
     const auto = Math.max(0, Math.floor(T / 10) - 2); // beyond two stacks the coin roller helps
@@ -1989,21 +1957,21 @@ function decorShop() {
   return new Promise(res => {
     const avail = DECOR.filter(d => !S.decor.includes(d.id));
     if (!avail.length) { res(); return; }
-    const cheapest = Math.min(...avail.map(d => d.cost));
-    if (S.jar >= cheapest) say('keeper', `My savings jar has ${S.jar} ${plural(S.jar, 'penny', 'pennies')}. I can buy something for my shop!`);
-    else say('keeper', `My savings jar has ${S.jar} ${plural(S.jar, 'penny', 'pennies')}. The ${avail.find(d => d.cost === cheapest).name.toLowerCase()} costs ${cheapest}. I need ${cheapest - S.jar} more.`);
+    const cheapest = Math.min(...avail.map(d => d.cost)), spare = () => Math.max(0, S.till - 10);
+    if (spare() >= cheapest) say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} more to spend. I can buy something for my shop!`);
+    else say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} more to spend. The ${avail.find(d => d.cost === cheapest).name.toLowerCase()} costs ${cheapest}. I need ${cheapest - spare()} more.`);
     const draw = () => setPanel(`
-      <div class="decor">${DECOR.map(d => `<button data-d="${d.id}" class="${S.decor.includes(d.id) ? 'own' : S.jar < d.cost ? 'cant' : ''}">${decorImg(d)}<span>${d.name}</span><span class="tag">${S.decor.includes(d.id) ? '✓ yours' : d.cost + '¢'}</span></button>`).join('')}</div>
-      <button class="btn alt" id="later">${S.jar >= cheapest ? 'Save for later' : 'Keep saving'}</button>`, p => {
+      <div class="decor">${DECOR.map(d => `<button data-d="${d.id}" class="${S.decor.includes(d.id) ? 'own' : spare() < d.cost ? 'cant' : ''}">${decorImg(d)}<span>${d.name}</span><span class="tag">${S.decor.includes(d.id) ? '✓ yours' : d.cost + '¢'}</span></button>`).join('')}</div>
+      <button class="btn alt" id="later">${spare() >= cheapest ? 'Save for later' : 'Keep saving'}</button>`, p => {
       $$('.decor button', p).forEach(b => b.addEventListener('click', async () => {
         const d = DECOR.find(x => x.id === b.dataset.d);
         if (S.decor.includes(d.id)) { say('keeper', `My ${d.name.toLowerCase()}!`); return; }
-        if (S.jar < d.cost) { SFX.soft(); say('keeper', `The ${d.name.toLowerCase()} costs ${d.cost}. I have ${S.jar}. I need ${d.cost - S.jar} more.`); return; }
-        const left = S.jar - d.cost;
-        S.jar = left; S.decor.push(d.id); save(); syncView(); hud(); SFX.cheer(); sparkle(b, 18);
+        if (spare() < d.cost) { SFX.soft(); say('keeper', `The ${d.name.toLowerCase()} costs ${d.cost}. I have ${spare()} to spend. I need ${d.cost - spare()} more.`); return; }
+        const had = S.till, left = had - d.cost;
+        S.till = left; S.decor.push(d.id); save(); syncView(); hud(); SFX.cheer(); sparkle(b, 18);
         mood('keeper', 'happy', 2000);
         if (!d.out) { TSV.scene = 'inside'; TSV.cam = null; }
-        say('keeper', `The ${d.name.toLowerCase()}! ${S.jar + d.cost} take away ${d.cost} leaves ${left} in my jar.`);
+        say('keeper', `The ${d.name.toLowerCase()}! ${had} take away ${d.cost} leaves ${left}.`);
         if (window.GFKCards && S.decor.length === DECOR.length) GFKCards.collect({ game: GAME, id: 'all-decor', name: 'Prettiest Shop in the Wood', emoji: '🏡', rarity: 'rare' });
         rerender = null; await next('Lovely!');
         TSV.scene = 'outside'; res();
@@ -2019,7 +1987,7 @@ async function night() {
   if (S.day === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'clover-key', name: "Aunt Clover's Key", emoji: '🗝️', rarity: 'common' });
   mood('keeper', 'happy', 2000);
   await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
-    grewHTML() /* skin hook H6 */ + `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">Savings jar: ${S.jar}¢</span></div>`);
+    grewHTML() /* skin hook H6 */ + `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">My money: ${S.till}¢</span></div>`);
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
 }
 
@@ -2049,7 +2017,7 @@ async function title() {
       <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
-      <p>Savings jar ${S.jar}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
+      <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
     $('#gclose').addEventListener('click', () => { box.hidden = true; });

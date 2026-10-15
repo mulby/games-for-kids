@@ -13,8 +13,8 @@ pitched at her level.
 | **Price tags** | She sets the price of each thing. A higher price earns more on each one, but some animals buy fewer or none (a little above the usual price earns most; a lot above earns less). Cheaper means animals take extra. | Comparing, money |
 | **Shop time** | Each animal arrives with a wish list. Her prices and her shelf decide what they actually buy: too expensive means fewer, sold out means a missed sale that goes in the notebook. She fills the basket, works out the price, then takes their coins: counting them, or (most of the time) giving change. | Counting, adding, taking away, money |
 | **Special visitors** (from day 4) | Friends from the other games drop in: Captain Whiskers needs biscuits for his sailors, Miu the temple cat, Athena's owl. Each brings one bigger problem. | Equal groups, comparing, missing numbers |
-| **Evening** | Count what is left on the shelf (fresh leftovers are pennies spent for nothing), then the profit: "I took in 18 and paid Bramble 8. How much did my shop earn?" Best day and total earned are kept, with cards at 20, 50, 100 and 200 pennies earned. Stack the till into tens, choose to keep 10 or 20 for tomorrow's shopping (more stock, or more savings), and put the rest in the jar. | Taking away, tens and ones, teen numbers |
-| **Saving up** | The jar fills toward upgrades she can see in 3D: a shop sign, a striped awning, window boxes, lanterns, a bell, a bigger shelf (more goods), a cat bed. | How many more, taking away |
+| **Evening** | Count what is left on the shelf (fresh leftovers are pennies spent for nothing), then the profit: "I took in 18 and paid Bramble 8. How much did my shop earn?" Best day and total earned are kept, with cards at 20, 50, 100 and 200 pennies earned. Stack the till into tens. If she has fewer than 10, Aunt Clover's rainy-day tin tops it up to 10. | Taking away, tens and ones, teen numbers |
+| **Saving up** | One purse ("My money", no separate jar since 2026-10-15). She always keeps 10 pennies for Bramble's cart, and anything above that can buy upgrades she can see in 3D: a shop sign, a striped awning, window boxes, lanterns, a bell, a bigger shelf (more goods), a cat bed. | How many more, taking away |
 
 Every new customer becomes a friend card in the binder; special visitors are Rare, and the Fairy Queen, who comes
 to the grand reopening, is the game's Legendary card.
@@ -56,7 +56,7 @@ answers in those days were right first time; it still drops after 2 misses, so a
 | S Taking away | 1-4 (start 1) | Change within 5, 10, 20, then 2-digit; leftovers; savings |
 | M Equal groups | 1-4 (start 1) | Bags of 2 (doubles), count by 2s, boxes of 5, crates of 10 |
 | F Money | 1-4 (start 1) | Pennies, then dimes and pennies, then nickels |
-| P Tens and ones | 1-2 (start 1) | Stacking the till in tens; keep 10, the rest to the jar |
+| P Tens and ones | 1-2 (start 1) | Stacking the till in tens |
 
 ## Files
 

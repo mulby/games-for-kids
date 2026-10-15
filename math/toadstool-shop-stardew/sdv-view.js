@@ -349,7 +349,7 @@ function skinHUD(S) {
   }
   if (till && !till.hidden) {
     const d = String(Math.max(0, S.till | 0)).padStart(3, ' ').split('').map(c => `<i>${c === ' ' ? '' : c}</i>`).join('');
-    till.innerHTML = `<img class="ico" src="${baker.icon('coin')}" alt=""><small class="clab">Shop money</small><span class="dg">${d}</span>`;
+    till.innerHTML = `<img class="ico" src="${baker.icon('coin')}" alt=""><small class="clab">My money</small><span class="dg">${d}</span>`;
     till.setAttribute('aria-label', `${S.till} pennies in the till`);
   }
 }

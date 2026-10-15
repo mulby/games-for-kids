@@ -520,3 +520,6 @@ that's all i have today	That's all I have today!
 left	left.
 my shop money pays bramble for things to sell	My shop money pays Bramble for things to sell.
 my savings jar is for treats for my shop like decorations	My savings jar is for treats for my shop, like decorations.
+i keep 10 pennies for bramble's cart	I keep 10 pennies for Bramble's cart.
+more to spend	more to spend.
+to spend	to spend.
