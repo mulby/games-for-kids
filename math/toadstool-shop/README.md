@@ -39,6 +39,22 @@ The first time she meets each control (answer buttons, the basket, paying, givin
 - A wrong answer never ends anything. The customer says "Let's count together", the help opens (dots, coins,
   counting up), and after a second try the answer is shown so she can tap it.
 
+## Guessing does not pay
+
+Thinking is always the quickest way through, so tapping around stops being worth it. Nothing is taken away for a wrong answer.
+
+- **Penny tips.** When every answer for a friend (filling the basket, the price, the coins, the change) is right on the first tap,
+  the friend leaves a 1 penny tip, which goes into her money for decorations. Using the 💡 Help me button first is fine: counting
+  the dots is real work, not guessing. The first time she misses a tip (from day 3) the shopkeeper says how tips work, and each
+  evening she says how many tips came in. Tips are not part of "took in" in the profit question.
+- **No free elimination.** A wrong number is swapped for a new wrong number, so there are still three choices and tapping each one
+  in turn no longer finds the answer. (The two-choice riddle keeps greying out the wrong one.)
+- **A short rest.** After a wrong tap the answers fade for about 2 seconds while the help opens. A wrong tap within 1.5 seconds of
+  the answers appearing gets "Whoa, quick paws!" and a 3 second rest. The coins Done button rests for about 1 second after a miss.
+- **Counting up for change.** After a wrong try at giving change, a strip counts up from the price to what was paid, lighting one
+  number for each penny in the paw (Lantern Tale already shows this as the Wish Shield).
+- After a second miss the answer still glows and the others fade, so she always finishes. Level-ups only count first tries, as before.
+
 ## Levels
 
 Each kind of problem follows one Moonlit Map strand and level (1 = kindergarten to early 1st grade, 2 = end of 1st,

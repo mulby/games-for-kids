@@ -144,6 +144,12 @@ button.coin{padding:0}
 #grownups table{width:100%;border-collapse:collapse}#grownups td,#grownups th{padding:6px;border-bottom:1px solid #eee;text-align:left}
 @media (max-height:640px){.opt{min-height:70px;font-size:36px}.btn{min-height:56px;font-size:22px}#bubble .pt{width:54px;height:54px}.gimg{width:52px;height:52px}}
 @media (prefers-reduced-motion:reduce){.pop,.opt.glow,.pulse,.spark{animation:none!important}}
+/* no free guesses: the answers rest a moment after a wrong tap */
+.opts.wait .opt{opacity:.45;filter:saturate(.5);transition:opacity .3s}
+.countup{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin:2px 0}
+.countup i{font-style:normal;min-width:34px;padding:4px 6px;border-radius:12px;background:#fff;box-shadow:0 2px 0 #d8c4a8;opacity:.55}
+.countup i.on{background:#ffe08a;opacity:1}
+.tipcoin{animation:pop .6s ease-out}
 </style>
 <script id="kid-voice" data-voice-base="../../voice/">
 /* KidVoice: one friendly voice for every game.
@@ -1311,19 +1317,27 @@ function options(ans, lo = 0) {
   let k = 3; while (c.size < 3) c.add(ans + k++);
   return [...c].sort((a, b) => a - b);
 }
+// A new wrong choice near the answer that is not on the buttons and has not been tried.
+function freshOpt(ans, not, lo = 0) {
+  const pool = shuffle([ans - 1, ans + 1, ans - 2, ans + 2, ans + 3, ans - 3, ans + 10, ans - 10, ans + 4].filter(v => v >= lo && v !== ans && !not.includes(v)));
+  return pool.length ? pool[0] : null;
+}
+// Guessing should not pay. While she serves a friend, TIP tracks whether every answer was right on the first tap;
+// if so the friend leaves a penny tip. A wrong tap that comes this soon after the buttons appear is a guess.
+let TIP = null; const QUICK_MS = 1500;
 // o: {k, who, q, show(), answer, opts, help(), helpSay, labels:{v:html}}
 function ask(o) {
   return new Promise(res => {
-    let misses = 0, helped = false; const gone = new Set(); let done = false;
-    const opts = o.opts || options(o.answer, o.lo || 0);
-    DBG.cur = { type: 'ask', answer: o.answer, k: o.k };
+    let misses = 0, helped = false, paused = false, shownAt = Date.now(); const gone = new Set(); let done = false;
+    const fixed = !!o.opts, opts = o.opts || options(o.answer, o.lo || 0);
+    DBG.cur = { type: 'ask', answer: o.answer, k: o.k, opts };
     say(o.who, o.q);
     const coach = coachOnce('ask');
     const draw = () => setPanel(`
       ${coach && !misses ? `<div class="coach">${icon('point', '👆')} Tap the right answer.</div>` : ''}
       ${o.show ? `<div class="row">${o.show()}</div>` : ''}
       <div class="helpbox" id="hb">${helped && o.help ? o.help() : ''}</div>
-      <div class="opts">${opts.map(v => `<button class="opt ${gone.has(v) ? 'no' : ''} ${misses >= 2 && v === o.answer ? 'glow' : ''}" data-v="${v}">${o.labels ? o.labels[v] : v}</button>`).join('')}</div>
+      <div class="opts ${paused ? 'wait' : ''}">${opts.map(v => `<button class="opt ${(fixed && gone.has(v)) || (misses >= 2 && v !== o.answer) ? 'no' : ''} ${misses >= 2 && v === o.answer ? 'glow' : ''}" data-v="${v}" ${paused ? 'disabled' : ''}>${o.labels ? o.labels[v] : v}</button>`).join('')}</div>
       ${o.help && !helped ? `<button class="hint" id="hint">${icon('bulb', '💡')} Help me</button>` : ''}
       ${o.back ? `<button class="btn alt" id="bk">${o.back}</button>` : ''}`, p => {
       $$('.opt', p).forEach(b => b.addEventListener('click', () => choose(b.dataset.v, b)));
@@ -1331,7 +1345,7 @@ function ask(o) {
       const h = $('#hint', p); if (h) h.addEventListener('click', () => { SFX.tap(); helped = true; draw(); if (o.helpSay) say(o.who, o.helpSay); });
     });
     async function choose(v, b) {
-      if (done) return;
+      if (done || paused) return;
       v = isNaN(+v) ? v : +v;
       if (v === o.answer) {
         done = true; rerender = null;
@@ -1341,10 +1355,15 @@ function ask(o) {
         await wait(900); res(misses === 0);
         return;
       }
-      misses++; gone.add(v); SFX.soft();
-      if (misses === 1) { helped = !!o.help; say(o.who, o.helpSay || 'Hmm, not quite. Let\'s look again together.'); }
+      misses++; gone.add(v); SFX.soft(); if (TIP) TIP.ok = false;
+      // No free guesses: the wrong answer is swapped for a new one, so tapping around does not narrow it down,
+      // and the buttons rest while the help opens (longer after a very quick tap). After a second miss the answer glows.
+      const quick = Date.now() - shownAt < QUICK_MS;
+      if (!fixed) { const i = opts.indexOf(v), f = freshOpt(o.answer, opts.concat([...gone]), o.lo || 0); if (i >= 0 && f !== null) { opts[i] = f; opts.sort((a, b) => a - b); } }
+      if (misses === 1) { helped = !!o.help; say(o.who, (quick ? 'Whoa, quick paws! ' : '') + (o.helpSay || 'Hmm, not quite. Let\'s look again together.')); }
       else say(o.who, o.lastSay || `Let's count it together. It's ${o.answer}. Tap ${o.answer}.`);
-      draw();
+      paused = misses === 1; draw();
+      if (paused) { await wait(quick ? 3200 : 1800); paused = false; if (!done) { draw(); shownAt = Date.now(); } }
     }
     rerender = draw; draw();
   });
@@ -1376,7 +1395,7 @@ function pickTask(order, who) {
           if (qty >= 3) record('N', tries === 0);
           SFX.ok(); res(); return;
         }
-        tries++; SFX.soft();
+        tries++; SFX.soft(); if (TIP) TIP.ok = false;
         const [g, n] = wrong, have = basket[g] || 0;
         say(who, have > n ? `Oops, that's too many ${GOODS[g].many}. I need ${n}. Tap one in the basket to put it back.` : `I need ${n} ${plural(n, GOODS[g].one, GOODS[g].many)}. Let's count: there ${have === 1 ? 'is' : 'are'} ${have} in the basket.`);
       });
@@ -1385,24 +1404,27 @@ function pickTask(order, who) {
   });
 }
 // She moves coins from a tray into someone's paw. mode 'pay' lets her give more and get change back.
-function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F', helpSay = '', coach = '', back = '' }) {
+function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F', helpSay = '', coach = '', back = '', countUp = null }) {
   return new Promise(res => {
-    const src = source.map((v, i) => ({ v, i, given: false })); let tries = 0; DBG.cur = { type: 'coins', amount, mode };
+    const src = source.map((v, i) => ({ v, i, given: false })); let tries = 0, rest = false; DBG.cur = { type: 'coins', amount, mode };
     say(who, prompt);
     if (coach) speak(coach.replace(/<[^>]+>/g, ''), { queue: true });
     const total = () => src.filter(c => c.given).reduce((s, c) => s + c.v, 0);
     const draw = () => { const t = total(), first = src.find(c => !c.given); setPanel(`
       ${coach ? `<div class="coach">${icon('point', '👆')} ${coach}</div>` : ''}
       <div class="tray"><span class="lbl">${title}</span>${src.map(c => coinHTML(c.v, 'button', `data-i="${c.i}" ${c.given ? 'style="visibility:hidden"' : coach && t < amount && c === first ? 'class="pulse"' : ''}`)).join('')}</div>
+      ${countUp && tries && countUp.to - countUp.from <= 20 ? `<div class="countup"><b>${countUp.from}</b>${Array.from({ length: countUp.to - countUp.from }, (_, i) => `<i class="${i < t ? 'on' : ''}">${countUp.from + i + 1}</i>`).join('')}</div>` : ''}
       <div class="tray drop" id="paw"><span class="lbl">${mode === 'change' ? 'Change for ' + CAST[who].name : 'For ' + CAST[who].name}</span>${src.filter(c => c.given).map(c => coinHTML(c.v, 'button', `data-i="${c.i}"`)).join('')}</div>
       <div class="row">${back ? `<button class="btn alt" id="bk">${back}</button>` : ''}<button class="btn ${coach && t >= amount ? 'pulse' : ''}" id="done">Done</button></div>`, p => {
       if (back) $('#bk', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(null); });
       $$('.tray:not(#paw) .coin', p).forEach(b => b.addEventListener('click', () => { const c = src[+b.dataset.i]; c.given = true; SFX.coin(total()); speak(String(total())); draw(); }));
       $$('#paw .coin', p).forEach(b => b.addEventListener('click', () => { const c = src[+b.dataset.i]; c.given = false; SFX.tap(); draw(); }));
       $('#done', p).addEventListener('click', () => {
+        if (rest) return;
         const t = total();
         if (t === amount || (mode === 'pay' && t > amount)) { rerender = null; record(k, tries === 0); SFX.ok(); res(t); return; }
-        tries++; SFX.soft();
+        tries++; SFX.soft(); if (TIP) TIP.ok = false;
+        rest = true; setTimeout(() => { rest = false; }, 1200); if (rerender) draw();
         if (helpSay && tries === 1) say(who, `Hmm, not quite. ${helpSay}`);
         else if (t < amount) say(who, `That's ${t}. I need ${amount}. A little more, please!`);
         else say(who, `That's ${t}. That's more than ${amount}. Tap a coin to take it back.`);
@@ -1671,7 +1693,7 @@ async function shopTime() {
     const c = S.shop.list[S.shop.i];
     hush(); setPanel('');
     SFX.bell(); await walkIn(c.who);
-    await serve(c);
+    await serve(c); TIP = null;
     S.shop.i++; S.served++; save(); hud();
     await walkOut();
   }
@@ -1679,7 +1701,7 @@ async function shopTime() {
   S.phase = 'evening'; save();
 }
 async function serve(c) {
-  const who = c.who, me = CAST[who];
+  const who = c.who, me = CAST[who]; TIP = { ok: true };
   await talk(who, me.hi, 'Hello!');
   if (c.missing && !(S.stock[c.missing] > 0)) {
     const g = GOODS[c.missing];
@@ -1734,13 +1756,18 @@ async function serve(c) {
     }
   }
   S.till += total; S.shop.earned += total; hud(); save();
+  // Every answer right on the first tap: the friend leaves a penny tip. Guessing never earns one.
+  const tip = !!(TIP && TIP.ok); TIP = null;
+  if (tip) { S.till += 1; S.shop.tips = (S.shop.tips || 0) + 1; hud(); save(); SFX.coin(1); sparkle($('#tillChip'), 10); }
+  else if (S.day >= CHANGE_DAY && coachOnce('tipmiss')) await talk('keeper', 'When I get every answer right the first time, friends give me a penny tip. I\'ll take my time and count.', 'I\'ll count carefully');
   mood('cust', 'happy', 2200); SFX.cheer();
-  const thanks = c.special === 'queen' ? 'Thank you! Your shop is the most wonderful shop in all of Bramble Wood. Here is a gift from fairyland!' : pick(['Thank you! See you soon!', 'Thank you, shopkeeper!', 'Lovely! Thank you so much!', 'Hooray! Thank you!']);
+  const tipSay = tip ? 'You got it right the first time! Here is a penny tip. ' : '', tipShow = tip ? `<div class="tray tipcoin"><span class="lbl">Tip</span>${coinHTML(1)}</div>` : '';
+  const thanks = tipSay + (c.special === 'queen' ? 'Thank you! Your shop is the most wonderful shop in all of Bramble Wood. Here is a gift from fairyland!' : pick(['Thank you! See you soon!', 'Thank you, shopkeeper!', 'Lovely! Thank you so much!', 'Hooray! Thank you!']));
   if (!S.friends[who]) {
     S.friends[who] = S.day; save();
     if (window.GFKCards) GFKCards.collect({ game: GAME, id: 'friend-' + who, name: me.name, emoji: me.emoji, rarity: me.finale ? 'legendary' : me.special ? 'rare' : 'common' });
-    skin('served', who, true); await talk(who, thanks + ' Let\'s be friends!', 'Bye-bye!');
-  } else { skin('served', who, false); await talk(who, thanks, 'Bye-bye!'); }
+    skin('served', who, true); await talk(who, thanks + ' Let\'s be friends!', 'Bye-bye!', tipShow);
+  } else { skin('served', who, false); await talk(who, thanks, 'Bye-bye!', tipShow); }
 }
 // An animal's wish list meets her price tags, then her shelf.
 async function shopFor(c) {
@@ -1764,7 +1791,7 @@ async function shopFor(c) {
   return order.length ? order : null;
 }
 function coinsTaskWithHelp({ who, change, paid, total, source }) {
-  return coinsTask({ who, amount: change, source, title: 'The till drawer', k: 'S', mode: 'change',
+  return coinsTask({ who, amount: change, source, title: 'The till drawer', k: 'S', mode: 'change', countUp: { from: total, to: paid },
     prompt: `It costs ${total}. I gave you ${paid}. How much change do I get? Put the coins in my paw.`,
     helpSay: `Start at ${total} and count up to ${paid}, one penny for each number you say.`,
       coach: coachOnce('change') ? `Start at ${total}. Tap one penny for each number as you count up to ${paid}. Then tap <b>Done</b>.` : '' });
@@ -1839,6 +1866,8 @@ async function evening() {
     const top = Object.keys(S.missed).sort((a, b) => S.missed[b] - S.missed[a])[0];
     await talk('keeper', `My notebook: friends wanted ${S.missed[top]} more ${plural(S.missed[top], GOODS[top].one, GOODS[top].many)} after mine ran out. That's ${S.missed[top] * priceOf(top)} ${plural(S.missed[top] * priceOf(top), 'penny', 'pennies')} I didn't get! Maybe I'll buy more tomorrow.`, 'Into my notebook 📒');
   }
+  const tips = S.shop && S.shop.tips || 0;
+  if (tips) { mood('keeper', 'happy', 1800); await talk('keeper', `Friends gave me ${tips} ${plural(tips, 'penny tip', 'penny tips')} today for careful counting!`, 'Hooray!', `<div class="tray">${Array.from({ length: tips }, () => coinHTML(1)).join('')}</div>`); }
   await profitTask();
   // count the till in tens
   const T = S.till;

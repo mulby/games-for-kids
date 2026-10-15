@@ -523,3 +523,13 @@ my savings jar is for treats for my shop like decorations	My savings jar is for 
 i keep 10 pennies for bramble's cart	I keep 10 pennies for Bramble's cart.
 more to spend	more to spend.
 to spend	to spend.
+when i get every answer right the first time friends give me a penny tip	When I get every answer right the first time, friends give me a penny tip.
+i'll take my time and count	I'll take my time and count.
+i'll count carefully	I'll count carefully
+penny tip	penny tip
+penny tips	penny tips
+friends gave me	Friends gave me
+today for careful counting	today for careful counting!
+whoa quick paws	Whoa, quick paws!
+you got it right the first time	You got it right the first time!
+here is a penny tip	Here is a penny tip.
