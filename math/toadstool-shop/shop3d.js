@@ -1,4 +1,4 @@
-// The Toadstool Shop in felt 3D (felt3d.js: felt fibre, stitches, embroidery, wood grain, soft shadows).
+// The Toadstool Shop in felt 3D (felt3d.js: felt fibre, stitches, embroidery, glossy toy eyes, wood grain, soft shadows).
 // The game (rules, touch, saves, voice, cards) lives in index.html's DOM. It describes what should be on screen in
 // window.TSV (scene, stock, who is standing where, decorations, where the free space above the panel is), and this
 // module draws that every frame. It also bakes still pictures of the goods, coins and characters for the panels.
@@ -253,6 +253,7 @@ function animCritter(o, t) {
     if (!happy && !walk) { r = .35 + Math.sin(k * 1.6) * .08 * A; rx = -.5; }
   }
   u.armL.rotation.z = l; u.armR.rotation.z = r; u.armR.rotation.x = rx;
+  D.faceLife(o, t); // blinks, glances, happy eyes
 }
 
 /* ------------------------------------------------------------------ the people in the scene */
