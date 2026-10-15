@@ -1645,7 +1645,7 @@ function shopCart(lines, mostFor, again) {
         const line = g => lines.find(l => l.g === g);
         $$('[data-s]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.s); say('bramble', `${GOODS[l.g].many[0].toUpperCase() + GOODS[l.g].many.slice(1)} come in ${PACKS[l.size]} of ${l.size}. Each ${PACK[l.size]} costs ${l.cost} ${plural(l.cost, 'penny', 'pennies')}.`); }));
         $$('[data-m]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.m); if (l.n > 0) { l.n--; SFX.tap(); speak(String(l.n)); draw(); } }));
-        $$('[data-p]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.p); if (l.n < mostFor(l)) { l.n++; SFX.tap(); speak(String(l.n)); draw(); } else say('bramble', l.n * l.size + (S.stock[l.g] || 0) > 10 - l.size ? 'That\'s all your shelf can hold!' : l.n >= (S.day < SUMS_DAY ? 2 : 5) ? 'That\'s all I have today!' : 'That\'s all the pennies in your till!'); }));
+        $$('[data-p]', p).forEach(b => b.addEventListener('click', () => { const l = line(b.dataset.p); if (l.n < mostFor(l)) { l.n++; SFX.tap(); speak(String(l.n)); draw(); } else say('bramble', l.n * l.size + (S.stock[l.g] || 0) > 10 - l.size ? 'That\'s all your shelf can hold!' : l.n >= (S.day < SUMS_DAY ? 2 : 5) ? 'That\'s all I have today!' : `You have ${S.till - lines.reduce((t, o) => t + o.n * o.cost, 0)} ${plural(S.till - lines.reduce((t, o) => t + o.n * o.cost, 0), 'penny', 'pennies')} left. A ${PACK[l.size]} of ${GOODS[l.g].many} costs ${l.cost}.`); }));
         $('#nx', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
       });
     };

@@ -745,7 +745,7 @@
     "morning": "clips/e22cb3b322d6.mp3",
     "lovely day for shopping": "clips/775924866e74.mp3",
     "my cart is full of good things": "clips/b8ed4cdb604c.mp3",
-    "a": "clips/fd9e53d81f1d.mp3",
+    "a": "clips/39cf03cb55f9.mp3",
     "of": "clips/c7e1f8a54890.mp3",
     "your shelf is full of": "clips/0a847dc0b0fa.mp3",
     "costs": "clips/ddf74dde1186.mp3",
@@ -873,7 +873,13 @@
     "here is everything on my cart": "clips/50c4bc92c037.mp3",
     "that's all i have today": "clips/bd2529903370.mp3",
     "each crate costs": "clips/cb227c45e6bc.mp3",
-    "each box costs": "clips/04feabf71df0.mp3"
+    "each box costs": "clips/04feabf71df0.mp3",
+    "you have": "clips/2347e279cade.mp3",
+    "left": "clips/49334a23e3c5.mp3",
+    "penny left": "clips/a1bf02f8859f.mp3",
+    "a box of": "clips/addc61506370.mp3",
+    "pennies left": "clips/37644b142198.mp3",
+    "a crate of": "clips/c457909a42e4.mp3"
    }
   },
   "clover": {
@@ -6754,1079 +6760,1109 @@
    310433,
    6104
   ],
-  "clips/24fb0564aeaf.mp3": [
+  "clips/2347e279cade.mp3": [
    "packs/bramble-0.mp3",
    316537,
+   7566
+  ],
+  "clips/24fb0564aeaf.mp3": [
+   "packs/bramble-0.mp3",
+   324103,
    5477
   ],
   "clips/251031a906a6.mp3": [
    "packs/bramble-0.mp3",
-   322014,
+   329580,
    8403
   ],
   "clips/27ac61f00a63.mp3": [
    "packs/bramble-0.mp3",
-   330417,
+   337983,
    7985
   ],
   "clips/29fa803e8e20.mp3": [
    "packs/bramble-0.mp3",
-   338402,
+   345968,
    8821
   ],
   "clips/2a784ecb9a30.mp3": [
    "packs/bramble-0.mp3",
-   347223,
+   354789,
    9030
   ],
   "clips/2d034f431741.mp3": [
    "packs/bramble-0.mp3",
-   356253,
+   363819,
    7567
   ],
   "clips/2eeb0004743f.mp3": [
    "packs/bramble-0.mp3",
-   363820,
+   371386,
    6940
   ],
   "clips/31312397812c.mp3": [
    "packs/bramble-0.mp3",
-   370760,
+   378326,
    8403
   ],
   "clips/32ac3767196c.mp3": [
    "packs/bramble-0.mp3",
-   379163,
+   386729,
    8821
   ],
   "clips/332eebfcc674.mp3": [
    "packs/bramble-0.mp3",
-   387984,
+   395550,
    7567
   ],
   "clips/346c8bb4c410.mp3": [
    "packs/bramble-0.mp3",
-   395551,
+   403117,
    28047
   ],
   "clips/35fd9f3f4724.mp3": [
    "packs/bramble-0.mp3",
-   423598,
+   431164,
    7985
   ],
   "clips/3604896fbfb6.mp3": [
    "packs/bramble-0.mp3",
-   431583,
+   439149,
    5686
+  ],
+  "clips/37644b142198.mp3": [
+   "packs/bramble-0.mp3",
+   444835,
+   9029
   ],
   "clips/39230729e882.mp3": [
    "packs/bramble-0.mp3",
-   437269,
+   453864,
    6940
   ],
   "clips/39982ff7e39f.mp3": [
    "packs/bramble-0.mp3",
-   444209,
+   460804,
    7567
+  ],
+  "clips/39cf03cb55f9.mp3": [
+   "packs/bramble-0.mp3",
+   468371,
+   4222
   ],
   "clips/3b9b0f0b783f.mp3": [
    "packs/bramble-0.mp3",
-   451776,
+   472593,
    8403
   ],
   "clips/3dc52ad4e662.mp3": [
    "packs/bramble-0.mp3",
-   460179,
+   480996,
    7149
   ],
   "clips/3e117abdebf7.mp3": [
    "packs/bramble-0.mp3",
-   467328,
+   488145,
    7985
   ],
   "clips/3ec961d31a28.mp3": [
    "packs/bramble-0.mp3",
-   475313,
+   496130,
    8821
   ],
   "clips/3f02e3613b13.mp3": [
    "packs/bramble-0.mp3",
-   484134,
+   504951,
    10910
   ],
   "clips/3f6ff97bf35d.mp3": [
    "packs/bramble-0.mp3",
-   495044,
+   515861,
    7567
   ],
   "clips/4049dd0de67f.mp3": [
    "packs/bramble-0.mp3",
-   502611,
+   523428,
    8821
   ],
   "clips/404abe46446e.mp3": [
    "packs/bramble-0.mp3",
-   511432,
+   532249,
    7567
   ],
   "clips/405e62f60947.mp3": [
    "packs/bramble-0.mp3",
-   518999,
+   539816,
    8821
   ],
   "clips/408d39f772ba.mp3": [
    "packs/bramble-0.mp3",
-   527820,
+   548637,
    8403
   ],
   "clips/4142f33d7dd4.mp3": [
    "packs/bramble-0.mp3",
-   536223,
+   557040,
    8821
   ],
   "clips/433f19bec89a.mp3": [
    "packs/bramble-0.mp3",
-   545044,
+   565861,
    7149
   ],
   "clips/4382dea95080.mp3": [
    "packs/bramble-0.mp3",
-   552193,
+   573010,
    5477
   ],
   "clips/44f9afcbfcb6.mp3": [
    "packs/bramble-0.mp3",
-   557670,
+   578487,
    8403
   ],
   "clips/452d08b7aeb1.mp3": [
    "packs/bramble-0.mp3",
-   566073,
+   586890,
    9030
   ],
   "clips/456473ad94fe.mp3": [
    "packs/bramble-0.mp3",
-   575103,
+   595920,
    7567
   ],
   "clips/45f75f80de70.mp3": [
    "packs/bramble-0.mp3",
-   582670,
+   603487,
    8821
   ],
   "clips/48ec2f041da7.mp3": [
-   "packs/bramble-0.mp3",
-   591491,
+   "packs/bramble-1.mp3",
+   0,
    20315
   ],
   "clips/48f7654e3962.mp3": [
    "packs/bramble-1.mp3",
-   0,
+   20315,
    16134
+  ],
+  "clips/49334a23e3c5.mp3": [
+   "packs/bramble-1.mp3",
+   36449,
+   6521
   ],
   "clips/4961dee20e8b.mp3": [
    "packs/bramble-1.mp3",
-   16134,
+   42970,
    5477
   ],
   "clips/4a85c3c87135.mp3": [
    "packs/bramble-1.mp3",
-   21611,
+   48447,
    8403
   ],
   "clips/4b17aa95e703.mp3": [
    "packs/bramble-1.mp3",
-   30014,
+   56850,
    7149
   ],
   "clips/4b508e242bc7.mp3": [
    "packs/bramble-1.mp3",
-   37163,
+   63999,
    8821
   ],
   "clips/4c353f7ff055.mp3": [
    "packs/bramble-1.mp3",
-   45984,
+   72820,
    6940
   ],
   "clips/4c3abd1a878a.mp3": [
    "packs/bramble-1.mp3",
-   52924,
+   79760,
    10909
   ],
   "clips/4d72c1459c47.mp3": [
    "packs/bramble-1.mp3",
-   63833,
+   90669,
    6940
   ],
   "clips/505e6099dc4c.mp3": [
    "packs/bramble-1.mp3",
-   70773,
+   97609,
    9866
   ],
   "clips/508b3d842eed.mp3": [
    "packs/bramble-1.mp3",
-   80639,
+   107475,
    9030
   ],
   "clips/50c4bc92c037.mp3": [
    "packs/bramble-1.mp3",
-   89669,
+   116505,
    15507
   ],
   "clips/51338b68fc25.mp3": [
    "packs/bramble-1.mp3",
-   105176,
+   132012,
    8403
   ],
   "clips/5312fa6bbdb8.mp3": [
    "packs/bramble-1.mp3",
-   113579,
+   140415,
    14672
   ],
   "clips/5784e7409074.mp3": [
    "packs/bramble-1.mp3",
-   128251,
+   155087,
    10284
   ],
   "clips/57cf0ae457bc.mp3": [
    "packs/bramble-1.mp3",
-   138535,
+   165371,
    18851
   ],
   "clips/587316c12665.mp3": [
    "packs/bramble-1.mp3",
-   157386,
+   184222,
    6104
   ],
   "clips/5bd3b0707f15.mp3": [
    "packs/bramble-1.mp3",
-   163490,
+   190326,
    7567
   ],
   "clips/5c461f31a6ed.mp3": [
    "packs/bramble-1.mp3",
-   171057,
+   197893,
    7149
   ],
   "clips/5c5b8fa8d4e0.mp3": [
    "packs/bramble-1.mp3",
-   178206,
+   205042,
    6522
   ],
   "clips/5d314bebf31f.mp3": [
    "packs/bramble-1.mp3",
-   184728,
+   211564,
    6522
   ],
   "clips/5dca8d7e6e95.mp3": [
    "packs/bramble-1.mp3",
-   191250,
+   218086,
    8403
   ],
   "clips/5ddc95890b6e.mp3": [
    "packs/bramble-1.mp3",
-   199653,
+   226489,
    9030
   ],
   "clips/605538b1bb3e.mp3": [
    "packs/bramble-1.mp3",
-   208683,
+   235519,
    8821
   ],
   "clips/60f052b383a9.mp3": [
    "packs/bramble-1.mp3",
-   217504,
+   244340,
    7567
   ],
   "clips/61a53a88252d.mp3": [
    "packs/bramble-1.mp3",
-   225071,
+   251907,
    9030
   ],
   "clips/61c8c3ab50b7.mp3": [
    "packs/bramble-1.mp3",
-   234101,
+   260937,
    5686
   ],
   "clips/626332b04673.mp3": [
    "packs/bramble-1.mp3",
-   239787,
+   266623,
    7149
   ],
   "clips/63c3437d03f7.mp3": [
    "packs/bramble-1.mp3",
-   246936,
+   273772,
    6104
   ],
   "clips/641bc678bf78.mp3": [
    "packs/bramble-1.mp3",
-   253040,
+   279876,
    6522
   ],
   "clips/64a9b1e99c4c.mp3": [
    "packs/bramble-1.mp3",
-   259562,
+   286398,
    7985
   ],
   "clips/671e85221bb2.mp3": [
    "packs/bramble-1.mp3",
-   267547,
+   294383,
    9030
   ],
   "clips/67697bff1aa1.mp3": [
    "packs/bramble-1.mp3",
-   276577,
+   303413,
    9866
   ],
   "clips/68d332b46373.mp3": [
    "packs/bramble-1.mp3",
-   286443,
+   313279,
    8821
   ],
   "clips/693bbbeaffa8.mp3": [
    "packs/bramble-1.mp3",
-   295264,
+   322100,
    8821
   ],
   "clips/69e0c52a9dcf.mp3": [
    "packs/bramble-1.mp3",
-   304085,
+   330921,
    7985
   ],
   "clips/6a6feb7af9b8.mp3": [
    "packs/bramble-1.mp3",
-   312070,
+   338906,
    10910
   ],
   "clips/6aa40c9edee8.mp3": [
    "packs/bramble-1.mp3",
-   322980,
+   349816,
    12791
   ],
   "clips/6c74c8e1dec8.mp3": [
    "packs/bramble-1.mp3",
-   335771,
+   362607,
    18434
   ],
   "clips/704a9cda00fb.mp3": [
    "packs/bramble-1.mp3",
-   354205,
+   381041,
    12164
   ],
   "clips/70f5a45d5c80.mp3": [
    "packs/bramble-1.mp3",
-   366369,
+   393205,
    7567
   ],
   "clips/71a673c3d003.mp3": [
    "packs/bramble-1.mp3",
-   373936,
+   400772,
    8403
   ],
   "clips/71fff5828dbf.mp3": [
    "packs/bramble-1.mp3",
-   382339,
+   409175,
    5059
   ],
   "clips/72a3822dda46.mp3": [
    "packs/bramble-1.mp3",
-   387398,
+   414234,
    6940
   ],
   "clips/72a9f5b6dbd3.mp3": [
    "packs/bramble-1.mp3",
-   394338,
+   421174,
    8821
   ],
   "clips/73b734b28a36.mp3": [
    "packs/bramble-1.mp3",
-   403159,
+   429995,
    8821
   ],
   "clips/75c75cdf652e.mp3": [
    "packs/bramble-1.mp3",
-   411980,
+   438816,
    13836
   ],
   "clips/775924866e74.mp3": [
    "packs/bramble-1.mp3",
-   425816,
+   452652,
    12373
   ],
   "clips/782c9f81885e.mp3": [
    "packs/bramble-1.mp3",
-   438189,
+   465025,
    9448
   ],
   "clips/788b77f8e0c1.mp3": [
    "packs/bramble-1.mp3",
-   447637,
+   474473,
    7567
   ],
   "clips/78cf6597b801.mp3": [
    "packs/bramble-1.mp3",
-   455204,
+   482040,
    7985
   ],
   "clips/794762ccc3aa.mp3": [
    "packs/bramble-1.mp3",
-   463189,
+   490025,
    12164
   ],
   "clips/79c274c5383b.mp3": [
    "packs/bramble-1.mp3",
-   475353,
+   502189,
    4641
   ],
   "clips/7a5c955b8626.mp3": [
    "packs/bramble-1.mp3",
-   479994,
+   506830,
    5477
   ],
   "clips/7ac3368abfb2.mp3": [
    "packs/bramble-1.mp3",
-   485471,
+   512307,
    8821
   ],
   "clips/7c1a81a18451.mp3": [
    "packs/bramble-1.mp3",
-   494292,
+   521128,
    9448
   ],
   "clips/7ff38e2623fe.mp3": [
    "packs/bramble-1.mp3",
-   503740,
+   530576,
    8821
   ],
   "clips/80b2a60d9a45.mp3": [
    "packs/bramble-1.mp3",
-   512561,
+   539397,
    8821
   ],
   "clips/80baa4e0cf95.mp3": [
    "packs/bramble-1.mp3",
-   521382,
+   548218,
    8821
   ],
   "clips/80e8a40f560a.mp3": [
    "packs/bramble-1.mp3",
-   530203,
+   557039,
    22404
   ],
   "clips/83aa80973089.mp3": [
    "packs/bramble-1.mp3",
-   552607,
+   579443,
    7149
   ],
   "clips/852091555b0a.mp3": [
    "packs/bramble-1.mp3",
-   559756,
+   586592,
    6940
   ],
   "clips/8530641df80f.mp3": [
    "packs/bramble-1.mp3",
-   566696,
+   593532,
    6940
   ],
   "clips/86b5c8942633.mp3": [
    "packs/bramble-1.mp3",
-   573636,
+   600472,
    9448
   ],
   "clips/87dbfa2c523e.mp3": [
-   "packs/bramble-1.mp3",
-   583084,
+   "packs/bramble-2.mp3",
+   0,
    6522
   ],
   "clips/89c89cf412fe.mp3": [
-   "packs/bramble-1.mp3",
-   589606,
+   "packs/bramble-2.mp3",
+   6522,
    8821
   ],
   "clips/8a0042ab9693.mp3": [
-   "packs/bramble-1.mp3",
-   598427,
+   "packs/bramble-2.mp3",
+   15343,
    7567
   ],
   "clips/8a16ec334d83.mp3": [
    "packs/bramble-2.mp3",
-   0,
+   22910,
    8821
   ],
   "clips/8d6be01ece15.mp3": [
    "packs/bramble-2.mp3",
-   8821,
+   31731,
    7149
   ],
   "clips/8d7e0f9e2d98.mp3": [
    "packs/bramble-2.mp3",
-   15970,
+   38880,
    8403
   ],
   "clips/8e80190f3c71.mp3": [
    "packs/bramble-2.mp3",
-   24373,
+   47283,
    7567
   ],
   "clips/8eab0c4e7a7e.mp3": [
    "packs/bramble-2.mp3",
-   31940,
+   54850,
    7149
   ],
   "clips/8f2fcd6fa97e.mp3": [
    "packs/bramble-2.mp3",
-   39089,
+   61999,
    5686
   ],
   "clips/8f96add2dde8.mp3": [
    "packs/bramble-2.mp3",
-   44775,
+   67685,
    6940
   ],
   "clips/8fb0a4061793.mp3": [
    "packs/bramble-2.mp3",
-   51715,
+   74625,
    7149
   ],
   "clips/8fb82ada8918.mp3": [
    "packs/bramble-2.mp3",
-   58864,
+   81774,
    10493
   ],
   "clips/905caffb5d8f.mp3": [
    "packs/bramble-2.mp3",
-   69357,
+   92267,
    14254
   ],
   "clips/91101435f82b.mp3": [
    "packs/bramble-2.mp3",
-   83611,
+   106521,
    10493
   ],
   "clips/917bebea8b1b.mp3": [
    "packs/bramble-2.mp3",
-   94104,
+   117014,
    8403
   ],
   "clips/942d1f68f643.mp3": [
    "packs/bramble-2.mp3",
-   102507,
+   125417,
    5477
   ],
   "clips/951ef886315f.mp3": [
    "packs/bramble-2.mp3",
-   107984,
+   130894,
    9448
   ],
   "clips/96723e58476b.mp3": [
    "packs/bramble-2.mp3",
-   117432,
+   140342,
    8403
   ],
   "clips/96c04af675d0.mp3": [
    "packs/bramble-2.mp3",
-   125835,
+   148745,
    6940
   ],
   "clips/96e1811f6601.mp3": [
    "packs/bramble-2.mp3",
-   132775,
+   155685,
    7985
   ],
   "clips/977611139016.mp3": [
    "packs/bramble-2.mp3",
-   140760,
+   163670,
    8821
   ],
   "clips/9918b0d7eca2.mp3": [
    "packs/bramble-2.mp3",
-   149581,
+   172491,
    9448
   ],
   "clips/99302bbbc5b4.mp3": [
    "packs/bramble-2.mp3",
-   159029,
+   181939,
    6104
   ],
   "clips/9bafcd5b8b0b.mp3": [
    "packs/bramble-2.mp3",
-   165133,
+   188043,
    8821
   ],
   "clips/9c9f74241215.mp3": [
    "packs/bramble-2.mp3",
-   173954,
+   196864,
    8403
   ],
   "clips/9e1fa3053e9e.mp3": [
    "packs/bramble-2.mp3",
-   182357,
+   205267,
    7567
   ],
   "clips/9faeed7c93d0.mp3": [
    "packs/bramble-2.mp3",
-   189924,
+   212834,
    7567
   ],
   "clips/a091471282c0.mp3": [
    "packs/bramble-2.mp3",
-   197491,
+   220401,
    6940
   ],
   "clips/a0f61355a725.mp3": [
    "packs/bramble-2.mp3",
-   204431,
+   227341,
    6104
+  ],
+  "clips/a1bf02f8859f.mp3": [
+   "packs/bramble-2.mp3",
+   233445,
+   8820
   ],
   "clips/a2a5adcba4a3.mp3": [
    "packs/bramble-2.mp3",
-   210535,
+   242265,
    8403
   ],
   "clips/a4be2ad43e09.mp3": [
    "packs/bramble-2.mp3",
-   218938,
+   250668,
    9448
   ],
   "clips/a77fe88ce5b8.mp3": [
    "packs/bramble-2.mp3",
-   228386,
+   260116,
    6940
   ],
   "clips/a91f5a1437c9.mp3": [
    "packs/bramble-2.mp3",
-   235326,
+   267056,
    7567
   ],
   "clips/a93890eea477.mp3": [
    "packs/bramble-2.mp3",
-   242893,
+   274623,
    8403
   ],
   "clips/aacaa5275a33.mp3": [
    "packs/bramble-2.mp3",
-   251296,
+   283026,
    9448
+  ],
+  "clips/addc61506370.mp3": [
+   "packs/bramble-2.mp3",
+   292474,
+   7984
   ],
   "clips/ae126cdd1e2e.mp3": [
    "packs/bramble-2.mp3",
-   260744,
+   300458,
    10909
   ],
   "clips/b22d011ec079.mp3": [
    "packs/bramble-2.mp3",
-   271653,
+   311367,
    9030
   ],
   "clips/b506a9750e9b.mp3": [
    "packs/bramble-2.mp3",
-   280683,
+   320397,
    15508
   ],
   "clips/b5eb5d3e608f.mp3": [
    "packs/bramble-2.mp3",
-   296191,
+   335905,
    8821
   ],
   "clips/b6d96d2ce7dc.mp3": [
    "packs/bramble-2.mp3",
-   305012,
+   344726,
    7149
   ],
   "clips/b8ed4cdb604c.mp3": [
    "packs/bramble-2.mp3",
-   312161,
+   351875,
    16553
   ],
   "clips/b9e9d518471a.mp3": [
    "packs/bramble-2.mp3",
-   328714,
+   368428,
    6522
   ],
   "clips/ba3b5f002fe1.mp3": [
    "packs/bramble-2.mp3",
-   335236,
+   374950,
    16971
   ],
   "clips/bb3b84138692.mp3": [
    "packs/bramble-2.mp3",
-   352207,
+   391921,
    7149
   ],
   "clips/bb676db7975a.mp3": [
    "packs/bramble-2.mp3",
-   359356,
+   399070,
    7567
   ],
   "clips/bc8780260adb.mp3": [
    "packs/bramble-2.mp3",
-   366923,
+   406637,
    8403
   ],
   "clips/bce2e28bf045.mp3": [
    "packs/bramble-2.mp3",
-   375326,
+   415040,
    10284
   ],
   "clips/bd2529903370.mp3": [
    "packs/bramble-2.mp3",
-   385610,
+   425324,
    12372
   ],
   "clips/be3348d5be07.mp3": [
    "packs/bramble-2.mp3",
-   397982,
+   437696,
    8403
   ],
   "clips/becebd6adf96.mp3": [
    "packs/bramble-2.mp3",
-   406385,
+   446099,
    8403
   ],
   "clips/bfdfbef196d1.mp3": [
    "packs/bramble-2.mp3",
-   414788,
+   454502,
    7149
   ],
   "clips/c02dfbe34ab3.mp3": [
    "packs/bramble-2.mp3",
-   421937,
+   461651,
    8403
   ],
   "clips/c036da023e94.mp3": [
    "packs/bramble-2.mp3",
-   430340,
+   470054,
    6940
   ],
   "clips/c0b60564b0b3.mp3": [
    "packs/bramble-2.mp3",
-   437280,
+   476994,
    9030
   ],
   "clips/c0f8139ab4fd.mp3": [
    "packs/bramble-2.mp3",
-   446310,
+   486024,
    9030
   ],
   "clips/c0f99ef177e3.mp3": [
    "packs/bramble-2.mp3",
-   455340,
+   495054,
    5686
   ],
   "clips/c2f07dd02374.mp3": [
    "packs/bramble-2.mp3",
-   461026,
+   500740,
    10284
   ],
   "clips/c427d39ec318.mp3": [
    "packs/bramble-2.mp3",
-   471310,
+   511024,
    6522
+  ],
+  "clips/c457909a42e4.mp3": [
+   "packs/bramble-2.mp3",
+   517546,
+   8820
   ],
   "clips/c6e421e639e0.mp3": [
    "packs/bramble-2.mp3",
-   477832,
+   526366,
    10910
   ],
   "clips/c7e1f8a54890.mp3": [
    "packs/bramble-2.mp3",
-   488742,
+   537276,
    5059
   ],
   "clips/c985584655d6.mp3": [
    "packs/bramble-2.mp3",
-   493801,
+   542335,
    7985
   ],
   "clips/cb227c45e6bc.mp3": [
    "packs/bramble-2.mp3",
-   501786,
+   550320,
    12790
   ],
   "clips/ceb2c4e5c11e.mp3": [
    "packs/bramble-2.mp3",
-   514576,
+   563110,
    8403
   ],
   "clips/cf42404b318c.mp3": [
    "packs/bramble-2.mp3",
-   522979,
+   571513,
    7985
   ],
   "clips/cff1ef221c2c.mp3": [
    "packs/bramble-2.mp3",
-   530964,
+   579498,
    7985
   ],
   "clips/d3031ca5247b.mp3": [
    "packs/bramble-2.mp3",
-   538949,
+   587483,
    7985
   ],
   "clips/d368e74da218.mp3": [
    "packs/bramble-2.mp3",
-   546934,
+   595468,
    8821
   ],
   "clips/d3739ec0d20e.mp3": [
    "packs/bramble-2.mp3",
-   555755,
+   604289,
    8403
   ],
   "clips/d410e8661cc3.mp3": [
-   "packs/bramble-2.mp3",
-   564158,
+   "packs/bramble-3.mp3",
+   0,
    11328
   ],
   "clips/d4f490b657bc.mp3": [
-   "packs/bramble-2.mp3",
-   575486,
+   "packs/bramble-3.mp3",
+   11328,
    6940
   ],
   "clips/d54cd87e97af.mp3": [
-   "packs/bramble-2.mp3",
-   582426,
+   "packs/bramble-3.mp3",
+   18268,
    11328
   ],
   "clips/d54e757be88b.mp3": [
-   "packs/bramble-2.mp3",
-   593754,
+   "packs/bramble-3.mp3",
+   29596,
    10284
   ],
   "clips/d6e9af4555fa.mp3": [
    "packs/bramble-3.mp3",
-   0,
+   39880,
    12791
   ],
   "clips/d73c73a4bf53.mp3": [
    "packs/bramble-3.mp3",
-   12791,
+   52671,
    7149
   ],
   "clips/d9558dd50cdf.mp3": [
    "packs/bramble-3.mp3",
-   19940,
+   59820,
    10493
   ],
   "clips/dbcb80d6b5c3.mp3": [
    "packs/bramble-3.mp3",
-   30433,
+   70313,
    8403
   ],
   "clips/dc39c9bcdef7.mp3": [
    "packs/bramble-3.mp3",
-   38836,
+   78716,
    8403
   ],
   "clips/dc8ea46eceda.mp3": [
    "packs/bramble-3.mp3",
-   47239,
+   87119,
    6522
   ],
   "clips/dd5c583cd501.mp3": [
    "packs/bramble-3.mp3",
-   53761,
+   93641,
    7567
   ],
   "clips/ddf74dde1186.mp3": [
    "packs/bramble-3.mp3",
-   61328,
+   101208,
    7149
   ],
   "clips/de8f31527178.mp3": [
    "packs/bramble-3.mp3",
-   68477,
+   108357,
    10910
   ],
   "clips/e0966a7ef6f1.mp3": [
    "packs/bramble-3.mp3",
-   79387,
+   119267,
    6940
   ],
   "clips/e1af2f131ee1.mp3": [
    "packs/bramble-3.mp3",
-   86327,
+   126207,
    6940
   ],
   "clips/e1c935d2b72e.mp3": [
    "packs/bramble-3.mp3",
-   93267,
+   133147,
    9030
   ],
   "clips/e22cb3b322d6.mp3": [
    "packs/bramble-3.mp3",
-   102297,
+   142177,
    5686
   ],
   "clips/e28ed6082045.mp3": [
    "packs/bramble-3.mp3",
-   107983,
+   147863,
    8403
   ],
   "clips/e2da2aeaa075.mp3": [
    "packs/bramble-3.mp3",
-   116386,
+   156266,
    12791
   ],
   "clips/e40c580a75e1.mp3": [
    "packs/bramble-3.mp3",
-   129177,
+   169057,
    7985
   ],
   "clips/e4c023134147.mp3": [
    "packs/bramble-3.mp3",
-   137162,
+   177042,
    8403
   ],
   "clips/e63ab6007d92.mp3": [
    "packs/bramble-3.mp3",
-   145565,
+   185445,
    8821
   ],
   "clips/e6ad25746da6.mp3": [
    "packs/bramble-3.mp3",
-   154386,
+   194266,
    6940
   ],
   "clips/e6e021db9fe1.mp3": [
    "packs/bramble-3.mp3",
-   161326,
+   201206,
    10910
   ],
   "clips/e72e56170067.mp3": [
    "packs/bramble-3.mp3",
-   172236,
+   212116,
    6522
   ],
   "clips/e73f5df30b92.mp3": [
    "packs/bramble-3.mp3",
-   178758,
+   218638,
    8403
   ],
   "clips/e7ad3ea5f555.mp3": [
    "packs/bramble-3.mp3",
-   187161,
+   227041,
    6104
   ],
   "clips/e99c40c7729f.mp3": [
    "packs/bramble-3.mp3",
-   193265,
+   233145,
    12373
   ],
   "clips/eaf7ec5021dc.mp3": [
    "packs/bramble-3.mp3",
-   205638,
+   245518,
    5686
   ],
   "clips/eb835c979468.mp3": [
    "packs/bramble-3.mp3",
-   211324,
+   251204,
    8403
   ],
   "clips/eba26d6b7659.mp3": [
    "packs/bramble-3.mp3",
-   219727,
+   259607,
    5686
   ],
   "clips/ec23b035e7cc.mp3": [
    "packs/bramble-3.mp3",
-   225413,
+   265293,
    11328
   ],
   "clips/f0917537382c.mp3": [
    "packs/bramble-3.mp3",
-   236741,
+   276621,
    5477
   ],
   "clips/f10345ae78b0.mp3": [
    "packs/bramble-3.mp3",
-   242218,
+   282098,
    5477
   ],
   "clips/f36bd0cacab2.mp3": [
    "packs/bramble-3.mp3",
-   247695,
+   287575,
    7149
   ],
   "clips/f40fd1c40b09.mp3": [
    "packs/bramble-3.mp3",
-   254844,
+   294724,
    8821
   ],
   "clips/f55e7ae5acc6.mp3": [
    "packs/bramble-3.mp3",
-   263665,
+   303545,
    6522
   ],
   "clips/f5b4ce2d01bd.mp3": [
    "packs/bramble-3.mp3",
-   270187,
+   310067,
    7985
   ],
   "clips/f5ff90477a0e.mp3": [
    "packs/bramble-3.mp3",
-   278172,
+   318052,
    9030
   ],
   "clips/f8429470b049.mp3": [
    "packs/bramble-3.mp3",
-   287202,
+   327082,
    7149
   ],
   "clips/f88253eeadef.mp3": [
    "packs/bramble-3.mp3",
-   294351,
+   334231,
    7985
   ],
   "clips/f9873795eaaf.mp3": [
    "packs/bramble-3.mp3",
-   302336,
+   342216,
    8821
   ],
   "clips/fa4fe8a216f6.mp3": [
    "packs/bramble-3.mp3",
-   311157,
+   351037,
    7985
   ],
   "clips/fad1c3afc3c4.mp3": [
    "packs/bramble-3.mp3",
-   319142,
+   359022,
    7149
   ],
   "clips/fb5fe1a1feaa.mp3": [
    "packs/bramble-3.mp3",
-   326291,
+   366171,
    5686
   ],
   "clips/fbd8268f6f40.mp3": [
    "packs/bramble-3.mp3",
-   331977,
+   371857,
    8821
   ],
   "clips/fc2c711d063a.mp3": [
    "packs/bramble-3.mp3",
-   340798,
+   380678,
    6522
-  ],
-  "clips/fd9e53d81f1d.mp3": [
-   "packs/bramble-3.mp3",
-   347320,
-   5059
   ],
   "clips/fe605023bd96.mp3": [
    "packs/bramble-3.mp3",
-   352379,
+   387200,
    7985
   ],
   "clips/fe9c3997b4e3.mp3": [
    "packs/bramble-3.mp3",
-   360364,
+   395185,
    10910
   ],
   "clips/fed07b9bdc8c.mp3": [
    "packs/bramble-3.mp3",
-   371274,
+   406095,
    5686
   ],
   "clips/00ae80fc2484.mp3": [
