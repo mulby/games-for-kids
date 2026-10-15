@@ -59,8 +59,9 @@ function bookStack(n, seed = 1) {
 }
 function bucketOf(colors, seed = 1) {
   const g = new THREE.Group();
-  g.add(D.lathe([[0, 0], [.22, 0], [.27, .36], [.25, .38], [0, .36]], D.metal('#9aa7b8', { rough: .45 }), 24));
-  colors.forEach((c, i) => { const f = D.feltFlower(c, .9, { stem: false }); const a = i / colors.length * TAU + seed; f.position.set(Math.cos(a) * .12, .48 + (i % 2) * .08, Math.sin(a) * .12); f.rotation.set(.5 * Math.cos(a), 0, .5 * Math.sin(a)); g.add(f); g.add(D.mesh(D.SPH(6), D.felt('#5f9a62'), [Math.cos(a) * .1, .4, Math.sin(a) * .1], [.03, .12, .03])); });
+  g.add(D.lathe([[0, 0], [.22, 0], [.27, .36], [.25, .38], [0, .36]], D.metal('#c9d3df', { rough: .4 }), 24));
+  // a little bouquet: each flower's stem starts inside the bucket and leans out a touch
+  colors.forEach((c, i) => { const f = D.feltFlower(c, .85, { stem: true }); const a = i / colors.length * TAU + seed, r = colors.length > 1 ? .09 : 0; f.position.set(Math.cos(a) * r, .7 + (i % 2) * .07, Math.sin(a) * r); f.rotation.set(.25 * Math.sin(a), 0, -.25 * Math.cos(a)); g.add(f); });
   return g;
 }
 function stall(o) {
@@ -92,12 +93,13 @@ function oak() {
   g.add(D.lathe([[0, 0], [1.9, 0], [1.4, .4], [1.15, 1.6], [1.0, 3.6], [0, 3.8]], bark, 32, { smooth: 16 }).translateZ(-1.2));
   const leaf = D.felt('#4f8a52', { scale: 1.2, fibre: .25 }), leaf2 = D.felt('#5f9a5c', { scale: 1.2, fibre: .25 });
   [[0, 5.0, 0, 2.3], [-1.8, 4.3, .2, 1.5], [1.8, 4.4, -.1, 1.6], [.3, 6.4, -.2, 1.6], [-.9, 5.6, -.9, 1.4], [1.1, 5.4, .7, 1.2]].forEach(([x, y, z, r], i) => g.add(D.mesh(D.lumpy(D.SPH(24), .12, 1.6, 30 + i), i % 2 ? leaf2 : leaf, [x, y, z - 1.2], r)));
-  const dr = roundDoor(.7, '#8cc46c'); dr.position.set(0, .8, -.08); dr.rotation.x = -.05; g.add(dr);
-  const w = smallWindow(.32); w.position.set(.35, 2.6, -.2); g.add(w);
-  const w2 = smallWindow(.26); w2.position.set(-.5, 3.3, -.28); g.add(w2);
+  // the trunk narrows as it rises (radius ~1.39 at y .45, ~1.08 at y 2.6, centre z -1.2): door and windows sit on its skin
+  const dr = roundDoor(.62, '#8cc46c'); dr.position.set(0, 1.05, .2); dr.rotation.x = -.16; g.add(dr);
+  const w = smallWindow(.3); w.position.set(.35, 2.6, -.13); w.rotation.set(-.16, .33, 0); g.add(w);
+  const w2 = smallWindow(.24); w2.position.set(-.5, 3.3, -.26); w2.rotation.set(-.16, -.5, 0); g.add(w2);
   const books = bookStack(5, 2); books.position.set(-1.6, 0, .4); books.rotation.y = .4; g.add(books);
   const books2 = bookStack(3, 4); books2.position.set(1.5, 0, .5); books2.rotation.y = -.3; g.add(books2);
-  const s = sign('Library', 1.3, .4); s.position.set(-1.2, 1.4, .6); s.rotation.y = .3; const p = post(1.2); p.position.set(-1.2, 0, .5); g.add(p, s);
+  const s = sign('Library', 1.3, .4); s.position.set(-1.2, 1.4, .64); s.rotation.y = .3; const p = post(1.2); p.position.set(-1.2, 0, .5); g.add(p, s);
   return g;
 }
 function flowerStall() {
@@ -161,8 +163,9 @@ function pond() {
 function gate() {
   const g = new THREE.Group();
   const p = post(2.2); g.add(p);
-  const s = sign('To my shop', 1.6, .45); s.position.set(.55, 1.85, 0); g.add(s);
-  const s2 = sign('Village', 1.3, .4); s2.position.set(-.45, 1.3, 0); s2.rotation.y = .25; g.add(s2);
+  // the boards hang on the front of the post, one pointing each way
+  const s = sign('To my shop', 1.6, .45); s.position.set(.92, 1.85, .14); g.add(s);
+  const s2 = sign('Village', 1.3, .4); s2.position.set(-.76, 1.3, .14); g.add(s2);
   for (let i = 0; i < 4; i++) { const f = post(.8); f.position.set(-1.5 - i * .8, 0, -.6 - i * .3); g.add(f); }
   g.add(D.rbox(2.6, .1, .08, .02, D.wood('#9a6a45', { axis: 0 })).translateX(-2.7).translateY(.6).translateZ(-1.05).rotateY(.36));
   const shop = D.toadstool(D.PAL.toadRed, 2.2); shop.position.set(-4.5, 0, -4); g.add(shop);
