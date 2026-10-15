@@ -1481,6 +1481,7 @@ async function playDay() {
     if (S.phase === 'intro') await intro();
     else if (S.phase === 'morning') await morning();
     else if (S.phase === 'shop') await shopTime();
+    else if (S.phase === 'village') { S.phase = 'evening'; save(); } // the village walk is only in the felt look so far
     else if (S.phase === 'evening') await evening();
     else await night();
   }

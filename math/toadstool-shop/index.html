@@ -175,6 +175,24 @@ body.g3d .btn.red{background:linear-gradient(#ea6b7e,var(--red))}
 .countup i{font-style:normal;min-width:34px;padding:4px 6px;border-radius:12px;background:#fff;box-shadow:0 2px 0 #d8c4a8;opacity:.55}
 .countup i.on{background:#ffe08a;opacity:1}
 .tipcoin{animation:pop .6s ease-out}
+/* Bramble Wood village */
+.task:has(.places){max-width:1120px}
+.places{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;width:100%}
+.places button{background:#fff;border-radius:18px;padding:6px 8px;box-shadow:0 5px 0 #d8c4a8;display:grid;grid-template-columns:52px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:8px;text-align:left;font-size:16px;font-weight:700;line-height:1.15}
+.places button .pp{grid-row:span 2;width:52px;height:52px;border-radius:50%;background:#f3e6d2;display:grid;place-items:center;font-size:32px;overflow:hidden}
+.places button .pp img{width:100%;height:100%;object-fit:cover}
+.places button .tag{justify-self:start;font-size:14px}
+.places button.own{background:#e3f2d8;box-shadow:0 5px 0 #8cc46c}
+.dots i.or{background:#f08a3a}
+.lan{display:inline-grid;grid-template-columns:repeat(5,30px);gap:6px;padding:8px;background:#2e3a5a;border-radius:14px}
+.lan i{width:30px;height:30px;border-radius:50% 50% 40% 40%;background:#5a6680;font-style:normal;font-size:15px;font-weight:700;color:#fff;display:grid;place-items:center}
+.lan i.on{background:radial-gradient(circle at 50% 40%,#fff6c0,#ffd23a 60%,#e9a020);box-shadow:0 0 10px #ffd23a}
+.books{display:inline-flex;flex-direction:column-reverse;gap:2px}
+.books.loose{flex-direction:row;flex-wrap:wrap;max-width:120px;gap:3px}
+.books i{display:block;width:54px;height:9px;border-radius:3px;background:#e2566b}
+.books.loose i{width:9px;height:40px}
+.books i.b1{background:#7bb4d9}.books i.b2{background:#8cc46c}.books i.b3{background:#e9b949}.books i.b4{background:#b9a6e8}
+.decor.one{display:flex;justify-content:center}.decor.one button{min-width:160px}
 </style>
 <script type="importmap">{"imports":{"three":"../../shared/vendor/three.module.min.js"}}</script>
 <script id="kid-voice" data-voice-base="../../voice/">
@@ -1167,6 +1185,7 @@ const CAST = {
   captain: { name: 'Captain Whiskers', emoji: '🏴‍☠️', special: true, hi: 'Ahoy, shopkeeper! My ship is in the harbor.', spec: { species: 'mouse', fur: '#8a7a6c', acc: ['tricorn', 'eyepatch'] } },
   miu: { name: 'Miu the temple cat', emoji: '🐈', special: true, hi: 'Greetings! I came all the way from the pyramids.', spec: { species: 'cat', fur: '#e8c88a', acc: ['collar'] } },
   athena: { name: "Athena's owl", emoji: '🦉', special: true, hi: 'Hoo! The goddess Athena sent me with a riddle.', spec: { species: 'owl', fur: '#cfc6b4', belly: '#fff6e6', acc: ['leaves'] } },
+  fern: { name: 'Fern', emoji: '🧚', hi: 'Hello! I look after the fairy ring.', spec: { species: 'fairy', wing: 'green', dress: '#b8f0c8', hair: '#c98a5a' } },
   queen: { name: 'The Fairy Queen', emoji: '🧚', special: true, finale: true, hi: 'I heard about your wonderful shop. I had to see it!', spec: { species: 'fairy', crown: true, wing: 'gold', dress: '#d4c4ff', hair: '#f2d27a' } },
 };
 const REGULARS = ['hazel', 'bunbury', 'hoot', 'mo', 'dot', 'tansy', 'wilf'];
@@ -1230,7 +1249,7 @@ function rampUp() {
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START);
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
@@ -1261,7 +1280,9 @@ const SFX = (() => {
   };
 })();
 // Each animal speaks in their own recorded voice (voice/manifest.json "voices"); the shopkeeper uses the main one.
-function speak(text, opts = {}) { if (!S.settings.voice || !window.KidVoice) return; KidVoice.speak(String(text).replace(/¢/g, ' pennies'), { queue: opts.queue, rate: .92, voice: opts.who && opts.who !== 'keeper' ? opts.who : null }); }
+// Fern the fairy shares Hazel's voice (and her recordings), since they never talk to each other.
+const VOICE_OF = { fern: 'hazel' };
+function speak(text, opts = {}) { if (!S.settings.voice || !window.KidVoice) return; KidVoice.speak(String(text).replace(/¢/g, ' pennies'), { queue: opts.queue, rate: .92, voice: opts.who && opts.who !== 'keeper' ? VOICE_OF[opts.who] || opts.who : null }); }
 function stopSpeech() { try { window.KidVoice && KidVoice.stop(); } catch (e) {} }
 
 /* ================= 3D view state (read every frame by shop3d.js) ================= */
@@ -1270,6 +1291,7 @@ function keeperSpec() { const k = S.keeper; return k ? { species: 'mouse', fur: 
 function syncView() {
   TSV.stock = S.stock; TSV.decor = S.decor; TSV.signText = S.keeper ? `${S.keeper.name}'s Shop` : 'The Toadstool Shop';
   TSV.keeper = keeperSpec();
+  TSV.garden = S.garden; TSV.treasures = S.treasures; TSV.ringLit = !!(S.village && S.village.day === S.day && S.village.done.ring);
 }
 let moodT = {};
 function mood(who, m, ms) { TSV.mood[who] = m; clearTimeout(moodT[who]); if (ms) moodT[who] = setTimeout(() => { TSV.mood[who] = 'idle'; }, ms); }
@@ -1482,6 +1504,7 @@ async function playDay() {
     if (S.phase === 'intro') await intro();
     else if (S.phase === 'morning') await morning();
     else if (S.phase === 'shop') await shopTime();
+    else if (S.phase === 'village') await village();
     else if (S.phase === 'evening') await evening();
     else await night();
   }
@@ -1740,7 +1763,7 @@ async function shopTime() {
     await walkOut();
   }
   if (S.shop.i >= S.shop.list.length) { mood('keeper', 'happy', 1500); await talk('keeper', 'What a busy day! Time to close the shop.', 'Close the shop'); }
-  S.phase = 'evening'; save();
+  S.phase = S.day >= VILLAGE_DAY ? 'village' : 'evening'; save();
 }
 async function serve(c) {
   const who = c.who, me = CAST[who]; TIP = { ok: true };
@@ -2019,9 +2042,219 @@ async function night() {
   if (S.day === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'clover-key', name: "Aunt Clover's Key", emoji: '🗝️', rarity: 'common' });
   mood('keeper', 'happy', 2000);
   await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
-    `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">My money: ${S.till}¢</span></div>`);
+    `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">My money: ${S.till}¢</span>${S.village && S.village.day === S.day && S.village.earned ? `<span class="tag">Village jobs: ${S.village.earned}¢</span>` : ''}</div>`);
   rampUp();
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
+}
+
+/* ================= Bramble Wood village (from day 5) ================= */
+// After the shop closes she can walk down the lane behind it, like a little Animal Crossing town. Four neighbours have
+// one small job each a day (2 pennies, and a third for getting every answer right the first time; help is fine), and two
+// stalls sell garden things and treasures with the money above the 10 she keeps for Bramble. What she buys shows in 3D
+// (village3d.js): garden things round the shop, treasures on a ledge along the shop counter. Each treasure is a card too.
+const VILLAGE_DAY = 5;
+const PLACES = {
+  burrow: { name: "Mrs. Bunbury's burrow", who: 'bunbury', job: carrotJob, emoji: '🥕', ask: 'Hello, dear! I planted my carrots in neat rows. Could you help me count them?' },
+  stall: { name: "Dot's flower stall", who: 'dot', shop: 'garden', emoji: '🌷', hi: 'Hello! Flowers and pretty things for your garden!' },
+  oak: { name: "Old Hoot's library", who: 'hoot', job: bookJob, emoji: '📚', ask: 'Hoo! I keep my books in stacks of ten. Will you help me count them?' },
+  market: { name: "Miu's treasure stall", who: 'miu', shop: 'treasures', emoji: '🏺', hi: 'Greetings! Treasures from faraway lands. Each one is one of a kind!' },
+  ring: { name: 'The fairy ring', who: 'fern', job: lanternJob, emoji: '🧚', ask: 'The fairies dance here tonight, and the lanterns need lighting. Will you help me count?' },
+  pond: { name: 'The duck pond', who: 'captain', job: chestJob, emoji: '⚓', ask: 'Ahoy, shopkeeper! I found treasure coins on the island. Help me count them!' },
+};
+const GARDEN = [
+  { id: 'daisies', name: 'Daisy patch', cost: 4, emoji: '🌼' },
+  { id: 'tulips', name: 'Tulip bed', cost: 6, emoji: '🌷' },
+  { id: 'sunflowers', name: 'Sunflowers', cost: 8, emoji: '🌻' },
+  { id: 'birdbath', name: 'Bird bath', cost: 10, emoji: '🐦' },
+  { id: 'bench', name: 'Garden bench', cost: 12, emoji: '🪑' },
+  { id: 'well', name: 'Wishing well', cost: 15, emoji: '🪣' },
+  { id: 'fairyhouse', name: 'Fairy house', cost: 20, emoji: '🍄' },
+];
+const TREASURES = [
+  { id: 'shell', name: 'Pearl seashell', cost: 3, emoji: '🐚', from: 'It washed up on a pirate island.' },
+  { id: 'scarab', name: 'Golden scarab', cost: 5, emoji: '🪲', from: 'It comes from the pyramids, like me!' },
+  { id: 'map', name: 'Pirate map', cost: 6, emoji: '🗺️', from: 'Captain Whiskers drew it. X marks the spot!' },
+  { id: 'pyramid', name: 'Little pyramid', cost: 7, emoji: '🔺', from: 'A tiny pyramid from Egypt.' },
+  { id: 'owl', name: 'Silver owl', cost: 9, emoji: '🦉', from: 'The goddess Athena loves owls.' },
+  { id: 'apple', name: 'Golden apple', cost: 11, emoji: '🍎', from: 'From the garden of the Greek gods.' },
+  { id: 'lyre', name: 'Golden lyre', cost: 13, emoji: '🎵', from: 'Apollo plays one just like it.' },
+  { id: 'crown', name: 'Fairy crown', cost: 16, emoji: '👑', from: 'The Fairy Queen wore it when she was little.' },
+];
+const ITEMS = { garden: GARDEN, treasures: TREASURES };
+function itemImg(kind, it) { return has3d() ? `<img src="${kind === 'garden' ? Shop3D.garden(it.id) : Shop3D.treasure(it.id)}" alt="">` : `<span class="em">${it.emoji}</span>`; }
+const spare = () => Math.max(0, S.till - 10);
+
+async function village() {
+  setScene('village', { time: 'day' });
+  Object.assign(TSV, { cust: null, place: null, go: 'gate', at: null });
+  if (!S.village || S.village.day !== S.day) { S.village = { day: S.day, done: {}, earned: 0 }; save(); }
+  syncView();
+  await wait(has3d() ? 900 : 0);
+  if (coachOnce('village')) {
+    mood('keeper', 'happy', 1800);
+    await talk('keeper', 'Look! A little lane goes from my shop into Bramble Wood village.', 'Let\'s explore!');
+    await talk('keeper', 'My friends live here. Maybe they need some help. And there are other shops to visit!', 'Next');
+  }
+  for (;;) {
+    const id = await villageMap();
+    if (id === 'home') break;
+    hush(); setPanel('');
+    await walkTo(id);
+    await visit(id);
+  }
+  TSV.onTap = null; hush(); setPanel('');
+  await walkTo('gate');
+  S.phase = 'evening'; save();
+}
+// She walks down the lane. The 3D view says when she gets there (TSV.at); without 3D there is no walk.
+async function walkTo(id) {
+  TSV.go = id; TSV.at = null;
+  if (!has3d()) return;
+  const t0 = Date.now(); while (TSV.at !== id && Date.now() - t0 < 9000) await wait(100);
+}
+// Where shall I go? A button for each place, or she can tap a house, a stall or the lane itself.
+function villageMap() {
+  return new Promise(res => {
+    const S_ = S.village, jobsLeft = Object.keys(PLACES).filter(id => PLACES[id].job && !S_.done[id]).length;
+    say('keeper', jobsLeft === 4 ? 'Where shall I go?' : jobsLeft ? pick(['Where next?', 'Who shall I visit next?']) : 'I helped everyone today! I can still visit the shops.');
+    const coach = coachOnce('villagemap');
+    let done = false;
+    const go = id => { if (done) return; done = true; SFX.tap(); TSV.onTap = null; rerender = null; res(id); };
+    TSV.onTap = t => { if (done) return; if (t.place) go(t.place); else if (t.x != null) { SFX.tap(); TSV.go = 'x:' + t.x.toFixed(1); } };
+    const draw = () => setPanel(`
+      ${coach ? `<div class="coach">👆 Tap a place to walk there. You can tap the houses and the lane too!</div>` : ''}
+      <div class="places">${Object.entries(PLACES).map(([id, P]) => `<button data-p="${id}" class="${P.job && S_.done[id] ? 'own' : ''}"><span class="pp">${portrait(P.who)}</span><span>${P.name}</span><span class="tag">${P.job ? (S_.done[id] ? '✓ helped' : `${P.emoji} job`) : `${P.emoji} shop`}</span></button>`).join('')}</div>
+      <button class="btn alt" id="home">Go home 🏠</button>`, p => {
+      $$('[data-p]', p).forEach(b => b.addEventListener('click', () => go(b.dataset.p)));
+      $('#home', p).addEventListener('click', () => go('home'));
+    });
+    rerender = draw; draw();
+    DBG.cur = { type: 'village' };
+  });
+}
+async function visit(id) {
+  const P = PLACES[id], who = P.who;
+  TSV.place = id; TSV.cust = CAST[who].spec; mood('cust', 'idle');
+  await wait(has3d() ? 1300 : 150);
+  if (P.job) await jobVisit(id); else await stallVisit(id);
+  hush(); setPanel('');
+  TSV.cust = null; await wait(has3d() ? 900 : 100); TSV.place = null;
+}
+async function jobVisit(id) {
+  const P = PLACES[id], who = P.who, me = CAST[who];
+  if (S.village.done[id]) { await talk(who, pick(['Thank you for your help today! Come back tomorrow.', 'Hello again! See you tomorrow for another job.']), 'Bye-bye!'); return; }
+  await talk(who, P.ask, 'I\'ll help!');
+  TIP = { ok: true };
+  await P.job(who);
+  const tip = !!(TIP && TIP.ok); TIP = null;
+  const pay = 2 + (tip ? 1 : 0);
+  S.till += pay; S.village.done[id] = 1; S.village.earned += pay; save(); syncView(); hud();
+  SFX.coin(1); sparkle($('#tillChip'), 10); mood('cust', 'happy', 2200); SFX.cheer();
+  const coins = `<div class="tray tipcoin"><span class="lbl">For helping</span>${Array.from({ length: pay }, () => coinHTML(1)).join('')}</div>`;
+  const text = tip ? 'Thank you! Here are 2 pennies for helping, and 1 more for getting it right the first time!' : 'Thank you! Here are 2 pennies for helping.';
+  if (!S.friends[who]) {
+    S.friends[who] = S.day; save();
+    if (window.GFKCards) GFKCards.collect({ game: GAME, id: 'friend-' + who, name: me.name, emoji: me.emoji, rarity: me.special ? 'rare' : 'common' });
+    await talk(who, text + ' Let\'s be friends!', 'Thank you!', coins);
+  } else await talk(who, text, 'Thank you!', coins);
+}
+
+/* ----- the jobs: a little story and two questions at her level ----- */
+// running totals under each group, for the help
+const groupsHelp = (n, size, cls, lab) => `<div class="row">${Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${(i + 1) * size}</span>${dots(size, 0, cls)}</span>`).join('')}</div><div class="small">Count by ${size}s: ${Array.from({ length: n }, (_, i) => (i + 1) * size).join(', ')}</div>`;
+async function carrotJob(who) {
+  const M = S.lv.M;
+  for (let q = 0; q < 2; q++) {
+    const [rows, per] = M <= 1 ? [2, 1 + rnd(4)] : M === 2 ? [2 + rnd(4), 2] : M === 3 ? [2 + rnd(3), 5] : pick([[2 + rnd(4), 5], [2 + rnd(3), 10]]);
+    await ask({
+      k: 'M', who, q: q ? `And the next patch has ${rows} rows with ${per} in each. How many carrots?` : `I planted ${rows} rows of carrots, with ${per} in each row. How many carrots is that?`, answer: rows * per,
+      show: () => Array.from({ length: rows }, (_, i) => `<span class="grp"><span class="lab">row ${i + 1}</span>${dots(per, 0, 'or')}</span>`).join(''),
+      help: () => groupsHelp(rows, per, 'or'),
+      helpSay: rows === 2 && per <= 5 ? `${per} and ${per} more. Count them all.` : `Count by ${per}s, one row at a time.`,
+    });
+  }
+}
+async function bookJob(who) {
+  const P = S.lv.P;
+  for (let q = 0; q < 2; q++) {
+    const tens = P <= 1 ? 1 : 2 + rnd(4), ones = P <= 1 ? 1 + rnd(9) : rnd(10), n = tens * 10 + ones;
+    const pile = () => `${Array.from({ length: tens }, () => `<span class="grp"><span class="books">${Array.from({ length: 10 }, (_, i) => `<i class="b${i % 5}"></i>`).join('')}</span><span class="lab">10</span></span>`).join('')}${ones ? `<span class="grp"><span class="books loose">${Array.from({ length: ones }, (_, i) => `<i class="b${i % 5}"></i>`).join('')}</span><span class="lab">&nbsp;</span></span>` : ''}`;
+    await ask({
+      k: 'P', who, q: `${q ? 'And on this shelf: ' : ''}${tens} ${plural(tens, 'stack', 'stacks')} of ten books${ones ? ` and ${ones} more` : ''}. How many books is that?`, answer: n,
+      show: pile,
+      help: () => `<div class="small">${Array.from({ length: tens }, (_, i) => (i + 1) * 10).join(', ')}${ones ? ', then ' + Array.from({ length: ones }, (_, i) => tens * 10 + i + 1).join(', ') : ''}</div>`,
+      helpSay: 'Count the stacks by tens, then the books by ones.',
+    });
+  }
+}
+async function lanternJob(who) {
+  const S_ = S.lv.S;
+  for (let q = 0; q < 2; q++) {
+    const T = S_ <= 1 ? 5 : S_ === 2 ? 10 : S_ === 3 ? pick([10, 20]) : 20;
+    const L = T === 5 ? 1 + rnd(4) : T === 10 ? 2 + rnd(8) : S_ === 3 ? 11 + rnd(9) : 3 + rnd(15);
+    const lan = (help) => `<span class="lan">${Array.from({ length: T }, (_, i) => i < L ? '<i class="on"></i>' : `<i>${help ? i - L + 1 : ''}</i>`).join('')}</span>`;
+    await ask({
+      k: 'S', who, q: q ? `Now the little ring by the stream. It has ${T} lanterns, and ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?` : `There are ${T} lanterns around the ring. ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?`, answer: T - L,
+      show: () => lan(false), help: () => `${lan(true)}<div class="small">Count the dark ones.</div>`,
+      helpSay: `Count the lanterns that are not glowing yet.`,
+    });
+  }
+  TSV.ringLit = true;
+}
+async function chestJob(who) {
+  const F = S.lv.F;
+  for (let q = 0; q < 2; q++) {
+    const n = F <= 1 ? 3 + rnd(7) : F === 2 ? 6 + rnd(10) : F === 3 ? 12 + rnd(24) : 15 + rnd(31), coins = coinsFor(n);
+    await ask({
+      k: 'F', who, q: q ? 'Arr, there was more in the boat! How many pennies is this pile?' : 'Here is my treasure. How many pennies is it worth?', answer: n,
+      show: () => `<div class="tray chest">${coins.map(v => coinHTML(v)).join('')}</div>`,
+      help: () => { let run = 0; return `<div class="row">${coins.map(v => { run += v; return `<span class="grp">${coinHTML(v)}<span class="lab">${run}</span></span>`; }).join('')}</div>`; },
+      helpSay: coins[0] === 10 ? 'Count the dimes by tens, then the rest.' : 'Touch each coin and count.',
+    });
+  }
+}
+
+/* ----- the stalls ----- */
+async function stallVisit(id) {
+  const P = PLACES[id], who = P.who, kind = P.shop, list = ITEMS[kind];
+  await talk(who, P.hi, 'Hello!');
+  for (;;) {
+    const it = await stallPick(who, kind, list);
+    if (!it) { await talk(who, pick(['Come back soon!', 'Bye for now!']), 'Bye-bye!'); return; }
+    await buy(who, kind, it);
+  }
+}
+function stallPick(who, kind, list) {
+  return new Promise(res => {
+    const left = list.filter(it => !S[kind].includes(it.id));
+    if (!left.length) say(who, kind === 'garden' ? 'You have everything from my stall! Your garden must be beautiful.' : 'You have every treasure I brought! What a collection!');
+    else say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} ${plural(spare(), 'penny', 'pennies')} to spend.`);
+    DBG.cur = { type: 'stall', kind };
+    const draw = () => setPanel(`
+      <div class="decor">${list.map(it => `<button data-i="${it.id}" class="${S[kind].includes(it.id) ? 'own' : spare() < it.cost ? 'cant' : ''}">${itemImg(kind, it)}<span>${it.name}</span><span class="tag">${S[kind].includes(it.id) ? '✓ yours' : it.cost + '¢'}</span></button>`).join('')}</div>
+      <button class="btn alt" id="bye">Bye for now</button>`, p => {
+      $$('[data-i]', p).forEach(b => b.addEventListener('click', () => {
+        const it = list.find(x => x.id === b.dataset.i);
+        if (S[kind].includes(it.id)) { say('keeper', kind === 'garden' ? `My ${it.name.toLowerCase()} is already in my garden!` : `My ${it.name.toLowerCase()} is already in my shop!`); return; }
+        if (spare() < it.cost) { SFX.soft(); say('keeper', `The ${it.name.toLowerCase()} costs ${it.cost}. I have ${spare()} to spend. I need ${it.cost - spare()} more.`); return; }
+        SFX.tap(); rerender = null; res(it);
+      }));
+      $('#bye', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(null); });
+    });
+    rerender = draw; draw();
+  });
+}
+async function buy(who, kind, it) {
+  if (kind === 'treasures') await talk(who, `The ${it.name.toLowerCase()}! ${it.from}`, 'I\'d like it!', `<div class="decor one"><button>${itemImg(kind, it)}<span>${it.name}</span><span class="tag">${it.cost}¢</span></button></div>`);
+  const given = await coinsTask({ who, amount: it.cost, source: coinsFor(S.till), title: 'My money', prompt: `That's ${it.cost} ${plural(it.cost, 'penny', 'pennies')}, please.`, mode: S.day >= SUMS_DAY ? 'pay' : 'exact', back: 'Not today' });
+  if (given === null) return;
+  if (given > it.cost) await talk(who, `You gave me ${given}. Here ${given - it.cost === 1 ? 'is 1 penny' : 'are ' + (given - it.cost)} back!`);
+  const had = S.till, left = had - it.cost;
+  S.till = left; S[kind].push(it.id); save(); syncView(); hud(); SFX.cheer(); mood('keeper', 'happy', 2000); mood('cust', 'happy', 1800);
+  if (window.GFKCards && kind === 'treasures') GFKCards.collect({ game: GAME, id: 'treasure-' + it.id, name: it.name, emoji: it.emoji, rarity: it.cost >= 13 ? 'sparkly' : it.cost >= 7 ? 'rare' : 'common' });
+  if (window.GFKCards && S[kind].length === ITEMS[kind].length) GFKCards.collect({ game: GAME, id: 'all-' + kind, name: kind === 'garden' ? 'Greenest Garden in the Wood' : 'Treasure Hunter', emoji: kind === 'garden' ? '🌻' : '🗝️', rarity: 'rare' });
+  await talk('keeper', `${kind === 'garden' ? `My ${it.name.toLowerCase()} will go in the garden by my shop!` : `I'll put the ${it.name.toLowerCase()} on the ledge in my shop!`} ${had} take away ${it.cost} leaves ${left}.`, 'Lovely!',
+    `<div class="decor one"><button class="own">${itemImg(kind, it)}<span>${it.name}</span><span class="tag">✓ yours</span></button></div>`);
 }
 
 /* ================= title ================= */
@@ -2050,7 +2283,8 @@ async function title() {
       <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors. After that it slowly gets harder: from day 7 one more customer on days when she has been getting at least 70% right, orders with up to 3 kinds of goods once her adding is past level 1, the smallest orders get a little bigger every 3 days up to day 13, and a skill that has not moved for 3 days moves up overnight if at least 70% of its answers in those days were right first time.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
-      <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Friends ${Object.keys(S.friends).length}</p>
+      <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Garden ${S.garden.length}/${GARDEN.length} · Treasures ${S.treasures.length}/${TREASURES.length} · Friends ${Object.keys(S.friends).length}</p>
+      <p>From day ${VILLAGE_DAY}, after the shop closes, she can walk to Bramble Wood village: four neighbours each have one little job a day (2 pennies, plus 1 when every answer is right the first time), and two stalls sell garden things and treasures with the money above the 10 she keeps for Bramble.</p>
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
     $('#gclose').addEventListener('click', () => { box.hidden = true; });

@@ -5,6 +5,7 @@
 // If WebGL or this module fails, the game keeps its plain look. Add ?g3d=0 to the URL to turn it off.
 import * as THREE from 'three';
 import * as D from './felt3d.js';
+import * as VL from './village3d.js';
 
 const G = window;
 const V = () => G.TSV || {};
@@ -26,11 +27,13 @@ document.body.insertBefore(canvas, document.body.firstChild);
 
 const scene = new THREE.Scene();
 const cam = new THREE.PerspectiveCamera(30, 1, .1, 300);
-const outside = new THREE.Group(), inside = new THREE.Group();
-scene.add(outside, inside);
+const outside = new THREE.Group(), inside = new THREE.Group(), village = new THREE.Group();
+scene.add(outside, inside, village);
+// which of the three places the game is showing
+const sceneOf = v => v.scene === 'inside' ? 'inside' : v.scene === 'village' ? 'village' : 'outside';
 
 /* ------------------------------------------------------------------ light rig, sky and image-based light, per time of day */
-const P = { morning: D.PRESETS.morning, evening: D.PRESETS.evening, inside: D.PRESETS.inside };
+const P = { morning: D.PRESETS.morning, evening: D.PRESETS.evening, inside: D.PRESETS.inside, day: D.PRESETS.day };
 const L = D.lightRig(scene, P.morning);
 L.key.shadow.mapSize.set(1024, 1024); L.key.shadow.bias = -.0008; L.key.shadow.normalBias = .04; L.key.shadow.radius = 4;
 const sky = D.skyDome(P.morning.sky); scene.add(sky);
@@ -260,6 +263,8 @@ function animCritter(o, t) {
 const SPOTS = {
   inside: { keeper: [-.2, 0, -3.6, .12], cust: [2.6, 0, -1.15, -.6], enter: [5.7, 0, -4.3, -2.2], via: [[4.5, 0, -.9]] },
   outside: { keeper: [-1.7, 0, 1.6, .25], cust: [2.0, 0, 1.9, -.35], enter: [9, 0, 3, -1.4], via: [] },
+  // in the village these move: the keeper's spot is wherever she is walking to, a neighbour comes out of their own door
+  village: { keeper: [VL.PLACES.gate.stand[0], 0, VL.PLACES.gate.stand[1], .3], cust: [0, 0, 0, 0], enter: [0, 0, -1, 0], via: [] },
 };
 const actors = {}; // slot -> {key, obj, scene, path, leaving}
 function spawn(spec, sceneName, slot) {
@@ -290,7 +295,7 @@ function sync(slot, spec, sceneName) {
   actors[cur ? slot + '_new' : slot] = spawn(spec, sceneName, slot);
 }
 function updateActors(dt, t) {
-  const v = V(), sc = v.scene === 'inside' ? 'inside' : 'outside';
+  const v = V(), sc = sceneOf(v);
   for (const [slot, a] of Object.entries(actors)) {
     const base = slot.startsWith('keeper') ? 'keeper' : 'cust';
     if (a.scene !== sc) { scene.remove(a.obj); delete actors[slot]; continue; }
@@ -300,7 +305,7 @@ function updateActors(dt, t) {
     const tgt = a.path[0] || (SPOTS[a.scene] || SPOTS.inside)[base];
     const dx = tgt[0] - p.x, dz = tgt[2] - p.z, d = Math.hypot(dx, dz);
     if (d > .05) {
-      const sp = Math.min(d, dt * 4.2);
+      const sp = Math.min(d, dt * (a.scene === 'village' ? 5.5 : 4.2));
       p.x += dx / d * sp; p.z += dz / d * sp;
       let dy = Math.atan2(dx, dz) - a.obj.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
       a.obj.rotation.y += dy * Math.min(1, dt * 8);
@@ -336,9 +341,10 @@ let dpr = Math.min(maxDpr, touch ? 1.5 : 1.75);
 R.setPixelRatio(dpr); sizeAll(); addEventListener('resize', sizeAll);
 const FOV = 30, tmpV = new THREE.Vector3(), tmpL = new THREE.Vector3(), tmpL2 = new THREE.Vector3();
 function frameCamera(dt, snap) {
-  const v = V(), ck = v.cam && v.cam !== 'meet' ? v.cam : v.cam === 'meet' ? (v.scene === 'inside' ? 'meet' : 'meetOut') : (v.scene === 'inside' ? 'inside' : 'outside');
-  const c = CAMS[ck] || CAMS[v.scene === 'inside' ? 'inside' : 'outside'];
+  const v = V(), sc = sceneOf(v), ck = v.cam && v.cam !== 'meet' ? v.cam : v.cam === 'meet' ? (v.scene === 'inside' ? 'meet' : 'meetOut') : sc;
+  const c = ck === 'village' ? villageCam(v) : CAMS[ck] || CAMS[v.scene === 'inside' ? 'inside' : 'outside'];
   if (ck !== camKey) { camKey = ck; focusC.set(...c.focus); focusR = c.r; aimLights(); }
+  else if (ck === 'village' && Math.abs(focusC.x - c.focus[0]) > 2.5) { focusC.set(...c.focus); aimLights(); }
   const top = v.top || 0, bottom = v.bottom || H, free = Math.max(120, bottom - top);
   // a short, wide band (a big panel open) frames closer on the people instead of shrinking the whole room
   // a tall band (iPad in portrait) may crop the sides down to minSpan rather than show a big empty ceiling or sky
@@ -357,6 +363,14 @@ function frameCamera(dt, snap) {
   cam.position.copy(camPos); cam.lookAt(camLook);
   cam.setViewOffset(W, H, 0, H / 2 - (top + free / 2), W, H);
   cam.updateProjectionMatrix();
+}
+// In the village the camera follows the shopkeeper along the lane, and frames her and a neighbour when she visits.
+function villageCam(v) {
+  const a = actors.keeper, P = v.place && VL.PLACES[v.place];
+  let x = a && a.scene === 'village' ? a.obj.position.x : VL.PLACES.gate.stand[0];
+  if (P && P.meet && v.cust) x = (P.stand[0] + P.meet[0]) / 2;
+  x = THREE.MathUtils.clamp(x, VL.LANE[0] + 2.5, VL.LANE[1] - 1.5);
+  return { pos: [x, 4.4, 16], look: [x, 1.9, -1.2], span: 12.5, minSpan: 8, minH: 5.6, lowY: -.7, focus: [x, 1.3, -1], r: 9 };
 }
 // the intro close-up of the keeper also happens outside, by the door
 CAMS.meetOut = { pos: [-1.4, 2.7, 9.4], look: [-1.5, 1.6, 1.4], span: 4.6, minH: 2.3, focus: [-1.6, 1.2, 1.6], r: 4 };
@@ -379,9 +393,11 @@ function frame(now) {
 }
 function update(dt) {
   T += dt;
-  const v = V(), sc = v.scene === 'inside' ? 'inside' : 'outside', eve = sc === 'outside' && v.time === 'evening';
-  inside.visible = sc === 'inside'; outside.visible = !inside.visible;
-  setPreset(sc === 'inside' ? 'inside' : eve ? 'evening' : 'morning');
+  const v = V(), sc = sceneOf(v), eve = sc === 'outside' && v.time === 'evening';
+  if (sc === 'village') ensureVillage();
+  inside.visible = sc === 'inside'; outside.visible = sc === 'outside'; village.visible = sc === 'village';
+  setPreset(sc === 'inside' ? 'inside' : sc === 'village' ? 'morning' : eve ? 'evening' : 'morning');
+  syncOwned(v.garden, 'garden'); syncOwned(v.treasures, 'treasures');
   outside.userData.cart.visible = !!v.cart;
   for (const o of parts.morning) o.visible = !eve;
   for (const o of parts.evening) o.visible = eve;
@@ -398,11 +414,89 @@ function update(dt) {
   if (eve) updateJar();
   animateProps(T);
   // actors
+  if (sc === 'village') villageBefore(v);
   sync('keeper', v.keeper || null, sc);
   sync('cust', v.cust || null, sc);
   updateActors(dt, T);
+  if (sc === 'village') villageAfter(v, T);
+  lastSc = sc;
   frameCamera(dt, first); first = false;
 }
+/* ------------------------------------------------------------------ the village, the garden and the treasures (village3d.js) */
+let VG = null, lastSc = '', goKey = '', placeKey = '';
+function ensureVillage() {
+  if (VG) return;
+  VG = VL.buildVillage({ touch }); village.add(VG.group); collectGlows(VG.group);
+  VG.ringGlows.forEach(s => { s.userData.glowBase = 0; }); // switched on by hand, not by the time of day
+}
+// Things she bought in the village appear the moment they are hers: garden things round the shop, treasures on the counter ledge.
+const owned = { garden: {}, treasures: {} };
+let ledge = null;
+function syncOwned(list, kind) {
+  for (const id of list || []) {
+    if (owned[kind][id]) continue;
+    const make = (kind === 'garden' ? VL.GARDEN_MODELS : VL.TREASURE_MODELS)[id]; if (!make) continue;
+    const o = make(); D.freeze(o);
+    if (kind === 'garden') { const [x, y, z, ry] = VL.GARDEN_SPOTS[id]; o.position.set(x, y, z); o.rotation.y = ry; outside.add(o); }
+    else {
+      if (!ledge) { ledge = VL.treasureShelf(); ledge.position.set(-.8, .62, -1.74); inside.add(ledge); }
+      const [x, y, z] = VL.treasureSpot(id); o.position.set(x, y, z); o.scale.setScalar(1.25); ledge.add(o);
+    }
+    collectGlows(o); setGlowOne(o); owned[kind][id] = o;
+  }
+}
+// Before the actors move: where the shopkeeper is heading (TSV.go: a place id, or "x:<lane x>") and which door a neighbour uses.
+function villageBefore(v) {
+  const Sp = SPOTS.village;
+  if (lastSc !== 'village') { const g = VL.PLACES.gate; Sp.keeper = [g.stand[0], 0, g.stand[1], g.face]; goKey = ''; placeKey = ''; }
+  const P = v.place && VL.PLACES[v.place];
+  if (P && P.door && v.place !== placeKey) {
+    placeKey = v.place;
+    Sp.enter = [P.door[0], 0, P.door[1], 0];
+    Sp.cust = [P.meet[0], 0, P.meet[1], Math.atan2(P.stand[0] - P.meet[0], P.stand[1] - P.meet[1])];
+  }
+  const a = actors.keeper, key = v.go || 'gate';
+  if (!a || a.scene !== 'village' || key === goKey) return;
+  goKey = key;
+  let tx, tz, yaw;
+  if (key.startsWith('x:')) { tx = THREE.MathUtils.clamp(+key.slice(2) || 0, VL.LANE[0], VL.LANE[1]); tz = VL.LANE_Z; yaw = 0; }
+  else { const Q = VL.PLACES[key] || VL.PLACES.gate; [tx, tz] = Q.stand; yaw = Q.meet ? Math.atan2(Q.meet[0] - tx, Q.meet[1] - tz) : Q.face; }
+  const p = a.obj.position, path = [];
+  if (Math.abs(p.x - tx) > .6) { if (Math.abs(p.z - VL.LANE_Z) > .3) path.push([p.x, 0, VL.LANE_Z]); path.push([tx, 0, VL.LANE_Z]); }
+  path.push([tx, 0, tz, yaw]);
+  Sp.keeper = [tx, 0, tz, yaw]; a.path = path; v.at = null;
+}
+// After they move: say when she has arrived (TSV.at), light the fairy ring, fly the butterflies.
+function villageAfter(v, t) {
+  const a = actors.keeper, k = SPOTS.village.keeper;
+  if (a && a.scene === 'village' && !a.path.length && goKey && v.at !== goKey && Math.hypot(a.obj.position.x - k[0], a.obj.position.z - k[2]) < .1) v.at = goKey;
+  const lit = !!v.ringLit;
+  VG.ringLit.emissiveIntensity = lit ? 2.2 + Math.sin(t * 3) * .3 : .15;
+  VG.ringGlows.forEach((s, i) => { s.visible = lit; s.material.opacity = .55 + Math.sin(t * 2.4 + i) * .15; });
+  VG.butterflies.forEach((b, i) => {
+    const kx = t * .3 + i * 2.1, f = calm ? .3 : Math.sin(t * 16 + i);
+    b.position.set(-14 + i * 13 + Math.sin(kx) * 3, 2.2 + i * .5 + Math.sin(kx * 2.3) * .4, -2.5 + Math.cos(kx * .8) * 1.5);
+    b.rotation.y = -kx + Math.PI / 2; b.rotation.x = .9;
+    if (b.userData.wl) { b.userData.wl.rotation.y = f * .9; b.userData.wr.rotation.y = -f * .9; }
+  });
+}
+// Tapping the village: a house or stall visits it, the lane walks there. The game decides what a tap does (TSV.onTap).
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hit = new THREE.Vector3();
+let down = null;
+canvas.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY, performance.now()]; });
+canvas.addEventListener('pointerup', e => {
+  const v = V(), d0 = down; down = null;
+  if (!d0 || sceneOf(v) !== 'village' || typeof v.onTap !== 'function') return;
+  if (Math.hypot(e.clientX - d0[0], e.clientY - d0[1]) > 16 || performance.now() - d0[2] > 800) return;
+  ndc.set(e.clientX / W * 2 - 1, -(e.clientY / H) * 2 + 1); ray.setFromCamera(ndc, cam);
+  const ground = ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit) ? hit.clone() : null;
+  if (ground && ground.z > -.4) { v.onTap({ x: ground.x }); return; }
+  if (ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 0, 1), 1.5), hit) && hit.y > -.2 && hit.y < 7.5) {
+    let best = null, bd = 2.8;
+    for (const [id, P] of Object.entries(VL.PLACES)) { const dd = Math.abs(P.x - hit.x); if (P.door && dd < bd) { bd = dd; best = id; } }
+    v.onTap(best ? { place: best } : { x: hit.x });
+  }
+});
 // test helper: run the scene forward (walks, camera moves) without drawing, then draw once
 function settle(sec = 3) { for (let i = 0; i < sec * 30; i++) update(1 / 30); R.render(scene, cam); }
 function updateJar() {
@@ -507,6 +601,8 @@ G.Shop3D = {
     return pics.get(key);
   },
   decor: id => bake('d:' + id + (id === 'sign' ? signText : ''), THUMB[id] || (() => new THREE.Group()), { yaw: .35, pitch: .3, pad: 1.1, ...(DECOR_VIEW[id] || {}) }),
+  garden: id => bake('g:' + id, VL.GARDEN_MODELS[id] || (() => new THREE.Group()), { yaw: .35, pitch: .35, pad: 1.1 }),
+  treasure: id => bake('t:' + id, VL.TREASURE_MODELS[id] || (() => new THREE.Group()), { yaw: .3, pitch: .3, pad: 1.15 }),
 };
 G.__ts3d = { R, scene, cam, bakeLog, stats, actors, settle, get dpr() { return dpr; }, CAMS, SPOTS, D, bakeObj, makeModel };
 if (G.__ts && G.__ts.on3d) G.__ts.on3d();
@@ -516,7 +612,8 @@ if (G.__ts && G.__ts.on3d) G.__ts.on3d();
   let list = [];
   try { list = Object.entries(CAST).filter(([id]) => id !== 'clover').map(([, c]) => c.spec); } catch (e) {} // eslint-disable-line no-undef
   const step = () => {
-    const spec = list.shift(); if (!spec) return;
+    const spec = list.shift();
+    if (!spec) { const st = game(); if (st && st.day >= 4 && !VG) { ensureVillage(); const was = village.visible; village.visible = true; try { R.compile(scene, cam); } catch (e) {} village.visible = was; } return; }
     try { const o = D.instance(model(spec)); o.position.set(0, -50, 0); scene.add(o); R.compile(scene, cam); scene.remove(o); } catch (e) {}
     setTimeout(step, 120);
   };
