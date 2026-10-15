@@ -2020,7 +2020,7 @@ function decorShop() {
         if (spare() < c.cost) { SFX.soft(); say('keeper', `The ${c.name.toLowerCase()} costs ${c.cost}. I have ${spare()} to spend. I need ${c.cost - spare()} more.`); return; }
         W.buy(S, c.id, spare()); save(); syncView(); hud(); SFX.cheer(); sparkle(bi, 18); mood('keeper', 'happy', 2000);
         say('keeper', `The ${c.name.toLowerCase()}! ${had} take away ${c.cost} leaves ${S.till}.`);
-        if (window.GFKCards && W.allOwned(S)) GFKCards.collect({ game: GAME, id: 'all-clothes', name: 'Best Dressed in Bramble Wood', emoji: '👗', rarity: 'rare' });
+        bestDressed();
         trying = null; rerender = null;
         setPanel(`<div class="wlook">${lookImg(keeperSpec())}</div><button class="btn" id="nx">Lovely!</button>`, q => $('#nx', q).addEventListener('click', () => { SFX.tap(); TSV.scene = 'outside'; res(); }));
       });
@@ -2094,17 +2094,19 @@ function openWardrobe() {
   box.hidden = false; draw(); SFX.tap();
 }
 function closeWardrobe() {
-  $('#wardrobe').hidden = true; SFX.ok(); syncView();
+  $('#wardrobe').hidden = true; SFX.ok(); syncView(); if (rerender) rerender();
   if (lastSay && lastSay.who === 'keeper') $('#bubble .pt').innerHTML = portrait('keeper');
 }
+// Every piece of clothing (bought and presents) earns a card, whichever comes last.
+function bestDressed() { if (window.GFKCards && ShopWardrobe.allOwned(S)) GFKCards.collect({ game: GAME, id: 'all-clothes', name: 'Best Dressed in Bramble Wood', emoji: '👗', rarity: 'rare' }); }
 // A visiting friend's present: it goes in the wardrobe and on at once.
 async function giftFrom(who) {
   const W = ShopWardrobe, c = W.giftFrom(who); if (!c || !S.keeper || !W.give(S, c.id)) return;
-  W.put(S, c.id); save(); syncView(); SFX.cheer(); mood('keeper', 'happy', 2200);
+  W.put(S, c.id); save(); syncView(); SFX.cheer(); mood('keeper', 'happy', 2200); bestDressed();
   await talk('keeper', `${CAST[who].name} gave me ${c.they ? 'some' : 'a'} ${c.name.toLowerCase()}! I'm wearing ${c.they ? 'them' : 'it'} now. I can change my clothes any time with the dress button.`, 'Thank you! 👗', `<div class="wlook small">${lookImg(keeperSpec())}</div>`);
 }
 // Older saves: friends who already visited have left their presents in the wardrobe.
-if (S.keeper) { S.closet = S.closet || []; for (const who of Object.keys(S.friends || {})) { const c = ShopWardrobe.giftFrom(who); if (c) ShopWardrobe.give(S, c.id); } save(); }
+if (S.keeper) { S.closet = S.closet || []; for (const who of Object.keys(S.friends || {})) { const c = ShopWardrobe.giftFrom(who); if (c) ShopWardrobe.give(S, c.id); } save(); bestDressed(); }
 $('#wardBtn').addEventListener('click', openWardrobe);
 
 /* ================= title ================= */
