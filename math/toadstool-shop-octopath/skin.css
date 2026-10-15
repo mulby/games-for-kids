@@ -306,3 +306,10 @@ button.coin.v10::after { content: ''; position: absolute; inset: -4px; } /* the 
 .decor button.try { outline: 3px solid var(--honey); outline-offset: 2px; }
 .tabs button { background: linear-gradient(180deg, #33478a, #1b2652 60%, #131b3c); border: 3px double var(--gold); border-radius: 10px; color: var(--parch); box-shadow: 0 0 0 2px rgba(7,11,24,.85), 0 5px 0 #0a0f22; }
 .tabs button.sel { background: linear-gradient(180deg, #f4c870, #c98a2a); color: #2a1a14; }
+
+/* Bramble Wood village: the list of places to walk to (navy tiles like the decorations, a round portrait in gold) */
+.places button { background: linear-gradient(180deg, #2a3b78, #141d40); border: 3px double var(--gold); border-radius: 10px; box-shadow: 0 0 0 2px rgba(7,11,24,.85), 0 5px 0 #0a0f22; color: var(--parch); font-family: var(--f-body); }
+.places button .pp { background: radial-gradient(circle at 50% 38%, #44589e, #18224a); box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px rgba(7,11,24,.85); }
+.places button .pp img { image-rendering: pixelated; image-rendering: crisp-edges; }
+.places button.own { background: linear-gradient(180deg, #4e7a34, #2e4a1e); border-color: #bfe39a; box-shadow: 0 0 0 2px rgba(7,11,24,.85), 0 5px 0 #1e300f, 0 0 14px rgba(191,227,154,.4); }
+.decor button img { image-rendering: pixelated; image-rendering: crisp-edges; }

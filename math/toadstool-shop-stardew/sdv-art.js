@@ -1074,6 +1074,8 @@
   function specKey(spec) { return JSON.stringify(spec || {}); }
   function hasAcc(spec, a) { return (spec.acc || []).indexOf(a) >= 0; }
 
+  // fairy wings: [light, edge]
+  var FAIRY_WING = { gold: ['#FFF1C4', '#E9B949'], green: ['#DDF7D2', '#6CC38A'], blue: ['#DCEEFF', '#7BB4D9'], pink: ['#FFE0EC', '#F07AA0'] };
   function charLayers(spec) {
     var sp = spec.species, fur = spec.fur || '#C99A6C', belly = spec.belly || light(fur, 0.4);
     var dress = spec.dress, d2 = spec.dress2 || '#FFF3E6';
@@ -1093,9 +1095,11 @@
     } else if (sp === 'fairy') {
       tpl = 'fairy';
       var hair = spec.hair || '#F2D27A', dr = spec.dress || '#D4C4FF';
-      pal = { c: GOLD, j: '#F58FB1', h: hair, H: shade(hair, 0.2), f: '#FBE3D0', F: '#E8C4AE', e: INK, w: '#FFFFFF', n: '#E2566B', W: '#FFF1C4', V: '#E9B949', a: spec.dress2 || '#FFF3CF', d: dr, D: shade(dr, 0.22), k: GOLD };
+      var wg = FAIRY_WING[spec.wing] || FAIRY_WING.gold;
+      pal = { c: GOLD, j: '#F58FB1', h: hair, H: shade(hair, 0.2), f: '#FBE3D0', F: '#E8C4AE', e: INK, w: '#FFFFFF', n: '#E2566B', W: wg[0], V: wg[1], a: spec.dress2 || '#FFF3CF', d: dr, D: shade(dr, 0.22), k: spec.crown ? GOLD : '#C98A5A' };
       pal.c = '#F59A8A'; pal.C = GOLD;
-      rows = TPL.fairy.map(function (r, i) { return i < 3 ? r.replace(/c/g, 'C') : r; });
+      // only the Fairy Queen wears a crown; other fairies have a flower in their hair
+      rows = TPL.fairy.map(function (r, i) { return i < 3 ? r.replace(/c/g, spec.crown ? 'C' : '.') : r; });
     } else if (sp === 'rabbit' && hasAcc(spec, 'bonnet')) {
       tpl = 'bunbury';
       var bon = spec.bonnet || '#FFF3E6', dr2 = dress || '#9FC7E8';
@@ -1331,8 +1335,9 @@
   }
   function fairyP(g, f, spec) {
     var hair = spec.hair || '#F2D27A', hairS = shade(hair, 0.2), skin = '#FBE3D0', skinS = '#E8C4AE', dress = spec.dress || '#D4C4FF';
-    g.ellipse(7, 30, 7, 12, '#E9B949'); g.ellipse(7, 30, 6, 11, '#FFF1C4'); g.ellipse(41, 30, 7, 12, '#E9B949'); g.ellipse(41, 30, 6, 11, '#FFF1C4');
-    g.px(5, 25, '#FFFFFF'); g.px(43, 25, '#FFFFFF'); g.px(6, 33, '#F7DE8A'); g.px(42, 33, '#F7DE8A');
+    var wg = FAIRY_WING[spec.wing] || FAIRY_WING.gold;
+    g.ellipse(7, 30, 7, 12, wg[1]); g.ellipse(7, 30, 6, 11, wg[0]); g.ellipse(41, 30, 7, 12, wg[1]); g.ellipse(41, 30, 6, 11, wg[0]);
+    g.px(5, 25, '#FFFFFF'); g.px(43, 25, '#FFFFFF'); g.px(6, 33, light(wg[1], 0.4)); g.px(42, 33, light(wg[1], 0.4));
     bustP(g, dress, shade(dress, 0.22));
     g.ellipse(24, 38, 9, 3, spec.dress2 || '#FFF3CF'); g.rect(22, 33, 4, 5, skinS);
     g.ellipse(24, 21, 15, 15, hairS); g.ellipse(23.6, 20.6, 14.4, 14.4, hair);
@@ -1343,8 +1348,14 @@
     g.ellipse(16, 29, 2.4, 1.5, '#F59A8A'); g.ellipse(32, 29, 2.4, 1.5, '#F59A8A');
     eyesP(g, f, 19, 29, 24, '#4A2A5A', true);
     g.hline(22, 31, 4, '#D9637F'); g.px(21, 30, '#D9637F'); g.px(26, 30, '#D9637F');
-    g.rect(15, 10, 18, 3, GOLD); g.hline(15, 12, 18, GOLD_D); [15, 20, 24, 28, 32].forEach(function (x, i) { tri(g, x + 0.5, i % 2 ? 6 : 4, 10, 1.4, GOLD); });
-    g.ellipse(24, 11, 1.6, 1.6, '#F58FB1'); g.px(18, 11, '#86D2F0'); g.px(30, 11, '#86D2F0'); g.px(16, 10, '#FFF6B8');
+    if (spec.crown) {
+      g.rect(15, 10, 18, 3, GOLD); g.hline(15, 12, 18, GOLD_D); [15, 20, 24, 28, 32].forEach(function (x, i) { tri(g, x + 0.5, i % 2 ? 6 : 4, 10, 1.4, GOLD); });
+      g.ellipse(24, 11, 1.6, 1.6, '#F58FB1'); g.px(18, 11, '#86D2F0'); g.px(30, 11, '#86D2F0'); g.px(16, 10, '#FFF6B8');
+    } else { // a leafy band and a flower over one ear
+      for (var lx = 14; lx < 35; lx += 3) { g.ellipse(lx, 11 + Math.abs(lx - 24) / 6, 1.8, 1.2, lx % 2 ? '#6CC38A' : '#4F9A5A'); }
+      [[0, -2.4], [2.4, 0], [0, 2.4], [-2.4, 0]].forEach(function (d) { g.ellipse(33 + d[0], 13 + d[1], 1.8, 1.8, '#F58FB1'); });
+      g.ellipse(33, 13, 1.3, 1.3, '#FFE15A');
+    }
   }
   SDV.portrait = function (spec) {
     var key = 'pt:' + specKey(spec);
@@ -1494,5 +1505,338 @@
     }, { kind: 'object' });
     return key;
   };
+
+  /* ================================================================
+     BRAMBLE WOOD VILLAGE: the lane behind the shop, its homes and stalls,
+     the garden things (round the shop) and the treasures (on the counter ledge).
+     ================================================================ */
+  var WD = '#5B2A0E', WM = '#7A4A22', WL = '#9A6230', WH = '#C88A4E', WHH = '#E2A868';
+  function post(g, x, y, h, w) { w = w || 3; g.rect(x, y, w, h, WM); g.vline(x + 1, y, h, WL); g.px(x, y, WL); }
+  function planksH(g, x, y, w, h, base) { base = base || WH; g.rect(x, y, w, h, base); g.hline(x, y, w, light(base, 0.25)); g.hline(x, y + h - 1, w, shade(base, 0.35)); }
+  function boardText(g, x, y, w, text, col) { g.rect(x, y, w, 11, WM); g.rect(x + 1, y + 1, w - 2, 9, '#C98A5A'); g.rect(x + 2, y + 2, w - 4, 7, '#FFF3DC'); SDV.text35(g, text, x + Math.round((w - SDV.text35w(text)) / 2) + 1, y + 3, col || '#7A3D2A'); }
+  function flowerAt(g, x, y, c) { g.px(x, y - 1, c); g.px(x - 1, y, c); g.px(x + 1, y, c); g.px(x, y + 1, c); g.px(x, y, '#FFE15A'); }
+  function tuft(g, x, y, c) { g.px(x, y, c); g.px(x + 1, y - 1, c); g.px(x + 2, y, c); }
+
+  // the gate where the lane leaves the shop's meadow: an arch of vines over two posts
+  SDV.paintSprite('vGate', 52, 62, function (g) {
+    for (var i = 0; i <= 40; i++) { var t = i / 40 * Math.PI, x = 26 - Math.cos(t) * 20, y = 24 - Math.sin(t) * 18; g.rect(Math.round(x) - 2, Math.round(y) - 2, 4, 4, WM); }
+    for (i = 0; i <= 40; i++) { t = i / 40 * Math.PI; x = 26 - Math.cos(t) * 20; y = 24 - Math.sin(t) * 18; g.rect(Math.round(x) - 1, Math.round(y) - 2, 2, 2, WH); }
+    post(g, 4, 22, 40, 5); post(g, 43, 22, 40, 5);
+    g.rect(3, 22, 7, 3, WD); g.rect(42, 22, 7, 3, WD);
+    // vines and roses on the arch and down the posts
+    for (i = 0; i <= 24; i++) { t = i / 24 * Math.PI; x = 26 - Math.cos(t) * 20; y = 24 - Math.sin(t) * 18; g.ellipse(x + (i % 2 ? 1 : -1), y + (i % 3) - 1, 2.2, 1.8, i % 2 ? '#4F9A3A' : '#3F8F2A'); if (i % 4 === 1) g.px(x, y - 1, '#9BE05A'); }
+    for (i = 0; i <= 24; i += 3) { t = i / 24 * Math.PI; x = 26 - Math.cos(t) * 20; y = 24 - Math.sin(t) * 18; g.ellipse(x + 1, y, 1.6, 1.6, i % 2 ? '#F58FB1' : '#E2566B'); g.px(x, y - 1, '#FFD0DC'); }
+    for (var yy = 28; yy < 58; yy += 4) { g.ellipse(4 + (yy % 8 ? 0 : 2), yy, 1.6, 1.4, '#4F9A3A'); g.ellipse(48 - (yy % 8 ? 0 : 2), yy + 2, 1.6, 1.4, '#4F9A3A'); }
+    g.px(6, 36, '#F58FB1'); g.px(46, 44, '#F58FB1'); g.px(5, 50, '#FFE15A');
+    // the gate leaves, swung open
+    [[10, 1], [37, -1]].forEach(function (L) { var x0 = L[0]; for (var k = 0; k < 3; k++) { g.rect(x0 + k * 2, 42 + k, 1, 20 - k, k ? WH : WL); } g.hline(x0, 46, 6, WL); g.hline(x0, 55, 6, WL); });
+    g.rect(0, 60, 52, 2, null);
+  }, { kind: 'object' });
+  // "To my shop", pointing back down the lane
+  (function () {
+    var txt = 'TO MY SHOP', tw = SDV.text35w(txt) + 15;
+    SDV.paintSprite('vGateSign', tw + 4, 26, function (g) {
+      var mid = (tw + 4) / 2 | 0; post(g, mid - 1, 10, 16, 3);
+      g.rect(6, 1, tw - 4, 12, WM); for (var y = 0; y < 12; y++) { var d = Math.abs(y - 6.5); g.hline(Math.round(d / 1.2) + 1, 1 + y, 6, WM); }
+      g.rect(7, 2, tw - 6, 10, '#C98A5A'); for (y = 1; y < 11; y++) { d = Math.abs(y - 5.5); g.hline(Math.round(d / 1.2) + 3, 1 + y, 5, '#C98A5A'); }
+      g.rect(8, 3, tw - 8, 8, '#FFF3DC'); for (y = 2; y < 10; y++) { d = Math.abs(y - 5.5); g.hline(Math.round(d / 1.2) + 4, 1 + y, 4, '#FFF3DC'); }
+      SDV.text35(g, txt, 9, 5, '#7A3D2A');
+      g.rect(tw - 3, 2, 2, 2, '#E2566B');
+    }, { kind: 'object' });
+  })();
+  SDV.paintSprite('vPicket', 24, 16, function (g) {
+    planksH(g, 0, 5, 24, 2); planksH(g, 0, 11, 24, 2);
+    for (var x = 1; x < 24; x += 6) { g.rect(x, 2, 3, 14, WH); g.vline(x, 2, 14, WHH); g.vline(x + 2, 2, 14, WL); g.px(x + 1, 1, WH); g.px(x, 2, null); g.px(x + 2, 2, null); g.hline(x, 3, 3, WH); }
+  }, { kind: 'object' });
+
+  // Mrs. Bunbury's burrow: a grassy mound with a round red door (frame 1: the door is open)
+  SDV.paintSprite('vBurrow', 104, 74, function (g, f) {
+    g.ellipse(52, 64, 51, 46, '#2F6B2A'); g.ellipse(51.5, 63.5, 50, 45, '#4F9A3A');
+    g.ellipseIn(42, 40, 36, 22, '#5AAE30'); g.ellipseIn(38, 32, 26, 14, '#6CC33A'); g.ellipseIn(32, 26, 12, 6, '#8EDB52');
+    g.ellipseIn(80, 66, 30, 30, '#3F8F2A');
+    var r = rng(41); for (var i = 0; i < 60; i++) { var x = (r() * 104) | 0, y = 20 + (r() * 52) | 0; if (g.get(x, y) && g.get(x, y + 1) && g.get(x - 1, y)) tuft(g, x, y, g.get(x, y) === '#3F8F2A' ? '#2F6B2A' : '#3F8F2A'); }
+    [[22, 40, '#F58FB1'], [70, 30, '#FFFFFF'], [84, 46, '#FFE15A'], [30, 30, '#FFFFFF'], [58, 24, '#F58FB1'], [14, 56, '#FFE15A'], [92, 60, '#F58FB1']].forEach(function (p) { flowerAt(g, p[0], p[1], p[2]); });
+    // stone arch and the round door
+    g.ellipse(52, 60, 16, 16, '#6E6A62'); g.ellipse(52, 60, 15, 15, '#B8B4AA');
+    for (i = 0; i < 12; i++) { var t = Math.PI + i / 11 * Math.PI; g.px(52 + Math.cos(t) * 14, 60 + Math.sin(t) * 14, '#8C8A84'); g.px(52 + Math.cos(t) * 12.6, 60 + Math.sin(t) * 12.6, '#D8D4CA'); }
+    if (f === 1) { g.ellipse(52, 60, 12, 12, '#2A1206'); g.ellipseIn(52, 70, 9, 6, '#5B2A0E'); g.ellipseIn(52, 72, 6, 3, '#9A6230'); g.rect(38, 50, 4, 24, '#A82E22'); g.vline(38, 50, 24, '#7A1E16'); }
+    else {
+      g.ellipse(52, 60, 12, 12, '#7A1E16'); g.ellipse(51.6, 59.6, 11.4, 11.4, '#D63A2B');
+      [46, 50, 54, 58].forEach(function (x) { g.vline(x, 49, 26, '#B02A20'); }); g.ellipseIn(48, 54, 5, 4, '#E85A43');
+      g.ellipse(59, 62, 1.6, 1.6, '#F7C531'); g.px(58, 61, '#FFF3A8');
+      g.ellipse(52, 55, 3, 3, '#7A1E16'); g.ellipse(52, 55, 2.2, 2.2, '#FFE07A'); g.px(51, 54, '#FFFFFF');
+    }
+    g.rect(36, 72, 32, 2, '#8C8A84'); g.hline(37, 72, 30, '#B8B4AA');
+    // round window with curtains
+    g.ellipse(24, 54, 7, 7, WD); g.ellipse(24, 54, 6, 6, '#9ED8F2'); g.px(21, 51, '#FFFFFF'); g.px(22, 50, '#FFFFFF');
+    g.ellipseIn(20, 54, 2.4, 6, '#F58FB1'); g.ellipseIn(28, 54, 2.4, 6, '#F58FB1'); g.rect(23, 48, 2, 12, WH); g.rect(18, 53, 12, 2, WH);
+    g.rect(18, 61, 13, 3, '#9A6230'); g.hline(18, 61, 13, '#C88A4E'); flowerAt(g, 20, 60, '#E2566B'); flowerAt(g, 25, 60, '#FFFFFF'); flowerAt(g, 29, 60, '#E2566B');
+    // chimney pipe
+    g.rect(74, 10, 7, 14, '#6E6A62'); g.rect(75, 10, 5, 14, '#9A968C'); g.vline(76, 10, 14, '#C9C5BA'); g.rect(73, 8, 9, 3, '#5B5048'); g.hline(74, 8, 7, '#8C8A84');
+    // a letterbox
+    g.rect(84, 58, 2, 14, WM); g.rect(80, 54, 10, 6, '#3A6FB5'); g.hline(80, 54, 10, '#5A9FD5'); g.rect(89, 52, 1, 4, '#E2566B'); g.rect(90, 52, 2, 2, '#E2566B');
+  }, { kind: 'object', frames: 2 });
+  SDV.paintSprite('vCarrots', 44, 20, function (g) {
+    g.rect(1, 4, 42, 15, '#7A4A22'); g.rect(2, 5, 40, 13, '#9A6230');
+    for (var row = 0; row < 3; row++) { var y = 7 + row * 4; g.hline(2, y + 2, 40, '#6E3A14'); g.hline(2, y + 1, 40, '#B5763A');
+      for (var x = 4; x < 41; x += 5) { g.px(x, y, '#F08A3A'); g.px(x + 1, y, '#D06A20'); g.px(x, y - 1, '#4F9A3A'); g.px(x + 1, y - 2, '#6CC33A'); g.px(x - 1, y - 2, '#6CC33A'); g.px(x, y - 3, '#3F8F2A'); } }
+    planksH(g, 0, 18, 44, 2, '#B5763A');
+  }, { kind: 'object' });
+
+  // stalls: an awning on posts, a sign on top, a counter with a cloth front
+  function stall(g, o) {
+    var W = 72;
+    post(g, 5, 18, 50, 3); post(g, 64, 18, 50, 3);
+    // goods on the counter first, so the awning edge can overlap them
+    o.goods(g);
+    // the counter
+    g.rect(1, 40, 70, 4, WD); planksH(g, 2, 40, 68, 3, '#C98A5A');
+    g.rect(3, 43, 66, 22, shade(o.cloth[0], 0.3));
+    for (var x = 4; x < 68; x++) { var c = Math.floor((x - 4) / 6) % 2 ? o.cloth[1] : o.cloth[0]; g.vline(x, 43, 21, c); }
+    g.hline(4, 43, 64, shade(o.cloth[0], 0.25));
+    if (o.band) o.band(g);
+    for (x = 4; x < 68; x += 4) { g.px(x + 1, 64, o.cloth[0]); g.px(x + 2, 64, o.cloth[0]); g.px(x + 1, 65, shade(o.cloth[0], 0.2)); }
+    // the awning
+    g.rect(0, 13, W, 3, shade(o.awn[0], 0.35));
+    for (x = 0; x < W; x++) { var k = Math.floor(x / 6) % 2, cc = k ? o.awn[1] : o.awn[0]; g.vline(x, 15, 9, cc); g.px(x, 15, light(cc, 0.3)); }
+    for (x = 0; x < W; x += 6) { var c2 = Math.floor(x / 6) % 2 ? o.awn[1] : o.awn[0]; g.ellipse(x + 3, 24, 3, 2.4, c2); g.hline(x + 1, 26, 4, shade(c2, 0.2)); }
+    g.hline(0, 13, W, shade(o.awn[0], 0.5));
+    boardText(g, 36 - (SDV.text35w(o.title) + 10) / 2 | 0, 1, SDV.text35w(o.title) + 10, o.title, o.ink);
+    g.vline(30, 11, 3, WM); g.vline(42, 11, 3, WM);
+  }
+  function bucket(g, x, y, cols) {
+    g.rect(x, y + 4, 8, 7, '#7E8996'); g.rect(x + 1, y + 4, 6, 6, '#B8C2CC'); g.hline(x, y + 4, 8, '#DCE4EC'); g.vline(x + 2, y + 5, 5, '#DCE4EC');
+    g.px(x + 2, y + 2, '#3F8F2A'); g.px(x + 5, y + 2, '#3F8F2A'); g.px(x + 4, y + 3, '#3F8F2A');
+    flowerAt(g, x + 1, y + 1, cols[0]); flowerAt(g, x + 4, y, cols[1]); flowerAt(g, x + 6, y + 2, cols[2] || cols[0]);
+  }
+  SDV.paintSprite('vFlowerStall', 72, 68, function (g) {
+    stall(g, { title: 'FLOWERS', awn: ['#F58FB1', '#FFF4DC'], cloth: ['#FFD86B', '#FFF4DC'], ink: '#B33A50', goods: function (g) {
+      bucket(g, 9, 29, ['#E2566B', '#FFFFFF', '#F58FB1']); bucket(g, 21, 28, ['#FFE15A', '#FFB13B']); bucket(g, 33, 29, ['#B9A4F2', '#FFFFFF', '#B9A4F2']); bucket(g, 45, 28, ['#F58FB1', '#E2566B']); bucket(g, 56, 29, ['#FFFFFF', '#FFE15A']);
+      // hanging baskets under the awning
+      [12, 60].forEach(function (x) { g.vline(x, 26, 3, WM); g.ellipse(x, 31, 4, 2.4, WH); g.hline(x - 3, 30, 7, '#3F8F2A'); g.px(x - 2, 29, '#F58FB1'); g.px(x + 2, 29, '#FFFFFF'); g.px(x, 28, '#E2566B'); g.px(x - 3, 33, '#3F8F2A'); g.px(x + 3, 34, '#3F8F2A'); });
+    }, band: function (g) { for (var x = 8; x < 66; x += 10) flowerAt(g, x, 54, '#F58FB1'); } });
+  }, { kind: 'object' });
+  SDV.paintSprite('vTreasureStall', 72, 68, function (g) {
+    stall(g, { title: 'TREASURES', awn: ['#3A6FB5', '#E9B949'], cloth: ['#E8C88A', '#F4DCA8'], ink: '#2E4E8E', goods: function (g) {
+      // little urns, a golden scarab, a tiny pyramid and a jewel box
+      [[9, '#C4703A'], [56, '#3A8FA0']].forEach(function (u) { var x = u[0], c = u[1]; g.ellipse(x + 3, 35, 3.6, 4, c); g.rect(x + 2, 29, 3, 3, c); g.hline(x + 1, 29, 5, shade(c, 0.3)); g.hline(x, 35, 7, '#E9B949'); g.px(x + 2, 33, light(c, 0.4)); });
+      g.ellipse(23, 36, 4, 3, '#B8862A'); g.ellipse(22.6, 35.6, 3.4, 2.4, '#E9B949'); g.vline(23, 34, 4, '#B8862A'); g.px(22, 35, '#FFF3A8'); g.px(23, 33, '#3FAE9C');
+      for (var y = 0; y < 9; y++) g.hline(35 - y, 31 + y, 1 + y * 2, y % 3 === 2 ? '#C9A676' : '#E8C88A'); g.px(35, 30, '#E9B949'); g.px(35, 31, '#E9B949');
+      g.rect(45, 33, 9, 7, '#7A2E6E'); g.hline(45, 33, 9, '#B0559E'); g.px(49, 36, '#E9B949'); g.px(47, 31, '#86D2F0'); g.px(50, 31, '#E2566B'); g.px(52, 32, '#7CC35A');
+    }, band: function (g) {
+      for (var x = 4; x < 68; x++) { g.px(x, 50, '#2E4E8E'); g.px(x, 57, '#2E4E8E'); g.px(x, 51 + ((x >> 1) % 2 ? 1 : 0) + ((x >> 2) % 2 ? 2 : 0), '#E9B949'); }
+      // an eye of Horus in the middle
+      g.hline(31, 53, 10, '#2E4E8E'); g.ellipse(36, 54, 3, 1.6, '#FFFFFF'); g.px(36, 54, '#2E4E8E'); g.px(35, 54, '#2E4E8E'); g.hline(33, 56, 2, '#2E4E8E'); g.px(34, 57, '#2E4E8E');
+    } });
+  }, { kind: 'object' });
+  SDV.paintSprite('vPyramid', 46, 30, function (g) {
+    for (var y = 0; y < 26; y++) { var w = 1 + y * 0.85 | 0; g.hline(23 - w, 2 + y, w * 2 + 1, '#E8C88A'); g.hline(23, 2 + y, w + 1, '#C9A06A'); if (y % 4 === 3) { g.hline(23 - w, 2 + y, w * 2 + 1, '#B8905A'); } }
+    for (y = 3; y < 28; y += 4) for (var x = 0; x < 46; x += 6) { var xx = x + (y % 8 === 3 ? 3 : 0); if (g.get(xx, y) && g.get(xx, y - 1)) g.vline(xx, y - 3, 3, '#B8905A'); }
+    g.rect(21, 1, 5, 4, '#E9B949'); g.px(22, 1, '#FFF3A8'); g.px(23, 0, '#E9B949');
+    g.rect(19, 21, 9, 7, '#7A5A3A'); g.rect(20, 22, 7, 6, '#3A2A1A');
+  }, { kind: 'object' });
+  SDV.paintSprite('vPalm', 30, 44, function (g) {
+    g.rect(10, 34, 10, 9, '#C4703A'); g.hline(9, 34, 12, '#E0905A'); g.hline(10, 42, 10, '#8A4A22'); g.hline(10, 38, 10, '#2E4E8E'); g.hline(10, 37, 10, '#E9B949');
+    for (var y = 12; y < 34; y++) { g.hline(14 + Math.round(Math.sin(y / 6) * 1), y, 3, y % 3 ? '#9A6236' : '#7A4A22'); }
+    [[-1, -0.3], [1, -0.3], [-1, 0.5], [1, 0.5], [0.2, -1]].forEach(function (d) { for (var i = 0; i < 13; i++) { var x = 15 + d[0] * i, y = 12 + d[1] * i * 0.9 + (i * i) * 0.05; g.ellipse(x, y, 1.8, 1.4, i % 2 ? '#3F8F2A' : '#4F9A3A'); if (i % 3 === 1) g.px(x, y + 1, '#6CC33A'); } });
+    g.ellipse(14, 13, 1.4, 1.4, '#7A4A22'); g.ellipse(17, 14, 1.4, 1.4, '#7A4A22');
+  }, { kind: 'object' });
+
+  // Old Hoot's library: a big old oak with a door in its trunk (frame 1: open)
+  SDV.paintSprite('vOak', 116, 104, function (g, f) {
+    // roots and trunk
+    g.ellipse(58, 100, 40, 8, '#5B3416');
+    g.rect(30, 44, 56, 58, '#6E4222'); g.ellipse(58, 98, 38, 6, '#6E4222'); g.ellipse(26, 99, 8, 4, '#6E4222'); g.ellipse(90, 99, 8, 4, '#6E4222');
+    g.rect(32, 44, 46, 56, '#9A6236'); g.ellipse(56, 97, 34, 5, '#9A6236'); g.rect(78, 44, 6, 56, '#7A4A22');
+    var r = rng(77); for (var i = 0; i < 26; i++) { var x = 33 + (r() * 46) | 0, y = 46 + (r() * 46) | 0; g.vline(x, y, 3 + (r() * 6 | 0), '#7A4A22'); g.px(x + 1, y, '#B5844E'); }
+    // arched blue door
+    g.ellipse(58, 80, 11, 10, WD); g.rect(47, 80, 22, 21, WD);
+    if (f === 1) { g.ellipse(58, 80, 9, 8.4, '#2A1206'); g.rect(49, 80, 18, 21, '#2A1206'); g.rect(51, 90, 14, 11, '#5B2A0E'); [52, 56, 60].forEach(function (x, k) { g.rect(x, 91 + k, 3, 10 - k, ['#E2566B', '#5A9FD5', '#7CC35A'][k]); }); g.rect(47, 76, 3, 25, '#3A6FB5'); g.vline(47, 76, 25, '#2E4E8E'); }
+    else {
+      g.ellipse(58, 80, 9, 8.4, '#3A6FB5'); g.rect(49, 80, 18, 21, '#3A6FB5'); [53, 58, 63].forEach(function (x) { g.vline(x, 72, 29, '#2E4E8E'); }); g.ellipseIn(54, 78, 4, 4, '#5A9FD5');
+      g.ellipse(64, 89, 1.6, 1.6, '#F7C531'); g.px(63, 88, '#FFF3A8');
+      g.ellipse(58, 79, 3, 3, '#2E4E8E'); g.ellipse(58, 79, 2.2, 2.2, '#FFE07A');
+    }
+    g.rect(45, 100, 26, 3, '#8C8A84'); g.hline(46, 100, 24, '#B8B4AA');
+    // a round window higher up, a lantern by the door
+    g.ellipse(42, 58, 6, 6, WD); g.ellipse(42, 58, 5, 5, '#FFE07A'); g.rect(41, 53, 2, 10, WH); g.rect(37, 57, 10, 2, WH); g.px(39, 55, '#FFFFFF');
+    g.rect(37, 64, 11, 2, WH);
+    g.hline(70, 76, 6, WM); g.rect(73, 77, 6, 7, WD); g.rect(74, 78, 4, 5, '#FFE6A0'); g.px(75, 79, '#FFFFFF');
+    // canopy
+    var blobs = [[58, 26, 36, 22], [24, 34, 18, 13], [92, 34, 18, 13], [34, 16, 18, 13], [82, 16, 18, 13], [58, 10, 20, 10], [58, 42, 28, 9]];
+    blobs.forEach(function (b) { g.ellipse(b[0], b[1] + 1, b[2], b[3], '#2F6B2A'); });
+    blobs.forEach(function (b) { g.ellipse(b[0] - 0.5, b[1], b[2] - 1, b[3] - 1, '#4F9A3A'); });
+    blobs.forEach(function (b) { g.ellipseIn(b[0] - 4, b[1] - 4, b[2] * 0.55, b[3] * 0.5, '#6CC33A'); });
+    blobs.forEach(function (b) { g.ellipseIn(b[0] - 7, b[1] - 6, b[2] * 0.22, b[3] * 0.2, '#9BE05A'); });
+    r = rng(5); for (i = 0; i < 16; i++) { x = 10 + (r() * 96) | 0; y = 4 + (r() * 40) | 0; if (g.get(x, y) === '#4F9A3A') { g.px(x, y, '#9A6236'); g.px(x, y + 1, '#C88A4E'); g.px(x, y - 1, '#5B3416'); } }
+    // an owl-sized perch with a little round hole
+    g.ellipse(86, 50, 3, 3.6, '#3A2210');
+  }, { kind: 'object', frames: 2 });
+  SDV.paintSprite('vBooks', 18, 16, function (g) {
+    var cols = ['#E2566B', '#5A9FD5', '#7CC35A', '#F7C531', '#B9A6E8'];
+    for (var i = 0; i < 4; i++) { var y = 13 - i * 3, x = 1 + (i % 2), c = cols[i]; g.rect(x, y, 13, 3, c); g.hline(x, y, 13, light(c, 0.3)); g.vline(x + 12, y, 3, '#FFF4DC'); g.vline(x + 13, y, 3, shade(c, 0.3)); }
+    g.rect(14, 3, 3, 13, '#9A6230'); g.hline(14, 3, 3, '#C88A4E');
+  }, { kind: 'object' });
+
+  // the fairy ring: a ring of little toadstools on soft grass (the lanterns are drawn by the view)
+  SDV.paintSprite('vRing', 92, 40, function (g) {
+    g.ellipse(46, 26, 44, 13, '#5AAE30'); g.ellipse(46, 26, 40, 11, '#7ACB48'); g.ellipseIn(42, 24, 30, 7, '#8EDB52');
+    for (var i = 0; i < 26; i++) { var t = i / 26 * Math.PI * 2; g.px(46 + Math.cos(t) * 36, 26 + Math.sin(t) * 9.6, '#B9F07A'); }
+    // two tall toadstools behind the ring
+    function big(x, y, h, cap, capS) { g.rect(x - 2, y, 4, h, '#FFF0D8'); g.vline(x + 1, y, h, '#E8D6B4'); g.ellipse(x, y, 8, 5, capS); g.ellipse(x - 0.5, y - 0.6, 7.4, 4.4, cap); g.rect(x - 9, y + 1, 18, 4, null); g.ellipse(x, y + 1, 7, 1.6, light(cap, 0.45)); g.px(x - 3, y - 2, '#FFFFFF'); g.px(x + 2, y - 3, '#FFFFFF'); g.px(x + 4, y - 1, '#FFFFFF'); }
+    big(14, 10, 14, '#B98AE0', '#8A5AB8'); big(80, 6, 18, '#F58FB1', '#D9637F');
+    var C = [['#D63A2B', '#8E1F16'], ['#F58FB1', '#D9637F'], ['#B98AE0', '#8A5AB8'], ['#FFB13B', '#C47A12']];
+    for (i = 0; i < 9; i++) { t = i / 9 * Math.PI * 2 + 0.3; var x = 46 + Math.cos(t) * 38, y = 25 + Math.sin(t) * 10.4, c = C[i % 4];
+      g.rect(x - 1, y - 1, 2, 4, '#FFF0D8'); g.ellipse(x, y - 1.4, 3, 2, c[1]); g.ellipse(x - 0.3, y - 1.8, 2.6, 1.6, c[0]); g.px(x - 1, y - 2, '#FFFFFF'); }
+    // sparkly dust in the middle
+    [[40, 24], [50, 27], [46, 21], [55, 23], [36, 28]].forEach(function (p) { g.px(p[0], p[1], '#FFF6B8'); });
+  }, { kind: 'object', outline: false });
+  // a little lantern on a stick; frame 1 is lit
+  SDV.paintSprite('vLantern', 7, 15, function (g, f) {
+    g.vline(3, 6, 9, WM); g.px(2, 14, WM); g.px(4, 14, WM);
+    g.rect(2, 0, 3, 1, WD); g.rect(1, 1, 5, 5, WD); g.rect(2, 2, 3, 3, f ? '#FFF0A8' : '#5A6680'); if (f) g.px(2, 2, '#FFFFFF'); g.hline(1, 6, 5, WD);
+  }, { kind: 'object', frames: 2, outline: false });
+
+  // the duck pond: water with a sandy shore, reeds and lily pads; a jetty, Captain Whiskers' boat, ducks
+  SDV.paintSprite('vPond', 148, 56, function (g) {
+    g.ellipse(74, 28, 73, 27, '#C9B07A'); g.ellipse(74, 28, 71, 25, '#E8D6A8');
+    g.ellipse(74, 29, 67, 22, '#2F86C0'); g.ellipse(73, 28, 65, 20, '#4FA8E0'); g.ellipseIn(66, 23, 44, 10, '#5FB6EA');
+    var r = rng(9); for (var i = 0; i < 26; i++) { var x = 14 + (r() * 120) | 0, y = 10 + (r() * 36) | 0; if (g.get(x, y) === '#4FA8E0' || g.get(x, y) === '#5FB6EA') { g.hline(x, y, 3, '#86D2F0'); } }
+    [[24, 36], [118, 20], [36, 17], [100, 42]].forEach(function (p, k) { g.ellipse(p[0], p[1], 4.4, 2.4, '#4F9A3A'); g.px(p[0], p[1], '#2F86C0'); g.px(p[0] + 1, p[1] - 1, '#2F86C0'); if (k % 2) { g.px(p[0] - 2, p[1] - 1, '#FFFFFF'); g.px(p[0] - 3, p[1] - 1, '#F58FB1'); } });
+    // reeds and cattails at the left and right ends
+    [[8, 26], [12, 22], [16, 30], [132, 20], [136, 26], [140, 30], [128, 34]].forEach(function (p, k) { g.vline(p[0], p[1] - 8, 10, '#3F8F2A'); g.px(p[0] + 1, p[1] - 4, '#6CC33A'); if (k % 2 === 0) { g.rect(p[0] - 1, p[1] - 12, 2, 4, '#7A4A22'); g.px(p[0], p[1] - 13, '#3F8F2A'); } });
+    [[60, 4], [96, 6], [30, 6]].forEach(function (p) { g.ellipse(p[0], p[1], 3, 1.4, '#9A968C'); g.px(p[0] - 1, p[1] - 1, '#C9C5BA'); });
+  }, { kind: 'object', outline: '#6E6A3A' });
+  SDV.paintSprite('vJetty', 18, 40, function (g) {
+    for (var y = 0; y < 38; y += 4) { planksH(g, 1, y, 16, 4, y % 8 ? '#C88A4E' : '#B5763A'); g.px(2 + (y * 7 % 12), y + 1, '#9A6230'); }
+    [[0, 6], [15, 6], [0, 26], [15, 26]].forEach(function (p) { g.rect(p[0], p[1], 3, 6, WM); g.hline(p[0], p[1], 3, WL); });
+    g.rect(0, 38, 18, 2, '#9A6230');
+  }, { kind: 'object' });
+  SDV.paintSprite('vBoat', 40, 36, function (g) {
+    // sail and mast
+    g.vline(19, 2, 26, WM); g.vline(20, 2, 26, '#9A6236');
+    for (var y = 6; y < 24; y++) { var w = Math.round((y - 5) * 0.75); for (var x = 0; x < w; x++) g.px(22 + x, y, x % 4 < 2 ? '#E2566B' : '#FFF4DC'); }
+    g.rect(21, 1, 9, 5, '#2E2A3A'); g.ellipse(25, 3, 1.4, 1.4, '#FFFFFF'); g.px(24, 4, '#FFFFFF'); g.px(26, 4, '#FFFFFF');
+    // hull
+    g.rect(3, 26, 34, 3, '#8A5228'); g.ellipse(20, 28, 18, 6, '#6E3A14'); g.rect(0, 22, 40, 6, null); g.rect(2, 25, 36, 3, '#B5763A'); g.hline(2, 25, 36, '#E2A868'); g.hline(4, 29, 32, '#9A6230');
+    g.ellipse(9, 30, 1.6, 1.6, '#F7C531'); g.ellipse(30, 30, 1.6, 1.6, '#F7C531');
+    g.px(0, 24, '#8A5228'); g.px(1, 24, '#B5763A'); g.px(39, 24, '#8A5228'); g.px(38, 24, '#B5763A');
+  }, { kind: 'object' });
+  SDV.paintSprite('vDuck', 10, 8, function (g, f) {
+    g.ellipse(4.5, 5, 4, 2.4, '#FFFFFF'); g.px(1, 4, '#E8EDF2'); g.ellipse(7, 2.4, 2, 2, '#FFFFFF'); g.px(7, 2, INK); g.hline(9, 3, 1, '#F2A63A'); g.px(9, 2 + f, '#F2A63A');
+    g.hline(2, 7, 6, '#86D2F0');
+  }, { kind: 'object', frames: 2, ms: 400 });
+  SDV.paintSprite('vChest', 16, 13, function (g) {
+    g.rect(1, 5, 14, 8, WM); g.rect(2, 6, 12, 6, '#B5763A'); g.ellipse(8, 5, 7, 3.6, WM); g.ellipse(8, 5, 6, 2.8, '#C88A4E'); g.rect(1, 5, 14, 1, WM);
+    g.vline(4, 2, 11, '#E9B949'); g.vline(11, 2, 11, '#E9B949'); g.rect(7, 6, 2, 3, '#E9B949'); g.px(7, 1, '#F7C531'); g.px(9, 2, '#FFF3A8');
+  }, { kind: 'object' });
+  SDV.paintSprite('vLog', 22, 10, function (g) { g.rect(3, 2, 16, 7, '#7A4A22'); g.hline(3, 2, 16, '#9A6236'); g.ellipse(3.5, 5.5, 3, 3.6, '#C88A4E'); g.ellipse(3.5, 5.5, 1.4, 1.8, '#9A6230'); g.px(12, 1, '#4F9A3A'); g.px(13, 0, '#6CC33A'); }, { kind: 'object' });
+
+  /* ---------- garden things for round the shop ---------- */
+  SDV.paintSprite('gDaisies', 24, 12, function (g) {
+    g.ellipse(12, 8, 11, 3.6, '#3F8F2A'); g.ellipse(12, 7.6, 10, 3, '#4F9A3A');
+    [[3, 6], [8, 4], [13, 6], [18, 4], [21, 7], [6, 9], [11, 9], [16, 9]].forEach(function (p) { flowerAt(g, p[0], p[1], '#FFFFFF'); g.px(p[0] + 1, p[1] + 1, '#D8E0E8'); });
+  }, { kind: 'object' });
+  SDV.paintSprite('gTulips', 28, 16, function (g) {
+    g.rect(1, 9, 26, 6, '#7A4A22'); g.rect(2, 10, 24, 4, '#9A6230'); g.hline(1, 9, 26, '#B8B4AA'); g.hline(1, 14, 26, '#8C8A84'); g.vline(1, 9, 6, '#B8B4AA'); g.vline(26, 9, 6, '#B8B4AA');
+    var C = ['#E2566B', '#F58FB1', '#FFE15A', '#E2566B', '#B98AE0', '#FFB13B', '#F58FB1'];
+    for (var i = 0; i < 7; i++) { var x = 3 + i * 3.4 | 0, y = 3 + (i % 2) * 2, c = C[i]; g.vline(x + 1, y + 3, 10 - y, '#3F8F2A'); g.px(x + 2, y + 6, '#6CC33A'); g.rect(x, y, 3, 3, c); g.px(x + 1, y - 1, c); g.px(x, y - 1, c); g.px(x + 2, y - 1, c); g.px(x + 1, y + 2, shade(c, 0.2)); g.px(x, y, light(c, 0.35)); }
+  }, { kind: 'object' });
+  SDV.paintSprite('gSunflowers', 22, 32, function (g) {
+    [[5, 6, 26], [12, 2, 30], [18, 9, 24]].forEach(function (s) {
+      var x = s[0], y = s[1]; g.vline(x, y + 3, 30 - y, '#3F8F2A'); g.vline(x + 1, y + 3, 30 - y, '#4F9A3A');
+      g.ellipse(x - 2, y + 12, 2.4, 1.4, '#4F9A3A'); g.ellipse(x + 3, y + 16, 2.4, 1.4, '#4F9A3A');
+      g.ellipse(x + 0.5, y + 1, 4, 4, '#F7C531'); for (var a = 0; a < 8; a++) { var t = a / 8 * Math.PI * 2; g.px(x + 0.5 + Math.cos(t) * 4.2, y + 1 + Math.sin(t) * 4.2, '#FFB13B'); }
+      g.ellipse(x + 0.5, y + 1, 2, 2, '#7A4A22'); g.px(x, y, '#9A6230');
+    });
+  }, { kind: 'object' });
+  SDV.paintSprite('gBirdbath', 18, 22, function (g) {
+    g.rect(6, 9, 6, 10, '#9A968C'); g.vline(7, 9, 10, '#C9C5BA'); g.rect(3, 18, 12, 3, '#8C8A84'); g.hline(3, 18, 12, '#B8B4AA');
+    g.ellipse(9, 8, 8, 3, '#8C8A84'); g.ellipse(9, 7.4, 7, 2.4, '#C9C5BA'); g.ellipse(9, 7.6, 5.4, 1.6, '#86D2F0'); g.px(7, 7, '#FFFFFF');
+    // a little blue bird on the rim
+    g.ellipse(14, 4, 2.4, 1.8, '#5A9FD5'); g.ellipse(15.6, 2.4, 1.4, 1.4, '#5A9FD5'); g.px(16, 2, INK); g.px(17, 3, '#F2A63A'); g.px(12, 3, '#3A6FB5'); g.px(14, 5, '#F2A6A0');
+  }, { kind: 'object' });
+  SDV.paintSprite('gBench', 30, 20, function (g) {
+    for (var i = 0; i < 3; i++) planksH(g, 2, 2 + i * 3, 26, 2, '#C88A4E');
+    g.rect(1, 1, 2, 18, WM); g.rect(27, 1, 2, 18, WM); g.px(1, 0, WM); g.px(28, 0, WM);
+    g.rect(0, 11, 30, 3, '#9A6230'); g.hline(0, 11, 30, WHH);
+    g.rect(3, 14, 2, 5, WM); g.rect(25, 14, 2, 5, WM);
+    g.hline(5, 12, 2, '#F58FB1');
+  }, { kind: 'object' });
+  SDV.paintSprite('gWell', 26, 34, function (g) {
+    // roof
+    for (var y = 0; y < 8; y++) g.hline(12 - y * 1.6 | 0, 1 + y, (y * 3.2 | 0) + 2, y % 2 ? '#B02A20' : '#D63A2B'); g.hline(1, 9, 24, '#8E1F16');
+    g.rect(3, 9, 2, 13, WM); g.rect(21, 9, 2, 13, WM); g.hline(4, 13, 18, WL);
+    g.vline(13, 13, 5, '#5B5048'); g.rect(11, 18, 5, 4, '#9A6230'); g.hline(11, 18, 5, '#C88A4E');
+    // stone ring
+    g.rect(1, 21, 24, 12, '#8C8A84'); g.ellipse(13, 21, 12, 3, '#6E6A62'); g.ellipse(13, 21, 10, 2, '#2F5A80');
+    for (y = 23; y < 33; y += 3) for (var x = 2 + (y % 2 ? 2 : 0); x < 24; x += 5) { g.rect(x, y, 4, 2, '#B8B4AA'); g.hline(x, y, 4, '#D8D4CA'); }
+    g.hline(1, 32, 24, '#6E6A62');
+  }, { kind: 'object' });
+  SDV.paintSprite('gFairyhouse', 16, 20, function (g) {
+    g.rect(4, 9, 8, 10, '#FFF0D8'); g.vline(10, 9, 10, '#E8D6B4'); g.ellipse(8, 18, 5, 1.6, '#FFF0D8');
+    g.ellipse(8, 14, 2, 2, '#5B2A0E'); g.rect(6, 14, 4, 5, '#5B2A0E'); g.ellipse(8, 14, 1.4, 1.4, '#9A6230'); g.rect(7, 14, 2, 5, '#9A6230'); g.px(8, 16, '#F7C531');
+    g.ellipse(5.5, 11, 1, 1, '#FFE07A');
+    g.ellipse(8, 7, 8, 5.4, '#6A3F9A'); g.ellipse(7.6, 6.6, 7.4, 4.8, '#B98AE0'); g.rect(0, 9, 16, 3, null); g.ellipse(8, 9, 6.4, 1.2, '#E8D0F8');
+    [[4, 5], [9, 3], [12, 6], [7, 7]].forEach(function (p) { g.px(p[0], p[1], '#FFFFFF'); });
+    g.px(13, 1, '#FFF6B8'); g.px(2, 2, '#FFF6B8');
+  }, { kind: 'object' });
+  SDV.GARDEN_SPRITE = { daisies: 'gDaisies', tulips: 'gTulips', sunflowers: 'gSunflowers', birdbath: 'gBirdbath', bench: 'gBench', well: 'gWell', fairyhouse: 'gFairyhouse' };
+
+  /* ---------- treasures, 14x14, for the ledge on the shop counter ---------- */
+  var GLD = '#E9B949', GLD_D = '#B8862A', GLD_L = '#FFF3A8';
+  function tre(name, fn) { SDV.paintSprite('t_' + name, 14, 14, fn, { kind: 'treasure' }); }
+  tre('shell', function (g) {
+    // a scallop: ribs fanning out from the hinge, light and dark by angle
+    for (var y = 1; y < 12; y++) for (var x = 0; x < 14; x++) {
+      var dx = x + 0.5 - 7, dy = 12 - (y + 0.5), r = Math.hypot(dx, dy), a = Math.atan2(dx, dy);
+      if (r > 10.6 || Math.abs(a) > 1.05) continue;
+      var rib = Math.floor((a + 1.05) / 2.1 * 7);
+      g.px(x, y, rib % 2 ? '#F59AB8' : '#FBC6D8');
+    }
+    g.rect(4, 11, 7, 2, '#E58AA8'); g.hline(4, 11, 7, '#F6C6D8');
+    g.ellipse(7, 10, 1.6, 1.6, '#FFFFFF'); g.px(6, 9, '#FFFFFF'); g.px(8, 11, '#DCE4EC');
+  });
+  tre('scarab', function (g) {
+    g.ellipse(7, 8, 4.4, 5, GLD_D); g.ellipse(6.6, 7.6, 3.8, 4.4, GLD); g.vline(7, 4, 9, GLD_D); g.ellipse(7, 3, 2.4, 1.6, GLD_D); g.px(5, 6, GLD_L); g.px(5, 7, GLD_L);
+    [[2, 6], [2, 9], [2, 12]].forEach(function (p) { g.px(p[0], p[1], GLD_D); g.px(12, p[1], GLD_D); g.px(p[0] + 1, p[1] - 1, GLD_D); g.px(11, p[1] - 1, GLD_D); });
+    g.ellipse(7, 8, 1.4, 1.4, '#3FAE9C'); g.px(7, 7, '#9BE8DA');
+  });
+  tre('map', function (g) {
+    g.rect(1, 4, 12, 8, '#EFDCB2'); g.hline(1, 4, 12, '#FFF0CC'); g.ellipse(1.5, 8, 1.6, 4, '#D9BC88'); g.ellipse(12.5, 8, 1.6, 4, '#D9BC88');
+    g.line(3, 10, 6, 7, '#A33A3A'); g.px(7, 8, '#A33A3A'); g.px(8, 7, '#A33A3A'); g.line(9, 5, 11, 7, '#A33A3A'); g.line(11, 5, 9, 7, '#A33A3A');
+    g.ellipse(4, 6, 1.4, 1, '#7CC35A'); g.vline(7, 3, 10, '#E2566B'); g.px(6, 3, '#E2566B'); g.px(8, 3, '#E2566B');
+  });
+  tre('pyramid', function (g) {
+    for (var y = 0; y < 10; y++) { var w = y * 0.66 | 0; g.hline(7 - w, 3 + y, w * 2 + 1, '#E8C88A'); g.hline(7, 3 + y, w + 1, '#C9A06A'); if (y % 3 === 2) g.hline(7 - w, 3 + y, w * 2 + 1, '#B8905A'); }
+    g.rect(6, 1, 3, 3, GLD); g.px(6, 1, GLD_L); g.hline(1, 13, 12, '#B8905A');
+  });
+  tre('owl', function (g) {
+    var s = '#C9CCD6', sd = '#8E94A4', sl = '#F4F6FA';
+    g.rect(3, 11, 8, 3, '#FFF6E6'); g.hline(3, 11, 8, '#E0D2B8');
+    g.ellipse(7, 8, 4, 4, sd); g.ellipse(6.6, 7.6, 3.4, 3.4, s); g.ellipse(7, 4, 3.6, 3, sd); g.ellipse(6.8, 3.8, 3, 2.4, s);
+    g.px(4, 1, sd); g.px(10, 1, sd); g.px(5, 4, GLD); g.px(8, 4, GLD); g.px(6, 5, '#E09A3A'); g.px(5, 7, sl); g.px(6, 9, sd); g.px(8, 9, sd);
+  });
+  tre('apple', function (g) {
+    g.ellipse(7, 8.4, 5, 4.6, GLD_D); g.ellipse(6.6, 8, 4.4, 4, GLD); g.ellipseIn(5, 6.6, 1.6, 1.4, GLD_L); g.vline(7, 2, 3, '#7A4A22'); g.ellipse(9.4, 3, 2, 1, '#6CC33A'); g.px(10, 3, '#3F8F2A');
+  });
+  tre('lyre', function (g) {
+    g.line(3, 2, 4, 11, GLD_D); g.line(11, 2, 10, 11, GLD_D); g.line(4, 2, 5, 11, GLD); g.line(10, 2, 9, 11, GLD);
+    g.ellipse(3, 2, 1.4, 1.4, GLD); g.ellipse(11, 2, 1.4, 1.4, GLD); g.hline(3, 4, 9, GLD_D);
+    for (var x = 6; x < 9; x++) g.vline(x, 5, 6, '#FFF6E6');
+    g.rect(3, 11, 8, 2, GLD_D); g.hline(3, 11, 8, GLD);
+  });
+  tre('crown', function (g) {
+    g.rect(2, 7, 10, 5, GLD_D); g.rect(2, 7, 10, 4, GLD); g.hline(2, 11, 10, GLD_D);
+    [[2, 3], [7, 2], [11, 3]].forEach(function (p) { g.vline(p[0], p[1] + 1, 4, GLD); g.px(p[0], p[1], '#FFF6B8'); });
+    g.px(4, 5, GLD); g.px(5, 4, GLD); g.px(9, 4, GLD); g.px(10, 5, GLD);
+    g.px(4, 9, '#F58FB1'); g.px(7, 9, '#86D2F0'); g.px(10, 9, '#7CC35A'); g.hline(2, 8, 10, GLD_L);
+  });
+  SDV.TREASURE_ORDER = ['shell', 'scarab', 'map', 'pyramid', 'owl', 'apple', 'lyre', 'crown'];
+  SDV.paintSprite('treasureLedge', 126, 8, function (g) {
+    g.rect(0, 0, 126, 3, WM); g.rect(1, 0, 124, 2, WH); g.hline(1, 0, 124, WHH);
+    [4, 62, 119].forEach(function (x) { g.rect(x, 3, 3, 4, WM); g.px(x + 1, 3, WL); g.px(x + 2, 6, null); });
+    for (var x = 3; x < 124; x += 8) g.px(x, 2, '#E9B949');
+  }, { kind: 'object' });
 
 })();

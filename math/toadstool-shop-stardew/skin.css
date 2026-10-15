@@ -397,3 +397,26 @@ body:not(.sdv) .coin b { font-size: 24px; }
 .decor button.try { outline: 4px dashed #F0A040; outline-offset: 2px; }
 .tabs button { border-radius: 0; background: none; border: 12px solid transparent; border-image: var(--sdv-img-box) 6 fill / 12px stretch; box-shadow: none; color: #5B2A0E; padding: 0 10px; }
 .tabs button.sel { border-image-source: var(--sdv-img-btnGo); }
+
+/* ---------- Bramble Wood village: the map of places, and the jobs' pictures ---------- */
+.places { gap: 8px; }
+.places button {
+  border-radius: 0; background: none; box-shadow: none; padding: 0 4px; column-gap: 6px; grid-template-columns: 48px 1fr;
+  font-family: var(--body); font-weight: 600; font-size: 17px; line-height: 1.1; color: var(--ink);
+  border: 10px solid transparent; border-width: 10px 10px 15px; border-image: var(--sdv-img-btn) 4 4 6 4 fill / 10px 10px 15px stretch;
+}
+.places button:active { transform: translateY(3px); border-image-source: var(--sdv-img-btnDown); }
+.places button.own { background: none; box-shadow: none; border-image-source: var(--sdv-img-btnGo); }
+.places button .pp { width: 48px; height: 48px; border-radius: 0; background: linear-gradient(#F6CF8E, #E8A964); box-shadow: inset 0 0 0 3px #5B2A0E; }
+.places button .pp img { image-rendering: pixelated; image-rendering: crisp-edges; }
+.places button .tag { font-size: 15px; padding: 0 4px; border-width: 6px; border-image-width: 6px; margin-top: 2px; }
+@media (min-width: 900px) { .places { grid-template-columns: repeat(6, 1fr); } }
+.lan { border-radius: 0; background: #2E3A5A; box-shadow: inset 0 0 0 3px #1A2238, 0 0 0 3px #5B2A0E; gap: 6px; }
+.lan i { border-radius: 0; background: #5A6680; box-shadow: inset -3px -3px 0 #3E4860, inset 3px 3px 0 #7A86A0; font-family: var(--display); font-weight: 400; font-size: 24px; }
+.lan i.on { background: #FFD23A; box-shadow: inset -3px -3px 0 #E9A020, inset 3px 3px 0 #FFF6C0, 0 0 0 2px #FFF0A8, 0 0 12px #FFD23A; }
+.books i { border-radius: 0; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .25), inset 0 2px 0 rgba(255, 255, 255, .35); }
+/* the two village stalls (7 or 8 things) in one row on a wide, short screen, so the stall stays in view above the panel */
+@media (min-width: 1000px) and (max-height: 900px) {
+  #panel:has(#bye) .decor { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  #panel:has(#bye) .decor button > span:not(.tag) { font-size: 16px; }
+}

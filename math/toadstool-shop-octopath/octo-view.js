@@ -9,7 +9,7 @@
      canvas, never with CSS filters on moving layers;
    - per frame it only draws those baked layers, the two characters, a few glows, light shafts and at most
      36 motes, and it renders at 30 frames a second, pausing while the page is hidden. */
-import { character, COINS, FONT, GOODS as GSPR, ICONS, DECOR as DSPR, spriteCanvasOf, mix, shade, rgba, rng, bayer, hex2rgb } from './octo-art.js';
+import { character, COINS, FONT, GOODS as GSPR, ICONS, DECOR as DSPR, GARDEN as GDSPR, TREASURE as TRSPR, DUCK, DUCKLING, spriteCanvasOf, mix, shade, rgba, rng, bayer, hex2rgb } from './octo-art.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const WW = 640, WH = 480, CW = 320, CHH = 240; // the design area (fine px) and the chunky painting grid (2 world px each)
@@ -94,6 +94,10 @@ const CAMS = {
   cart: { cx: 452, cy: 318, w: 400, h: 224, x0: 380, y0: 330, x1: 560, y1: 402 },
 };
 const TALLX = { inside: [36, 566], outside: [140, 500] };
+// garden things round the shop (chunky grid, bottom centre), in the order the stall sells them; treasures sit on a ledge on the counter
+const GARDEN_ORDER = ['daisies', 'tulips', 'sunflowers', 'birdbath', 'bench', 'well', 'fairyhouse'];
+const GARDEN_SPOT = { well: [278, 186], birdbath: [40, 191], sunflowers: [72, 180], daisies: [50, 205], fairyhouse: [158, 194], tulips: [182, 205], bench: [248, 192] };
+const TREASURE_ORDER = ['shell', 'scarab', 'map', 'pyramid', 'owl', 'apple', 'lyre', 'crown'];
 const CAMK = ['cx', 'cy', 'w', 'h', 'x0', 'y0', 'x1', 'y1'];
 // shelf slots [row, col] (row 0 = bottom board), as in shop3d.js
 const SLOT = { bun: [0, 0], apple: [0, 1], tart: [1, 0], honey: [1, 1], biscuit: [2, 0], candle: [2, 1], seeds: [1, 2], teacup: [2, 2] };
@@ -106,7 +110,7 @@ const SKY = {
 };
 
 /* ---------------------------------------------------------------- OUTSIDE */
-function paintOutside(time, decor, cart, signText) {
+function paintOutside(time, decor, cart, signText, garden) {
   const ev = time !== 'morning', night = time === 'night';
   const lights = [], shafts = [];
   // far background: sky, sun or moon, hills and the wood (baked blurry)
@@ -172,6 +176,12 @@ function paintOutside(time, decor, cart, signText) {
     P.ellipse(139, 178, 1.4, 1.4, '#f2c75a');
     P.rect(116, 191, 31, 3, '#a89888');
     if (ev) lights.push({ x: 262, y: 350, r: 56, c: '#ffb060', a: .35, fl: true });
+    // garden things bought in Bramble Wood village (bottom-centre spots on the chunky grid, clear of the two characters)
+    for (const id of GARDEN_ORDER) {
+      if (!garden.includes(id) || !GDSPR[id]) continue;
+      const g = GDSPR[id], [gx, gy] = GARDEN_SPOT[id]; P.ellipse(gx, gy, Math.round(g.w * .45), 2, ev ? '#1e3230' : '#4e8a3e'); P.spr(g, gx - Math.floor(g.w / 2), gy - g.h + 1);
+      if (id === 'fairyhouse') lights.push({ x: gx * 2 - 6, y: (gy - 7) * 2, r: ev ? 34 : 14, c: '#ffd86b', a: ev ? .8 : .25, fl: true });
+    }
     // Bramble's cart
     if (cart) {
       const wd = '#a07048', wdS = '#6e4a2e';
@@ -229,7 +239,7 @@ function paintOutside(time, decor, cart, signText) {
 }
 
 /* ---------------------------------------------------------------- INSIDE */
-function paintInside(decor, stock) {
+function paintInside(decor, stock, treasures) {
   const lights = [], shafts = [];
   const [mid, mx] = chunky(P => {
     // ceiling: pink gill ribs
@@ -310,6 +320,17 @@ function paintInside(decor, stock) {
   C.ellipse(228, 312, 20, 7, '#8a5a2a'); C.rect(208, 300, 41, 12, '#c8944a'); for (let x = 210; x < 248; x += 4) C.rect(x, 300, 2, 12, '#a87436'); C.rect(208, 299, 41, 2, '#e0b070');
   for (let x = 212; x < 245; x += 2) C.px(x, 294 - Math.sin((x - 212) / 33 * Math.PI) * 10, '#8a5a2a');
   if (has('vase')) C.spr(DSPR.vase, 250, 278, 2);
+  // treasures from Miu's stall: a little ledge on brackets along the front of the counter, one slot each
+  const tr = TREASURE_ORDER.filter(id => treasures.includes(id));
+  if (tr.length) {
+    C.rect(198, 374, 236, 5, '#8a5a36'); C.rect(198, 374, 236, 2, '#b07a4a'); C.rect(198, 379, 236, 2, '#5a3a24');
+    for (const x of [206, 314, 422]) { C.rect(x, 381, 4, 8, '#6b4a33'); C.rect(x + 1, 381, 2, 8, '#8a5a3a'); }
+    TREASURE_ORDER.forEach((id, i) => {
+      if (!treasures.includes(id)) return;
+      const sp = TRSPR[id], cx0 = 212 + i * 29.5; C.spr(sp, cx0 - sp.w, 374 - sp.h * 2, 2);
+      if (id === 'crown' || id === 'apple' || id === 'scarab' || id === 'lyre') lights.push({ x: cx0, y: 374 - sp.h, r: 18, c: '#fff0a0', a: .35, fl: true, tw: i });
+    });
+  }
   // lights and shafts
   lights.push({ x: 408, y: 152, r: 110, c: '#e8f4ff', a: .45 }, { x: 321, y: 104, r: 64, c: '#ffc860', a: .8, fl: true }, { x: 546, y: 280, r: 90, c: '#d8ffb0', a: .35 });
   shafts.push({ x: 430, y: 110, ang: 0.62, n: 3, len: 420, w: 40, gap: 34, c: '#fff6d8', a: .2 });
@@ -318,6 +339,253 @@ function paintInside(decor, stock) {
   F.poly([[0, 420], [60, 400], [110, 480], [0, 480]], '#5a3a2a'); F.ellipse(40, 470, 60, 30, '#6e4a30');
   F.ellipse(612, 466, 46, 34, '#7a5a3a'); F.ellipse(600, 444, 26, 14, '#c23f55'); F.ellipse(596, 440, 6, 3, '#fff3e2');
   return { back: null, mid: midT, fore: blurred(fore, 7), counter, lights, shafts, motes: { c: '#fff4d0', n: 22, glow: false, area: [300, 120, 260, 260], rise: false } };
+}
+
+/* ---------------------------------------------------------------- BRAMBLE WOOD VILLAGE
+   A side-scrolling lane behind the shop: the gate home, Mrs. Bunbury's burrow, Dot's flower stall, Old Hoot's oak library,
+   Miu's treasure stall, the fairy ring and the duck pond. Painted once (about 2500 x 480 world px) and scrolled by the
+   camera, which follows the shopkeeper. Places sit behind the lane; she walks along it (world y ~ VLANE). */
+const VX0 = -40, VX1 = 1200, VCW = VX1 - VX0; // the village's chunky-grid width; world x runs from 2*VX0 to 2*VX1
+const VLANE = 410;
+const VPL = { gate: 80, burrow: 210, stall: 380, oak: 550, market: 730, ring: 900, pond: 1080 }; // chunky x of each place
+const VPLACES = {};
+for (const [id, cx] of Object.entries(VPL)) {
+  const x = cx * 2;
+  VPLACES[id] = id === 'gate' ? { x, stand: [x + 16, VLANE], hit: null }
+    : { x, stand: [x - 56, VLANE], meet: [x + 56, VLANE - 6], hit: [x - 130, x + 130] };
+}
+// where each neighbour comes out from: their door, the side of their stall, the middle of the ring, the boat
+Object.assign(VPLACES.burrow, { door: [420, 362] });
+Object.assign(VPLACES.stall, { door: [848, 366] });
+Object.assign(VPLACES.oak, { door: [1100, 362] });
+Object.assign(VPLACES.market, { door: [1548, 366] });
+Object.assign(VPLACES.ring, { door: [1800, 356] });
+Object.assign(VPLACES.pond, { door: [2196, 354] });
+const VRING = { cx: 900, cy: 174, rx: 66, ry: 13 };
+
+function vchunky(paint) {
+  const [c, x] = cnv(VCW, CHH); x.translate(-VX0, 0); paint(painter(x), x);
+  const [o, ox] = cnv(VCW * 2, WH); ox.imageSmoothingEnabled = false; ox.drawImage(c, 0, 0, VCW * 2, WH); ox.translate(-VX0 * 2, 0); return [o, ox];
+}
+function vcnv(extra = 0) { const [c, x] = cnv(VCW * 2 + extra * 2, WH); x.translate(-VX0 * 2 + extra, 0); return [c, x]; }
+// a board with words on it, written at world resolution (crisp text on the chunky painting)
+function boardText(x, text, cx, cy, maxW, size, col) {
+  x.save(); x.fillStyle = col || '#6a3a22'; let fs = size; x.font = `700 ${fs}px Andika, 'Trebuchet MS', sans-serif`;
+  while (x.measureText(text).width > maxW && fs > 8) { fs--; x.font = `700 ${fs}px Andika, 'Trebuchet MS', sans-serif`; }
+  x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, cx, cy); x.restore();
+}
+function paintVillage() {
+  const lights = [], shafts = [], ringLamps = [], ducks = [];
+  const dome = (P, cx, base, rx, ry, c, d = 0) => { for (let y = base - ry; y <= base; y++) { const t = (base - y) / ry, hw = Math.round(rx * Math.sqrt(Math.max(0, 1 - t * t))); if (d) P.dither(cx - hw, y, hw * 2 + 1, 1, c, d); else P.rect(cx - hw, y, hw * 2 + 1, 1, c); } };
+  const near = (x, w) => Object.values(VPL).some(p => Math.abs(x - p) < w);
+  // far background: sky, sun, clouds, hills and the wood (baked blurry)
+  const [back] = vchunky(P => {
+    P.vgrad(VX0, 0, VCW, 150, SKY.morning);
+    P.ellipse(640, 30, 16, 16, '#fff6d8'); P.ellipse(640, 30, 11, 11, '#ffffff');
+    for (const [x, y, k] of [[120, 34, 1], [360, 20, .8], [880, 26, 1.1], [1120, 40, .9]]) { P.ellipse(x, y, 22 * k, 7 * k, '#ffffff'); P.ellipse(x - 12 * k, y + 2, 14 * k, 6 * k, '#f4f9ff'); P.ellipse(x + 10 * k, y - 3, 13 * k, 7 * k, '#ffffff'); }
+    const hp = []; for (let x = VX0; x <= VX1; x += 20) hp.push([x, 102 + Math.sin(x / 90) * 8 + Math.sin(x / 33) * 3]); hp.push([VX1, 160], [VX0, 160]);
+    P.poly(hp, '#a9d3a0'); P.dither(VX0, 96, VCW, 64, '#86b98a', .35);
+    for (let i = 0; i * 22 < VCW + 40; i++) { const x = VX0 + i * 22 - 6 + (i % 3) * 5, y = 118 + (i % 2) * 6; P.ellipse(x, y, 16, 14, i % 2 ? '#5f9a62' : '#4a7f50'); }
+    P.rect(VX0, 124, VCW, 40, '#4a7f50');
+    for (const x of [-30, 140, 300, 470, 640, 812, 990, 1170]) { P.rect(x, 0, 16, 170, '#5a4434'); P.dither(x, 0, 16, 170, '#40301f', .4); }
+  });
+  const backB = blurred(back, 3);
+  // the lane, the houses and the stalls: sharp
+  const [mid, mx] = vchunky(P => {
+    const g1 = '#8cc46c', g2 = '#5f9a4a';
+    P.vgrad(VX0, 140, VCW, 100, [g1, g2]);
+    P.noise(VX0, 142, VCW, 98, [shade(g1, .12), shade(g2, -.12), shade(g1, -.08)], .18, 3);
+    // middle-distance trees between the places (behind everything else)
+    for (const x of [140, 300, 466, 640, 815, 990, 1172]) {
+      P.rect(x - 7, 40, 14, 120, '#6a4a32'); P.rect(x + 3, 40, 4, 120, '#4e3424'); P.ellipse(x, 160, 12, 3, '#4e7a3e');
+      P.ellipse(x, 34, 40, 26, '#4e8a44'); P.ellipse(x - 16, 46, 26, 16, '#5f9a4a'); P.ellipse(x + 14, 22, 24, 16, '#6aa860'); P.ellipse(x - 6, 16, 16, 10, '#8cc46c');
+    }
+    // bushes along the back of the grass
+    const r = rng(23);
+    for (let x = VX0; x < VX1; x += 26) { const bx = x + r() * 10; if (near(bx, 52)) continue; P.ellipse(bx, 156, 14, 9, '#5f9a4a'); P.ellipse(bx - 3, 153, 9, 6, '#7cb36a'); }
+    // a little split-rail fence along the back of the lane, broken by each place
+    for (let x = VX0; x < VX1; x += 2) if (!near(x, 70)) { P.px(x, 176, '#9a6a45'); P.px(x, 181, '#9a6a45'); }
+    for (let x = VX0; x < VX1; x += 16) if (!near(x, 70)) { P.rect(x, 172, 3, 14, '#8a5a3a'); P.rect(x, 172, 1, 14, '#b07a4a'); }
+    // flowers in the grass
+    const fl = ['#f6a6bd', '#ffd86b', '#ffffff', '#9fc7e8', '#c9b6f0'];
+    for (let i = 0; i < 420; i++) { const x = VX0 + r() * VCW, y = 160 + r() * 80; if (y > 184 && y < 218) continue; if (y < 184 && near(x, 60)) continue; P.px(x, y, fl[i % fl.length]); P.px(x, y + 1, g2); }
+    // the lane (packed earth with pebbles)
+    for (let x = VX0; x < VX1; x++) {
+      const t = Math.round(186 + Math.sin(x / 37) * 1.5 + Math.sin(x / 13) * .8), b = Math.round(215 + Math.sin(x / 29) * 1.6);
+      P.rect(x, t, 1, b - t, '#e6d0a4'); P.px(x, t, '#cbb184'); P.px(x, b - 1, '#c8ae80'); if ((x * 7) % 5 === 0) P.px(x, t - 1, '#7cb36a');
+    }
+    P.noise(VX0, 188, VCW, 25, ['#d4bc8e', '#f2e2bc', '#c4a878'], .07, 9);
+    P.dither(VX0, 205, VCW, 9, '#d4bc8e', .25);
+
+    /* --- the gate (the way home) and a peek of her own toadstool --- */
+    { const red = '#e2566b', redS = '#b83a50';
+      P.poly([[-30, 182], [-26, 140], [-24, 118], [12, 118], [14, 140], [18, 182]], '#fff1dc'); P.poly([[4, 118], [12, 118], [14, 140], [18, 182], [8, 182]], '#e8d4b8');
+      P.ellipse(-6, 116, 52, 7, '#f2b0b0');
+      dome(P, -6, 114, 60, 44, redS); dome(P, -9, 112, 56, 41, red); dome(P, -20, 86, 26, 18, '#f27a8a');
+      for (const [x, y, rx, ry] of [[-26, 84, 8, 5], [6, 74, 9, 6], [30, 96, 7, 5], [-10, 100, 6, 4]]) P.ellipse(x, y, rx, ry, '#fff3e2');
+      P.ellipse(-4, 150, 7, 7, '#7a5032'); P.ellipse(-4, 150, 5, 5, '#ffd27a'); lights.push({ x: -8, y: 300, r: 30, c: '#ffd27a', a: .3 });
+      // the garden arch
+      for (const x of [62, 96]) { P.rect(x - 2, 128, 5, 56, '#8a5a3a'); P.rect(x - 2, 128, 2, 56, '#b07a4a'); }
+      for (let a = 0; a <= 32; a++) { const t = Math.PI * a / 32, x = 79 - Math.cos(t) * 17, y = 128 - Math.sin(t) * 14; P.rect(x - 1, y - 1, 3, 3, '#8a5a3a'); }
+      const lr = rng(41); for (let i = 0; i < 46; i++) { const t = lr() * Math.PI, side = lr(); const x = side < .7 ? 79 - Math.cos(t) * 17 : (lr() < .5 ? 62 : 96), y = side < .7 ? 128 - Math.sin(t) * 14 : 130 + lr() * 46; P.rect(x - 1 + lr() * 2, y - 1 + lr() * 2, 2, 2, lr() < .2 ? '#f6a6bd' : lr() < .5 ? '#7cb36a' : '#5f9a4a'); }
+      P.rect(64, 182, 30, 3, '#cbb184');
+      // the signpost, an arrow pointing home
+      P.rect(122, 138, 3, 48, '#6b4a33'); P.rect(122, 138, 1, 48, '#9a6a45');
+      P.poly([[94, 147], [101, 139], [150, 139], [150, 155], [101, 155]], '#6b4a33'); P.poly([[96, 147], [102, 141], [148, 141], [148, 153], [102, 153]], '#f3dcb0');
+      P.rect(102, 141, 46, 1, '#fff3dc');
+    }
+    /* --- Mrs. Bunbury's burrow: a grassy mound with a round red door and a carrot patch --- */
+    { const x = 210;
+      dome(P, x, 183, 66, 56, '#4e8a3e'); dome(P, x - 2, 182, 63, 54, '#6aa860'); dome(P, x - 14, 160, 40, 28, '#7cb36a', .5); dome(P, x - 18, 150, 22, 16, '#8cc46c', .5);
+      const gr = rng(5); for (let i = 0; i < 60; i++) { const a = Math.PI * (.05 + gr() * .9), px = x - Math.cos(a) * 64, py = 182 - Math.sin(a) * 55; P.rect(px, py - 2, 1, 3, '#4e8a3e'); if (i % 4 === 0) P.px(px + 1, py - 3, ['#ffd86b', '#ffffff', '#f6a6bd'][i % 3]); }
+      // chimney pipe and a puff of smoke
+      P.rect(236, 128, 6, 12, '#8a8078'); P.rect(235, 126, 8, 3, '#6a625c'); P.ellipse(242, 116, 5, 4, 'rgba(255,255,255,.7)'); P.ellipse(248, 106, 7, 5, 'rgba(255,255,255,.5)');
+      // round red door, step and lamp
+      P.ellipse(x, 166, 17, 17, '#7a5032'); P.ellipse(x, 166, 14, 14, '#d0443e'); P.ellipse(x - 3, 162, 8, 8, '#e05a50');
+      for (const dx of [-7, 0, 7]) P.rect(x + dx, 153, 1, 26, '#a8302c');
+      P.rect(x - 18, 181, 37, 4, '#cbb184'); P.rect(x - 18, 181, 37, 1, '#e6d0a4'); P.rect(x - 16, 176, 33, 6, '#6aa860');
+      P.ellipse(x + 8, 168, 1.6, 1.6, '#f2c75a');
+      for (const wx of [176, 244]) { P.ellipse(wx, 158, 7, 7, '#7a5032'); P.ellipse(wx, 158, 5, 5, '#ffe6a0'); P.ellipse(wx - 1, 156, 2, 2, '#fff8d8'); P.rect(wx, 153, 1, 11, '#7a5032'); P.rect(wx - 5, 158, 11, 1, '#7a5032'); lights.push({ x: wx * 2, y: 316, r: 26, c: '#ffd890', a: .25, fl: true }); }
+      // the carrot patch
+      for (let row = 0; row < 3; row++) {
+        const yy = 176 + row * 5; P.rect(256, yy, 46, 3, '#7a5032'); P.rect(256, yy, 46, 1, '#9a6a45');
+        for (let k = 0; k < 6; k++) { const cx = 259 + k * 7 + (row % 2) * 3; P.rect(cx - 1, yy - 1, 4, 2, '#f08a3a'); P.px(cx, yy + 1, '#d8702a'); P.rect(cx - 1, yy - 3, 1, 2, '#5f9a4a'); P.rect(cx, yy - 5, 2, 4, '#7cb36a'); P.rect(cx + 2, yy - 3, 1, 2, '#5f9a4a'); P.px(cx - 2, yy - 4, '#7cb36a'); P.px(cx + 3, yy - 4, '#7cb36a'); }
+      }
+      P.rect(254, 170, 2, 22, '#8a5a3a'); P.rect(250, 168, 10, 6, '#f3dcb0'); P.rect(252, 170, 2, 2, '#f08a3a'); P.rect(255, 170, 3, 1, '#5f9a4a');
+    }
+    /* --- Dot's flower stall: a striped awning, buckets of flowers --- */
+    { const x = 380, wd = '#c98a5a', wdS = '#8a5a3a';
+      for (const px of [346, 410]) { P.rect(px, 104, 4, 78, wdS); P.rect(px, 104, 2, 78, wd); }
+      P.rect(344, 154, 72, 4, '#e0aa7a'); P.rect(346, 158, 68, 24, wd); P.rect(346, 158, 68, 2, wdS);
+      for (const px of [362, 380, 398]) P.rect(px, 160, 1, 22, wdS);
+      for (let i = 0; i < 10; i++) { const sx = 338 + i * 8.4; P.rect(sx, 96, 9, 14, i % 2 ? '#fff3e6' : '#e2566b'); P.ellipse(sx + 4, 110, 4, 3, i % 2 ? '#fff3e6' : '#e2566b'); }
+      P.rect(336, 94, 88, 3, '#9a3448'); P.dither(338, 97, 84, 3, '#9a3448', .3);
+      // a painted flower on a board on top
+      P.rect(369, 80, 22, 14, wdS); P.rect(371, 82, 18, 10, '#fff3dc'); P.ellipse(380, 87, 3, 3, '#f6a6bd'); P.ellipse(380, 87, 1, 1, '#ffd23a'); P.rect(379, 90, 1, 2, '#5f9a4a');
+      const cols = [['#f6a6bd', '#e2668b'], ['#ffd86b', '#f0a92a'], ['#ffffff', '#c9b6f0'], ['#e2566b', '#ffd86b'], ['#c9b6f0', '#9a86d0']];
+      const fr = rng(13);
+      const bucket = (bx, by, c, tall) => {
+        for (let k = 0; k < 9; k++) { const fx = bx - 4 + fr() * 9, fy = by - tall - fr() * 8; P.line(bx, by - 2, fx, fy + 2, '#5f9a4a'); P.rect(fx - 1, fy, 3, 3, c[k % 2]); P.px(fx, fy + 1, '#ffd23a'); }
+        P.rect(bx - 5, by - 6, 11, 7, '#7bb4d9'); P.rect(bx - 5, by - 6, 11, 1, '#bfe3ff'); P.rect(bx + 4, by - 5, 2, 6, '#4a84a9');
+      };
+      cols.forEach((c, i) => bucket(354 + i * 13, 155, c, 6));
+      bucket(334, 186, cols[1], 12); bucket(426, 186, cols[0], 12); bucket(436, 188, cols[2], 9);
+    }
+    /* --- Old Hoot's library: a big oak with a door, little windows and a "Library" sign --- */
+    { const x = 550;
+      P.poly([[510, 186], [522, 172], [528, 120], [526, 50], [574, 50], [572, 120], [578, 172], [592, 186]], '#7a5434');
+      P.poly([[556, 50], [574, 50], [572, 120], [578, 172], [592, 186], [566, 186]], '#5e3e26');
+      for (let i = 0; i < 16; i++) { const bx = 528 + (i * 7) % 40, by = 60 + i * 7; P.rect(bx, by, 1, 6, '#5a3a24'); }
+      P.line(528, 114, 494, 104, '#6a4a2e'); P.line(528, 115, 494, 105, '#6a4a2e'); P.line(528, 116, 496, 106, '#7a5434');
+      P.line(572, 96, 604, 84, '#6a4a2e'); P.line(572, 97, 604, 85, '#7a5434');
+      // canopy
+      for (const [cx, cy, rx, ry, c] of [[550, 40, 84, 42, '#3e7238'], [492, 64, 40, 24, '#4e8a44'], [610, 60, 42, 24, '#4e8a44'], [546, 20, 62, 30, '#4e8a44'], [520, 30, 36, 20, '#5f9a4a'], [584, 34, 34, 20, '#5f9a4a'], [530, 14, 24, 12, '#7cb36a'], [500, 54, 18, 10, '#6aa860']]) P.ellipse(cx, cy, rx, ry, c);
+      P.dither(470, 60, 160, 26, '#2e5a2c', .3);
+      // round door with an arch
+      P.ellipse(x, 160, 14, 12, '#4a3020'); P.rect(x - 14, 160, 29, 24, '#4a3020');
+      P.ellipse(x, 160, 11, 9, '#3a7a8a'); P.rect(x - 11, 160, 23, 23, '#3a7a8a'); for (const dx of [-5, 1, 7]) P.rect(x + dx, 152, 1, 31, '#2a5a68');
+      P.ellipse(x + 7, 172, 1.4, 1.4, '#f2c75a'); P.rect(x - 16, 183, 33, 3, '#a89888');
+      for (const [wx, wy, rr] of [[536, 126, 5], [563, 98, 4]]) { P.ellipse(wx, wy, rr + 2, rr + 2, '#4a3020'); P.ellipse(wx, wy, rr, rr, '#ffe6a0'); P.rect(wx, wy - rr, 1, rr * 2 + 1, '#4a3020'); lights.push({ x: wx * 2, y: wy * 2, r: 24, c: '#ffd890', a: .3, fl: true }); }
+      // the sign hangs from the low branch
+      P.rect(498, 106, 1, 9, '#5a5050'); P.rect(526, 110, 1, 5, '#5a5050');
+      P.rect(486, 114, 50, 16, '#6b4a33'); P.rect(488, 116, 46, 12, '#f3dcb0');
+      // books by the door and a reading lantern
+      const bc = ['#e2566b', '#7bb4d9', '#8cc46c', '#ffd86b', '#b9a6e8'];
+      for (let i = 0; i < 6; i++) P.rect(574 + (i % 2), 182 - i * 3, 12, 3, bc[i % 5]);
+      for (let i = 0; i < 4; i++) P.rect(590 + (i % 2), 182 - i * 3, 10, 3, bc[(i + 2) % 5]);
+      P.rect(520, 150, 1, 34, '#4a3020'); P.rect(517, 144, 7, 7, '#6b4a33'); P.rect(518, 145, 5, 5, '#ffe6a0'); lights.push({ x: 1041, y: 295, r: 26, c: '#ffd070', a: .4, fl: true });
+    }
+    /* --- Miu's treasure stall: sandstone columns, a winged sun, a little pyramid behind --- */
+    { const x = 730, sd = '#f0d8a0', sdS = '#c8a868', bl = '#3a6fb0', gd = '#e0b040';
+      P.poly([[640, 156], [694, 84], [748, 156]], '#e8c88a'); P.poly([[694, 84], [748, 156], [706, 156]], '#c8a060');
+      for (let y = 92; y < 156; y += 6) { const hw = (y - 84) * 54 / 72; P.rect(694 - hw, y, hw * 2, 1, '#c8a060'); }
+      P.rect(692, 84, 4, 3, '#f2c75a');
+      for (const px of [694, 762]) {
+        P.rect(px - 4, 110, 9, 72, sd); P.rect(px + 2, 110, 3, 72, sdS);
+        P.poly([[px - 7, 104], [px + 8, 104], [px + 5, 112], [px - 4, 112]], '#7cb36a'); P.rect(px - 6, 104, 14, 2, gd);
+        P.rect(px - 4, 120, 9, 2, bl); P.rect(px - 4, 124, 9, 1, gd); P.rect(px - 6, 180, 13, 4, sdS);
+      }
+      P.rect(684, 96, 90, 10, sd); P.rect(684, 104, 90, 2, sdS);
+      for (let i = 0; i < 12; i++) P.rect(686 + i * 7.4, 97, 3, 2, i % 2 ? bl : gd);
+      P.ellipse(729, 100, 4, 4, '#e2566b'); P.ellipse(729, 100, 2, 2, '#f2a93b');
+      for (let i = 1; i <= 14; i++) { P.px(729 - 4 - i, 99 + Math.floor(i / 5), i % 2 ? bl : gd); P.px(729 + 4 + i, 99 + Math.floor(i / 5), i % 2 ? bl : gd); }
+      // striped cloth under the lintel
+      for (let i = 0; i < 9; i++) { const sx = 698 + i * 7; P.rect(sx, 106, 7, 8, i % 2 ? '#fff3dc' : bl); P.ellipse(sx + 3, 114, 3, 2, i % 2 ? '#fff3dc' : bl); }
+      // the counter: sandstone blocks with little picture-writing
+      P.rect(700, 152, 60, 4, '#f8e6b8'); P.rect(702, 156, 56, 28, sd); P.rect(702, 156, 56, 2, sdS);
+      for (const by of [165, 174]) P.rect(702, by, 56, 1, sdS); for (const bx of [716, 730, 744]) P.rect(bx, 157, 1, 27, sdS);
+      const gl = '#6a4a2a';
+      P.ellipse(709, 161, 3, 1.5, gl); P.px(709, 161, sd); P.px(709, 163, gl); // an eye
+      P.ellipse(723, 160, 1.5, 1.5, bl); P.rect(722, 162, 3, 1, bl); P.rect(723, 162, 1, 3, bl); // an ankh
+      P.rect(736, 160, 3, 2, gl); P.px(739, 159, gl); P.px(735, 162, gl); P.px(737, 162, gl); // a bird
+      for (let k = 0; k < 4; k++) { P.px(749 + k * 2, 161, bl); P.px(750 + k * 2, 160, bl); } // water
+      P.rect(707, 168, 4, 4, gd); P.rect(721, 169, 6, 2, gl); P.px(737, 168, bl); P.px(738, 169, bl); P.px(739, 170, bl); P.rect(749, 169, 5, 3, gd);
+      P.rect(708, 177, 3, 4, bl); P.rect(724, 176, 1, 5, gl); P.rect(738, 178, 4, 2, gd); P.rect(750, 176, 2, 5, gl);
+      // clay pots and a little palm
+      for (const [px, py] of [[680, 184], [784, 186]]) { P.ellipse(px, py - 6, 6, 7, '#c8703a'); P.rect(px - 3, py - 15, 7, 3, '#a85a2a'); P.rect(px - 6, py - 7, 13, 2, bl); P.ellipse(px - 2, py - 8, 2, 3, '#e08a50'); }
+      P.rect(798, 140, 3, 46, '#8a6a3a'); for (let y = 144; y < 184; y += 4) P.rect(797, y, 5, 1, '#6a4a2a');
+      for (const [dx, dy] of [[-16, 6], [16, 6], [-12, -4], [12, -4], [0, -8]]) P.line(799, 140, 799 + dx, 140 + dy, '#4e8a44');
+      for (const [dx, dy] of [[-14, 7], [14, 7], [-10, -3], [10, -3]]) P.line(799, 141, 799 + dx, 141 + dy, '#6aa860');
+    }
+    /* --- the fairy ring: toadstools in a circle with lanterns on little posts --- */
+    { const R = VRING;
+      P.ellipse(R.cx, R.cy, R.rx + 8, R.ry + 4, '#9fd47e'); P.dither(R.cx - R.rx - 8, R.cy - R.ry - 4, (R.rx + 8) * 2, (R.ry + 4) * 2, '#b8e098', .25);
+      P.ellipse(R.cx, R.cy, R.rx - 10, R.ry - 4, '#8cc46c');
+      const caps = ['#e2566b', '#f6a6bd', '#c9b6f0', '#ffd86b', '#f08a3a'];
+      const items = [];
+      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2 + .13; items.push({ a, x: R.cx + Math.cos(a) * R.rx, y: R.cy + Math.sin(a) * R.ry, lamp: i % 2 === 1 }); }
+      items.sort((p, q) => p.y - q.y);
+      items.forEach((it, i) => {
+        const k = .75 + (it.y - (R.cy - R.ry)) / (R.ry * 2) * .5;
+        if (it.lamp) {
+          const h = Math.round(24 * k); P.rect(it.x - 1, it.y - h, 2, h, '#4a3a2a'); P.rect(it.x - 3, it.y - h - 7, 7, 8, '#3a2a20'); P.rect(it.x - 2, it.y - h - 6, 5, 6, '#5a6680'); P.rect(it.x - 4, it.y - h - 8, 9, 2, '#2a1e18');
+          ringLamps.push({ x: (it.x - 2) * 2, y: (it.y - h - 6) * 2, w: 10, h: 12, gx: it.x * 2 + 1, gy: (it.y - h - 3) * 2 });
+        } else {
+          const s = Math.round(7 * k), c = caps[i % caps.length];
+          P.rect(it.x - 1, it.y - s, 3, s + 1, '#fff1dc'); P.ellipse(it.x, it.y - s, s + 1, Math.max(2, Math.round(s * .6)), shade(c, -.2)); P.ellipse(it.x, it.y - s - 1, s, Math.max(2, Math.round(s * .55)), c); P.px(it.x - 1, it.y - s - 2, '#fff3e2'); P.px(it.x + 2, it.y - s - 1, '#fff3e2');
+        }
+      });
+      // a tiny string of bunting between the two back lanterns
+      for (let i = 0; i < 9; i++) P.px(R.cx - 24 + i * 6, R.cy - R.ry - 20 + Math.sin(i / 8 * Math.PI) * 3, ['#f6a6bd', '#ffd86b', '#b8f0c8'][i % 3]);
+    }
+    /* --- the duck pond, with a jetty and Captain Whiskers' little boat --- */
+    { const cx = 1094, cy = 170;
+      P.ellipse(cx, cy + 1, 88, 17, '#5f8a4a'); P.ellipse(cx, cy, 85, 15, '#4a8ad0'); P.ellipse(cx, cy + 2, 80, 12, '#6db3f2');
+      P.dither(cx - 80, cy - 13, 160, 8, '#4a8ad0', .4);
+      for (const [x, y, w] of [[1030, 172, 14], [1066, 176, 20], [1120, 168, 18], [1150, 175, 12], [1090, 179, 10]]) P.rect(x, y, w, 1, '#bfe3ff');
+      for (const [x, y] of [[1036, 166], [1132, 179], [1158, 167]]) { P.ellipse(x, y, 5, 2, '#5f9a4a'); P.px(x + 1, y - 1, '#f6a6bd'); P.px(x + 2, y - 1, '#ffffff'); }
+      // reeds and cattails
+      for (const [x0, n] of [[1010, 6], [1166, 5]]) for (let i = 0; i < n; i++) { const x = x0 + i * 3, h = 14 + (i * 5) % 9; P.rect(x, 176 - h, 1, h, '#4e8a3e'); if (i % 2 === 0) P.rect(x - 1, 176 - h, 3, 5, '#8a5a3a'); }
+      // the jetty, from the lane out over the water
+      for (const px of [1038, 1056]) P.rect(px, 158, 2, 24, '#5a3a24');
+      for (let y = 160; y < 188; y += 3) { P.rect(1036, y, 23, 2, '#b88452'); P.rect(1036, y + 2, 23, 1, '#7a5032'); }
+      // the little boat with a striped sail and a pirate flag
+      P.poly([[1068, 170], [1122, 170], [1114, 182], [1076, 182]], '#8a5a3a'); P.rect(1068, 170, 54, 2, '#c98a5a'); P.rect(1072, 176, 46, 1, '#6e4430');
+      P.rect(1094, 112, 2, 58, '#5a3a24');
+      for (let y = 116; y < 166; y++) { const w = Math.round((y - 116) * 24 / 50); P.rect(1097, y, w, 1, ((y - 116) / 6 | 0) % 2 ? '#fff3e6' : '#e2566b'); }
+      P.rect(1096, 104, 12, 8, '#2a2030'); P.ellipse(1101, 107, 1.6, 1.6, '#ffffff'); P.px(1100, 110, '#ffffff'); P.px(1102, 110, '#ffffff');
+      P.rect(1060, 176, 8, 1, '#c8b890'); // the rope to the jetty
+      ducks.push({ x: 2270, y: 352, s: DUCK, ph: 0 }, { x: 2304, y: 360, s: DUCKLING, ph: 1.3 }, { x: 2324, y: 356, s: DUCKLING, ph: 2.1 });
+    }
+  });
+  // crisp words on the signs (world resolution, like the shop's own sign)
+  boardText(mx, 'To my shop', 250, 294, 88, 15, '#6a3a22');
+  boardText(mx, 'Library', 1022, 244, 86, 17, '#3a2a5a');
+  // treasures on Miu's counter
+  const M = painter(mx);
+  for (const [id, x] of [['scarab', 1418], ['pyramid', 1458], ['owl', 1496]]) { const sp = TRSPR[id]; M.spr(sp, x - sp.w, 304 - sp.h * 2, 2); }
+  // foreground: blurred ferns and a toadstool or two, wider than the lane for parallax
+  const FX = 300, [fore, fx] = vcnv(FX), F = painter(fx);
+  for (let x = 2 * VX0 - FX + 40, i = 0; x < 2 * VX1 + FX; x += 230 + (i * 71) % 120, i++) {
+    const leaf = i % 2 ? '#2f5a32' : '#3a6a3a', leaf2 = '#4a7f40';
+    if (i % 3 === 2) { F.ellipse(x, 470, 46, 22, '#c23f55'); F.rect(x - 9, 470, 18, 20, '#fff1dc'); F.ellipse(x - 12, 462, 8, 4, '#fff3e2'); continue; }
+    F.poly([[x - 70, 480], [x - 40, 452], [x, 446], [x + 30, 460], [x + 60, 480]], leaf); F.poly([[x - 30, 480], [x, 456], [x + 34, 480]], leaf2);
+  }
+  const foreB = blurred(fore, 7);
+  shafts.push({ x: 700, y: -40, ang: .5, n: 3, len: 520, w: 46, gap: 80, c: '#fff2c8', a: .14 }, { x: 1700, y: -40, ang: .5, n: 3, len: 520, w: 40, gap: 90, c: '#fff2c8', a: .12 });
+  const midT = tiltShift(mid, 150, 446, 4);
+  return { village: true, back: backB, mid: midT, fore: foreB, foreX0: 2 * VX0 - FX, counter: null, lights, shafts, ringLamps, ducks, x0: 2 * VX0, cw: VCW * 2,
+    mk: () => vcnv(), motes: { c: '#fff2c0', n: 26, glow: true, area: [0, 120, 900, 300], rise: false, follow: true } };
 }
 
 // the price the shop charges (the game's own priceOf, read by its global name); null when the game is not there
@@ -331,8 +599,8 @@ function glowStamp(c) {
   gr.addColorStop(0, `rgba(${r},${g},${b},1)`); gr.addColorStop(.25, `rgba(${r},${g},${b},.55)`); gr.addColorStop(.6, `rgba(${r},${g},${b},.16)`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
   x.fillStyle = gr; x.fillRect(0, 0, 64, 64); GLOW.set(c, k); return k;
 }
-function shaftStamp(s) {
-  const [k, x] = wcnv(); x.imageSmoothingEnabled = true;
+function shaftStamp(s, mk) {
+  const [k, x] = (mk || wcnv)(); x.imageSmoothingEnabled = true;
   for (let i = 0; i < s.n; i++) {
     const w = s.w * (.6 + .8 * ((i * 37) % 10) / 10), ox = s.x - i * s.gap, al = s.a * (.6 + .4 * ((i * 53) % 7) / 7);
     x.save(); x.translate(ox, s.y); x.rotate(s.ang);
@@ -355,19 +623,27 @@ function resize() {
 addEventListener('resize', resize);
 
 let scene = null, sceneKey = '', fade = 0;
+const kindOf = v => v.scene === 'inside' ? 'in' : v.scene === 'village' ? 'vil' : 'out';
 function want() {
-  const v = window.TSV, inside = v.scene === 'inside';
+  const v = window.TSV, kind = kindOf(v), inside = kind === 'in';
   const ph = window.__ts && window.__ts.S ? window.__ts.S.phase : '';
-  const time = inside ? 'day' : v.time === 'evening' ? (ph === 'night' ? 'night' : 'evening') : 'morning';
+  const time = inside ? 'day' : kind === 'vil' ? 'morning' : v.time === 'evening' ? (ph === 'night' ? 'night' : 'evening') : 'morning';
+  if (kind === 'vil') return { inside, kind, time, key: 'vil|' + fontKey };
   const stock = inside ? Object.keys(SLOT).map(g => Math.min(10, (v.stock && v.stock[g]) | 0) + ':' + ((v.stock && v.stock[g]) > 0 ? priceFor(g) : '')).join(',') : '';
-  return { inside, time, key: [inside ? 'in' : 'out', time, (v.decor || []).join('+'), inside ? stock : (v.cart ? 'cart' : ''), (v.decor || []).includes('sign') ? v.signText : ''].join('|') };
+  const owned = (inside ? v.treasures : v.garden) || [];
+  return { inside, kind, time, key: [kind, time, (v.decor || []).join('+'), inside ? stock : (v.cart ? 'cart' : ''), (v.decor || []).includes('sign') ? v.signText : '', owned.join('+'), fontKey].join('|') };
 }
+// the signs are written with the page's fonts: paint again once they have loaded
+let fontKey = 0;
+try { Promise.all(['700 16px Andika', '700 16px Cinzel'].map(f => document.fonts.load(f))).then(() => { fontKey = 1; }, () => {}); } catch (e) { fontKey = 1; }
 function build(w) {
   const v = window.TSV, t0 = performance.now();
-  const s = w.inside ? paintInside(v.decor || [], v.stock || {}) : paintOutside(w.time, v.decor || [], !!v.cart, v.signText || '');
-  s.inside = w.inside; s.time = w.time; s.shaftC = s.shafts.map(shaftStamp);
+  const s = w.kind === 'vil' ? paintVillage() : w.inside ? paintInside(v.decor || [], v.stock || {}, v.treasures || []) : paintOutside(w.time, v.decor || [], !!v.cart, v.signText || '', v.garden || []);
+  if (s.x0 == null) { s.x0 = -MX; s.cw = WW + MX * 2; s.foreX0 = -MX; }
+  s.inside = w.inside; s.kind = w.kind; s.time = w.time; s.shaftC = s.shafts.map(sh => shaftStamp(sh, s.mk));
   // the colour along the world's top edge (sky or ceiling), so the backdrop above it on tall screens has no seam
-  try { const src = s.back || s.mid, d = src.getContext('2d').getImageData(MX + WW / 2 - 40, 1, 80, 1).data; let r = 0, g = 0, b = 0; for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; } const n = d.length / 4; s.topC = `rgb(${r / n | 0},${g / n | 0},${b / n | 0})`; } catch (e) { s.topC = null; }
+  try { const src = s.back || s.mid, d = src.getContext('2d').getImageData(src.width / 2 - 40, 1, 80, 1).data; let r = 0, g = 0, b = 0; for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; } const n = d.length / 4; s.topC = `rgb(${r / n | 0},${g / n | 0},${b / n | 0})`; } catch (e) { s.topC = null; }
+  if (s.back) s.back = half(s.back); s.fore = half(s.fore); s.shaftC = s.shaftC.map(half);
   const m = s.motes, r = rng(17); s.parts = [];
   if (m && !RM) for (let i = 0; i < Math.min(36, m.n); i++) s.parts.push({ x: m.area[0] + r() * m.area[2], y: m.area[1] + r() * m.area[3], s: 1 + r() * 2, vx: (r() - .5) * 6, vy: m.rise ? -(4 + r() * 8) : 3 + r() * 6, ph: r() * 6.28, tw: .5 + r() });
   stats.bake = Math.round(performance.now() - t0);
@@ -376,14 +652,37 @@ function build(w) {
 
 /* ---------------------------------------------------------------- actors */
 const A = { keeper: null, cust: null, queue: null };
-let keeperKey = '', lastScene = '';
-function spot(name) { return SPOT[window.TSV.scene === 'inside' ? 'inside' : 'outside'][name]; }
+let keeperKey = '', lastScene = '', goKey = '', lastPlace = 'gate';
+function spot(name) {
+  const v = window.TSV, k = kindOf(v);
+  if (k === 'vil') {
+    // in the village the keeper starts at the gate; a neighbour comes out of their own door and stands beside her
+    const P = VPLACES[v.place || lastPlace] || VPLACES.gate;
+    return name === 'keeper' ? VPLACES.gate.stand : name === 'cust' ? (P.meet || P.stand) : (P.door || P.stand);
+  }
+  return SPOT[k === 'in' ? 'inside' : 'outside'][name];
+}
+// where "go" sends her: a place's standing spot, or "x:<world x>" along the lane
+function goTarget(key) {
+  if (key.startsWith('x:')) { const x = +key.slice(2); return [Math.max(2 * VX0 + 60, Math.min(2 * VX1 - 60, isFinite(x) ? x : 0)), VLANE]; }
+  return (VPLACES[key] || VPLACES.gate).stand;
+}
 function newActor(spec, at, to, who) { return { spec, x: at[0], y: at[1], tx: to[0], ty: to[1], who, leaving: false, born: performance.now(), sp: Math.hypot(to[0] - at[0], to[1] - at[1]) / 1.55 }; }
-function updateActors(dt) {
-  const v = window.TSV, sc = v.scene === 'inside' ? 'in' : 'out';
-  if (sc !== lastScene) { A.cust = A.queue = null; keeperKey = ''; lastScene = sc; }
+function updateActors(dt, rawDt) {
+  const v = window.TSV, sc = kindOf(v);
+  if (sc !== lastScene) { A.cust = A.queue = null; keeperKey = ''; lastScene = sc; goKey = ''; }
+  if (v.place) lastPlace = v.place;
   const kk = v.keeper ? JSON.stringify(v.keeper) : '';
-  if (kk !== keeperKey) { keeperKey = kk; A.keeper = v.keeper ? newActor(v.keeper, spot('keeper'), spot('keeper'), 'keeper') : null; }
+  if (kk !== keeperKey) {
+    // a new dress mid-walk keeps her where she is
+    if (keeperKey && A.keeper && v.keeper) A.keeper.spec = v.keeper;
+    else A.keeper = v.keeper ? newActor(v.keeper, spot('keeper'), spot('keeper'), 'keeper') : null;
+    keeperKey = kk;
+  }
+  if (sc === 'vil' && A.keeper) {
+    const key = v.go || 'gate';
+    if (key !== goKey) { goKey = key; const [tx, ty] = goTarget(key), a = A.keeper; a.tx = tx; a.ty = ty; a.sp = Math.max(300, Math.hypot(tx - a.x, ty - a.y) / 3.6); }
+  }
   const c = v.cust;
   if (A.cust && !A.cust.leaving && A.cust.spec !== c) { A.cust.leaving = true; const e = spot('enter'); A.cust.tx = e[0]; A.cust.ty = e[1]; A.cust.sp = Math.hypot(A.cust.x - e[0], A.cust.y - e[1]) / .85; }
   if (c && (!A.cust || A.cust.leaving) && (!A.queue || A.queue.spec !== c)) A.queue = newActor(c, spot('enter'), spot('cust'), 'cust');
@@ -391,10 +690,13 @@ function updateActors(dt) {
   for (const k of ['keeper', 'cust']) {
     const a = A[k]; if (!a) continue;
     const dx = a.tx - a.x, dy = a.ty - a.y, d = Math.hypot(dx, dy);
-    if (d > .5) { const st = Math.min(d, a.sp * dt); a.x += dx / d * st; a.y += dy / d * st; a.moving = true; } else { a.x = a.tx; a.y = a.ty; a.moving = false; }
+    // a slow device still gets her there on time (the game waits at most 9 s for a walk down the lane)
+    if (d > .5) { const st = Math.min(d, a.sp * (sc === 'vil' ? Math.min(1, rawDt || dt) : dt)); a.x += dx / d * st; a.y += dy / d * st; a.moving = true; } else { a.x = a.tx; a.y = a.ty; a.moving = false; }
     if (a.leaving && !a.moving) A[k] = null;
   }
   if (!A.cust && A.queue) { A.cust = A.queue; A.queue = null; }
+  // the game waits for this: she has arrived where TSV.go sent her
+  if (sc === 'vil' && A.keeper && !A.keeper.moving && goKey && v.at !== goKey) v.at = goKey;
 }
 let talkUntil = 0, lastTxt = '';
 function drawActor(a, t) {
@@ -428,7 +730,15 @@ function drawActor(a, t) {
 
 /* ---------------------------------------------------------------- camera */
 const cam = Object.assign({ init: false }, CAMS.outside);
-function camTarget() { const v = window.TSV; return CAMS[v.cam] || CAMS[v.scene === 'inside' ? 'inside' : 'outside']; }
+function camTarget() { const v = window.TSV; return v.scene === 'village' ? villageCam(v) : CAMS[v.cam] || CAMS[v.scene === 'inside' ? 'inside' : 'outside']; }
+// in the village the camera follows her along the lane, and frames her and the neighbour during a visit
+const VCAM = { cx: 0, cy: 290, w: 600, h: 250, x0: 0, y0: 200, x1: 0, y1: 432 }; // cy leans up: show the rooftops before the grass
+function villageCam(v) {
+  let fx = A.keeper ? A.keeper.x : VPLACES.gate.stand[0];
+  const P = v.place && VPLACES[v.place];
+  if (P && P.meet && v.cust) fx = (P.stand[0] + P.meet[0]) / 2;
+  VCAM.cx = fx; VCAM.x0 = fx - 150; VCAM.x1 = fx + 150; return VCAM;
+}
 
 /* ---------------------------------------------------------------- frame */
 const stats = { frames: 0, bake: 0, fps: 0 };
@@ -437,40 +747,44 @@ function frame(t) {
   requestAnimationFrame(frame);
   if (document.hidden) { last = t; return; }
   if (t - lastDraw < 31) return; // ~30 fps is plenty for pixel art and kind to the battery
-  const dt = Math.min(.1, (t - (last || t)) / 1000); last = t; lastDraw = t;
+  const rawDt = (t - (last || t)) / 1000, dt = Math.min(.1, rawDt); last = t; lastDraw = t;
   const v = window.TSV; if (!v) return;
   const t0f = performance.now();
   if (!W) resize();
   const w = want();
   if (w.key !== sceneKey) {
-    const sceneChanged = !scene || scene.inside !== w.inside;
+    const sceneChanged = !scene || scene.kind !== w.kind;
     document.body.classList.toggle('dusk', w.time === 'evening' || w.time === 'night');
     scene = build(w); sceneKey = w.key; if (sceneChanged && cam.init) { fade = 1; const c = camTarget(); Object.assign(cam, c); }
   }
   // speech: the keeper's mouth moves for a moment after she speaks
   if ((stats.frames & 3) === 0) { const tx = document.querySelector('#bubble .txt'); const s = tx && !document.getElementById('bubble').hidden ? tx.textContent : ''; if (s !== lastTxt) { lastTxt = s; if (s) talkUntil = t + Math.min(2600, 600 + s.length * 40); } }
-  updateActors(dt);
-  const tg = camTarget();
+  updateActors(dt, rawDt);
+  const tg = camTarget(), vil = scene.kind === 'vil';
   if (!cam.init) { Object.assign(cam, tg); cam.init = true; }
-  else { const k = Math.min(1, dt * 2.5); for (const p of CAMK) cam[p] += (tg[p] - cam[p]) * k; }
+  else { const k = Math.min(1, dt * (vil ? 3.2 : 2.5)); for (const p of CAMK) cam[p] += (tg[p] - cam[p]) * k; }
   const top = Math.max(0, v.top || 0), bot = Math.max(top + 120, Math.min(H, v.bottom || H)), bandH = bot - top, mid = (top + bot) / 2;
   let s = Math.min(W / cam.w, bandH / cam.h);
   // a tall band (iPad portrait): zoom in until the world fills the band's height, as long as the part that must stay
   // on screen (the shelves and the door inside; the house, keeper and customer outside) still fits the width
-  const keepX = !v.cam || v.cam === 'inside' || v.cam === 'outside' ? TALLX[v.scene === 'inside' ? 'inside' : 'outside'] : null;
+  const keepX = vil ? [0, 400] : !v.cam || v.cam === 'inside' || v.cam === 'outside' ? TALLX[v.scene === 'inside' ? 'inside' : 'outside'] : null;
   if (keepX) s = Math.max(s, Math.min(bandH / WH, W / (keepX[1] - keepX[0])));
-  s = Math.max(s, W / (WW + MX * 2) * .999); // never show past the left/right edge of the world
+  const sc = scene;
+  // a short band in the village (a big panel open) frames closer on the two of them instead of shrinking the whole lane
+  if (vil) s = Math.max(s, Math.min(1, bandH / 150));
+  s = Math.max(s, W / sc.cw * .999); // never show past the left/right edge of the world
   let cx = cam.cx, cy = cam.cy;
   // when the band is too small for the whole view, slide so the important part stays in it
   const hb = bandH / 2 / s, hw = W / 2 / s;
-  if (cam.y1 - cam.y0 <= hb * 2) cy = Math.max(cam.y1 - hb + 6, Math.min(cam.y0 + hb - 6, cy)); else cy = (cam.y0 + cam.y1) / 2;
+  if (cam.y1 - cam.y0 <= hb * 2) cy = Math.max(cam.y1 - hb + 6, Math.min(cam.y0 + hb - 6, cy)); else cy = vil ? cam.y1 - hb + 4 : (cam.y0 + cam.y1) / 2;
   if (cam.x1 - cam.x0 <= hw * 2) cx = Math.max(cam.x1 - hw + 10, Math.min(cam.x0 + hw - 10, cx));
-  const halfW = W / 2 / s; cx = Math.max(halfW - MX, Math.min(WW + MX - halfW, cx));
+  const halfW = W / 2 / s; cx = Math.max(sc.x0 + halfW, Math.min(sc.x0 + sc.cw - halfW, cx));
+  if (vil && hb * 2 <= WH) cy = Math.max(hb, Math.min(WH - hb, cy)); // the lane never shows past the bottom of the painting
   // a tall band (iPad portrait) can be taller than the whole painted world: sit the world's floor on the panel and let
   // the sky / ceiling colour fill the space above, instead of ending the floor in a flat strip halfway down the screen
   if (WH * s < bandH) cy = WH - (bot - mid) / s;
   const ox = W / 2 - cx * s, oy = mid - cy * s;
-  const sc = scene;
+  view.s = s; view.ox = ox; view.oy = oy; view.cx = cx;
   // backdrop for anything outside the world (tall portrait screens)
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   const edge = sc.inside ? ['#c87a84', '#a87a4e'] : [SKY[sc.time][0], sc.time === 'morning' ? '#5f9a4a' : '#1e3230'];
@@ -478,25 +792,27 @@ function frame(t) {
   if (sc.topC && oy > 0) { ctx.fillStyle = sc.topC; ctx.fillRect(0, 0, W, Math.ceil(oy) + 1); }
   // world layers
   ctx.setTransform(DPR * s, 0, 0, DPR * s, DPR * ox, DPR * oy); ctx.imageSmoothingEnabled = false;
-  if (sc.back) { ctx.imageSmoothingEnabled = true; ctx.drawImage(sc.back, -MX, 0); ctx.imageSmoothingEnabled = false; }
-  ctx.drawImage(sc.mid, -MX, 0);
+  if (sc.back) { ctx.imageSmoothingEnabled = true; blit(sc.back, sc.x0, 2); ctx.imageSmoothingEnabled = false; }
+  blit(sc.mid, sc.x0);
+  if (vil) drawVillageLife(sc, v, t);
   // characters, sorted by depth; the counter sits between the shopkeeper and the customer
   const list = [];
   if (A.keeper) list.push([A.keeper.y, () => drawActor(A.keeper, t)]);
   if (A.cust) list.push([A.cust.y, () => drawActor(A.cust, t)]);
-  if (sc.counter) list.push([344, () => { ctx.imageSmoothingEnabled = false; ctx.drawImage(sc.counter, -MX, 0); }]);
+  if (sc.counter) list.push([344, () => { ctx.imageSmoothingEnabled = false; blit(sc.counter, -MX); }]);
   list.sort((a, b) => a[0] - b[0]).forEach(d => d[1]());
   // light: bloom pools, shafts, motes
   ctx.imageSmoothingEnabled = true; ctx.globalCompositeOperation = 'lighter';
-  for (const L of sc.lights) {
+  for (const L of (vil && v.ringLit ? sc.lights.concat(sc.ringGlow || []) : sc.lights)) {
     let a = L.a; if (L.fl && !RM) a *= .86 + .14 * Math.sin(t / 380 + (L.tw || L.x) * 1.7) * Math.sin(t / 910 + L.y);
     ctx.globalAlpha = Math.max(0, Math.min(1, a)); ctx.drawImage(glowStamp(L.c), L.x - L.r, L.y - L.r, L.r * 2, L.r * 2);
   }
   ctx.globalCompositeOperation = 'screen';
-  sc.shaftC.forEach((k, i) => { ctx.globalAlpha = RM ? .9 : .75 + .25 * Math.sin(t / 2300 + i * 2); ctx.drawImage(k, -MX, 0); });
+  sc.shaftC.forEach((k, i) => { ctx.globalAlpha = RM ? .9 : .75 + .25 * Math.sin(t / 2300 + i * 2); blit(k, sc.x0, 2); });
   if (sc.parts.length) {
-    const m = (sc.inside ? null : null) || sc.motes || {}, [r, g, b] = hex2rgb(sc.motes.c), ar = sc.motes.area, gl = glowStamp(sc.motes.c);
-    ctx.globalCompositeOperation = 'lighter'; void m;
+    const [r, g, b] = hex2rgb(sc.motes.c), ar = sc.motes.area, gl = glowStamp(sc.motes.c);
+    if (sc.motes.follow) ar[0] = cx - ar[2] / 2; // in the long village the motes drift round the camera
+    ctx.globalCompositeOperation = 'lighter';
     for (const p of sc.parts) {
       p.x += (p.vx + Math.sin(t / 900 + p.ph) * 4) * dt; p.y += p.vy * dt;
       if (p.y < ar[1] - 10) { p.y = ar[1] + ar[3]; } if (p.y > ar[1] + ar[3] + 10) { p.y = ar[1]; }
@@ -508,8 +824,8 @@ function frame(t) {
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   // foreground leaves (blurred, with a little parallax)
-  const px = (cx - WW / 2) * .12;
-  ctx.drawImage(sc.fore, -MX - px, 0);
+  const px = vil ? (cx - (VX0 + VX1)) * .15 : (cx - WW / 2) * .12;
+  ctx.imageSmoothingEnabled = true; blit(sc.fore, sc.foreX0 - px, 2);
   // colour grade and vignette (screen space)
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   const gr = GRADE[sc.time];
@@ -519,6 +835,40 @@ function frame(t) {
   if (fade > 0) { ctx.fillStyle = `rgba(7,11,24,${Math.min(1, fade)})`; ctx.fillRect(0, 0, W, H); fade -= dt * (RM ? 10 : 2.6); }
   stats.frames++; const ms = performance.now() - t0f; stats.ms = stats.ms ? stats.ms * .95 + ms * .05 : ms;
 }
+const view = { s: 1, ox: 0, oy: 0, cx: 0 };
+// draw only the part of a world layer that is on screen (the village layers are about 2500 px wide)
+// k: world px per image px (the blurry layers are kept at half size, they look the same and cost a quarter)
+function blit(img, X, k = 1) {
+  const s = view.s, sx = Math.max(0, Math.floor((-view.ox / s - X) / k) - 2), ex = Math.min(img.width, Math.ceil(((W - view.ox) / s - X) / k) + 2);
+  const sy = Math.max(0, Math.floor(-view.oy / s / k) - 2), ey = Math.min(img.height, Math.ceil((H - view.oy) / s / k) + 2);
+  if (ex > sx && ey > sy) ctx.drawImage(img, sx, sy, ex - sx, ey - sy, X + sx * k, sy * k, (ex - sx) * k, (ey - sy) * k);
+}
+function half(src) { const [o, ox] = cnv(Math.ceil(src.width / 2), Math.ceil(src.height / 2)); ox.imageSmoothingEnabled = true; ox.imageSmoothingQuality = 'high'; ox.drawImage(src, 0, 0, o.width, o.height); return o; }
+// what moves in the village: the fairy-ring lanterns (lit once Fern's job is done) and the ducks on the pond
+function drawVillageLife(sc, v, t) {
+  if (!sc.ringGlow) sc.ringGlow = sc.ringLamps.map((L, i) => ({ x: L.gx, y: L.gy, r: 46, c: '#ffd86b', a: .95, fl: true, tw: i * 3 }));
+  if (v.ringLit) for (const L of sc.ringLamps) { ctx.fillStyle = '#fff3b0'; ctx.fillRect(L.x, L.y, L.w, L.h); ctx.fillStyle = '#ffffff'; ctx.fillRect(L.x + 2, L.y + 2, 4, 4); }
+  for (const d of sc.ducks) {
+    const bob = RM ? 0 : Math.sin(t / 520 + d.ph) * 1.5, dx = RM ? 0 : Math.sin(t / 2600 + d.ph) * 10;
+    ctx.drawImage(spriteCanvasOf(d.s), Math.round(d.x + dx), Math.round(d.y + bob - d.s.h * 2), d.s.w * 2, d.s.h * 2);
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(Math.round(d.x + dx) - 2, Math.round(d.y) - 1, d.s.w * 2 + 4, 2);
+  }
+}
+// tapping the village: a house or stall visits it, anywhere on the lane walks there (the game decides, via TSV.onTap)
+let tapDown = null;
+cv.addEventListener('pointerdown', e => { tapDown = [e.clientX, e.clientY, performance.now()]; });
+cv.addEventListener('pointerup', e => {
+  const v = window.TSV, d0 = tapDown; tapDown = null;
+  if (!d0 || !v || v.scene !== 'village' || typeof v.onTap !== 'function') return;
+  if (Math.hypot(e.clientX - d0[0], e.clientY - d0[1]) > 16 || performance.now() - d0[2] > 800) return;
+  const wx = (e.clientX - view.ox) / view.s, wy = (e.clientY - view.oy) / view.s;
+  if (wy < VLANE - 34) {
+    let best = null, bd = Infinity;
+    for (const [id, P] of Object.entries(VPLACES)) if (P.hit && wx >= P.hit[0] && wx <= P.hit[1] && Math.abs(wx - P.x) < bd) { bd = Math.abs(wx - P.x); best = id; }
+    if (best) { v.onTap({ place: best }); return; }
+  }
+  v.onTap({ x: wx });
+});
 const GRADE = {
   morning: { op: 'soft-light', a: 'rgba(255,214,140,.32)', b: 'rgba(60,40,20,.28)' },
   day: { op: 'soft-light', a: 'rgba(255,236,200,.24)', b: 'rgba(80,50,30,.30)' },
@@ -555,10 +905,12 @@ window.Shop3D = {
   coin: v => bake('c:' + v, 128, (x, s) => { const sp = COINS[v] || COINS[1]; const k = 7; x.drawImage(spriteCanvasOf(sp), Math.round((s - sp.w * k) / 2), Math.round((s - sp.h * k) / 2), sp.w * k, sp.h * k); }),
   portrait: spec => bake('p:' + JSON.stringify(spec), 128, portraitDraw(spec)),
   decor: id => bake('d:' + id, 128, (x, s) => DSPR[id] && fit(x, s, DSPR[id], .92)),
+  garden: id => bake('gd:' + id, 128, (x, s) => GDSPR[id] && fit(x, s, GDSPR[id], .92)),
+  treasure: id => bake('tr:' + id, 128, (x, s) => TRSPR[id] && fit(x, s, TRSPR[id], .9)),
   icon: id => bake('i:' + id, 64, (x, s) => ICONS[id] && fit(x, s, ICONS[id], .95)),
   sprite: (spec, mood) => bake('s:' + JSON.stringify(spec) + mood, 128, (x, s) => { const ch = character(spec, mood || 'idle', 0); const k = Math.floor(s / Math.max(ch.w, ch.h)); x.drawImage(ch.canvas, (s - ch.w * k) / 2, s - ch.h * k, ch.w * k, ch.h * k); }),
 };
-window.__ts3d = { stats, A, cam, get scene() { return sceneKey; } };
+window.__ts3d = { stats, A, cam, view, get scene() { return sceneKey; } };
 
 /* ---------------------------------------------------------------- pixel icons for the DOM
    The base game writes a few emoji into its buttons and notes (sound, gear, books, the coach's pointing hand, the

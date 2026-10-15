@@ -185,6 +185,66 @@ export const DECOR = {
     { k: '#4a5a3a', y: '#ffe680', b: '#a0d8ff', p: '#ffb0d0', m: '#b0ffd0' }),
 };
 
+/* ---------------------------------------------------------------- Bramble Wood village: garden things, treasures, ducks
+   Garden things stand round the shop outside (drawn on the chunky 2x grid), treasures sit on a ledge on the counter. */
+export const GARDEN = {
+  daisies: makeSprite([
+    '...w.......w.....', '..wyw..w..wyw..w.', '...w..wyw..w..wyw', '.w.g...w...g...w.', 'wyw.g..g..g...g..', '.w..g.g.gg..g.g..',
+    '.gGgggGggGgggGgg.', 'gGgggGgggggGgggGg'],
+    { w: '#ffffff', y: '#ffd23a', g: '#6aa860', G: '#4e8a44' }),
+  tulips: makeSprite([
+    '.r...p...y...r..', 'rRr.pPp.yYy.rRr.', 'rRr.pPp.yYy.rRr.', '.g.g.g...g.g.g..', '.g..g.g..g..gg..', 'bbbbbbbbbbbbbbbb', 'bssssssssssssssB', 'BBBBBBBBBBBBBBBB'],
+    { r: '#e2566b', R: '#b83a50', p: '#f6a6bd', P: '#e2668b', y: '#ffd86b', Y: '#f0a92a', g: '#6aa860', b: '#a87048', B: '#7a4a2e', s: '#5a3a28' }),
+  sunflowers: makeSprite([
+    '.y.y.y.......', 'yyYYYyy.y.y..', '.YkkkY.yyYyy.', 'yYkkkYy.YkY..', '.YkkkY.yYkYy.', 'yyYYYyy.YYY..', '.y.y.y.y.y.y.',
+    '...g.....g...', '...gl....g...', '..lg....lg...', '...g.....gl..', '...gl....g...', '..lg....lg...', '...g.....g...', '...g.....g...', '..ggg...ggg..'],
+    { y: '#ffd23a', Y: '#f0a92a', k: '#7a4a20', g: '#5f9a4a', l: '#8cc46c' }),
+  birdbath: makeSprite([
+    '.........bb...', '........bbeb..', '.......bbbbbo.', '........bb....', 'ssssssssssssss', '.SwwwwwwwwwwS.', '..SSSSSSSSSS..',
+    '.....ssss.....', '.....sSSs.....', '.....sSSs.....', '.....sSSs.....', '....ssssss....', '...SSSSSSSS...'],
+    { b: '#5a8fc7', e: '#1e1418', o: '#f2a93b', s: '#d8d2c4', S: '#a8a296', w: '#8ccff5' }),
+  bench: makeSprite([
+    '.wwwwwwwwwwwwwwwwww.', '.WWWWWWWWWWWWWWWWWW.', '.wwwwwwwwwwwwwwwwww.', '.k................k.', '.k................k.',
+    'wwwwwwwwwwwwwwwwwwww', 'WWWWWWWWWWWWWWWWWWWW', '.k.k............k.k.', '.k.k............k.k.', '.k.k............k.k.'],
+    { w: '#c98a5a', W: '#8a5a3a', k: '#5a3a28' }),
+  well: makeSprite([
+    '.....rrrrrrr.....', '...rrRrrrrrRrr...', '.rrRRRRRRRRRRRrr.', 'rRRRRRRRRRRRRRRRr', '..p...........p..', '..p....c......p..', '..p....c......p..',
+    '..p...bbb.....p..', '..p...bBb.....p..', '..p...........p..', '.sSsSsSsSsSsSsSs.', 'sSsSsSsSsSsSsSsSs', 'SsSsSsSsSsSsSsSsS', 'sSsSsSsSsSsSsSsSs', '.SSSSSSSSSSSSSSS.'],
+    { r: '#c84a5e', R: '#9a3448', p: '#8a5a3a', c: '#d8c098', b: '#a87048', B: '#7a4a2e', s: '#d0c8b8', S: '#9a9488' }),
+  fairyhouse: makeSprite([
+    '....bbbbbb....', '..bbwbbbbbbb..', '.bbbbbbbwbbbb.', 'bbwbbbbbbbbbbB', 'BBBBBBBBBBBBBB', '...cccccccc...', '...cyycccCc...',
+    '...cyyccdcC...', '...cccccdcC...', '...ccccddcC...', '...ccccddcC...', '..gggggggggg..'],
+    { b: '#7bb4d9', w: '#ffffff', B: '#4a84a9', c: '#fff1dc', C: '#e0c8a8', y: '#ffd86b', d: '#9a6a45', g: '#6aa860' }),
+};
+export const TREASURE = {
+  shell: makeSprite([
+    '...ppPppPp......', '.ppPppPppPpp....', 'pPppPppPppPpp...', 'pPpPpPpPpPpPp...', '.pPpPpPpPpPp.....', '..pPpPpPpPp.....', '...pPpPpPp..ww..', '....kkkkk..wWWw.', '...........wWww.', '............ww..'],
+    { p: '#f6c0cc', P: '#e2889c', w: '#f4f0ff', W: '#ffffff', k: '#c88a96' }),
+  scarab: makeSprite([
+    '..y......y..', '...y....y...', '....yYYy....', '...yYYYYy...', 'y.ybbYYbby.y', '.ybBbYYbBby.', '..bBbYYbBb..', 'y.bbbYYbbb.y', '.ybbbYYbbby.', '..ybbYYbby..', '...yyYYyy...', '.y........y.'],
+    { y: '#f2c75a', Y: '#b8862a', b: '#3a7bd5', B: '#7ab8f0' }),
+  map: makeSprite([
+    'ppppppppppppp', 'pqqqqqqqqqqqP', 'pqdqqqqqqgggP', 'pqqdqqqqgggqP', 'pqqqdqqqqgqqP', 'pqqqqddqqqqqP', 'pqqqqqqdqrqrP', 'pqqqqqqqdqrqP', 'pqqqqqqqqrqrP', 'pqqqqqqqqqqqP', 'PPPPPPPPPPPPP'],
+    { p: '#c9a86a', P: '#9a7a4a', q: '#f4e4bc', d: '#8a5a3a', g: '#7cb36a', r: '#e2566b' }),
+  pyramid: makeSprite([
+    '......y.......', '.....yYs......', '....yyYss.....', '...yYyyYss....', '..yyyyYSsss...', '.yyYyyYssSss..', 'yyyyyyYssssss.', 'gggggggggggggg'],
+    { y: '#f6dc9a', Y: '#d8b060', s: '#c89a58', S: '#a87a40', g: '#e0c080' }),
+  owl: makeSprite([
+    '.k......k.', '.kkkkkkkk.', 'kwwkkkkwwk', 'kwbwkkwbwk', 'kwwkyykwwk', '.kkkyykkk.', '.kccccccK.', 'kccCccCccK', 'kcccccccck', '.kCccCccK.', '..kkkkkK..', '.sssssssS.', 'SSSSSSSSSS'],
+    { k: '#c8ccd6', K: '#8a90a0', w: '#ffffff', b: '#3a3a4a', y: '#f2c75a', c: '#e4e8f0', C: '#a8aebc', s: '#8a5a3a', S: '#5a3a28' }),
+  apple: makeSprite([
+    '.....s......', '.....sll....', '..yyyslLy...', '.ywyyyyyyYY.', 'ywwyyyyyyyYY', 'ywyyyyyyyyYY', 'yyyyyyyyyyYY', 'yyyyyyyyyYYY', '.yyyyyyyYYY.', '.YyyyyyYYYY.', '..YYY.YYYY..'],
+    { s: '#5A3A28', l: '#7cc06e', L: '#4E7A2C', y: '#f2c75a', Y: '#b8862a', w: '#fff6c0' }),
+  lyre: makeSprite([
+    'y..........y', 'yy........yy', '.yyyyyyyyyy.', '.y..w.w.w.y.', '.y..w.w.w.y.', '.yY.w.w.wYy.', '..y.w.w.wy..', '..yYw.w.Yy..', '...yyyyyy...', '....YYYY....'],
+    { y: '#f2c75a', Y: '#b8862a', w: '#fff3d0' }),
+  crown: makeSprite([
+    'w.....p.....w', 'y.....y.....y', 'yy...yyy...yy', 'yyy.yyyyy.yyy', 'yyyyyyyyyyyyy', 'yyrryybbyyrry', 'yYyyyyyyyyyYy', 'YYYYYYYYYYYYY'],
+    { w: '#fff6a0', p: '#f6a6bd', y: '#f2c75a', Y: '#b8862a', r: '#e2566b', b: '#7ab8f0' }),
+};
+export const DUCK = makeSprite(['.....ww..', '....wwew.', '....wwwoo', '.w..www..', 'wwwwwwww.', 'wwwWwwww.', '.WWWWWW..'], { w: '#ffffff', W: '#d0d4dc', e: '#1e1418', o: '#f2a93b' });
+export const DUCKLING = makeSprite(['...yy..', '..yyey.', '..yyyoo', 'yyyyyy.', '.YYYY..'], { y: '#ffe066', Y: '#e8b830', e: '#1e1418', o: '#f2a93b' });
+
 /* ---------------------------------------------------------------- characters
    Templates use these letters: f F D fur (light, shade, dark), p P inner ear, e eye, w eye shine, n nose, b blush,
    m mouth, r R body (the dress, or fur when there is none), o dress dots, a A apron, bib or tummy, s shoes, t tail,
@@ -255,7 +315,7 @@ function palette(spec) {
   if (sp === 'cat') Object.assign(p, { n: '#E07C8A', p: '#F2A9A6' });
   if (sp === 'fairy') {
     const hair = spec.hair || '#f2d27a', dr = spec.dress || '#d4c4ff';
-    Object.assign(p, { y: '#F2C75A', Y: '#B8862A', h: hair, H: shade(hair, -.25), f: '#F6D8C4', F: '#E2B8A0', r: dr, R: shade(dr, -.2), a: spec.dress2 || '#fff3cf', g: 'rgba(255,240,180,0.85)', G: spec.wing === 'gold' ? '#F2C75A' : '#cfe8ff', m: '#E2B8A0', k: '#B8862A', s: '#F2C75A', n: '#E2A090' });
+    Object.assign(p, { y: '#F2C75A', Y: '#B8862A', h: hair, H: shade(hair, -.25), f: '#F6D8C4', F: '#E2B8A0', r: dr, R: shade(dr, -.2), a: spec.dress2 || '#fff3cf', g: 'rgba(255,240,180,0.85)', G: spec.wing === 'gold' ? '#F2C75A' : spec.wing === 'green' ? '#8fd89c' : '#cfe8ff', m: '#E2B8A0', k: '#B8862A', s: '#F2C75A', n: '#E2A090' });
   }
   return p;
 }
