@@ -24,6 +24,7 @@ how much is that altogether	How much is that altogether?
 your till	Your till
 please	, please.
 tap the coins to pay me	Tap the coins to pay me.
+change my order	Change my order
 is 1 penny	is 1 penny
 you gave me	You gave me
 here	Here
@@ -50,6 +51,8 @@ each	Each
 would you like	would you like?
 that's all your shelf can hold	That's all your shelf can hold!
 that's all the pennies in your till	That's all the pennies in your till!
+here is your order	Here is your order.
+you can still change it before you pay	You can still change it before you pay.
 acorn bun	acorn bun
 acorn buns	acorn buns
 apple	apple
