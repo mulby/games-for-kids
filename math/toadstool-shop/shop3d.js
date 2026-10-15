@@ -400,7 +400,7 @@ function update(dt) {
 // test helper: run the scene forward (walks, camera moves) without drawing, then draw once
 function settle(sec = 3) { for (let i = 0; i < sec * 30; i++) update(1 / 30); R.render(scene, cam); }
 function updateJar() {
-  const st = game(), fill = st ? Math.min(1, Math.round(Math.min(1, (st.jar || 0) / 45) * 8) / 8) : .4, key = String(fill);
+  const st = game(), fill = st ? Math.min(1, Math.round(Math.min(1, (st.till || 0) / 45) * 8) / 8) : .4, key = String(fill);
   if (key === jarKey) return; jarKey = key;
   const stump = outside.userData.stump;
   if (stump.userData.jar) stump.remove(stump.userData.jar);

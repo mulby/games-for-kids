@@ -2,6 +2,8 @@
 bramble	a bag of
 bramble	and the
 bramble	each bag costs
+bramble	each box costs
+bramble	each crate costs
 bramble	pennies altogether
 bramble	pennies please
 main	go in my savings jar
@@ -13,3 +15,9 @@ main	tap a penny to give it to bramble
 main	then tap done
 bramble	the
 main	penny goes
+bramble	you have
+bramble	pennies left
+bramble	penny left
+bramble	a box of
+bramble	a crate of
+bramble	costs
