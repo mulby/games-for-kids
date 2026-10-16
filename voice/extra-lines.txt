@@ -77,3 +77,32 @@ main	captain whiskers gave me a
 main	miu the temple cat gave me a
 main	athena's owl gave me a
 main	the fairy queen gave me some
+# mental-math hints and day-off activities (math/toadstool-shop/mental.js): pieces between numbers
+main	more
+main	needs
+main	make
+main	Count by twos.
+main	Count by fives.
+main	Count by tens.
+main	Found you!
+main	little mice in the dollhouse.
+main	little mice in the dollhouses.
+main	is done!
+main	I had a lovely day off playing hide and seek, and I earned
+main	I had a lovely day off playing firefly jars, and I earned
+main	Time for bed.
+main	gave me a little card to keep!
+main	What number and the same number make
+main	A row of 5 and
+main	Look at the row of 5.
+main	Button
+main	Thimble
+main	Bluebell
+main	Nutmeg
+main	Clementine
+main	Pepper
+main	Sprout
+main	Biscuit
+main	Tinsel
+main	Little Bean
+main	Start at

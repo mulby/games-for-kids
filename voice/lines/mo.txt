@@ -214,3 +214,15 @@ is 1 penny	is 1 penny
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+my little brothers and sisters are visiting	My little brothers and sisters are visiting.
+will you play hide and seek with us	Will you play hide and seek with us?
+yes please	Yes please!
+hello again	Hello again!
+the little ones want to play hide and seek	The little ones want to play hide and seek!
+can we play hide and seek again	Can we play hide and seek again?
+let's play	Let's play!
+some of us are hiding under the blanket	Some of us are hiding under the blanket!
+how many are hiding	How many are hiding?
+thank you for playing	Thank you for playing!
+mum says here are 2 pennies and 1 more for getting every one right the first time	Mum says here are 2 pennies, and 1 more for getting every one right the first time!
+mum says here are 2 pennies for looking after us	Mum says here are 2 pennies for looking after us.
