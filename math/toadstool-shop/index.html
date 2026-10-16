@@ -2325,7 +2325,7 @@ function tryOnSpec(id) {
 }
 function lookImg(spec) { return has3d() && spec ? `<img src="${Shop3D.portrait(spec)}" alt="">` : '🐭'; }
 function clothesBtn(c, state) {
-  const tag = state === 'on' ? '✓ wearing' : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
+  const tag = state === 'on' ? (c.none ? '✓ tap to take off' : '✓ wearing') : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
   return `<button data-c="${c.id}" class="${state}"><span class="em" style="${c.css || ''}">${c.emoji}</span><span>${c.name}</span><span class="tag">${tag}</span></button>`;
 }
 // The 👗 button: change clothes any time. Only what she owns can go on; the rest shows where it comes from.

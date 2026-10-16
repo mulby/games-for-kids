@@ -2109,7 +2109,7 @@ function tryOnSpec(id) {
 }
 function lookImg(spec) { return has3d() && spec ? `<img src="${Shop3D.portrait(spec)}" alt="">` : '🐭'; }
 function clothesBtn(c, state) {
-  const tag = state === 'on' ? '✓ wearing' : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
+  const tag = state === 'on' ? (c.none ? '✓ tap to take off' : '✓ wearing') : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
   return `<button data-c="${c.id}" class="${state}"><span class="em" style="${c.css || ''}">${c.emoji}</span><span>${c.name}</span><span class="tag">${tag}</span></button>`;
 }
 // The 👗 button: change clothes any time. Only what she owns can go on; the rest shows where it comes from.
@@ -2370,64 +2370,6 @@ async function buy(who, kind, it) {
   await talk('keeper', `${kind === 'garden' ? `My ${it.name.toLowerCase()} will go in the garden by my shop!` : `I'll put the ${it.name.toLowerCase()} on the ledge in my shop!`} ${had} take away ${it.cost} leaves ${left}.`, 'Lovely!',
     `<div class="decor one"><button class="own">${itemImg(kind, it)}<span>${it.name}</span><span class="tag">✓ yours</span></button></div>`);
 }
-/* ================= the wardrobe: clothes and accessories (wardrobe.js holds the list) ================= */
-// What she would look like in one more thing (to try it on before buying, or to see it in the closet).
-function tryOnSpec(id) {
-  const W = ShopWardrobe, c = W.byId(id); if (!S.keeper || !c) return keeperSpec();
-  const k = Object.assign({}, S.keeper, { wear: Object.assign({}, W.wear(S), { [c.slot]: id }) });
-  return W.keeperSpec({ keeper: k, closet: (S.closet || []).concat(id) }, FURS, DRESSES);
-}
-function lookImg(spec) { return has3d() && spec ? `<img src="${Shop3D.portrait(spec)}" alt="">` : '🐭'; }
-function clothesBtn(c, state) {
-  const tag = state === 'on' ? '✓ wearing' : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
-  return `<button data-c="${c.id}" class="${state}"><span class="em" style="${c.css || ''}">${c.emoji}</span><span>${c.name}</span><span class="tag">${tag}</span></button>`;
-}
-// The 👗 button: change clothes any time. Only what she owns can go on; the rest shows where it comes from.
-// It sits over the game and never touches the panel or the speech bubble, so it is safe in the middle of anything.
-function openWardrobe() {
-  const W = ShopWardrobe, box = $('#wardrobe'); if (!S.keeper) return;
-  let note = 'Tap something to put it on!', look = keeperSpec();
-  const draw = () => {
-    const w = W.wear(S);
-    const keep = $('.wlist', box) ? $('.wlist', box).scrollTop : 0;
-    $('.card', box).innerHTML = `<div class="wside"><div class="wlook big">${lookImg(look)}</div>
-      <div class="wnote">${note}</div><button class="btn" id="wdone">All dressed! ✨</button></div>
-      <div class="wlist"><div class="wsec"><div class="wlab">Dress colour</div><div class="swatches">${Object.entries(DRESSES).map(([n, col]) => `<button class="swatch ${S.keeper.dress === n ? 'sel' : ''}" data-d="${n}" style="background:${col}" aria-label="${n} dress"></button>`).join('')}</div></div>
-      ${W.SLOTS.map(([slot, label]) => `<div class="wsec"><div class="wlab">${label}</div><div class="decor wgrid">${W.CLOTHES.filter(c => c.slot === slot).map(c => clothesBtn(c, w[slot] === c.id ? 'on' : W.owns(S, c.id) ? 'own' : 'cant')).join('')}</div></div>`).join('')}
-      </div>`;
-    $('.wlist', box).scrollTop = keep;
-    $$('[data-d]', box).forEach(b => b.addEventListener('click', () => {
-      S.keeper.dress = b.dataset.d; save(); syncView(); look = keeperSpec(); SFX.tap(); note = `A ${b.dataset.d} dress!`; speak(note); draw();
-    }));
-    $$('[data-c]', box).forEach(b => b.addEventListener('click', () => {
-      const c = W.byId(b.dataset.c);
-      if (!W.owns(S, c.id)) {
-        SFX.soft(); look = tryOnSpec(c.id);
-        note = c.gift ? `The ${c.name.toLowerCase()} is a present. Maybe a friend will bring it one day!` : `I can buy the ${c.name.toLowerCase()} in the evening. It costs ${c.cost} ${plural(c.cost, 'penny', 'pennies')}.`;
-        speak(note); draw(); return;
-      }
-      const r = W.put(S, c.id); save(); syncView(); look = keeperSpec(); SFX.tap(); mood('keeper', 'happy', 1200);
-      note = r === 'off' ? `I took off my ${c.name.toLowerCase()}.` : `My ${c.name.toLowerCase()}!`; speak(note); draw();
-    }));
-    $('#wdone', box).addEventListener('click', closeWardrobe);
-  };
-  box.hidden = false; draw(); SFX.tap();
-}
-function closeWardrobe() {
-  $('#wardrobe').hidden = true; SFX.ok(); syncView(); if (rerender) rerender();
-  if (lastSay && lastSay.who === 'keeper') $('#bubble .pt').innerHTML = portrait('keeper');
-}
-// Every piece of clothing (bought and presents) earns a card, whichever comes last.
-function bestDressed() { if (window.GFKCards && ShopWardrobe.allOwned(S)) GFKCards.collect({ game: GAME, id: 'all-clothes', name: 'Best Dressed in Bramble Wood', emoji: '👗', rarity: 'rare' }); }
-// A visiting friend's present: it goes in the wardrobe and on at once.
-async function giftFrom(who) {
-  const W = ShopWardrobe, c = W.giftFrom(who); if (!c || !S.keeper || !W.give(S, c.id)) return;
-  W.put(S, c.id); save(); syncView(); SFX.cheer(); mood('keeper', 'happy', 2200); bestDressed();
-  await talk('keeper', `${CAST[who].name} gave me ${c.they ? 'some' : 'a'} ${c.name.toLowerCase()}! I'm wearing ${c.they ? 'them' : 'it'} now. I can change my clothes any time with the dress button.`, 'Thank you! 👗', `<div class="wlook small">${lookImg(keeperSpec())}</div>`);
-}
-// Older saves: friends who already visited have left their presents in the wardrobe.
-if (S.keeper) { S.closet = S.closet || []; for (const who of Object.keys(S.friends || {})) { const c = ShopWardrobe.giftFrom(who); if (c) ShopWardrobe.give(S, c.id); } save(); bestDressed(); }
-$('#wardBtn').addEventListener('click', openWardrobe);
 
 /* ================= title ================= */
 async function title() {
