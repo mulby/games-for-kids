@@ -77,6 +77,9 @@ def spoken(t):
     t = t.strip()
     return bool(re.search(r"[A-Za-z]{2}", t)) and (" " in t or re.search(r"[.!?]$", t)) and not re.search(r"[<>{}=;#]|\b(?:px|var|div|span|class)\b", t)
 
+# characters who borrow another's voice (index.html VOICE_OF): Fern the fairy speaks with Hazel's
+SHARES = {"fern": "hazel"}
+
 def shop_lines(src):
     for line in src.splitlines():
         if not re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =|\b(?:q|prompt|coach): ", line):
@@ -88,7 +91,7 @@ def shop_lines(src):
         if re.search(r"\b(?:say|talk)\(\s*who\b|\bthanks =|\bwho[,}]|\bwho: who\b", line):
             who.update(CUSTOMERS)
         m = re.match(r"\s*(\w+): \{.*\bhi: ", line)
-        if m:
+        if m and SHARES.get(m.group(1), m.group(1)) in VOICES["characters"]:  # a cast line (a place line names its who: instead)
             who.add(m.group(1))
         if re.search(r"(?<![.\w])speak\(|\bcoach: ", line) or not who:
             who.add(None)
@@ -130,7 +133,7 @@ for page in pages:
         for s in (x for piece in pieces for x in SENT.findall(piece)):
             if re.search(r"[${}:>]", s):  # bits of code caught between nested ${...}
                 continue
-            add(lines if who is None else char_lines[who], s)
+            add(lines if who is None else char_lines[SHARES.get(who, who)], s)
     if re.search(r"/toadstool-shop[^/]*/", page):
         words, names, decor, cards = shop_words(src)
         for w in words + names + [n + "'s shop" for n in names] + decor + cards:

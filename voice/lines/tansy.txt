@@ -214,3 +214,12 @@ is 1 penny	is 1 penny
 whoa quick paws	Whoa, quick paws!
 you got it right the first time	You got it right the first time!
 here is a penny tip	Here is a penny tip.
+pennies please	pennies, please.
+penny please	penny, please.
+come back soon	Come back soon!
+bye for now	Bye for now!
+you have everything from my stall	You have everything from my stall!
+your house must be so cozy	Your house must be so cozy.
+you gave me	You gave me
+back	back!
+i have lovely things to make your house cozy	I have lovely things to make your house cozy!

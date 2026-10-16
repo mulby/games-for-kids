@@ -4,13 +4,14 @@
 import * as THREE from 'three';
 import * as D from './felt3d.js';
 
-const TAU = Math.PI * 2;
+const TAU = Math.PI * 2, PI = Math.PI, PI2 = Math.PI / 2;
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 
 // The lane runs along x. Every place sits behind it (z < 0) with its door facing the camera (+z).
 // stand: where the shopkeeper waits; door: where the neighbour comes out; meet: where the neighbour stands.
-export const LANE_Z = 1.3, LANE = [-20, 23];
+export const LANE_Z = 1.3, LANE = [-29, 30];
 export const PLACES = {
+  house: { x: -26.3, door: [-26.3, -.75], stand: [-27.4, 1.0], meet: [-25.2, .5] },
   gate: { x: -19, stand: [-18.4, LANE_Z], face: .3 },
   burrow: { x: -12.5, door: [-12.5, -1.0], stand: [-13.8, .9], meet: [-11.3, .5] },
   stall: { x: -6, door: [-6.6, -1.3], stand: [-7.2, 1.3], meet: [-5.2, .2] },
@@ -18,7 +19,10 @@ export const PLACES = {
   market: { x: 7, door: [7.6, -1.3], stand: [6.4, 1.3], meet: [8.2, .2] },
   ring: { x: 13.5, door: [13.5, -1.6], stand: [12.2, 1.0], meet: [14.6, .5] },
   pond: { x: 20, door: [21.2, -2.3], stand: [18.9, 1.0], meet: [21.1, .7] },
+  tansy: { x: 27, door: [27.6, -1.3], stand: [26.4, 1.3], meet: [28.2, .2] },
 };
+// the houses she can go inside (rooms3d.js draws the rooms)
+export const ROOMS = { house: 'home', burrow: 'burrow', oak: 'oak' };
 
 /* ------------------------------------------------------------------ small parts */
 const dirt = () => D.felt('#d9c09a', { fibre: .25, mottle: .3, scale: .8 });
@@ -71,7 +75,7 @@ function stall(o) {
   for (const x of [-1.38, 1.38]) for (const z of [-.55, .55]) g.add(D.rbox(.12, 1.05, .12, .03, leg).translateX(x).translateY(.52).translateZ(z));
   for (const x of [-1.38, 1.38]) g.add(D.rbox(.12, 1.7, .12, .03, leg).translateX(x).translateY(1.95).translateZ(-.55));
   const aw = D.awning({ w: 3.1, color: o.awning }); aw.position.set(0, 3.15, -.5); aw.scale.set(1, .8, 1.1); g.add(aw);
-  const s = sign(o.title, 2.0, .5); s.position.set(0, 3.45, -.55); g.add(s);
+  const s = sign(o.title, o.signW || 2.0, .5); s.position.set(0, 3.45, -.55); g.add(s);
   return g;
 }
 
@@ -168,8 +172,100 @@ function gate() {
   const s2 = sign('Village', 1.3, .4); s2.position.set(-.76, 1.3, .14); g.add(s2);
   for (let i = 0; i < 4; i++) { const f = post(.8); f.position.set(-1.5 - i * .8, 0, -.6 - i * .3); g.add(f); }
   g.add(D.rbox(2.6, .1, .08, .02, D.wood('#9a6a45', { axis: 0 })).translateX(-2.7).translateY(.6).translateZ(-1.05).rotateY(.36));
-  const shop = D.toadstool(D.PAL.toadRed, 2.2); shop.position.set(-4.5, 0, -4); g.add(shop);
+  const shop = D.toadstool(D.PAL.toadRed, 2.2); shop.position.set(-1.2, 0, -6.6); g.add(shop);
   return g;
+}
+
+// her own little cottage at the far end of the lane, by the way back to the shop
+function myHouse() {
+  const g = new THREE.Group();
+  g.add(D.lathe([[0, 0], [1.95, 0], [1.9, 2.3], [0, 2.3]], D.plaster('#fff1dc'), 40).translateZ(-1.4));
+  g.add(D.mesh(new THREE.TorusGeometry(1.93, .09, 8, 48), D.wood('#c08a58'), [0, 2.3, -1.4], 1, [PI2, 0, 0]));
+  // a round thatched roof with a little curl on top
+  g.add(D.lathe([[0, 4.5], [.35, 4.2], [1.4, 3.1], [2.45, 2.1], [2.35, 1.95], [0, 2.2]], D.felt('#e9b949', { print: { kind: 'stripes', color: '#d9a43a', n: 14, w: .35, scale: 2 }, fibre: .35 }), 40, { smooth: 14 }).translateZ(-1.4));
+  g.add(D.mesh(new THREE.TorusGeometry(.18, .07, 8, 20, Math.PI * 1.5), D.felt('#e9b949'), [0, 4.55, -1.4], 1, [0, 0, 0]));
+  g.add(D.rbox(.5, 1.2, .5, .05, D.felt('#c9b6a0', { fibre: .25 })).translateX(1.0).translateY(3.6).translateZ(-1.9));
+  const dr = roundDoor(.62, '#f6a6bd'); dr.position.set(0, .82, .52); g.add(dr);
+  for (const sx of [-1, 1]) {
+    const w = smallWindow(.34); w.position.set(sx * 1.25, 1.35, .05); w.rotation.y = sx * .7; g.add(w);
+    // a window box of flowers under each window
+    const box = new THREE.Group(); box.position.set(sx * 1.32, .82, .22); box.rotation.y = sx * .7; g.add(box);
+    box.add(D.rbox(.8, .22, .26, .03, D.wood('#7bb4d9', { axis: 0 })));
+    for (let i = 0; i < 4; i++) { const f = D.feltFlower(['#f6a6bd', '#ffd86b', '#ffffff', '#e2566b'][i], .7, { stem: true }); f.position.set(-.27 + i * .18, .25, 0); box.add(f); }
+  }
+  const st = D.stepStone(1.2, 9); st.position.set(0, 0, 1.25); g.add(st);
+  // a heart sign on a post so she knows it is hers
+  const p = post(1.25); p.position.set(1.75, 0, .9); g.add(p);
+  const hs = new THREE.Shape(); hs.moveTo(0, -.25); hs.bezierCurveTo(-.45, .05, -.3, .38, 0, .18); hs.bezierCurveTo(.3, .38, .45, .05, 0, -.25);
+  g.add(D.slab(hs, .08, D.felt('#e2566b'), .02).translateX(1.75).translateY(1.45).translateZ(.98));
+  // a little picket fence and flowers round the front
+  for (let i = 0; i < 6; i++) { const x = -2.9 + i * .3; g.add(D.rbox(.12, .7, .05, .02, D.wood('#fff6e6', { axis: 1 })).translateX(x).translateY(.35).translateZ(.6)); }
+  g.add(D.rbox(1.7, .07, .04, .01, D.wood('#fff6e6', { axis: 0 })).translateX(-2.15).translateY(.45).translateZ(.62));
+  return g;
+}
+function homeStall() {
+  const g = stall({ title: "Tansy's Home Things", signW: 2.9, cloth: '#b9a6e8', awning: '#f6a6bd', wood: '#c08a58' });
+  // a tiny chair, a lamp and a teapot on the counter
+  const ch = new THREE.Group(), w = D.wood('#8a5a36', { axis: 1 });
+  ch.add(D.rbox(.45, .06, .45, .02, D.wood('#8a5a36'))); for (const x of [-.18, .18]) for (const z of [-.18, .18]) ch.add(D.rbox(.05, .35, .05, .01, w).translateX(x).translateY(-.18).translateZ(z));
+  ch.add(D.rbox(.45, .5, .05, .01, w).translateY(.25).translateZ(-.2)); ch.position.set(-.95, 1.48, 0); g.add(ch);
+  g.add(D.lathe([[0, 0], [.18, 0], [.15, .05], [.03, .1], [.03, .7], [0, .7]], D.wood('#6b4a33'), 12).translateX(.05).translateY(1.12));
+  g.add(D.lathe([[.08, .95], [.26, .6], [.28, .58], [.1, .93]], D.felt('#ffd86b', { side: THREE.DoubleSide }), 20).translateX(.05).translateY(1.12));
+  g.add(D.lathe([[0, 0], [.18, 0], [.24, .12], [.2, .26], [.08, .3], [0, .32]], D.glaze('#7bb4d9'), 20, { smooth: 10 }).translateX(.85).translateY(1.12));
+  g.add(D.rbox(.7, .5, .06, .02, D.felt('#f6a6bd', { print: { kind: 'dots', color: '#ffffff', n: 5, scale: 2 } })).translateX(-1.9).translateY(.6).translateZ(.3).rotateY(.3));
+  return g;
+}
+// cottages further back, so the village goes on past the lane
+function cottage(wall, roof, seed = 1) {
+  const g = new THREE.Group();
+  g.add(D.rbox(2.6, 2.0, 2.0, .08, D.plaster(wall)).translateY(1.0));
+  const r = D.mesh(new THREE.ConeGeometry(2.1, 1.5, 4), D.felt(roof, { fibre: .3 }), [0, 2.75, 0], [1, 1, .78], [0, PI / 4, 0]); g.add(r);
+  g.add(D.rbox(.4, 1.0, .4, .04, D.felt('#c9b6a0', { fibre: .25 })).translateX(.7 * (seed % 2 ? 1 : -1)).translateY(3.2));
+  g.add(D.rbox(.6, 1.0, .08, .03, D.wood('#7bb4d9')).translateY(.5).translateZ(1.02));
+  for (const sx of [-1, 1]) g.add(D.mesh(new THREE.PlaneGeometry(.5, .5), D.glowMat('#ffd98a', .5, { color: '#ffe9b8' }), [sx * .8, 1.25, 1.03]));
+  return g;
+}
+function windmill() {
+  const g = new THREE.Group();
+  g.add(D.lathe([[0, 0], [1.3, 0], [.9, 5.2], [0, 5.2]], D.plaster('#fff1dc'), 24));
+  g.add(D.mesh(new THREE.ConeGeometry(1.15, 1.2, 20), D.felt('#e2566b'), [0, 5.8, 0]));
+  g.add(D.rbox(.5, .9, .06, .02, D.wood('#8a5a36')).translateY(.45).translateZ(1.25));
+  const sails = new THREE.Group(); sails.userData.live = true; sails.position.set(0, 4.6, 1.15); g.add(sails);
+  for (let i = 0; i < 4; i++) { const a = new THREE.Group(); a.rotation.z = i * PI2; sails.add(a); a.add(D.rbox(.12, 3.0, .06, .02, D.wood('#8a5a36', { axis: 1 })).translateY(1.5)); a.add(D.rbox(.7, 2.3, .03, .01, D.felt('#fff7e6', { print: { kind: 'stripes', color: '#e9d3a6', n: 5, w: .3, scale: 1 } })).translateX(.4).translateY(1.85)); }
+  sails.add(D.bead(D.wood('#6b4a33'), [0, 0, .05], .18));
+  g.userData.sails = sails;
+  return g;
+}
+function duck() {
+  const g = new THREE.Group(), body = D.felt('#ffffff'), bill = D.felt('#f0a92a');
+  g.add(D.ball(body, [0, .14, 0], [.22, .14, .3])); g.add(D.ball(body, [0, .36, .2], .12));
+  g.add(D.ball(bill, [0, .34, .34], [.06, .025, .08], [0, 0, 0], 10));
+  for (const s of [-1, 1]) g.add(D.bead(D.felt('#2e2650'), [s * .07, .4, .29], .022));
+  g.add(D.ball(body, [0, .22, -.3], [.08, .05, .1], [-.6, 0, 0], 10));
+  return g;
+}
+function washingLine() {
+  const g = new THREE.Group();
+  for (const x of [0, 2.4]) { const p = post(1.7); p.position.x = x; g.add(p); }
+  g.add(D.tube([[0, 1.6, 0], [1.2, 1.45, 0], [2.4, 1.6, 0]], .012, D.thread('#fff6e6'), 20, 4));
+  [['#f6a6bd', .4, .5], ['#7bb4d9', .95, .4], ['#ffd86b', 1.45, .55], ['#8cc46c', 1.95, .35]].forEach(([c, x, h], i) => {
+    g.add(D.rbox(.4, h, .03, .01, D.felt(c, { print: i % 2 ? { kind: 'dots', color: '#ffffff', n: 4, scale: 2 } : { kind: 'stripes', color: '#ffffff', n: 4, w: .3, scale: 1 } })).translateX(x).translateY(1.5 - h / 2).translateZ(.02));
+    g.add(D.bead(D.wood('#c08a58'), [x, 1.5, .04], .035));
+  });
+  return g;
+}
+function noticeBoard() {
+  const g = new THREE.Group();
+  for (const x of [-.75, .75]) g.add(D.rbox(.12, 2.0, .12, .03, D.wood('#6b4a33', { axis: 1 })).translateX(x).translateY(1.0));
+  g.add(D.rbox(1.7, 1.0, .1, .03, D.wood('#c08a58', { axis: 0 })).translateY(1.55));
+  g.add(D.mesh(new THREE.ConeGeometry(1.25, .45, 4), D.felt('#8cc46c'), [0, 2.25, 0], [1, 1, .35], [0, PI / 4, 0]));
+  [['#fff6e6', -.45, 1.65], ['#ffd86b', .1, 1.55], ['#f6a6bd', .5, 1.7], ['#cfeaff', -.1, 1.3]].forEach(([c, x, y], i) => { g.add(D.rbox(.4, .45, .02, .005, D.paper(c)).translateX(x).translateY(y).translateZ(.07).rotateZ((i - 1.5) * .08)); g.add(D.bead(D.felt('#e2566b'), [x, y + .18, .09], .03)); });
+  return g;
+}
+// soft felt smoke puffs over a chimney (animated by shop3d.js)
+const puffMat = () => { const m = D.felt('#ffffff', { fibre: .3 }); m.transparent = true; m.opacity = .7; m.depthWrite = false; m.userData.noCast = true; return m; };
+function chimneySmoke(x, y, z, list, mat) {
+  for (let i = 0; i < 4; i++) { const m = D.mesh(D.SPH(12), mat, [x, y, z], .2); m.userData = { x, y, z, k: i / 4 }; m.castShadow = false; list.push(m); }
 }
 
 /* ------------------------------------------------------------------ the whole village */
@@ -186,9 +282,9 @@ export function buildVillage(opts = {}) {
   // short paths up to each door
   for (const [id, P] of Object.entries(PLACES)) if (P.door) for (let k = 0; k < 3; k++) { const t = (k + 1) / 4; env.add(D.mesh(D.lumpy(D.SPH(14), .1, 2, k + id.length), lane, [P.door[0] + (P.stand[0] - P.door[0]) * t * .3, -.03, P.door[1] + (LANE_Z - P.door[1]) * t + .5], [.6, .07, .5])); }
   // trees behind and at the ends
-  [[-22, -7, 1.5], [-16.5, -6.5, 1.3], [-9, -7.5, 1.6], [-3, -8, 1.4], [3.8, -7.5, 1.5], [10.5, -7, 1.3], [17, -8, 1.6], [25, -6, 1.5], [-26, -2, 1.3], [27, 0, 1.4], [-24, 4.5, 1.1], [26, 5, 1.2]]
+  [[-22, -7, 1.5], [-16.5, -6.5, 1.3], [-9, -7.5, 1.6], [-3, -8, 1.4], [3.8, -7.5, 1.5], [10.5, -7, 1.3], [17, -8, 1.6], [23.6, -7.6, 1.5], [-31, -2, 1.3], [33.5, -3.5, 1.4], [-30, 4.5, 1.1], [34, 5, 1.2], [-29.8, -6.5, 1.4], [33, -6, 1.6]]
     .forEach(([x, z, s], i) => { const t = D.tree(s, i % 2 ? '#4f8a52' : '#3f7a4a', i + 3); t.position.set(x, 0, z); env.add(t); });
-  [[-15.6, -1.6], [-2.6, -1.8], [4.2, -2.2], [10.2, -1.8], [16.8, -1.2], [-9.5, -2.2]].forEach(([x, z], i) => { const m = D.toadstool(['#e2566b', '#f6a6bd', '#ffd86b'][i % 3], .55 + (i % 2) * .2); m.position.set(x, 0, z); m.rotation.y = i; env.add(m); });
+  [[-15.6, -1.6], [-2.6, -1.8], [10.2, -1.8], [16.8, -1.2], [-9.5, -2.2], [-22.6, -1.8], [24.4, -2.4]].forEach(([x, z], i) => { const m = D.toadstool(['#e2566b', '#f6a6bd', '#ffd86b'][i % 3], .55 + (i % 2) * .2); m.position.set(x, 0, z); m.rotation.y = i; env.add(m); });
   const places = {};
   const put = (id, obj, dx = 0, dz = 0) => { obj.position.set(PLACES[id].x + dx, 0, dz); env.add(obj); places[id] = obj; };
   put('gate', gate(), -2.6, -.6);
@@ -200,19 +296,36 @@ export function buildVillage(opts = {}) {
   ringLit.userData.noCast = true;
   put('ring', fairyRing(ringLit), 0, -1.6);
   put('pond', pond(), .8, -1.0);
+  put('house', myHouse(), 0, -1.4);
+  put('tansy', homeStall(), .6, -1.4);
+  // the busy bits: cottages and a windmill further back, a notice board and bunting on the little square,
+  // lamp posts along the lane, a washing line by the burrow
+  const smoke = [], sm = puffMat();
+  [[-21.5, -12.5, '#fde6e0', '#e2566b', .2], [-13.5, -13.5, '#fff1dc', '#7bb4d9', -.15], [-5, -12.8, '#f3e3c8', '#8cc46c', .1], [6.5, -13, '#fde6e0', '#b9a6e8', -.2], [14, -12.6, '#fff1dc', '#e9b949', .15], [21.5, -13.4, '#f3e3c8', '#e2566b', -.1]]
+    .forEach(([x, z, w, r, ry], i) => { const c = cottage(w, r, i); c.position.set(x, 0, z); c.rotation.y = ry; c.scale.setScalar(1.15); env.add(c); const cx = .7 * (i % 2 ? 1 : -1) * 1.15; chimneySmoke(x + cx * Math.cos(ry), 4.4, z - cx * Math.sin(ry), smoke, sm); });
+  const mill = windmill(); mill.position.set(-1.5, 0, -19); env.add(mill);
+  chimneySmoke(PLACES.burrow.x + 1.0, 2.8, -2.8, smoke, sm);
+  chimneySmoke(PLACES.house.x + 1.0, 4.35, -3.3, smoke, sm);
+  const nb = noticeBoard(); nb.position.set(3.8, 0, -1.9); nb.rotation.y = -.1; env.add(nb);
+  for (const x of [-24.0, -15.8, -9.3, -2.6, 2.4, 5.2, 10.4, 16.6, 24.0]) { const lp = D.lanternPost(); lp.position.set(x, 0, -.25); env.add(lp); }
+  env.add(D.buntingCord([[2.4, 2.05, -.25], [3.8, 1.55, -.2], [5.2, 2.05, -.25]], { n: 7 }));
+  const wl = washingLine(); wl.position.set(-17.2, 0, -2.6); wl.rotation.y = .1; env.add(wl);
   D.freeze(env); env.traverse(o => { if (o.isMesh) o.receiveShadow = true; });
   group.add(env);
+  const sails = mill.userData.sails;
+  smoke.forEach(m => group.add(m));
+  const ducks = [0, 1, 2].map(i => { const d = duck(); D.freeze(d); d.scale.setScalar(i ? .8 : 1); group.add(d); return d; });
   // flowers and grass (instanced), kept off the lane
   const r = D.rng(31), fl = [];
-  for (let i = 0; i < 70; i++) { const x = -26 + r() * 54, z = r() < .5 ? -10 + r() * 6 : 3 + r() * 5; fl.push({ p: [x, .35, z], s: .7 + r() * .5, ry: r() * 6 }); }
+  for (let i = 0; i < 80; i++) { const x = -33 + r() * 66, z = r() < .5 ? -10 + r() * 6 : 3 + r() * 5; fl.push({ p: [x, .35, z], s: .7 + r() * .5, ry: r() * 6 }); }
   ['#f6a6bd', '#ffd86b', '#b9a6e8', '#ffffff'].forEach((c, i) => { const f = D.feltFlower(c, 1, { stem: true, lite: true }); const sc = D.scatter(f, fl.filter((_, j) => j % 4 === i)); sc.traverse(o => { if (o.isMesh) o.castShadow = false; }); group.add(sc); });
-  group.add(D.grassTufts(touch ? 1100 : 1700, [-27, 29, -10, 8], '#6aa858', 5));
+  group.add(D.grassTufts(touch ? 1300 : 2000, [-33, 34, -10, 8], '#6aa858', 5));
   // the lantern glows, to switch on when the fairy ring is lit
   const glows = [];
   for (let i = 0; i < RING_N; i++) { const a = i / RING_N * TAU, s = D.glowSprite('#ffd27a', 1.1, .7); s.position.set(PLACES.ring.x + Math.cos(a + .35) * 2.25 + .14, .9, -1.6 + Math.sin(a + .35) * 1.65); s.visible = false; glows.push(s); group.add(s); }
   const butterflies = [D.butterfly('#f6a6bd', '#ffd86b'), D.butterfly('#b9a6e8', '#fff3cf'), D.butterfly('#ffd86b', '#ffffff')];
   butterflies.forEach(b => group.add(b));
-  return { group, ringLit, ringGlows: glows, butterflies, places };
+  return { group, ringLit, ringGlows: glows, butterflies, places, smoke, sails, ducks };
 }
 
 /* ------------------------------------------------------------------ garden things, outside the shop */
