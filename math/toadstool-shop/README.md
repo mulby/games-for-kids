@@ -106,10 +106,40 @@ answers in those days were right first time; it still drops after 2 misses, so a
 | F Money | 1-4 (start 1) | Pennies, then dimes and pennies, then nickels |
 | P Tens and ones | 1-2 (start 1) | Stacking the till in tens |
 
+## From counting to seeing (mental math)
+
+She was counting everything one by one. The research path out of that (Clements and Sarama, Fuson, Baroody) is to see
+numbers in chunks and lean on a few anchor facts: count on from the bigger number, doubles and near doubles, the partners
+of 10, make 10, count back and count up. `mental.js` builds that into all three looks:
+
+- **Ten-frames everywhere.** Every row of dots is drawn as ten-frames (rows of 5, frames of 10), with the empty cells
+  showing, so 7 reads as "5 and 2" and "3 short of 10".
+- **Help shows a trick, not "count them all".** Order totals, Bramble's bill, leftovers, the day's profit, the carrot rows,
+  the fairy lanterns and Miu's halves each pick the strategy that fits the numbers: 8 + 5 shows 8 filling a ten-frame
+  with 2 more, then 3 in the next frame; 9 + 2 shows a bag of 9 with two hops (10, ?); 12 - 9 counts up from 9.
+  The shopkeeper thinks it out loud. From level 3 the pictures fade to a number sentence (8 + 2 = 10, 10 + 3 = ?).
+- **Peek and cover.** Some pictures (carrot rows, Bramble's packs, the sailors, quick looks in the activities) show for
+  about 3 seconds and then a cloth covers them. "Peek again" is free and unlimited, there is no timer on answering,
+  and opening the help lifts the cloth for good.
+- **Strategy charms.** A strategy-shaped question answered right the first time without help shows a small badge
+  naming the trick ("You used a double!"). Three of a kind earn a charm card: Counting-On Boots, Count-Back Ladder,
+  Count-Up Kite, Skip-Counting Stones, Doubles Mirror, Near-Double Twins, Ten Partners Locket, Bundle of Ten,
+  Back-to-Ten Lantern, Make-Ten Wand, Quick-Look Spyglass, and Number Wizard for six of them. Counts are in `S.charms`.
+- **Days off (from day 5).** Each morning she picks: open the shop, or a day off. A day off earns 2 pennies (3 when
+  every answer was right the first time) and a card, and the shop stays shut, so stock keeps until tomorrow.
+  - *Hide and Seek* with Mo's ten little brothers and sisters in Aunt Clover's ten-room dollhouse (a ten-frame).
+    She closes her eyes, some hide under the blanket, and she works out how many are hiding from how many she can
+    see: partners of 5, then 10, then 20 (two dollhouses). From level 3 the house is covered after a quick look.
+    A new sibling card each time (ten in all). Levels: Taking away.
+  - *Firefly Jars* with Fern at the fairy ring: fireflies glow in rows of five for a moment (a quick look), then
+    two jars together (doubles, near doubles, make 10) and how many more fill a jar of ten. Five firefly cards.
+  The choice screen lists `Mental.ACTIVITIES`, so another day-off activity can be added there.
+
 ## Files
 
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
 - `wardrobe.js`: the shopkeeper's clothes list and helpers (also loaded by the Lantern Tale and Pixel Valley looks).
+- `mental.js`: ten-frames, the strategy help, peek and cover, strategy charms and the day-off activities (also loaded by the other two looks). It uses the game's globals (`S`, `ask`, `talk`, `setPanel`, ...).
 - `shop3d.js`: the 3D world: the toadstool shop inside and out, the shopkeeper mouse, every customer, the goods,
   coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures
   (goods, coins, portraits, decorations) from the same models with the same lights (`window.Shop3D`).
