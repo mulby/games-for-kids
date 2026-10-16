@@ -1889,6 +1889,9 @@ async function shopFor(c) {
   order = order.map(([g, n]) => { const have = Math.min(n, S.stock[g] || 0); if (have < n) { short.push(g); S.missed[g] = (S.missed[g] || 0) + (n - have); } return [g, have]; }).filter(o => o[1] > 0);
   save();
   const many = gs => gs.map(g => GOODS[g].many).join(' and ');
+  // no price talk about goods the shelf has none of
+  const onShelf = g => (S.stock[g] || 0) > 0;
+  dear = dear.filter(onShelf); cheap = cheap.filter(onShelf);
   if (dear.length) { mood('cust', 'think', 1800); await talk(who, order.length || short.length ? `Ooh, ${many(dear)} are expensive today! I'll buy fewer.` : `Ooh, ${many(dear)} cost too much for me today. Maybe another day!`, order.length || short.length ? 'Okay' : 'Bye!'); }
   else if (cheap.length) { mood('cust', 'happy', 1800); await talk(who, `${many(cheap)[0].toUpperCase() + many(cheap).slice(1)} are cheap today! I'll take extra!`, 'Hooray!'); }
   if (short.length) await talk(who, order.length ? `Oh, you haven't got enough ${many(short)}. I'll take what you have.` : `Oh no, no ${many(short)} left! I'll come back another day.`, order.length ? 'Okay' : 'Bye!');
