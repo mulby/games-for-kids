@@ -240,7 +240,7 @@ function actorDraw(a, who, t) {
   else if (!reduced) {
     f = Math.floor((t + a.born) / 560) % 2;
     if (m === 'talk') dy = Math.floor(t / 150) % 2 ? -1 : 0;
-    if (m === 'happy') dy = -Math.round(Math.abs(Math.sin(t / 140)) * 2);
+    if (m === 'happy' || m === 'wave') dy = -Math.round(Math.abs(Math.sin(t / 140)) * 2);
   }
   const fairy = a.spec.species === 'fairy';
   if (fairy) dy -= 4 + (reduced ? 0 : Math.round(Math.sin(t / 380) * 2));
@@ -248,7 +248,7 @@ function actorDraw(a, who, t) {
     spr('shadow', a.x - 7, a.y - 3);
     spr(a.key, a.x - 8, a.y - 32 + dy, f);
     if (!moving) {
-      const em = m === 'happy' ? 'emoteHeart' : m === 'think' ? 'emoteQuestion' : null;
+      const em = m === 'happy' || m === 'wave' ? 'emoteHeart' : m === 'think' ? 'emoteQuestion' : null;
       if (em) spr(em, a.x - 8, a.y - 50 + dy + (reduced ? 0 : (Math.floor(t / 300) % 2)), 0);
     }
     if (fairy && !reduced) { const k = Math.floor(t / 200); for (let i = 0; i < 3; i++) { const s = (k + i * 7) % 11; spr('sparkle', a.x - 14 + ((s * 13) % 24), a.y - 30 + ((s * 7) % 24), (k + i) % 2); } }

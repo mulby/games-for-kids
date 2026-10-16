@@ -309,7 +309,7 @@ function updateActors(dt, t) {
     const tgt = a.path[0] || (SPOTS[a.scene] || SPOTS.inside)[base];
     const dx = tgt[0] - p.x, dz = tgt[2] - p.z, d = Math.hypot(dx, dz);
     if (d > .05) {
-      const sp = Math.min(d, dt * (a.scene === 'village' ? 5.5 : 4.2));
+      const sp = Math.min(d, dt * (a.scene === 'village' ? (a.speed || 5.5) : 4.2));
       p.x += dx / d * sp; p.z += dz / d * sp;
       let dy = Math.atan2(dx, dz) - a.obj.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
       a.obj.rotation.y += dy * Math.min(1, dt * 8);
@@ -480,6 +480,9 @@ function villageBefore(v) {
   const p = a.obj.position, path = [];
   if (Math.abs(p.x - tx) > .6) { if (Math.abs(p.z - VL.LANE_Z) > .3) path.push([p.x, 0, VL.LANE_Z]); path.push([tx, 0, VL.LANE_Z]); }
   path.push([tx, 0, tz, yaw]);
+  // long walks (her house to Tansy's stall) go a little quicker so every walk takes under 8 seconds
+  let len = 0, q = [p.x, 0, p.z]; for (const w of path) { len += Math.hypot(w[0] - q[0], w[2] - q[2]); q = w; }
+  a.speed = Math.max(5.5, len / 7.5);
   Sp.keeper = [tx, 0, tz, yaw]; a.path = path; v.at = null;
 }
 // After they move: say when she has arrived (TSV.at), light the fairy ring, fly the butterflies.
