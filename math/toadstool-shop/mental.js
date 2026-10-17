@@ -1,4 +1,4 @@
-/* Mental math for The Toadstool Shop, shared by all three looks (felt, Lantern Tale, Pixel Valley).
+/* Mental math for The Toadstool Shop, (index.html loads it).
 
    The goal is to move her from counting everything one by one to seeing numbers in chunks and using a few
    anchor facts (the research path: count all, then count on, then make 10, doubles, partners of 10):
