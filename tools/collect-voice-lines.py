@@ -77,22 +77,23 @@ def spoken(t):
     t = t.strip()
     return bool(re.search(r"[A-Za-z]{2}", t)) and (" " in t or re.search(r"[.!?]$", t)) and not re.search(r"[<>{}=;#]|\b(?:px|var|div|span|class)\b", t)
 
-# characters who borrow another's voice (index.html VOICE_OF): Fern the fairy speaks with Hazel's
-SHARES = {"fern": "hazel"}
-
+# Fern the fairy speaks in Hazel's voice (VOICE_OF in the shop).
+VOICE_OF = {"fern": "hazel"}
 def shop_lines(src):
     for line in src.splitlines():
-        if not re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =|\b(?:q|prompt|coach): ", line):
+        # mental.js keeps its spoken hints in say: '...' fields
+        if not re.search(r"\b(?:say|talk|speak)\(|\bhi: |\bthanks =|\b(?:q|prompt|coach|say): ", line):
             continue
         who = set()
         for w in re.findall(r"\b(?:say|talk)\(\s*'(\w+)'|\bwho: '(\w+)'", line):
             w = w[0] or w[1]
+            w = VOICE_OF.get(w, w)
             who.add(None if w == "keeper" else w)
         if re.search(r"\b(?:say|talk)\(\s*who\b|\bthanks =|\bwho[,}]|\bwho: who\b", line):
             who.update(CUSTOMERS)
         m = re.match(r"\s*(\w+): \{.*\bhi: ", line)
-        if m and SHARES.get(m.group(1), m.group(1)) in VOICES["characters"]:  # a cast line (a place line names its who: instead)
-            who.add(m.group(1))
+        if m and VOICE_OF.get(m.group(1), m.group(1)) in VOICES["characters"]:  # a CAST line (not a village PLACES one, which names its who:)
+            who.add(VOICE_OF.get(m.group(1), m.group(1)))
         if re.search(r"(?<![.\w])speak\(|\bcoach: ", line) or not who:
             who.add(None)
         for text in literals(line):
@@ -118,6 +119,8 @@ def add(table, s):
     if k and k not in table:
         table[k] = s.strip()
 pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(str(root / "fun/*/index.html")))
+# The shop's shared mental-math helper (hints and day-off activities) speaks too.
+pages.append(str(root / "math/toadstool-shop/mental.js"))
 for page in pages:
     src = open(page).read()
     found = fun_lines(src) if "/fun/" in page else shop_lines(src) if re.search(r"/toadstool-shop[^/]*/", page) else ((None, t) for q, t in CALL.findall(src))
@@ -133,8 +136,8 @@ for page in pages:
         for s in (x for piece in pieces for x in SENT.findall(piece)):
             if re.search(r"[${}:>]", s):  # bits of code caught between nested ${...}
                 continue
-            add(lines if who is None else char_lines[SHARES.get(who, who)], s)
-    if re.search(r"/toadstool-shop[^/]*/", page):
+            add(lines if who is None else char_lines[who], s)
+    if re.search(r"/toadstool-shop[^/]*/index.html", page):
         words, names, decor, cards = shop_words(src)
         for w in words + names + [n + "'s shop" for n in names] + decor + cards:
             add(lines, w)

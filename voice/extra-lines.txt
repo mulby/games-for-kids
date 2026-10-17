@@ -121,3 +121,4 @@ clover	I'm so proud of you and your shop.
 bramble	Hello!
 bramble	I'm stretching my legs after a busy day with my cart.
 tansy	I have lovely things to make your house cozy!
+# mental-math hints and day-off activities (math/toadstool-shop/mental.js): pieces between numbers

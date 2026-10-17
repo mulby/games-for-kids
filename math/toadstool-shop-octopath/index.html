@@ -1150,6 +1150,7 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
 <div id="grownups" hidden><div class="card"></div></div>
 <div id="wardrobe" hidden><div class="card"></div></div>
 <script src="../toadstool-shop/wardrobe.js"></script>
+<script src="../toadstool-shop/mental.js"></script>
 <script>
 'use strict';
 /* ================= basics ================= */
@@ -1298,7 +1299,8 @@ function portrait(id) {
   return has3d() ? `<img src="${Shop3D.portrait(c.spec)}" alt="">` : c.emoji;
 }
 function decorImg(d) { return has3d() ? `<img src="${Shop3D.decor(d.id)}" alt="">` : `<span class="em">${d.emoji}</span>`; }
-function dots(n, of = 0, cls = '') { let s = ''; const total = Math.max(n, of); for (let i = 0; i < total; i++) s += `<i class="${i >= n ? 'off' : ''} ${cls}"></i>`; return `<span class="dots">${s}</span>`; }
+// dots in ten-frames (rows of 5, frames of 10): see mental.js
+function dots(n, of = 0, cls = '') { return Mental.dots(n, of, cls); }
 // coins that make an amount, using the coins she is ready for
 function bigCoins(n) {
   const out = []; while (n >= 10) { out.push(10); n -= 10; } if (n >= 5) { out.push(5); n -= 5; } while (n > 0) { out.push(1); n--; }
@@ -1423,7 +1425,7 @@ function ask(o) {
     const coach = coachOnce('ask');
     const draw = () => setPanel(`
       ${coach && !misses ? `<div class="coach">👆 Tap the right answer.</div>` : ''}
-      ${o.show ? `<div class="row">${o.show()}</div>` : ''}
+      ${o.show ? `<div class="row ${o.peek ? 'mm-peekable' : ''}">${o.show()}</div>` : ''}
       ${boostPips(o.k) /* skin hook H6 */}
       <div class="helpbox" id="hb">${helped && o.help ? o.help() : ''}</div>
       <div class="opts ${paused ? 'wait' : ''}">${opts.map(v => `<button class="opt ${(fixed && gone.has(v)) || (misses >= 2 && v !== o.answer) ? 'no' : ''} ${misses >= 2 && v === o.answer ? 'glow' : ''}" data-v="${v}" ${paused ? 'disabled' : ''}>${o.labels ? o.labels[v] : v}</button>`).join('')}</div>
@@ -1431,14 +1433,15 @@ function ask(o) {
       ${o.back ? `<button class="btn alt" id="bk">${o.back}</button>` : ''}`, p => {
       $$('.opt', p).forEach(b => b.addEventListener('click', () => choose(b.dataset.v, b)));
       if (o.back) $('#bk', p).addEventListener('click', () => { if (done) return; done = true; SFX.tap(); rerender = null; res('back'); });
-      const h = $('#hint', p); if (h) h.addEventListener('click', () => { SFX.tap(); helped = true; draw(); if (o.helpSay) say(o.who, o.helpSay); });
+      const h = $('#hint', p); if (h) h.addEventListener('click', () => { SFX.tap(); helped = true; draw(); if (o.helpSay) say(o.helpWho || o.who, o.helpSay); });
+      if (o.peek) Mental.armPeek(p, o, helped);
     });
     async function choose(v, b) {
       if (done || paused) return;
       v = isNaN(+v) ? v : +v;
       if (v === o.answer) {
         done = true; rerender = null;
-        const lvB = S.lv[o.k]; record(o.k, misses === 0 && !helped); boostAfter(o.k, lvB); /* skin hook H6 */
+        const lvB = S.lv[o.k]; record(o.k, misses === 0 && !helped); boostAfter(o.k, lvB); Mental.solved(o, misses === 0 && !helped); /* skin hook H6 */
         b.classList.add('yes', 'pop'); sparkle(b); SFX.ok();
         if (o.after !== false) speak(pick(['Yes!', 'That\'s right!', 'You got it!', 'Perfect!']));
         await wait(900); res(misses === 0);
@@ -1449,7 +1452,7 @@ function ask(o) {
       // and the buttons rest while the help opens (longer after a very quick tap). After a second miss the answer glows.
       const quick = Date.now() - shownAt < QUICK_MS;
       if (!fixed) { const i = opts.indexOf(v), f = freshOpt(o.answer, opts.concat([...gone]), o.lo || 0); if (i >= 0 && f !== null) { opts[i] = f; opts.sort((a, b) => a - b); } }
-      if (misses === 1) { helped = !!o.help; say(o.who, (quick ? 'Whoa, quick paws! ' : '') + (o.helpSay || 'Hmm, not quite. Let\'s look again together.')); }
+      if (misses === 1) { helped = !!o.help; say(o.helpWho || o.who, (quick ? 'Whoa, quick paws! ' : '') + (o.helpSay || 'Hmm, not quite. Let\'s look again together.')); }
       else say(o.who, o.lastSay || `Let's count it together. It's ${o.answer}. Tap ${o.answer}.`);
       paused = misses === 1; draw();
       if (paused) { await wait(quick ? 3200 : 1800); paused = false; if (!done) { draw(); shownAt = Date.now(); } }
@@ -1534,6 +1537,7 @@ async function playDay() {
     else if (S.phase === 'morning') await morning();
     else if (S.phase === 'shop') await shopTime();
     else if (S.phase === 'village') await village();
+    else if (S.phase === 'play') await Mental.playDay();
     else if (S.phase === 'evening') await evening();
     else await night();
   }
@@ -1589,6 +1593,10 @@ function wantAt(g, n) {
   return Math.min(n * 2 + 1, Math.floor(x) + (Math.random() < x - Math.floor(x) ? 1 : 0));
 }
 async function morning() {
+  // from day 5 she can take a day off for Hide and Seek or Firefly Jars instead (mental.js)
+  setScene('outside', { time: 'morning' });
+  const off = await Mental.chooseDay();
+  if (off) { S.play = off; S.phase = 'play'; save(); hush(); setPanel(''); return; }
   setScene('outside', { time: 'morning', cart: true, cam: 'cart' });
   lvAtDawn = Object.assign({}, S.lv); chapterCard(`Day ${S.day}`, dayChapter(), `${S.keeper.name}'s Shop`); /* skin hook H6 */
   S.sold = {}; S.missed = {}; S.dear = {}; S.spent = 0; S.shop = null;
@@ -1633,7 +1641,7 @@ async function morning() {
           `<div class="row">${Array.from({ length: n }, () => `<span class="grp">${dots(size)}</span>`).join('')}</div>`);
       } else {
         await ask({
-          k: 'M', who: 'bramble', q: `${n} ${PACKS[size]} with ${size} in each. How many ${GOODS[g].many} is that?`, answer: n * size,
+          k: 'M', who: 'bramble', q: `${n} ${PACKS[size]} with ${size} in each. How many ${GOODS[g].many} is that?`, answer: n * size, strat: 'skip', peek: n * size <= 30 ? 3000 : 0,
           show: () => Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${PACK[size]} ${i + 1}</span>${dots(size)}</span>`).join(''),
           help: () => `<div class="row">${Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${(i + 1) * size}</span>${dots(size)}</span>`).join('')}</div><div class="small">Count by ${size}s: ${Array.from({ length: n }, (_, i) => (i + 1) * size).join(', ')}</div>`,
           helpSay: `Count by ${size}s: ${Array.from({ length: n }, (_, i) => (i + 1) * size).join(', ')}.`,
@@ -1645,11 +1653,11 @@ async function morning() {
       await talk('bramble', `${cart.map((c, i) => `${i ? 'the' : 'The'} ${GOODS[c.g].many} are ${c.cost}`).join(' and ')}. That's ${total} ${plural(total, 'penny', 'pennies')} altogether.`, 'Next',
         `<div class="row">${cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}${dots(c.cost)}</span>`).join('')}</div>`);
     } else if (cart.length > 1) {
+      const sum = Mental.sumHelp(cart.map(c => c.cost), S.lv.A);
       const r = await ask({
-        k: 'A', who: 'bramble', q: `${cart.map(c => `The ${GOODS[c.g].many} are ${c.cost} ${plural(c.cost, 'penny', 'pennies')}`).join('. ')}. How much is that altogether?`, answer: total,
+        k: 'A', who: 'bramble', helpWho: 'keeper', strat: sum.kind, q: `${cart.map(c => `The ${GOODS[c.g].many} are ${c.cost} ${plural(c.cost, 'penny', 'pennies')}`).join('. ')}. How much is that altogether?`, answer: total,
         show: () => cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}<span class="lab">${c.cost}¢</span></span>`).join('<b style="font-size:30px">+</b>'),
-        help: () => `<div class="row">${cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}${dots(c.cost)}</span>`).join('')}</div><div class="small">Count all the dots.</div>`,
-        helpSay: 'Count all the dots, one for each penny.', back: 'Change my order',
+        help: () => sum.html, helpSay: sum.say, back: 'Change my order',
       });
       if (r === 'back') continue;
     }
@@ -1814,7 +1822,8 @@ async function serve(c) {
   syncView(); save();
   const total = orderTotal(order);
   const priceShow = () => order.map(([g, n]) => `<span class="grp"><span class="row">${Array.from({ length: n }, () => goodImg(g, 'sm')).join('')}</span><span class="lab">${priceOf(g)}¢ each</span></span>`).join('');
-  const priceHelp = () => `<div class="row">${order.map(([g, n]) => Array.from({ length: n }, () => `<span class="grp">${goodImg(g, 'sm')}${dots(priceOf(g))}</span>`).join('')).join('')}</div><div class="small">One dot for each penny. Count them all.</div>`;
+  // the help shows a trick for adding these prices (count on, doubles, make 10, ...), not "count them all"
+  const sum = Mental.sumHelp(order.flatMap(([g, n]) => Array(n).fill(priceOf(g))), S.lv.A);
   if (c.flow === 'count' && c.special !== 'queen') {
     const coins = coinsFor(total);
     say(who, `Here you are!`);
@@ -1827,8 +1836,8 @@ async function serve(c) {
     await talk('keeper', total === 1 ? 'One penny. Just right!' : `${orderTotal(order)} pennies. ${order.length > 1 || order[0][1] > 1 ? 'Just right!' : 'Thank you!'}`, 'Into the till');
   } else {
     await ask({
-      k: 'A', who, q: 'How much do I owe you?', answer: total, show: priceShow, help: priceHelp,
-      helpSay: 'Each dot is a penny. Let\'s count them all.',
+      k: 'A', who, q: 'How much do I owe you?', answer: total, show: priceShow, help: () => sum.html,
+      helpWho: 'keeper', helpSay: sum.say, strat: sum.kind,
     });
     const S_ = S.lv.S, F = S.lv.F;
     let paid = S_ <= 1 ? (total < 5 ? 5 : total) : S_ === 2 ? (total < 10 ? 10 : total) : S_ === 3 ? (total < 20 ? (total < 10 ? 10 : 20) : total) : Math.ceil((total + 1) / 10) * 10;
@@ -1876,6 +1885,9 @@ async function shopFor(c) {
   order = order.map(([g, n]) => { const have = Math.min(n, S.stock[g] || 0); if (have < n) { short.push(g); S.missed[g] = (S.missed[g] || 0) + (n - have); } return [g, have]; }).filter(o => o[1] > 0);
   save();
   const many = gs => gs.map(g => GOODS[g].many).join(' and ');
+  // no price talk about goods the shelf has none of
+  const onShelf = g => (S.stock[g] || 0) > 0;
+  dear = dear.filter(onShelf); cheap = cheap.filter(onShelf);
   if (dear.length) { mood('cust', 'think', 1800); await talk(who, order.length || short.length ? `Ooh, ${many(dear)} are expensive today! I'll buy fewer.` : `Ooh, ${many(dear)} cost too much for me today. Maybe another day!`, order.length || short.length ? 'Okay' : 'Bye!'); }
   else if (cheap.length) { mood('cust', 'happy', 1800); await talk(who, `${many(cheap)[0].toUpperCase() + many(cheap).slice(1)} are cheap today! I'll take extra!`, 'Hooray!'); }
   if (short.length) await talk(who, order.length ? `Oh, you haven't got enough ${many(short)}. I'll take what you have.` : `Oh no, no ${many(short)} left! I'll come back another day.`, order.length ? 'Okay' : 'Bye!');
@@ -1895,7 +1907,7 @@ async function captainOrder(who) {
   if (size === 1) { groups = Math.min(groups, S.stock[g]); }
   const n = groups * size;
   await ask({
-    k: 'M', who, q: `I have ${groups} sailors. Each sailor wants ${size} ${plural(size, GOODS[g].one, GOODS[g].many)}. How many ${GOODS[g].many} do I need?`, answer: n,
+    k: 'M', who, strat: 'skip', peek: n <= 20 && S.lv.M >= 2 ? 3000 : 0, q: `I have ${groups} sailors. Each sailor wants ${size} ${plural(size, GOODS[g].one, GOODS[g].many)}. How many ${GOODS[g].many} do I need?`, answer: n,
     show: () => Array.from({ length: groups }, (_, i) => `<span class="grp"><span class="lab">⚓ sailor ${i + 1}</span>${dots(size)}</span>`).join(''),
     help: () => `<div class="row">${Array.from({ length: groups }, (_, i) => `<span class="grp"><span class="lab">${(i + 1) * size}</span>${dots(size)}</span>`).join('')}</div>`,
     helpSay: `Count by ${size}s for each sailor.`,
@@ -1908,8 +1920,8 @@ async function miuOrder(who) {
   await ask({
     k: 'F', who, q: `My sister and I will share ${n} ${GOODS[g].many}, half each. How many does each of us get?`, answer: n / 2,
     show: () => `<span class="grp">${dots(n)}</span>`,
-    help: () => `<div class="row"><span class="grp"><span class="lab">Miu</span>${dots(n / 2)}</span><span class="grp"><span class="lab">Sister</span>${dots(n / 2)}</span></div>`,
-    helpSay: 'Give one to Miu, one to her sister, one to Miu, one to her sister.',
+    help: () => `<div class="row"><span class="grp"><span class="lab">Miu</span>${dots(n / 2)}</span><span class="grp"><span class="lab">Sister</span>${dots(n / 2)}</span></div><div class="mm-tip">The same number for each: a double.</div>`,
+    helpWho: 'keeper', helpSay: `What number and the same number make ${n}? That's a double!`, strat: 'double',
   });
   return [[g, n]];
 }
@@ -1935,12 +1947,11 @@ async function evening() {
   const fresh = Object.keys(S.had).filter(g => GOODS[g] && GOODS[g].fresh && S.had[g] > 0);
   const g = fresh.find(x => (S.sold[x] || 0) > 0 && S.stock[x] > 0);
   if (g && S.day >= SUMS_DAY) {
-    const had = S.had[g], sold = S.sold[g], left = S.stock[g];
+    const had = S.had[g], sold = S.sold[g], left = Mental.subHelp(had, sold, S.lv.S);
     await ask({
-      k: 'S', who: 'keeper', q: `This morning I had ${had} ${GOODS[g].many}. I sold ${sold}. How many are left?`, answer: left,
+      k: 'S', who: 'keeper', q: `This morning I had ${had} ${GOODS[g].many}. I sold ${sold}. How many are left?`, answer: S.stock[g],
       show: () => `<span class="grp">${goodImg(g, 'sm')}${dots(had)}</span>`,
-      help: () => `<div class="row">${Array.from({ length: had }, (_, i) => `<span style="opacity:${i < sold ? .25 : 1}">${goodImg(g, 'sm')}</span>`).join('')}</div><div class="small">The faded ones were sold.</div>`,
-      helpSay: `Take away the ${sold} I sold, and count the ones still here.`,
+      help: () => left.html, helpSay: left.say, strat: left.kind,
     });
   }
   S.soldOut = {}; for (const x of Object.keys(S.had)) if (S.had[x] > 0 && !(S.stock[x] > 0)) S.soldOut[x] = 1;
@@ -1984,11 +1995,11 @@ async function profitTask() {
   } else if (S.day < SUMS_DAY) {
     await talk('keeper', `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent}. So my shop earned ${P}!`, 'Hooray!');
   } else {
+    const earn = Mental.subHelp(took, spent, S.lv.S);
     await ask({
       k: 'S', who: 'keeper', q: `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent} this morning. How much did my shop earn today?`, answer: P,
       show: () => `<span class="grp"><span class="lab">Took in ${took}</span>${dots(took)}</span>`,
-      help: () => `<div class="row"><span class="grp">${Array.from({ length: took }, (_, i) => `<i style="display:inline-block;width:16px;height:16px;border-radius:50%;margin:2px;background:${i < spent ? '#e6d9c6' : '#e9b949'}"></i>`).join('')}</span></div><div class="small">The pale ones went to pay Bramble. Count the gold ones.</div>`,
-      helpSay: `Take away the ${spent} I paid Bramble. Count what is left.`,
+      help: () => earn.html, helpSay: earn.say, strat: earn.kind,
     });
   }
   if (P > 0) {
@@ -2096,7 +2107,8 @@ async function night() {
   const n = S.shop ? S.shop.list.length : 0, earned = S.shop ? S.shop.earned : 0;
   if (S.day === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'clover-key', name: "Aunt Clover's Key", emoji: '🗝️', rarity: 'common' });
   mood('keeper', 'happy', 2000);
-  await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
+  if (Mental.nightLine()) await talk('keeper', Mental.nightLine(), 'Sleep until morning 🌙', `<div class="row"><span class="tag">Earned today: ${S.offDay.earned}¢</span><span class="tag">My money: ${S.till}¢</span><span class="tag">Earned so far: ${S.total}¢</span></div>`);
+  else await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
     grewHTML() /* skin hook H6 */ + `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">My money: ${S.till}¢</span>${S.village && S.village.day === S.day && S.village.earned ? `<span class="tag">Village jobs: ${S.village.earned}¢</span>` : ''}</div>`);
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
 }
@@ -2284,7 +2296,8 @@ async function carrotJob(who) {
       k: 'M', who, q: q ? `And the next patch has ${rows} rows with ${per} in each. How many carrots?` : `I planted ${rows} rows of carrots, with ${per} in each row. How many carrots is that?`, answer: rows * per,
       show: () => Array.from({ length: rows }, (_, i) => `<span class="grp"><span class="lab">row ${i + 1}</span>${dots(per, 0, 'or')}</span>`).join(''),
       help: () => groupsHelp(rows, per, 'or'),
-      helpSay: rows === 2 && per <= 5 ? `${per} and ${per} more. Count them all.` : `Count by ${per}s, one row at a time.`,
+      helpWho: rows === 2 ? 'keeper' : undefined, helpSay: rows === 2 ? `${per} and ${per}. That's a double!` : `Count by ${per}s, one row at a time.`,
+      strat: rows === 2 ? 'double' : 'skip', peek: rows * per <= 20 ? 3000 : 0,
     });
   }
 }
@@ -2306,11 +2319,12 @@ async function lanternJob(who) {
   for (let q = 0; q < 2; q++) {
     const T = S_ <= 1 ? 5 : S_ === 2 ? 10 : S_ === 3 ? pick([10, 20]) : 20;
     const L = T === 5 ? 1 + rnd(4) : T === 10 ? 2 + rnd(8) : S_ === 3 ? 11 + rnd(9) : 3 + rnd(15);
+    const sub = Mental.subHelp(T, L, S_);
     const lan = (help) => `<span class="lan">${Array.from({ length: T }, (_, i) => i < L ? '<i class="on"></i>' : `<i>${help ? i - L + 1 : ''}</i>`).join('')}</span>`;
     await ask({
       k: 'S', who, q: q ? `Now the little ring by the stream. It has ${T} lanterns, and ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?` : `There are ${T} lanterns around the ring. ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?`, answer: T - L,
-      show: () => lan(false), help: () => `${lan(true)}<div class="small">Count the dark ones.</div>`,
-      helpSay: `Count the lanterns that are not glowing yet.`,
+      show: () => lan(false), help: () => `${lan(false)}${sub.html}`,
+      helpWho: 'keeper', helpSay: sub.say, strat: sub.kind,
     });
   }
   TSV.ringLit = true;
