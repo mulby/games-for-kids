@@ -1839,4 +1839,410 @@
     for (var x = 3; x < 124; x += 8) g.px(x, 2, '#E9B949');
   }, { kind: 'object' });
 
+  /* ================================================================
+     HER HOUSE, TANSY'S STALL AND A BUSIER VILLAGE (cottages, windmill,
+     lamp posts, the little square, washing line), THEN THE ROOMS INSIDE.
+     ================================================================ */
+  function heartAt(g, x, y, c, h) { g.map(x, y, ['.c.c.', 'chccc', 'ccccc', '.ccc.', '..c..'], { c: c, h: h || '#FFB0B8' }); }
+  function winSq(g, x, y, w, h, glass) {
+    g.rect(x, y, w, h, WD); g.rect(x + 1, y + 1, w - 2, h - 2, glass || '#9ED8F2');
+    g.px(x + 2, y + 2, '#FFFFFF'); g.px(x + 3, y + 2, '#FFFFFF'); g.px(x + 2, y + 3, '#FFFFFF');
+    g.vline(x + (w >> 1), y + 1, h - 2, WH); g.hline(x + 1, y + (h >> 1), w - 2, WH);
+  }
+  function flowerBox(g, x, y, w) {
+    g.rect(x, y + 2, w, 4, WM); g.hline(x, y + 2, w, WH); g.hline(x + 1, y + 5, w - 2, WD);
+    for (var i = 0; i < w - 2; i += 3) { g.px(x + 1 + i, y + 1, '#3F8F2A'); flowerAt(g, x + 2 + i, y, ['#E2566B', '#FFFFFF', '#F7C531', '#F58FB1'][(i / 3 | 0) % 4]); }
+  }
+
+  // her own little cottage: rose-tiled roof, a round mint door, flower boxes, a chimney and a heart sign (frame 1: door open)
+  SDV.paintSprite('vHouse', 100, 86, function (g, f) {
+    var wall = '#FFF0D8', wallS = '#E8D6B4', roof = '#E77A9A', roofD = '#C2506E', roofL = '#F7A6BC';
+    // chimney first, so the roof covers its foot
+    g.rect(70, 2, 10, 24, '#8C8A84'); g.rect(71, 2, 8, 24, '#B8B4AA'); g.vline(72, 3, 22, '#D8D4CA'); g.rect(69, 0, 12, 3, '#6E6A62'); g.hline(70, 0, 10, '#9A968C');
+    for (var y = 6; y < 24; y += 4) g.hline(73 + (y % 8 ? 0 : 3), y, 3, '#9A968C');
+    // walls
+    g.rect(12, 40, 76, 43, wallS); g.rect(13, 40, 72, 42, wall); g.rect(80, 44, 5, 38, wallS);
+    for (y = 50; y < 80; y += 7) g.hline(16 + (y % 14 ? 0 : 44), y, 5, '#EAD8B6');
+    // roof: rows of rounded tiles
+    for (y = 8; y < 44; y++) {
+      var t = (y - 8) / 35, x0 = Math.round(28 - 26 * t), x1 = Math.round(72 + 26 * t), row = (y - 8) / 6 | 0;
+      g.hline(x0, y, x1 - x0, roof);
+      if ((y - 8) % 6 === 5) for (var x = x0; x < x1; x++) { if ((x + row * 3) % 6 === 0) g.px(x, y - 1, roofD); g.px(x, y, roofD); }
+      if ((y - 8) % 6 === 1) for (x = x0 + 2; x < x1 - 2; x += 6) g.px(x + (row % 2) * 3, y, roofL);
+    }
+    g.hline(27, 7, 46, roofD); g.hline(29, 6, 42, roof); g.hline(31, 5, 38, roofD);
+    g.rect(0, 43, 100, 3, roofD); g.hline(0, 43, 100, roofL);
+    // the round door
+    g.ellipse(50, 63, 10, 10, WD); g.rect(40, 63, 20, 20, WD);
+    if (f === 1) {
+      g.ellipse(50, 63, 8.5, 8.5, '#2A1206'); g.rect(42, 63, 16, 20, '#2A1206'); g.rect(43, 74, 14, 8, '#5B2A0E'); g.hline(43, 78, 14, '#9A6230');
+      g.rect(36, 56, 5, 26, '#5AB4A0'); g.vline(36, 56, 26, '#3F8F80');
+    } else {
+      g.ellipse(50, 63, 8.5, 8.5, '#5AB4A0'); g.rect(42, 63, 16, 19, '#5AB4A0');
+      [45, 50, 55].forEach(function (x) { g.vline(x, 56, 26, '#3F8F80'); }); g.ellipseIn(47, 60, 4, 4, '#7FD0BC');
+      g.ellipse(50, 60, 3, 3, WD); g.ellipse(50, 60, 2.2, 2.2, '#9ED8F2'); g.px(49, 59, '#FFFFFF');
+      g.ellipse(55, 71, 1.6, 1.6, '#F7C531'); g.px(54, 70, '#FFF3A8');
+    }
+    g.rect(38, 82, 24, 3, '#8C8A84'); g.hline(39, 82, 22, '#B8B4AA');
+    // windows with flower boxes
+    winSq(g, 18, 52, 16, 14); flowerBox(g, 16, 64, 20);
+    winSq(g, 66, 52, 16, 14); flowerBox(g, 64, 64, 20);
+    // a heart sign on a bracket by the door
+    g.hline(60, 49, 9, WM); g.px(68, 50, WM); g.vline(62, 50, 2, '#5B5048'); g.vline(67, 50, 2, '#5B5048');
+    g.rect(60, 52, 10, 9, WM); g.rect(61, 53, 8, 7, '#FFF3DC'); heartAt(g, 62, 54, '#E2566B');
+    // flowers along the wall
+    [[14, 81, '#F58FB1'], [20, 80, '#FFFFFF'], [26, 81, '#F7C531'], [74, 81, '#F58FB1'], [80, 80, '#FFFFFF'], [86, 81, '#E2566B']].forEach(function (p) { g.px(p[0], p[1] + 1, '#3F8F2A'); g.px(p[0] + 1, p[1] + 2, '#4F9A3A'); flowerAt(g, p[0], p[1], p[2]); });
+  }, { kind: 'object', frames: 2 });
+  SDV.VHOUSE = { w: 100, h: 86, doorX: 50, doorY: 82, chimney: [75, 0] };
+
+  // Tansy's stall: little home things on a lilac stall
+  SDV.paintSprite('vTansyStall', 72, 68, function (g) {
+    stall(g, { title: 'HOME THINGS', awn: ['#B9A6E8', '#FFF4DC'], cloth: ['#9ED8F2', '#FFF4DC'], ink: '#6A4AA8', goods: function (g) {
+      // a tiny chair
+      g.rect(8, 27, 2, 13, WM); g.rect(8, 27, 8, 2, WH); g.rect(8, 34, 9, 2, WH); g.hline(8, 34, 9, WHH); g.vline(16, 35, 5, WM); g.rect(10, 29, 5, 4, '#F58FB1');
+      // a lamp with a frilly shade
+      g.rect(26, 39, 7, 1, WD); g.vline(29, 31, 8, '#B8862A'); for (var y = 0; y < 6; y++) g.hline(27 - (y >> 1), 25 + y, 5 + (y >> 1) * 2, y === 5 ? '#D9637F' : '#F7C531'); g.px(28, 26, '#FFF6B8');
+      // a pink teapot
+      g.ellipse(45, 36, 5.4, 3.8, '#D9637F'); g.ellipse(44.6, 35.6, 4.8, 3.2, '#F58FB1'); g.rect(43, 30, 4, 2, '#D9637F'); g.px(44, 29, '#FFF4DC'); g.line(50, 35, 53, 32, '#D9637F'); g.px(54, 31, '#D9637F'); g.px(39, 34, '#D9637F'); g.px(39, 37, '#D9637F'); g.vline(38, 35, 2, '#D9637F'); g.px(43, 35, '#FFFFFF'); heartAt(g, 44, 36, '#FFFFFF');
+      // a cushion
+      g.ellipse(61, 37, 5, 3.4, '#E9B949'); g.ellipse(60.6, 36.4, 4.4, 2.6, '#F7D56A'); g.px(61, 37, '#B8862A'); [56, 66].forEach(function (x) { g.px(x, 35, '#E9B949'); g.px(x, 39, '#E9B949'); });
+    }, band: function (g) { for (var x = 9; x < 66; x += 10) heartAt(g, x - 2, 52, '#B9A6E8', '#E8DCFF'); } });
+    // cat ears on the sign, for Tansy
+    [[24, 0], [45, 0]].forEach(function (e) { g.px(e[0], e[1] + 1, WM); g.px(e[0] + 1, e[1], WM); g.px(e[0] + 2, e[1] + 1, WM); g.px(e[0] + 1, e[1] + 1, '#9AA0A8'); });
+  }, { kind: 'object' });
+
+  // cottages further back, so the village carries on behind the lane
+  function cottage(g, roof, wall, door, thatch) {
+    var roofD = shade(roof, 0.3), roofL = light(roof, 0.3);
+    g.rect(40, 2, 7, 16, '#8C8A84'); g.rect(41, 2, 5, 16, '#B8B4AA'); g.rect(39, 0, 9, 3, '#6E6A62');
+    g.rect(6, 26, 48, 30, shade(wall, 0.12)); g.rect(7, 26, 44, 29, wall);
+    for (var y = 6; y < 30; y++) {
+      var t = (y - 6) / 23, x0 = Math.round(26 - 25 * t), x1 = Math.round(34 + 25 * t);
+      g.hline(x0, y, x1 - x0, roof); g.px(x0, y, roofD); g.px(x1 - 1, y, roofD);
+      if (thatch) { for (var x = x0 + 1; x < x1 - 1; x++) if ((x * 3 + y) % 5 === 0) g.px(x, y, roofD); else if ((x + y * 2) % 7 === 0) g.px(x, y, roofL); }
+      else if ((y - 6) % 5 === 4) g.hline(x0, y, x1 - x0, roofD);
+    }
+    g.rect(0, 29, 60, 2, roofD);
+    g.ellipse(30, 45, 5, 5, WD); g.rect(25, 45, 10, 11, WD); g.ellipse(30, 45, 4, 4, door); g.rect(26, 45, 8, 10, door); g.px(32, 50, '#F7C531');
+    winSq(g, 11, 36, 10, 9); winSq(g, 40, 36, 10, 9);
+    g.ellipse(13, 55, 4, 2, '#4F9A3A'); g.ellipse(47, 55, 4, 2, '#4F9A3A'); flowerAt(g, 12, 53, '#F58FB1'); flowerAt(g, 48, 53, '#FFE15A');
+  }
+  SDV.paintSprite('vCottageA', 60, 58, function (g) { cottage(g, '#5A8FC7', '#FFF0D8', '#D63A2B'); }, { kind: 'object' });
+  SDV.paintSprite('vCottageB', 60, 58, function (g) { cottage(g, '#6FAE5A', '#F8E0C8', '#5A9FD5'); }, { kind: 'object' });
+  SDV.paintSprite('vCottageC', 60, 58, function (g) { cottage(g, '#E0B060', '#FFF4E6', '#9A6230', true); }, { kind: 'object' });
+  SDV.COTTAGE = { w: 60, h: 58, chimney: [43, 0] };
+
+  // the windmill: a tower with a cap; its sails (vSails, 6 frames of a quarter turn) turn on the hub at (20, 16)
+  SDV.paintSprite('vMill', 40, 88, function (g) {
+    for (var y = 18; y < 86; y++) { var hw = 9 + (y - 18) * 0.09; g.hline(Math.round(20 - hw), y, Math.round(hw * 2), '#F2E6D0'); g.px(Math.round(20 + hw) - 1, y, '#D8C8AA'); g.px(Math.round(20 + hw) - 2, y, '#E4D6BA'); }
+    for (y = 24; y < 84; y += 6) for (var x = 12 + (y % 12 ? 0 : 4); x < 30; x += 9) g.hline(x, y, 3, '#E0D0B4');
+    g.ellipse(20, 76, 5, 5, WD); g.rect(15, 76, 10, 10, WD); g.ellipse(20, 76, 4, 4, '#9A6230'); g.rect(16, 76, 8, 9, '#9A6230'); g.vline(20, 72, 13, WM);
+    g.ellipse(20, 50, 3, 3, WD); g.ellipse(20, 50, 2.2, 2.2, '#9ED8F2'); g.ellipse(20, 34, 2.6, 2.6, WD); g.ellipse(20, 34, 1.8, 1.8, '#9ED8F2');
+    g.ellipse(20, 16, 13, 10, '#7A4A22'); g.ellipse(19.5, 15.5, 12, 9, '#9A6236'); g.ellipseIn(16, 12, 6, 4, '#B5844E'); g.rect(4, 19, 32, 8, null); g.rect(7, 18, 26, 3, '#6E4222'); g.hline(7, 18, 26, '#9A6236');
+    g.rect(0, 86, 40, 2, '#8C8A84');
+  }, { kind: 'object' });
+  SDV.paintSprite('vSails', 78, 78, function (g, f) {
+    var rot = f / 6 * Math.PI / 2, c = 39;
+    for (var y = 0; y < 78; y++) for (var x = 0; x < 78; x++) {
+      var dx = x + 0.5 - c, dy = y + 0.5 - c;
+      for (var k = 0; k < 4; k++) {
+        var a = rot + k * Math.PI / 2, u = dx * Math.cos(a) + dy * Math.sin(a), v = -dx * Math.sin(a) + dy * Math.cos(a);
+        if (u > 2 && u < 37 && v > -1.2 && v < 1.2) { g.px(x, y, '#6E4222'); break; }
+        if (u > 9 && u < 37 && v >= 1.2 && v < 8) { var lat = Math.round(u) % 5 === 0 || Math.round(v) === 4 || v > 7; g.px(x, y, lat ? '#9A6236' : (k % 2 ? '#FFF4DC' : '#F3E3C8')); break; }
+      }
+    }
+    g.ellipse(c, c, 3.4, 3.4, '#5B2A0E'); g.ellipse(c, c, 2.2, 2.2, '#C88A4E');
+  }, { kind: 'object', frames: 6 });
+
+  SDV.paintSprite('vLampPost', 12, 38, function (g) {
+    g.rect(3, 34, 6, 3, '#4A4A52'); g.rect(5, 12, 2, 23, '#4A4A52'); g.vline(5, 12, 22, '#6E6E7A');
+    g.rect(2, 2, 8, 1, '#3A3A42'); g.rect(1, 3, 10, 2, '#4A4A52'); g.rect(2, 5, 8, 6, '#3A3A42'); g.rect(3, 5, 6, 5, '#FFF0B8'); g.px(4, 6, '#FFFFFF'); g.rect(3, 11, 6, 1, '#3A3A42'); g.px(5, 0, '#3A3A42'); g.px(6, 1, '#3A3A42');
+  }, { kind: 'object' });
+
+  // the notice board on the little square
+  SDV.paintSprite('vNotice', 36, 38, function (g) {
+    post(g, 4, 10, 28, 3); post(g, 29, 10, 28, 3);
+    g.rect(1, 2, 34, 4, '#B02A20'); g.hline(1, 2, 34, '#E2566B'); g.px(0, 5, '#8E1F16'); g.px(35, 5, '#8E1F16');
+    g.rect(2, 7, 32, 20, WM); g.rect(3, 8, 30, 18, '#C9A06A');
+    [[5, 10, 8, 9, '#FFF4DC'], [15, 9, 8, 7, '#FFE6A0'], [25, 11, 7, 9, '#DCEEFF'], [14, 18, 9, 7, '#FFE0EC']].forEach(function (n) { g.rect(n[0], n[1], n[2], n[3], n[4]); g.px(n[0] + (n[2] >> 1), n[1], '#E2566B'); for (var y = n[1] + 2; y < n[1] + n[3] - 1; y += 2) g.hline(n[0] + 1, y, n[2] - 2, '#9A8A7A'); });
+    heartAt(g, 6, 20, '#E2566B'); g.px(28, 22, '#7CC35A'); g.px(29, 21, '#7CC35A'); g.px(30, 22, '#F7C531');
+  }, { kind: 'object' });
+  SDV.paintSprite('vBunting', 108, 14, function (g) {
+    var F = ['#E2566B', '#F7C531', '#5A9FD5', '#6CC33A', '#B9A6E8', '#F58FB1'];
+    for (var x = 0; x < 108; x++) { var y = 1 + Math.round(Math.sin(x / 107 * Math.PI) * 5); g.px(x, y, WM); if (x % 9 === 4 && x > 2 && x < 104) { var c = F[(x / 9 | 0) % 6]; g.hline(x - 2, y + 1, 5, c); g.hline(x - 1, y + 2, 3, c); g.hline(x - 1, y + 3, 3, c); g.px(x, y + 4, c); g.px(x, y + 5, shade(c, 0.2)); g.px(x - 1, y + 1, light(c, 0.3)); } }
+  }, { kind: 'object', outline: false });
+  SDV.paintSprite('vPole', 5, 50, function (g) { g.rect(1, 3, 3, 47, WM); g.vline(2, 3, 46, WL); g.ellipse(2.5, 2, 2.4, 2, '#F7C531'); g.px(2, 1, '#FFF3A8'); }, { kind: 'object' });
+  SDV.paintSprite('vTub', 16, 14, function (g) {
+    g.rect(2, 6, 12, 8, WM); g.rect(3, 6, 10, 7, '#B5763A'); g.hline(2, 6, 12, WH); g.hline(2, 10, 12, '#5B5048');
+    g.ellipse(8, 5, 6, 2.6, '#3F8F2A'); [[4, 3, '#F58FB1'], [8, 2, '#FFFFFF'], [12, 3, '#E2566B'], [6, 5, '#F7C531'], [10, 5, '#B9A4F2']].forEach(function (p) { flowerAt(g, p[0], p[1], p[2]); });
+  }, { kind: 'object' });
+
+  // Mrs. Bunbury's washing line
+  SDV.paintSprite('vWashLine', 60, 38, function (g) {
+    post(g, 1, 2, 36, 3); post(g, 55, 2, 36, 3); g.hline(0, 2, 5, WD); g.hline(54, 2, 5, WD);
+    for (var x = 3; x < 56; x++) g.px(x, 4 + Math.round(Math.sin((x - 3) / 52 * Math.PI) * 4), '#E8E4DA');
+    var sag = function (x) { return 4 + Math.round(Math.sin((x - 3) / 52 * Math.PI) * 4); };
+    // a pink dress, a blue shirt, a gingham cloth and two socks, each pegged on
+    var y = sag(12); g.rect(10, y + 1, 6, 4, '#F58FB1'); for (var k = 0; k < 9; k++) g.hline(9 - (k >> 2), y + 5 + k, 8 + (k >> 2) * 2, k % 4 === 3 ? '#E2566B' : '#F58FB1'); g.px(11, y + 2, '#FFFFFF'); g.px(14, y + 3, '#FFFFFF');
+    y = sag(25); g.rect(21, y + 1, 10, 9, '#5A9FD5'); g.rect(19, y + 1, 2, 5, '#5A9FD5'); g.rect(31, y + 1, 2, 5, '#5A9FD5'); g.vline(26, y + 2, 8, '#3A6FB5'); g.px(25, y + 4, '#FFFFFF'); g.px(25, y + 7, '#FFFFFF');
+    y = sag(41); for (var j = 0; j < 12; j++) for (var i = 0; i < 11; i++) g.px(36 + i, y + 1 + j, (i >> 1) % 2 && (j >> 1) % 2 ? '#E2566B' : (i >> 1) % 2 || (j >> 1) % 2 ? '#F7A0A8' : '#FFFFFF');
+    y = sag(50); g.rect(49, y + 1, 2, 6, '#F7C531'); g.rect(49, y + 6, 3, 2, '#F7C531'); g.rect(52, y, 2, 6, '#7CC35A'); g.rect(52, y + 5, 3, 2, '#7CC35A');
+    [12, 20, 31, 37, 46, 50, 53].forEach(function (x) { g.px(x, sag(x), '#C88A4E'); });
+  }, { kind: 'object' });
+  SDV.paintSprite('vDuckling', 6, 5, function (g, f) { g.ellipse(2.6, 3, 2.4, 1.6, '#FFE15A'); g.ellipse(4, 1.6, 1.4, 1.4, '#FFE15A'); g.px(4, 1, INK); g.px(5, 2 - f, '#F2A63A'); g.hline(1, 4, 4, '#86D2F0'); }, { kind: 'object', frames: 2, ms: 400 });
+  // villagers chatting: a little "..." bubble
+  SDV.paintSprite('emoteDots', 16, 14, function (g, f) { bubble(g); [4, 7, 10].forEach(function (x, i) { g.rect(x, 5 - (f === i % 2 ? 1 : 0), 2, 2, '#7A6A9A'); }); }, { outline: '#3E1F0A', kind: 'item', frames: 2 });
+
+  /* ---------------- rooms: 336 x 224, the wall above y 100, the floor below ---------------- */
+  // her house: a soft pink wallpaper, a wooden wainscot, warm planks
+  SDV.paintSprite('roomHome', 336, 224, function (g) {
+    var r = rng(3);
+    g.rect(0, 0, 336, 100, '#F9DDE4');
+    for (var x = 0; x < 336; x += 10) { g.vline(x, 12, 76, '#F4CCD8'); g.vline(x + 1, 12, 76, '#F4CCD8'); }
+    for (var y = 18; y < 86; y += 12) for (x = 5 + (y % 24 ? 0 : 5); x < 336; x += 10) { g.px(x, y, '#FFFFFF'); g.px(x - 1, y + 1, '#F58FB1'); g.px(x + 1, y + 1, '#F58FB1'); g.px(x, y + 2, '#F58FB1'); g.px(x, y + 1, '#FFE15A'); }
+    g.rect(0, 0, 336, 12, '#7A4A22'); g.hline(0, 11, 336, '#5B2A0E'); for (x = 6; x < 336; x += 56) { g.rect(x, 0, 8, 12, '#9A6236'); g.vline(x, 0, 12, '#B5844E'); }
+    g.rect(0, 86, 336, 14, '#C88A4E'); g.hline(0, 86, 336, '#E2A868'); g.hline(0, 87, 336, '#9A6230'); g.hline(0, 99, 336, '#5B2A0E');
+    for (x = 4; x < 336; x += 16) { g.rect(x, 89, 12, 8, '#B5763A'); g.hline(x, 89, 12, '#9A6230'); g.hline(x, 96, 12, '#D9A066'); }
+    for (y = 100; y < 224; y++) g.hline(0, y, 336, (y - 100) % 8 === 7 ? '#B5763A' : '#D9A066');
+    for (y = 100; y < 224; y += 8) for (x = ((y / 8) % 3) * 22; x < 336; x += 66) g.vline(x, y, 7, '#B5763A');
+    for (var i = 0; i < 120; i++) { x = (r() * 336) | 0; y = 101 + (r() * 120) | 0; if (g.get(x, y) === '#D9A066') g.px(x, y, '#E2A868'); }
+    // a soft shadow under the wainscot
+    g.hline(0, 100, 336, '#A86E3A'); g.hline(0, 101, 336, '#C48A50');
+  }, { kind: 'room', outline: false });
+  // Mrs. Bunbury's burrow: earthy walls with roots and stones, a packed-earth floor
+  SDV.paintSprite('roomBurrow', 336, 224, function (g) {
+    var r = rng(5);
+    g.rect(0, 0, 336, 100, '#B88A5E');
+    for (var i = 0; i < 260; i++) { var x = (r() * 336) | 0, y = (r() * 98) | 0; g.px(x, y, r() < 0.5 ? '#A87A50' : '#C89A6E'); }
+    for (i = 0; i < 26; i++) { x = (r() * 330) | 0; y = 8 + (r() * 84) | 0; g.ellipse(x, y, 2 + r() * 2, 1.4 + r(), '#9A968C'); g.px(x - 1, y - 1, '#C9C5BA'); }
+    // roots creeping down from the ceiling
+    for (i = 0; i < 9; i++) { x = 10 + i * 38 + ((r() * 12) | 0); var len = 10 + (r() * 16 | 0); for (y = 0; y < len; y++) { g.px(x + Math.round(Math.sin(y / 3 + i) * 1.4), y, '#7A4A22'); if (y % 5 === 3) g.px(x + 2, y + 1, '#7A4A22'); } }
+    // the rounded ceiling: dark soil at the corners
+    for (y = 0; y < 60; y++) { var w = Math.round(Math.pow(1 - y / 60, 2) * 46); g.hline(0, y, w, '#6E4A2E'); g.hline(336 - w, y, w, '#6E4A2E'); }
+    g.rect(0, 92, 336, 8, '#8A6040'); g.hline(0, 92, 336, '#A87A50'); g.hline(0, 99, 336, '#5B3416');
+    for (y = 100; y < 224; y++) g.hline(0, y, 336, '#9A7048');
+    for (i = 0; i < 500; i++) { x = (r() * 336) | 0; y = 100 + (r() * 124) | 0; g.px(x, y, r() < 0.5 ? '#8A6040' : '#AE845A'); }
+    g.hline(0, 100, 336, '#7A5232');
+    // a round rag rug in the middle
+    [['#E2566B', 1], ['#F7C531', 0.82], ['#7CC35A', 0.64], ['#F58FB1', 0.46], ['#FFF4DC', 0.26]].forEach(function (k) { g.ellipse(176, 128, 58 * k[1], 14 * k[1], k[0]); });
+    // the beam for the hanging carrots and herbs
+    g.rect(0, 38, 336, 6, '#6E4222'); g.hline(0, 38, 336, '#9A6236'); g.hline(0, 43, 336, '#4A2A14');
+    for (x = 20; x < 336; x += 40) { g.vline(x, 39, 4, '#5B3416'); }
+  }, { kind: 'room', outline: false });
+  // Old Hoot's library: the inside of the old oak, warm wood with growth rings
+  SDV.paintSprite('roomOak', 336, 224, function (g) {
+    g.rect(0, 0, 336, 100, '#B5844E');
+    for (var y = 0; y < 100; y++) for (var x = 0; x < 336; x++) { var d = Math.hypot((x - 168) / 2.2, y - 150); if (Math.round(d) % 9 === 0) g.px(x, y, '#A0703E'); }
+    for (y = 0; y < 70; y++) { var w = Math.round(Math.pow(1 - y / 70, 2) * 52); g.hline(0, y, w, '#6E4222'); g.hline(336 - w, y, w, '#6E4222'); }
+    // a round window high up, with leaves outside
+    g.ellipse(168, 16, 14, 13, '#5B2A0E'); g.ellipse(168, 16, 12, 11, '#9ED8F2'); g.ellipseIn(160, 22, 8, 5, '#6CC33A'); g.ellipseIn(176, 10, 6, 4, '#4F9A3A'); g.rect(167, 4, 2, 24, '#C88A4E'); g.rect(156, 15, 24, 2, '#C88A4E'); g.px(162, 9, '#FFFFFF');
+    for (y = 100; y < 224; y++) g.hline(0, y, 336, (y - 100) % 7 === 6 ? '#7A4A22' : '#9A6236');
+    for (y = 100; y < 224; y += 7) for (x = ((y / 7) % 4) * 18; x < 336; x += 72) g.vline(x, y, 6, '#7A4A22');
+    g.rect(0, 96, 336, 4, '#5B3416'); g.hline(0, 96, 336, '#7A4A22');
+    // a deep green rug
+    g.ellipse(176, 128, 62, 15, '#2F6B4A'); g.ellipse(176, 128, 59, 13, '#4F8A6A'); g.ellipse(176, 128, 50, 10, '#2F6B4A'); g.ellipse(176, 128, 48, 9, '#5E9A7A');
+    for (x = 120; x < 234; x += 6) g.px(x, 128 + Math.round(Math.sin(x / 9) * 3), '#F7C531');
+  }, { kind: 'room', outline: false });
+
+  /* ---- room furniture ---- */
+  SDV.paintSprite('rBed', 54, 42, function (g) {
+    g.ellipse(27, 8, 26, 9, WD); g.rect(1, 8, 52, 12, WD); g.ellipse(27, 8, 24.5, 7.5, '#B5763A'); g.rect(2, 8, 50, 11, '#B5763A'); g.ellipseIn(20, 5, 12, 3, '#D9A066'); heartAt(g, 25, 5, '#E2566B');
+    g.rect(3, 14, 48, 22, '#FFFFFF'); g.ellipse(14, 16, 9, 3.6, '#FFFFFF'); g.ellipse(40, 16, 9, 3.6, '#FFFFFF'); g.hline(6, 18, 16, '#E0E6EE'); g.hline(32, 18, 16, '#E0E6EE');
+    // a patchwork quilt
+    for (var y = 21; y < 37; y++) for (var x = 3; x < 51; x++) { var p = ((x - 3) / 6 | 0) + ((y - 21) / 5 | 0); g.px(x, y, ['#F58FB1', '#FFF4DC', '#9ED8F2', '#F7D56A', '#B9A6E8'][p % 5]); }
+    g.hline(3, 21, 48, '#FFFFFF'); g.hline(3, 36, 48, '#D9637F');
+    g.rect(1, 36, 52, 6, WD); g.rect(2, 36, 50, 4, '#B5763A'); g.hline(2, 36, 50, '#D9A066'); g.rect(1, 36, 3, 6, WM); g.rect(50, 36, 3, 6, WM);
+  }, { kind: 'object' });
+  SDV.paintSprite('rWardrobe', 30, 58, function (g) {
+    g.rect(1, 3, 28, 52, '#5A7AA8'); g.rect(2, 4, 26, 50, '#8CB8E6'); g.rect(0, 0, 30, 4, '#5A7AA8'); g.hline(0, 0, 30, '#B8D4F0'); g.rect(1, 1, 28, 2, '#A8CCF0');
+    g.vline(15, 5, 46, '#5A7AA8'); g.rect(4, 7, 9, 40, '#A8CCF0'); g.rect(17, 7, 9, 40, '#A8CCF0'); g.rect(5, 8, 7, 38, '#8CB8E6'); g.rect(18, 8, 7, 38, '#8CB8E6');
+    heartAt(g, 6, 12, '#FFFFFF', '#FFFFFF'); heartAt(g, 19, 12, '#FFFFFF', '#FFFFFF');
+    g.px(13, 28, '#F7C531'); g.px(17, 28, '#F7C531');
+    g.rect(2, 48, 26, 6, '#7AA0D0'); g.hline(2, 48, 26, '#5A7AA8'); g.px(15, 51, '#F7C531');
+    g.rect(2, 54, 3, 4, '#5A7AA8'); g.rect(25, 54, 3, 4, '#5A7AA8');
+  }, { kind: 'object' });
+  SDV.paintSprite('rWindowH', 36, 34, function (g) {
+    g.rect(2, 2, 32, 26, WD); g.rect(4, 4, 28, 22, '#9ED8F2'); g.ellipseIn(18, 30, 22, 9, '#6CC33A'); g.ellipseIn(8, 26, 7, 6, '#4F9A3A'); g.px(26, 8, '#FFFFFF'); g.px(27, 8, '#FFFFFF'); g.ellipseIn(25, 9, 3, 1.4, '#FFFFFF'); g.ellipse(9, 8, 2.4, 2.4, '#FFE15A');
+    g.rect(17, 4, 2, 22, WH); g.rect(4, 14, 28, 2, WH);
+    g.rect(0, 26, 36, 4, WM); g.hline(0, 26, 36, WHH);
+    [[0, 1], [29, -1]].forEach(function (c) { var x = c[0]; g.rect(x, 0, 7, 26, '#F58FB1'); g.vline(x + 3, 2, 22, '#F7A9C4'); g.vline(x + (c[1] > 0 ? 6 : 0), 0, 26, '#D9637F'); });
+    g.rect(0, 0, 36, 2, WM);
+  }, { kind: 'object' });
+  // a fireplace: the fire itself is the 'rFire' sprite the view animates in its opening (at 12, 16)
+  SDV.paintSprite('rFireplace', 46, 44, function (g) {
+    g.rect(2, 4, 42, 40, '#8C8A84'); for (var y = 6; y < 44; y += 5) for (var x = 3 + (y % 10 ? 0 : 4); x < 43; x += 8) { g.rect(x, y, 6, 3, '#B8B4AA'); g.hline(x, y, 6, '#D8D4CA'); }
+    g.ellipse(23, 22, 12, 8, '#2A1A10'); g.rect(11, 22, 24, 22, '#2A1A10'); g.rect(13, 38, 20, 4, '#4A3020');
+    g.rect(0, 0, 46, 5, WD); g.rect(1, 0, 44, 4, '#B5763A'); g.hline(1, 0, 44, '#D9A066');
+    g.rect(6, -3, 2, 3, '#FFF4DC'); g.rect(38, -3, 2, 3, '#FFF4DC');
+    g.rect(9, 42, 28, 2, '#6E6A62');
+  }, { kind: 'object' });
+  SDV.paintSprite('rFire', 22, 16, function (g, f) {
+    g.rect(2, 13, 18, 3, '#6E4222'); g.hline(3, 13, 16, '#9A6236');
+    var hs = [[6, 7, 3.4], [11, 11, 4.4], [16, 8, 3.4]], k = [0, 1.6, -1.2][f];
+    hs.forEach(function (h, i) { var hh = h[1] + ((i + f) % 2 ? k : -k), cx = h[0] + (f === 1 ? (i - 1) * 0.5 : 0);
+      for (var y = 0; y < hh; y++) { var t = y / hh, w = h[2] * Math.sqrt(1 - t) * (t < 0.3 ? 0.7 + t : 1); g.hline(Math.round(cx - w), 12 - y, Math.max(1, Math.round(w * 2)), '#F2762B'); }
+      for (y = 0; y < hh * 0.7; y++) { t = y / (hh * 0.7); w = (h[2] - 1.4) * Math.sqrt(1 - t); if (w > 0.4) g.hline(Math.round(cx - w), 12 - y, Math.max(1, Math.round(w * 2)), '#FFC23A'); }
+      for (y = 0; y < hh * 0.35; y++) { t = y / (hh * 0.35); w = (h[2] - 2.6) * Math.sqrt(1 - t); if (w > 0.3) g.hline(Math.round(cx - w), 12 - y, Math.max(1, Math.round(w * 2)), '#FFF3A8'); } });
+  }, { kind: 'object', frames: 3, outline: false });
+  SDV.paintSprite('rTable', 42, 28, function (g) {
+    g.rect(5, 10, 3, 18, WM); g.rect(34, 10, 3, 18, WM); g.rect(19, 10, 3, 16, WD);
+    g.ellipse(21, 7, 20, 6, WD); g.ellipse(21, 6.4, 19, 5.4, '#B5763A');
+    for (var y = 1; y < 15; y++) for (var x = 2; x < 41; x++) { var dx = (x + 0.5 - 21) / 19, dy = (y + 0.5 - 7) / 5.6; if (dx * dx + dy * dy <= 1 || (y > 7 && y < 15 && Math.abs(x - 21) < 19 - (y - 7) * 0.3)) g.px(x, y, ((x >> 1) + (y >> 1)) % 2 ? '#FFFFFF' : '#F7A0A8'); }
+    for (x = 3; x < 40; x += 3) g.px(x, 15, '#F7A0A8');
+  }, { kind: 'object' });
+  SDV.paintSprite('rRugH', 90, 26, function (g) { [['#B9A6E8', 1], ['#F58FB1', 0.8], ['#FFF4DC', 0.6], ['#9ED8F2', 0.42], ['#FFF4DC', 0.22]].forEach(function (k) { g.ellipse(45, 13, 44 * k[1], 12 * k[1], k[0]); }); }, { kind: 'object', outline: '#8E76C8' });
+
+  // the eight home things (Tansy sells them); thumbnails are the same sprites
+  SDV.paintSprite('h_plant', 18, 26, function (g) {
+    g.rect(4, 17, 10, 9, '#C4703A'); g.hline(3, 17, 12, '#E0905A'); g.hline(3, 18, 12, '#A85A2A'); g.hline(5, 25, 8, '#8A4A22'); g.vline(5, 19, 5, '#E0905A');
+    [[9, 6, 4, 6], [4, 10, 4, 3], [14, 10, 4, 3], [6, 4, 3, 4], [12, 4, 3, 4]].forEach(function (b) { g.ellipse(b[0], b[1], b[2], b[3], '#3F8F2A'); });
+    [[8.5, 5.5, 3, 5], [3.6, 9.6, 3, 2.2], [13.6, 9.6, 3, 2.2]].forEach(function (b) { g.ellipseIn(b[0], b[1], b[2], b[3], '#6CC33A'); });
+    g.vline(9, 10, 7, '#2F6B2A'); flowerAt(g, 6, 3, '#F58FB1'); flowerAt(g, 13, 5, '#FFFFFF'); flowerAt(g, 9, 1, '#F58FB1');
+  }, { kind: 'home' });
+  SDV.paintSprite('h_teaset', 26, 14, function (g) {
+    g.ellipse(13, 12, 12, 2, '#C9A06A'); g.ellipse(13, 11.6, 11, 1.4, '#E8C88A');
+    g.ellipse(13, 8, 5, 4, '#D9637F'); g.ellipse(12.6, 7.6, 4.4, 3.4, '#F58FB1'); g.rect(11, 3, 4, 1, '#D9637F'); g.px(12, 2, '#FFF4DC'); g.px(13, 2, '#FFF4DC'); g.line(18, 7, 20, 4, '#D9637F'); g.px(8, 6, '#D9637F'); g.px(7, 7, '#D9637F'); g.px(7, 8, '#D9637F'); g.px(8, 9, '#D9637F'); heartAt(g, 11, 6, '#FFFFFF');
+    [[2, '#9ED8F2'], [21, '#F7D56A']].forEach(function (c) { var x = c[0]; g.rect(x, 9, 4, 3, '#FFFFFF'); g.hline(x, 9, 4, c[1]); g.px(x + 4, 10, '#FFFFFF'); g.px(x + 1, 10, c[1]); });
+  }, { kind: 'home' });
+  SDV.paintSprite('h_painting', 30, 22, function (g) {
+    g.rect(0, 0, 30, 22, '#B8862A'); g.rect(1, 1, 28, 20, '#E9B949'); g.px(0, 0, '#FFF3A8'); g.px(29, 21, '#8A6A20');
+    g.rect(3, 3, 24, 16, '#9ED8F2'); g.ellipse(22, 6, 2, 2, '#FFE15A'); g.ellipseIn(8, 18, 10, 6, '#7CC35A'); g.ellipseIn(22, 19, 10, 7, '#5AAE30'); g.rect(3, 15, 24, 4, '#6CC33A');
+    [[6, 15, '#F58FB1'], [11, 17, '#FFFFFF'], [17, 16, '#FFE15A'], [22, 17, '#E2566B'], [25, 15, '#FFFFFF']].forEach(function (p) { g.px(p[0], p[1], p[2]); });
+    g.px(10, 5, '#FFFFFF'); g.px(11, 5, '#FFFFFF'); g.px(12, 4, '#FFFFFF'); g.px(13, 5, '#FFFFFF');
+  }, { kind: 'home' });
+  function armchair(g, c, c2) {
+    var d = shade(c, 0.25), l = light(c, 0.25);
+    g.rect(4, 0, 22, 18, d); g.ellipse(15, 3, 11, 4, d); g.rect(5, 1, 20, 16, c); g.ellipse(15, 3, 10, 3, c); g.ellipseIn(12, 3, 5, 2, l);
+    g.rect(3, 15, 24, 9, c); g.hline(3, 15, 24, l); g.rect(6, 15, 18, 5, c2 || light(c, 0.15)); g.hline(6, 15, 18, light(c2 || c, 0.35));
+    g.rect(0, 9, 6, 15, d); g.rect(1, 9, 4, 14, c); g.ellipse(3, 9, 3, 2, l); g.rect(24, 9, 6, 15, d); g.rect(25, 9, 4, 14, c); g.ellipse(27, 9, 3, 2, l);
+    g.rect(2, 24, 2, 4, WD); g.rect(26, 24, 2, 4, WD); g.hline(3, 23, 24, d);
+  }
+  SDV.paintSprite('h_armchair', 30, 28, function (g) { armchair(g, '#E77A9A', '#F7C0D0'); heartAt(g, 13, 5, '#FFFFFF', '#FFFFFF'); }, { kind: 'home' });
+  SDV.paintSprite('rArmchairG', 30, 28, function (g) { armchair(g, '#4F8A5A', '#7CB88A'); }, { kind: 'object' });
+  // the reading lamp: the glow round its shade is the view's (shade middle at 7, 7)
+  SDV.paintSprite('h_lamp', 16, 54, function (g) {
+    for (var y = 0; y < 12; y++) { var hw = 3 + y * 0.42; g.hline(Math.round(8 - hw), 2 + y, Math.round(hw * 2), y > 9 ? '#E2A040' : '#FFE08A'); }
+    g.px(4, 4, '#FFF6C8'); g.px(5, 3, '#FFF6C8'); for (var x = 2; x < 15; x += 2) g.px(x, 14, '#F58FB1');
+    g.ellipse(8, 16, 2, 1.4, '#FFF6C8'); g.rect(7, 15, 2, 35, '#B8862A'); g.vline(7, 15, 35, '#E9B949');
+    g.ellipse(8, 51, 6, 2.4, '#8A6A20'); g.ellipse(8, 50.6, 5, 1.8, '#E9B949');
+  }, { kind: 'home' });
+  // the tall clock: frames swing the pendulum (0 = middle, then -2, -1, 1, 2 px)
+  SDV.paintSprite('h_clock', 18, 56, function (g, f) {
+    var sw = [0, -2, -1, 1, 2][f];
+    g.rect(2, 2, 14, 52, WD); g.rect(3, 3, 12, 50, '#9A6236'); g.ellipse(9, 4, 7, 4, WD); g.ellipse(9, 4, 6, 3, '#9A6236'); g.px(9, 0, '#E9B949');
+    g.ellipse(9, 11, 5, 5, '#B8862A'); g.ellipse(9, 11, 4, 4, '#FFF4DC'); g.vline(9, 8, 3, INK); g.hline(9, 11, 3, INK); [[9, 7.6], [12.4, 11], [9, 14.4], [5.6, 11]].forEach(function (p) { g.px(p[0], p[1], '#7A4A22'); });
+    g.rect(5, 19, 8, 26, '#3A2210'); g.rect(6, 20, 6, 24, '#5B3416'); g.px(6, 20, '#8A6A50');
+    g.line(9, 20, 9 + sw, 37, '#B8862A'); g.ellipse(9 + sw, 39, 2.4, 2.4, '#E9B949'); g.px(8 + sw, 38, '#FFF3A8');
+    g.rect(1, 50, 16, 4, WD); g.rect(2, 50, 14, 3, '#7A4A22'); g.rect(2, 54, 3, 2, WD); g.rect(13, 54, 3, 2, WD);
+    g.vline(3, 18, 30, '#B5844E');
+  }, { kind: 'home', frames: 5 });
+  SDV.paintSprite('h_dollhouse', 28, 26, function (g) {
+    g.rect(1, 22, 26, 4, WM); g.hline(1, 22, 26, WH);
+    g.rect(4, 10, 20, 12, '#FFF0D8'); g.rect(18, 10, 6, 12, '#F0DCC0');
+    for (var y = 0; y < 9; y++) g.hline(14 - Math.round(y * 1.3) - 1, 2 + y, Math.round(y * 2.6) + 2, y % 3 === 2 ? '#C2506E' : '#E77A9A');
+    g.hline(2, 10, 24, '#C2506E');
+    g.ellipse(14, 17, 2.4, 2.4, '#5AB4A0'); g.rect(12, 17, 5, 5, '#5AB4A0'); g.px(15, 19, '#F7C531');
+    winSq(g, 6, 13, 5, 5); winSq(g, 18, 13, 5, 5); g.ellipse(14, 6, 1.6, 1.6, '#9ED8F2');
+    g.px(3, 21, '#F58FB1'); g.px(25, 21, '#FFE15A');
+  }, { kind: 'home' });
+  // the canopy over her bed: two front posts, a frilled top and tied-back curtains (sits over 'rBed' at +(-2, -32))
+  function canopy(g, w, h, top) {
+    g.rect(1, top + 4, 3, h - top - 4, WM); g.vline(2, top + 4, h - top - 4, WH); g.rect(w - 4, top + 4, 3, h - top - 4, WM); g.vline(w - 3, top + 4, h - top - 4, WH);
+    g.rect(0, top, w, 5, '#F58FB1'); g.hline(0, top, w, '#FFB8CC'); g.hline(0, top + 4, w, '#D9637F');
+    for (var x = 0; x < w; x += 4) { g.ellipse(x + 2, top + 6, 2, 1.6, '#FFFFFF'); }
+    // gauzy curtains, tied at the posts
+    for (var y = top + 7; y < top + 7 + (h - top) * 0.5; y++) { var k = (y - top - 7) / ((h - top) * 0.5), ww = Math.round((1 - k) * w * 0.22) + 2; g.hline(4, y, ww, (y + 1) % 3 ? '#FBD3E0' : '#F7BCD0'); g.hline(w - 4 - ww, y, ww, (y + 1) % 3 ? '#FBD3E0' : '#F7BCD0'); }
+    var ty = Math.round(top + 7 + (h - top) * 0.5); g.rect(3, ty, 3, 2, '#E2566B'); g.rect(w - 6, ty, 3, 2, '#E2566B');
+    g.ellipse(2.5, top + 1, 2, 2, '#F7C531'); g.ellipse(w - 2.5, top + 1, 2, 2, '#F7C531');
+  }
+  SDV.paintSprite('h_canopy', 58, 76, function (g) { canopy(g, 58, 76, 3); }, { kind: 'home' });
+  SDV.paintSprite('h_canopyT', 34, 34, function (g) {
+    g.rect(4, 18, 26, 12, '#FFFFFF'); for (var y = 22; y < 30; y++) for (var x = 4; x < 30; x++) g.px(x, y, ['#F58FB1', '#FFF4DC', '#9ED8F2'][(((x - 4) / 5 | 0) + ((y - 22) / 4 | 0)) % 3]); g.rect(3, 29, 28, 3, '#B5763A');
+    canopy(g, 34, 34, 2);
+  }, { kind: 'home' });
+  SDV.HOME_SPRITE = { plant: 'h_plant', teaset: 'h_teaset', painting: 'h_painting', armchair: 'h_armchair', lamp: 'h_lamp', clock: 'h_clock', dollhouse: 'h_dollhouse', canopy: 'h_canopyT' };
+
+  /* ---- Mrs. Bunbury's kitchen ---- */
+  // a stone hearth with a kettle on a hook (the fire goes in at (15, 34))
+  SDV.paintSprite('rHearth', 52, 58, function (g) {
+    g.rect(1, 8, 50, 50, '#8C8A84'); g.ellipse(26, 8, 25, 8, '#8C8A84');
+    for (var y = 4; y < 58; y += 5) for (var x = 2 + (y % 10 ? 0 : 4); x < 50; x += 8) if (g.get(x, y) && g.get(x + 5, y)) { g.rect(x, y, 6, 3, '#B8B4AA'); g.hline(x, y, 6, '#D8D4CA'); }
+    g.ellipse(26, 30, 15, 12, '#2A1A10'); g.rect(11, 30, 30, 26, '#2A1A10'); g.rect(13, 52, 26, 4, '#4A3020');
+    g.rect(0, 22, 52, 4, WD); g.rect(1, 22, 50, 3, '#9A6236'); g.hline(1, 22, 50, '#C88A4E');
+    g.vline(26, 26, 8, '#3A3A42'); g.px(25, 33, '#3A3A42'); g.px(27, 33, '#3A3A42');
+    g.ellipse(26, 40, 7, 5, '#7A3A14'); g.ellipse(25.6, 39.6, 6.4, 4.4, '#C4703A'); g.ellipseIn(23, 37.6, 2.6, 1.8, '#F0A060'); g.px(22, 37, '#FFE0B0'); g.rect(24, 34, 4, 2, '#7A3A14'); g.px(25, 33, '#F0A060'); g.line(32, 39, 36, 35, '#7A3A14'); g.line(32, 40, 36, 36, '#C4703A'); g.px(37, 34, '#7A3A14');
+    // a jar and a little clock on the mantel
+    g.rect(6, 15, 6, 7, '#F7C531'); g.rect(6, 14, 6, 2, '#E2566B'); g.rect(40, 14, 7, 8, WM); g.ellipse(43.5, 17, 2.4, 2.4, '#FFF4DC'); g.px(43, 16, INK);
+  }, { kind: 'object' });
+  SDV.paintSprite('rDresser', 40, 60, function (g) {
+    g.rect(1, 2, 38, 58, WD); g.rect(2, 3, 36, 56, '#B5763A'); g.rect(0, 0, 40, 3, WD); g.hline(0, 0, 40, '#D9A066');
+    g.rect(3, 4, 34, 28, '#8A5A2E');
+    [14, 24, 32].forEach(function (y) { g.rect(2, y, 36, 2, '#C88A4E'); g.hline(2, y, 36, '#E2A868'); });
+    // plates standing on the shelves, cups hanging below
+    [[8, 9], [17, 9], [26, 9], [33, 10]].forEach(function (p, i) { g.ellipse(p[0], p[1], 3.6, 4, '#FFFFFF'); g.ellipse(p[0], p[1], 2.2, 2.6, i % 2 ? '#5A9FD5' : '#F58FB1'); g.px(p[0], p[1], '#FFFFFF'); });
+    [7, 14, 21, 28].forEach(function (x, i) { g.vline(x + 1, 16, 1, '#5B3416'); g.rect(x, 18, 4, 3, i % 2 ? '#F7D56A' : '#9ED8F2'); g.px(x + 4, 19, i % 2 ? '#F7D56A' : '#9ED8F2'); });
+    g.rect(6, 26, 8, 6, '#C4703A'); g.hline(6, 26, 8, '#E0905A'); g.rect(22, 27, 10, 5, '#FFF4DC'); g.hline(22, 27, 10, '#E2566B');
+    g.rect(4, 36, 15, 20, '#9A6230'); g.rect(21, 36, 15, 20, '#9A6230'); g.rect(5, 37, 13, 18, '#B5763A'); g.rect(22, 37, 13, 18, '#B5763A');
+    heartAt(g, 9, 43, '#E2566B'); heartAt(g, 26, 43, '#E2566B'); g.px(17, 46, '#F7C531'); g.px(22, 46, '#F7C531');
+  }, { kind: 'object' });
+  SDV.paintSprite('rTableB', 48, 30, function (g) {
+    g.rect(4, 12, 3, 18, WM); g.rect(41, 12, 3, 18, WM);
+    g.rect(1, 10, 46, 5, WD); g.rect(2, 10, 44, 4, '#B5763A'); g.hline(2, 10, 44, '#D9A066'); g.hline(1, 15, 46, '#5B3416');
+    g.rect(10, 13, 28, 8, '#FFF4DC'); for (var x = 10; x < 38; x += 3) g.px(x, 21, '#FFF4DC');
+    // a carrot cake on a stand
+    g.rect(18, 8, 12, 2, '#FFFFFF'); g.vline(24, 10, 1, '#FFFFFF');
+    g.rect(17, 0, 14, 8, '#E08A3A'); g.hline(17, 3, 14, '#FFF4DC'); g.hline(17, 0, 14, '#FFF4DC'); g.hline(17, 1, 14, '#FFF4DC'); g.px(17, 2, '#FFF4DC'); g.px(22, 2, '#FFF4DC'); g.px(27, 2, '#FFF4DC'); g.hline(17, 6, 14, '#C46A20');
+    g.px(23, -1, '#F08A3A'); g.px(24, -1, '#F08A3A'); g.px(25, -2, '#4F9A3A');
+    [[6, '#9ED8F2'], [36, '#F58FB1']].forEach(function (c) { var x = c[0]; g.ellipse(x + 2, 9.6, 4, 1, '#FFFFFF'); g.rect(x, 6, 5, 3, '#FFFFFF'); g.hline(x, 6, 5, c[1]); g.px(x + 5, 7, '#FFFFFF'); g.px(x + 2, 7, c[1]); });
+  }, { kind: 'object' });
+  SDV.paintSprite('rCarrotBasket', 24, 18, function (g) {
+    for (var i = 0; i < 6; i++) { var x = 4 + i * 3; g.rect(x, 3 + (i % 2), 2, 5, '#F08A3A'); g.px(x, 1 + (i % 2), '#4F9A3A'); g.px(x + 1, (i % 2), '#6CC33A'); g.px(x - 1, 1 + (i % 2), '#6CC33A'); }
+    g.rect(2, 7, 20, 10, '#9A6230'); for (var y = 8; y < 17; y++) for (x = 2; x < 22; x++) if ((x + y) % 3 === 0) g.px(x, y, '#C88A4E'); g.hline(1, 7, 22, '#C88A4E'); g.hline(2, 16, 20, '#7A4A22');
+  }, { kind: 'object' });
+  // the things hanging from her beam: carrot bunches and herb bundles (drawn from the hook down)
+  SDV.paintSprite('rHangCarrots', 12, 18, function (g) { g.vline(6, 0, 4, '#C9A87A'); for (var i = 0; i < 4; i++) { var x = 2 + i * 2.6 | 0; g.px(x + 1, 4, '#4F9A3A'); g.px(x, 5, '#6CC33A'); g.rect(x, 6, 2, 7 + (i % 2) * 2, '#F08A3A'); g.px(x, 13 + (i % 2) * 2, '#D06A20'); } }, { kind: 'object' });
+  SDV.paintSprite('rHangHerbs', 10, 16, function (g) { g.vline(5, 0, 4, '#C9A87A'); g.rect(3, 4, 4, 2, '#C9A87A'); for (var y = 6; y < 15; y++) g.hline(5 - Math.round((y - 6) * 0.45), y, Math.round((y - 6) * 0.9) + 1, y % 2 ? '#4F9A3A' : '#7CB36A'); g.px(3, 12, '#B9A4F2'); g.px(6, 10, '#B9A4F2'); }, { kind: 'object' });
+  SDV.paintSprite('rWindowRound', 32, 32, function (g) {
+    g.ellipse(16, 15, 13, 13, WD); g.ellipse(16, 15, 11, 11, '#9ED8F2'); g.ellipseIn(16, 24, 14, 6, '#6CC33A'); g.ellipseIn(12, 9, 3, 1.6, '#FFFFFF'); g.rect(15, 4, 2, 22, WH); g.rect(5, 14, 22, 2, WH);
+    [[2, 1], [24, -1]].forEach(function (c) { var x = c[0]; g.rect(x, 2, 6, 18, '#F7D56A'); g.vline(x + 3, 3, 16, '#FFF0A0'); g.vline(x + (c[1] > 0 ? 5 : 0), 2, 18, '#E0B030'); for (var y = 4; y < 20; y += 4) g.px(x + 2, y, '#E2566B'); });
+    g.rect(1, 0, 30, 2, WM);
+    g.rect(4, 27, 24, 3, WM); g.hline(4, 27, 24, WH); flowerAt(g, 9, 26, '#E2566B'); flowerAt(g, 16, 25, '#FFFFFF'); flowerAt(g, 23, 26, '#F58FB1');
+  }, { kind: 'object' });
+
+  /* ---- Old Hoot's library ---- */
+  SDV.paintSprite('rBookcase', 46, 72, function (g) {
+    var r = rng(13), C = ['#E2566B', '#5A9FD5', '#7CC35A', '#F7C531', '#B9A6E8', '#F08A3A', '#4FB8A8', '#D9637F', '#8A5AB8'];
+    g.rect(0, 0, 46, 72, '#4A2A14'); g.rect(2, 2, 42, 68, '#6E4222');
+    [18, 35, 52, 69].forEach(function (base) {
+      var x = 3;
+      while (x < 42) { var w = 2 + (r() * 3 | 0), h = 10 + (r() * 5 | 0), c = C[(r() * C.length) | 0]; if (x + w > 43) break; if (r() < 0.12) { x += 2; continue; }
+        g.rect(x, base - h, w, h, c); g.vline(x, base - h, h, light(c, 0.3)); g.px(x + (w >> 1), base - h + 3, '#FFF4DC'); if (h > 12) g.hline(x, base - 3, w, shade(c, 0.3)); x += w; }
+      g.rect(1, base, 44, 3, '#9A6236'); g.hline(1, base, 44, '#C88A4E');
+    });
+    g.rect(0, 0, 46, 3, '#9A6236'); g.hline(0, 0, 46, '#C88A4E');
+  }, { kind: 'object' });
+  SDV.paintSprite('rLadder', 20, 84, function (g) {
+    for (var y = 0; y < 84; y++) { var x0 = 2 + Math.round(y * 0.05), x1 = 15 + Math.round(y * 0.05); g.px(x0, y, '#9A6236'); g.px(x0 + 1, y, '#C88A4E'); g.px(x1, y, '#9A6236'); g.px(x1 + 1, y, '#C88A4E'); if (y % 9 === 4) g.hline(x0 + 2, y, x1 - x0 - 2, '#B5844E'); }
+  }, { kind: 'object' });
+  // the reading desk: an open book, a globe and a candle (its flame is 'rFlame' at (37, 0))
+  SDV.paintSprite('rDesk', 48, 34, function (g) {
+    g.rect(2, 14, 44, 20, WD); g.rect(3, 14, 42, 19, '#7A4A22'); g.rect(5, 18, 14, 13, '#9A6236'); g.rect(29, 18, 14, 13, '#9A6236'); g.px(18, 24, '#E9B949'); g.px(29, 24, '#E9B949');
+    g.rect(0, 11, 48, 4, WD); g.rect(1, 11, 46, 3, '#9A6236'); g.hline(1, 11, 46, '#C88A4E');
+    g.rect(14, 7, 9, 4, '#FFF4DC'); g.rect(23, 7, 9, 4, '#FFF4DC'); g.vline(23, 7, 4, '#C9A87A'); g.hline(14, 11, 18, '#7A2E2E'); [8, 9].forEach(function (y) { g.hline(15, y, 6, '#9A8A7A'); g.hline(25, y, 6, '#9A8A7A'); });
+    g.ellipse(7, 5, 4.4, 4.4, '#3A6FB5'); g.ellipseIn(6, 4, 2, 2.6, '#7CC35A'); g.ellipseIn(9, 7, 1.4, 1, '#7CC35A'); g.px(5, 3, '#A8D4F0'); g.rect(6, 9, 3, 2, '#B8862A'); g.line(2, 5, 7, 0, '#B8862A');
+    g.rect(36, 4, 3, 7, '#FFF4DC'); g.px(36, 4, '#FFFFFF'); g.rect(34, 10, 7, 1, '#B8862A'); g.px(37, 3, INK);
+  }, { kind: 'object' });
+  SDV.paintSprite('rFlame', 5, 7, function (g, f) { g.ellipse(2.5, 4 + f * 0.4, 1.8, 2.8 - f * 0.4, '#F7A531'); g.ellipse(2.5, 4.6, 1, 1.6, '#FFF3A8'); g.px(2 + f, 0 + f, '#F7A531'); }, { kind: 'object', frames: 2, outline: false });
+  SDV.paintSprite('rPerch', 34, 60, function (g) {
+    g.ellipse(17, 57, 10, 3, WD); g.ellipse(17, 56.4, 9, 2.4, '#9A6236');
+    g.rect(15, 12, 4, 45, '#6E4222'); g.vline(16, 12, 44, '#9A6236');
+    g.rect(1, 10, 32, 4, '#6E4222'); g.hline(2, 10, 30, '#9A6236'); g.px(0, 11, '#6E4222'); g.px(33, 11, '#6E4222');
+    [[4, 8], [28, 7], [10, 15], [25, 15]].forEach(function (p) { g.ellipse(p[0], p[1], 3, 2, '#4F9A3A'); g.px(p[0] - 1, p[1] - 1, '#7CC35A'); });
+    g.rect(22, 30, 8, 7, '#C9A87A'); g.hline(22, 30, 8, '#E8D6A8'); g.px(29, 29, '#7A4A22');
+  }, { kind: 'object' });
+  SDV.paintSprite('rBookStack', 18, 22, function (g) {
+    var C = ['#5A9FD5', '#E2566B', '#F7C531', '#7CC35A', '#B9A6E8', '#F08A3A'];
+    for (var i = 0; i < 6; i++) { var y = 19 - i * 3, x = 1 + ((i * 7) % 3), c = C[i]; g.rect(x, y, 14, 3, c); g.hline(x, y, 14, light(c, 0.3)); g.vline(x + 13, y, 3, '#FFF4DC'); }
+  }, { kind: 'object' });
+
 })();

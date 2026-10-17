@@ -243,3 +243,5 @@ costs	costs
 800	800
 900	900
 whoa quick paws	Whoa, quick paws!
+hello	Hello!
+i'm stretching my legs after a busy day with my cart	I'm stretching my legs after a busy day with my cart.

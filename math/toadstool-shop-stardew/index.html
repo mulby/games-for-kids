@@ -1238,7 +1238,7 @@ function record(k, ok) {
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START);
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
@@ -1264,6 +1264,7 @@ const SFX = (() => {
     ok() { [523, 659, 784].forEach((f, i) => tone(f, .2, 'triangle', .11, i * .08)); },
     soft() { tone(392, .18, 'sine', .08); tone(330, .25, 'sine', .07, .12); },
     bell() { tone(1318, .7, 'sine', .1); tone(1976, .5, 'sine', .05, .02); },
+    door() { tone(196, .12, 'triangle', .08); tone(262, .16, 'triangle', .06, .1); },
     cheer() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .3, 'triangle', .1, i * .09)); },
     stack() { [880, 988, 1175].forEach((f, i) => tone(f, .12, 'square', .03, i * .05)); },
   };
@@ -1280,7 +1281,7 @@ function keeperSpec() { return ShopWardrobe.keeperSpec(S, FURS, DRESSES); }
 function syncView() {
   TSV.stock = S.stock; TSV.decor = S.decor; TSV.signText = S.keeper ? `${S.keeper.name}'s Shop` : 'The Toadstool Shop';
   TSV.keeper = keeperSpec();
-  TSV.garden = S.garden; TSV.treasures = S.treasures; TSV.ringLit = !!(S.village && S.village.day === S.day && S.village.done.ring);
+  TSV.garden = S.garden; TSV.treasures = S.treasures; TSV.home = S.home; TSV.ringLit = !!(S.village && S.village.day === S.day && S.village.done.ring);
 }
 let moodT = {};
 function mood(who, m, ms) { TSV.mood[who] = m; clearTimeout(moodT[who]); if (ms) moodT[who] = setTimeout(() => { TSV.mood[who] = 'idle'; }, ms); }
@@ -1489,7 +1490,7 @@ function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F'
 }
 
 /* ================= the day ================= */
-function setScene(scene, opts = {}) { Object.assign(TSV, { scene, cam: opts.cam || null, time: opts.time || TSV.time, cart: !!opts.cart }); syncView(); hud(); }
+function setScene(scene, opts = {}) { Object.assign(TSV, { scene, cam: opts.cam || null, time: opts.time || TSV.time, cart: !!opts.cart, room: opts.room || null }); syncView(); hud(); }
 async function walkIn(id) { TSV.cust = CAST[id].spec; TSV.custId = id; /* skin hook H3 */ mood('cust', 'idle'); await wait(has3d() ? 1700 : 200); }
 async function walkOut() { TSV.cust = null; TSV.custId = null; await wait(has3d() ? 900 : 100); }
 
@@ -2085,79 +2086,26 @@ async function night() {
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
 }
 
-/* ================= the wardrobe: clothes and accessories (wardrobe.js holds the list) ================= */
-// What she would look like in one more thing (to try it on before buying, or to see it in the closet).
-function tryOnSpec(id) {
-  const W = ShopWardrobe, c = W.byId(id); if (!S.keeper || !c) return keeperSpec();
-  const k = Object.assign({}, S.keeper, { wear: Object.assign({}, W.wear(S), { [c.slot]: id }) });
-  return W.keeperSpec({ keeper: k, closet: (S.closet || []).concat(id) }, FURS, DRESSES);
-}
-function lookImg(spec) { return has3d() && spec ? `<img src="${Shop3D.portrait(spec)}" alt="">` : '🐭'; }
-function clothesBtn(c, state) {
-  const tag = state === 'on' ? '✓ wearing' : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
-  return `<button data-c="${c.id}" class="${state}"><span class="em" style="${c.css || ''}">${c.emoji}</span><span>${c.name}</span><span class="tag">${tag}</span></button>`;
-}
-// The 👗 button: change clothes any time. Only what she owns can go on; the rest shows where it comes from.
-// It sits over the game and never touches the panel or the speech bubble, so it is safe in the middle of anything.
-function openWardrobe() {
-  const W = ShopWardrobe, box = $('#wardrobe'); if (!S.keeper) return;
-  let note = 'Tap something to put it on!', look = keeperSpec();
-  const draw = () => {
-    const w = W.wear(S);
-    const keep = $('.wlist', box) ? $('.wlist', box).scrollTop : 0;
-    $('.card', box).innerHTML = `<div class="wside"><div class="wlook big">${lookImg(look)}</div>
-      <div class="wnote">${note}</div><button class="btn" id="wdone">All dressed! ✨</button></div>
-      <div class="wlist"><div class="wsec"><div class="wlab">Dress colour</div><div class="swatches">${Object.entries(DRESSES).map(([n, col]) => `<button class="swatch ${S.keeper.dress === n ? 'sel' : ''}" data-d="${n}" style="background:${col}" aria-label="${n} dress"></button>`).join('')}</div></div>
-      ${W.SLOTS.map(([slot, label]) => `<div class="wsec"><div class="wlab">${label}</div><div class="decor wgrid">${W.CLOTHES.filter(c => c.slot === slot).map(c => clothesBtn(c, w[slot] === c.id ? 'on' : W.owns(S, c.id) ? 'own' : 'cant')).join('')}</div></div>`).join('')}
-      </div>`;
-    $('.wlist', box).scrollTop = keep;
-    $$('[data-d]', box).forEach(b => b.addEventListener('click', () => {
-      S.keeper.dress = b.dataset.d; save(); syncView(); look = keeperSpec(); SFX.tap(); note = `A ${b.dataset.d} dress!`; speak(note); draw();
-    }));
-    $$('[data-c]', box).forEach(b => b.addEventListener('click', () => {
-      const c = W.byId(b.dataset.c);
-      if (!W.owns(S, c.id)) {
-        SFX.soft(); look = tryOnSpec(c.id);
-        note = c.gift ? `The ${c.name.toLowerCase()} is a present. Maybe a friend will bring it one day!` : `I can buy the ${c.name.toLowerCase()} in the evening. It costs ${c.cost} ${plural(c.cost, 'penny', 'pennies')}.`;
-        speak(note); draw(); return;
-      }
-      const r = W.put(S, c.id); save(); syncView(); look = keeperSpec(); SFX.tap(); mood('keeper', 'happy', 1200);
-      note = r === 'off' ? `I took off my ${c.name.toLowerCase()}.` : `My ${c.name.toLowerCase()}!`; speak(note); draw();
-    }));
-    $('#wdone', box).addEventListener('click', closeWardrobe);
-  };
-  box.hidden = false; draw(); SFX.tap();
-}
-function closeWardrobe() {
-  $('#wardrobe').hidden = true; SFX.ok(); syncView(); if (rerender) rerender();
-  if (lastSay && lastSay.who === 'keeper') $('#bubble .pt').innerHTML = portrait('keeper');
-}
-// Every piece of clothing (bought and presents) earns a card, whichever comes last.
-function bestDressed() { if (window.GFKCards && ShopWardrobe.allOwned(S)) GFKCards.collect({ game: GAME, id: 'all-clothes', name: 'Best Dressed in Bramble Wood', emoji: '👗', rarity: 'rare' }); }
-// A visiting friend's present: it goes in the wardrobe and on at once.
-async function giftFrom(who) {
-  const W = ShopWardrobe, c = W.giftFrom(who); if (!c || !S.keeper || !W.give(S, c.id)) return;
-  W.put(S, c.id); save(); syncView(); SFX.cheer(); mood('keeper', 'happy', 2200); bestDressed();
-  await talk('keeper', `${CAST[who].name} gave me ${c.they ? 'some' : 'a'} ${c.name.toLowerCase()}! I'm wearing ${c.they ? 'them' : 'it'} now. I can change my clothes any time with the dress button.`, 'Thank you! 👗', `<div class="wlook small">${lookImg(keeperSpec())}</div>`);
-}
-// Older saves: friends who already visited have left their presents in the wardrobe.
-if (S.keeper) { S.closet = S.closet || []; for (const who of Object.keys(S.friends || {})) { const c = ShopWardrobe.giftFrom(who); if (c) ShopWardrobe.give(S, c.id); } save(); bestDressed(); }
-$('#wardBtn').addEventListener('click', openWardrobe);
-
 /* ================= Bramble Wood village (from day 5) ================= */
-// After the shop closes she can walk down the lane behind it, like a little Animal Crossing town. Four neighbours have
+// After the shop closes she can walk down the lane behind it, like a little Animal Crossing town. Neighbours stroll about
+// (tap one to say hello), Mrs. Bunbury and Old Hoot ask her inside their houses, and she has a house of her own that
+// fills up with the home things Tansy sells (rooms3d.js draws the rooms). Four neighbours have
 // one small job each a day (2 pennies, and a third for getting every answer right the first time; help is fine), and two
 // stalls sell garden things and treasures with the money above the 10 she keeps for Bramble. What she buys shows in 3D
 // (village3d.js): garden things round the shop, treasures on a ledge along the shop counter. Each treasure is a card too.
 const VILLAGE_DAY = 5;
 const PLACES = {
-  burrow: { name: "Mrs. Bunbury's burrow", who: 'bunbury', job: carrotJob, emoji: '🥕', ask: 'Hello, dear! I planted my carrots in neat rows. Could you help me count them?' },
+  house: { name: 'My house', who: 'keeper', home: true, room: 'home', emoji: '🏠' },
+  burrow: { name: "Mrs. Bunbury's burrow", who: 'bunbury', job: carrotJob, room: 'burrow', emoji: '🥕', come: 'Come in, come in, dear! Mind the carrots.', ask: 'I planted my carrots in neat rows. Could you help me count them?' },
   stall: { name: "Dot's flower stall", who: 'dot', shop: 'garden', emoji: '🌷', hi: 'Hello! Flowers and pretty things for your garden!' },
-  oak: { name: "Old Hoot's library", who: 'hoot', job: bookJob, emoji: '📚', ask: 'Hoo! I keep my books in stacks of ten. Will you help me count them?' },
+  oak: { name: "Old Hoot's library", who: 'hoot', job: bookJob, room: 'oak', emoji: '📚', come: 'Hoo! Welcome to my library, inside my old oak tree.', ask: 'I keep my books in stacks of ten. Will you help me count them?' },
   market: { name: "Miu's treasure stall", who: 'miu', shop: 'treasures', emoji: '🏺', hi: 'Greetings! Treasures from faraway lands. Each one is one of a kind!' },
   ring: { name: 'The fairy ring', who: 'fern', job: lanternJob, emoji: '🧚', ask: 'The fairies dance here tonight, and the lanterns need lighting. Will you help me count?' },
   pond: { name: 'The duck pond', who: 'captain', job: chestJob, emoji: '⚓', ask: 'Ahoy, shopkeeper! I found treasure coins on the island. Help me count them!' },
+  tansy: { name: "Tansy's home things", who: 'tansy', shop: 'home', emoji: '🛋️', hi: 'Hello! I have lovely things to make your house cozy!' },
 };
+// neighbours out for a stroll: tap one and they wave and say hello
+const FOLK = { mo: "Hi! I'm going to see the ducks!", wilf: "Ahoy! I'm off to look at the windmill.", clover: "Hello, dear! I'm so proud of you and your shop.", bramble: "Hello! I'm stretching my legs after a busy day with my cart." };
 const GARDEN = [
   { id: 'daisies', name: 'Daisy patch', cost: 4, emoji: '🌼' },
   { id: 'tulips', name: 'Tulip bed', cost: 6, emoji: '🌷' },
@@ -2177,13 +2125,24 @@ const TREASURES = [
   { id: 'lyre', name: 'Golden lyre', cost: 13, emoji: '🎵', from: 'Apollo plays one just like it.' },
   { id: 'crown', name: 'Fairy crown', cost: 16, emoji: '👑', from: 'The Fairy Queen wore it when she was little.' },
 ];
-const ITEMS = { garden: GARDEN, treasures: TREASURES };
-function itemImg(kind, it) { return has3d() && Shop3D.garden ? `<img src="${kind === 'garden' ? Shop3D.garden(it.id) : Shop3D.treasure(it.id)}" alt="">` : `<span class="em">${it.emoji}</span>`; }
+const HOME = [
+  { id: 'plant', name: 'Pot plant', cost: 3, emoji: '🪴' },
+  { id: 'teaset', name: 'Tea set', cost: 4, emoji: '🫖' },
+  { id: 'painting', name: 'Meadow painting', cost: 5, emoji: '🖼️' },
+  { id: 'armchair', name: 'Cozy armchair', cost: 6, emoji: '🛋️' },
+  { id: 'lamp', name: 'Reading lamp', cost: 8, emoji: '💡' },
+  { id: 'clock', name: 'Tall clock', cost: 10, emoji: '🕰️' },
+  { id: 'dollhouse', name: 'Tiny dollhouse', cost: 12, emoji: '🏡' },
+  { id: 'canopy', name: 'Bed canopy', cost: 15, emoji: '🛏️' },
+];
+const ITEMS = { garden: GARDEN, treasures: TREASURES, home: HOME };
+function itemImg(kind, it) { return has3d() && Shop3D[kind === 'garden' ? 'garden' : kind === 'home' ? 'home' : 'treasure'] ? `<img src="${Shop3D[kind === 'garden' ? 'garden' : kind === 'home' ? 'home' : 'treasure'](it.id)}" alt="">` : `<span class="em">${it.emoji}</span>`; }
 const spare = () => Math.max(0, S.till - 10);
 
 async function village() {
   setScene('village', { time: 'day' });
-  Object.assign(TSV, { cust: null, place: null, go: 'gate', at: null });
+  Object.assign(TSV, { cust: null, place: null, go: 'gate', at: null, folkMood: {} });
+  TSV.folk = Object.keys(FOLK).map(id => ({ id, spec: CAST[id].spec }));
   if (!S.village || S.village.day !== S.day) { S.village = { day: S.day, done: {}, earned: 0 }; save(); }
   syncView();
   await wait(has3d() ? 900 : 0);
@@ -2201,6 +2160,7 @@ async function village() {
   }
   TSV.onTap = null; hush(); setPanel('');
   await walkTo('gate');
+  TSV.folk = [];
   S.phase = 'evening'; save();
 }
 // She walks down the lane. The 3D view says when she gets there (TSV.at); without 3D there is no walk.
@@ -2218,11 +2178,15 @@ function villageMap() {
     const coach = coachOnce('villagemap');
     let done = false;
     const go = id => { if (done) return; done = true; SFX.tap(); TSV.onTap = null; rerender = null; res(id); };
-    TSV.onTap = t => { if (done) return; if (t.place) go(t.place); else if (t.x != null) { SFX.tap(); TSV.go = 'x:' + t.x.toFixed(1); } };
+    TSV.onTap = t => {
+      if (done) return;
+      if (t.who) { SFX.tap(); say(t.who, FOLK[t.who] || CAST[t.who].hi); TSV.folkMood[t.who] = 'wave'; clearTimeout(folkT[t.who]); folkT[t.who] = setTimeout(() => { delete TSV.folkMood[t.who]; }, 2600); }
+      else if (t.place) go(t.place); else if (t.x != null) { SFX.tap(); TSV.go = 'x:' + t.x.toFixed(1); }
+    };
     const draw = () => setPanel(`
-      ${coach ? `<div class="coach">👆 Tap a place to walk there. You can tap the houses and the lane too!</div>` : ''}
-      <div class="places">${Object.entries(PLACES).map(([id, P]) => `<button data-p="${id}" class="${P.job && S_.done[id] ? 'own' : ''}"><span class="pp">${portrait(P.who)}</span><span>${P.name}</span><span class="tag">${P.job ? (S_.done[id] ? '✓ helped' : `${P.emoji} job`) : `${P.emoji} shop`}</span></button>`).join('')}</div>
-      <button class="btn alt" id="home">Go home 🏠</button>`, p => {
+      ${coach ? `<div class="coach">👆 Tap a place to walk there. You can tap the houses, the lane and the neighbours too!</div>` : ''}
+      <div class="places">${Object.entries(PLACES).map(([id, P]) => `<button data-p="${id}" class="${P.job && S_.done[id] ? 'own' : ''}"><span class="pp">${portrait(P.who)}</span><span>${P.name}</span><span class="tag">${P.home ? `${P.emoji} my home` : P.job ? (S_.done[id] ? '✓ helped' : `${P.emoji} job`) : `${P.emoji} shop`}</span></button>`).join('')}</div>
+      <button class="btn alt" id="home">Back to my shop 🍄</button>`, p => {
       $$('[data-p]', p).forEach(b => b.addEventListener('click', () => go(b.dataset.p)));
       $('#home', p).addEventListener('click', () => go('home'));
     });
@@ -2230,13 +2194,49 @@ function villageMap() {
     DBG.cur = { type: 'village' };
   });
 }
+let folkT = {};
 async function visit(id) {
   const P = PLACES[id], who = P.who;
+  if (P.home) return houseVisit();
+  if (P.room) { SFX.door(); setScene('room', { room: P.room, time: 'day' }); }
   TSV.place = id; TSV.cust = CAST[who].spec; mood('cust', 'idle');
-  await wait(has3d() ? 1300 : 150);
+  await wait(has3d() ? (P.room ? 700 : 1300) : 150);
+  if (P.room) { mood('cust', 'wave', 1600); await talk(who, P.come, 'Thank you!'); }
   if (P.job) await jobVisit(id); else await stallVisit(id);
   hush(); setPanel('');
+  if (P.room) { await leaveRoom(id); return; }
   TSV.cust = null; await wait(has3d() ? 900 : 100); TSV.place = null;
+}
+// back out through the door: she is on the step outside, and the lane carries on
+async function leaveRoom(id) {
+  SFX.door(); TSV.cust = null; TSV.place = null; TSV.go = id; TSV.at = null;
+  setScene('village', { time: 'day' });
+  await wait(has3d() ? 500 : 50);
+}
+// her own house: what she has bought for it, and her wardrobe
+async function houseVisit() {
+  SFX.door(); setScene('room', { room: 'home', time: 'day' }); TSV.place = 'house'; TSV.cust = null;
+  await wait(has3d() ? 700 : 100);
+  mood('keeper', 'happy', 1800);
+  if (coachOnce('myhouse')) {
+    await talk('keeper', 'This is my very own house! It is cozy, but it is a bit empty.', 'Next');
+    await talk('keeper', "Tansy sells lovely things for houses. I can buy them with the money I earn!", 'OK!');
+  }
+  await new Promise(res => {
+    const n = S.home.length, left = HOME.length - n;
+    say('keeper', !n ? "My house is ready for some lovely things. Tansy's stall is at the end of the lane." : left ? `I have ${n} ${plural(n, 'thing', 'things')} for my house. ${left} more to find!` : 'My house has everything! It is the coziest house in the wood.');
+    DBG.cur = { type: 'house' };
+    const draw = () => setPanel(`
+      ${n ? `<div class="decor">${HOME.filter(it => S.home.includes(it.id)).map(it => `<button data-h="${it.id}" class="own">${itemImg('home', it)}<span>${it.name}</span></button>`).join('')}</div>` : ''}
+      <div class="row"><button class="btn" id="dress">Change my clothes 👗</button><button class="btn alt" id="bye">Go outside</button></div>`, p => {
+      $$('[data-h]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); say('keeper', `I love my ${HOME.find(x => x.id === b.dataset.h).name.toLowerCase()}!`); mood('keeper', 'happy', 1500); }));
+      $('#dress', p).addEventListener('click', () => { SFX.tap(); openWardrobe(); });
+      $('#bye', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
+    });
+    rerender = draw; draw();
+  });
+  hush(); setPanel('');
+  await leaveRoom('house');
 }
 async function jobVisit(id) {
   const P = PLACES[id], who = P.who, me = CAST[who];
@@ -2328,7 +2328,7 @@ async function stallVisit(id) {
 function stallPick(who, kind, list) {
   return new Promise(res => {
     const left = list.filter(it => !S[kind].includes(it.id));
-    if (!left.length) say(who, kind === 'garden' ? 'You have everything from my stall! Your garden must be beautiful.' : 'You have every treasure I brought! What a collection!');
+    if (!left.length) say(who, kind === 'garden' ? 'You have everything from my stall! Your garden must be beautiful.' : kind === 'home' ? 'You have everything from my stall! Your house must be so cozy.' : 'You have every treasure I brought! What a collection!');
     else say('keeper', `I keep 10 pennies for Bramble's cart. I have ${spare()} ${plural(spare(), 'penny', 'pennies')} to spend.`);
     DBG.cur = { type: 'stall', kind };
     const draw = () => setPanel(`
@@ -2336,7 +2336,7 @@ function stallPick(who, kind, list) {
       <button class="btn alt" id="bye">Bye for now</button>`, p => {
       $$('[data-i]', p).forEach(b => b.addEventListener('click', () => {
         const it = list.find(x => x.id === b.dataset.i);
-        if (S[kind].includes(it.id)) { say('keeper', kind === 'garden' ? `My ${it.name.toLowerCase()} is already in my garden!` : `My ${it.name.toLowerCase()} is already in my shop!`); return; }
+        if (S[kind].includes(it.id)) { say('keeper', `My ${it.name.toLowerCase()} is already ${kind === 'garden' ? 'in my garden' : kind === 'home' ? 'in my house' : 'in my shop'}!`); return; }
         if (spare() < it.cost) { SFX.soft(); say('keeper', `The ${it.name.toLowerCase()} costs ${it.cost}. I have ${spare()} to spend. I need ${it.cost - spare()} more.`); return; }
         SFX.tap(); rerender = null; res(it);
       }));
@@ -2353,8 +2353,8 @@ async function buy(who, kind, it) {
   const had = S.till, left = had - it.cost;
   S.till = left; S[kind].push(it.id); save(); syncView(); hud(); SFX.cheer(); mood('keeper', 'happy', 2000); mood('cust', 'happy', 1800);
   if (window.GFKCards && kind === 'treasures') GFKCards.collect({ game: GAME, id: 'treasure-' + it.id, name: it.name, emoji: it.emoji, rarity: it.cost >= 13 ? 'sparkly' : it.cost >= 7 ? 'rare' : 'common' });
-  if (window.GFKCards && S[kind].length === ITEMS[kind].length) GFKCards.collect({ game: GAME, id: 'all-' + kind, name: kind === 'garden' ? 'Greenest Garden in the Wood' : 'Treasure Hunter', emoji: kind === 'garden' ? '🌻' : '🗝️', rarity: 'rare' });
-  await talk('keeper', `${kind === 'garden' ? `My ${it.name.toLowerCase()} will go in the garden by my shop!` : `I'll put the ${it.name.toLowerCase()} on the ledge in my shop!`} ${had} take away ${it.cost} leaves ${left}.`, 'Lovely!',
+  if (window.GFKCards && S[kind].length === ITEMS[kind].length) GFKCards.collect({ game: GAME, id: 'all-' + kind, name: kind === 'garden' ? 'Greenest Garden in the Wood' : kind === 'home' ? 'Coziest House in the Wood' : 'Treasure Hunter', emoji: kind === 'garden' ? '🌻' : kind === 'home' ? '🏡' : '🗝️', rarity: 'rare' });
+  await talk('keeper', `${kind === 'garden' ? `My ${it.name.toLowerCase()} will go in the garden by my shop!` : kind === 'home' ? `My ${it.name.toLowerCase()} will go in my house!` : `I'll put the ${it.name.toLowerCase()} on the ledge in my shop!`} ${had} take away ${it.cost} leaves ${left}.`, 'Lovely!',
     `<div class="decor one"><button class="own">${itemImg(kind, it)}<span>${it.name}</span><span class="tag">✓ yours</span></button></div>`);
 }
 /* ================= the wardrobe: clothes and accessories (wardrobe.js holds the list) ================= */
@@ -2442,8 +2442,8 @@ async function title() {
       <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
-      <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Garden ${S.garden.length}/${GARDEN.length} · Treasures ${S.treasures.length}/${TREASURES.length} · Clothes ${ShopWardrobe.CLOTHES.filter(c => ShopWardrobe.owns(S, c.id)).length}/${ShopWardrobe.CLOTHES.length} · Friends ${Object.keys(S.friends).length}</p>
-      <p>From day ${VILLAGE_DAY}, after the shop closes, she can walk to Bramble Wood village: four neighbours each have one little job a day (2 pennies, plus 1 when every answer is right the first time), and two stalls sell garden things and treasures with the money above the 10 she keeps for Bramble.</p>
+      <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Garden ${S.garden.length}/${GARDEN.length} · Treasures ${S.treasures.length}/${TREASURES.length} · Home things ${S.home.length}/${HOME.length} · Clothes ${ShopWardrobe.CLOTHES.filter(c => ShopWardrobe.owns(S, c.id)).length}/${ShopWardrobe.CLOTHES.length} · Friends ${Object.keys(S.friends).length}</p>
+      <p>From day ${VILLAGE_DAY}, after the shop closes, she can walk to Bramble Wood village: four neighbours each have one little job a day (2 pennies, plus 1 when every answer is right the first time; two of them happen inside their houses), and three stalls sell garden things, treasures and things for her own house with the money above the 10 she keeps for Bramble. She has a house of her own at the end of the lane, where her wardrobe is too.</p>
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
     $('#gclose').addEventListener('click', () => { box.hidden = true; });

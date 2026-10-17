@@ -230,3 +230,4 @@ stack of ten books	stack of ten books
 stacks of ten books	stacks of ten books
 thank you for your help today	Thank you for your help today!
 will you help me count them	Will you help me count them?
+welcome to my library inside my old oak tree	Welcome to my library, inside my old oak tree.

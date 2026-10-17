@@ -77,32 +77,48 @@ main	captain whiskers gave me a
 main	miu the temple cat gave me a
 main	athena's owl gave me a
 main	the fairy queen gave me some
+main	This is my very own house!
+main	It is cozy, but it is a bit empty.
+main	Tansy sells lovely things for houses.
+main	I can buy them with the money I earn!
+main	My house is ready for some lovely things.
+main	Tansy's stall is at the end of the lane.
+main	will go in my house!
+main	for my house.
+main	more to find!
+main	thing
+main	things
+main	My house has everything!
+main	It is the coziest house in the wood.
+main	I love my
+main	is already
+main	in my house
+main	pot plant
+main	tea set
+main	meadow painting
+main	cozy armchair
+main	reading lamp
+main	tall clock
+main	tiny dollhouse
+main	bed canopy
+main	Change my clothes
+main	Go outside
+bunbury	Come in, come in, dear!
+bunbury	Mind the carrots.
+hoot	Welcome to my library, inside my old oak tree.
+tansy	pennies, please.
+tansy	penny, please.
+tansy	Come back soon!
+tansy	Bye for now!
+tansy	You have everything from my stall!
+tansy	Your house must be so cozy.
+tansy	You gave me
+tansy	back!
+mo	I'm going to see the ducks!
+wilf	I'm off to look at the windmill.
+clover	Hello, dear!
+clover	I'm so proud of you and your shop.
+bramble	Hello!
+bramble	I'm stretching my legs after a busy day with my cart.
+tansy	I have lovely things to make your house cozy!
 # mental-math hints and day-off activities (math/toadstool-shop/mental.js): pieces between numbers
-main	more
-main	needs
-main	make
-main	Count by twos.
-main	Count by fives.
-main	Count by tens.
-main	Found you!
-main	little mice in the dollhouse.
-main	little mice in the dollhouses.
-main	is done!
-main	I had a lovely day off playing hide and seek, and I earned
-main	I had a lovely day off playing firefly jars, and I earned
-main	Time for bed.
-main	gave me a little card to keep!
-main	What number and the same number make
-main	A row of 5 and
-main	Look at the row of 5.
-main	Button
-main	Thimble
-main	Bluebell
-main	Nutmeg
-main	Clementine
-main	Pepper
-main	Sprout
-main	Biscuit
-main	Tinsel
-main	Little Bean
-main	Start at

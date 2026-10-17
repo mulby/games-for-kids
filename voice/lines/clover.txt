@@ -185,3 +185,5 @@ the fairy lights	the fairy lights
 700	700
 800	800
 900	900
+hello dear	Hello, dear!
+i'm so proud of you and your shop	I'm so proud of you and your shop.
