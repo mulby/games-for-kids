@@ -708,3 +708,51 @@ sprout	Sprout
 tinsel	Tinsel
 little bean	Little Bean
 that makes	That makes
+ok	OK!
+tens and	tens and
+ones	ones.
+what number is that	What number is that?
+tens make	tens make
+more makes	more makes
+what is 10 more than	What is 10 more than
+what is 10 less than	What is 10 less than
+one more ten	One more ten.
+tens and 1 more ten makes	tens and 1 more ten makes
+tens	tens.
+one ten less	One ten less.
+tens take away 1 ten leaves	tens take away 1 ten leaves
+10 more	10 more.
+the tens go up by 1	The tens go up by 1.
+the ones stay	The ones stay
+10 less	10 less.
+the tens go down by 1	The tens go down by 1.
+what comes next	What comes next?
+look at the ones	Look at the ones.
+they stay	They stay
+only the tens change	Only the tens change.
+the tens go	The tens go
+count on by tens from	Count on by tens from
+count back by tens from	Count back by tens from
+plus what makes	plus what makes
+first add the tens	First add the tens.
+then add the ones	Then add the ones.
+first take away the tens	First take away the tens.
+then take away	Then take away
+that leaves	That leaves
+groups of	groups of
+jumps of	jumps of
+plus what makes 10	plus what makes 10?
+half of	half of
+what is half of	What is half of
+half means two equal parts	Half means two equal parts.
+type	Type
+lightning	⚡ Lightning!
+lightning quick	Lightning quick!
+then i can buy lovely things for my house	Then I can buy lovely things for my house!
+let's try	Let's try!
+doubled is	doubled is
+more than	more than
+less than	less than
+count by threes	Count by threes.
+count by fours	Count by fours.
+double	Double
