@@ -143,7 +143,7 @@ of 10, make 10, count back and count up. `mental.js` builds that into the shop:
 
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
 - `wardrobe.js`: the shopkeeper's clothes list and helpers.
-- `mental.js`: ten-frames, the strategy help, peek and cover, strategy charms and the day-off activities (also loaded by the other two looks). It uses the game's globals (`S`, `ask`, `talk`, `setPanel`, ...).
+- `mental.js`: ten-frames, the strategy help, peek and cover, strategy charms and the day-off activities. It uses the game's globals (`S`, `ask`, `talk`, `setPanel`, ...).
 - `shop3d.js`: the 3D world: the toadstool shop inside and out, the shopkeeper mouse, every customer, the goods,
   coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures
   (goods, coins, portraits, decorations) from the same models with the same lights (`window.Shop3D`).
