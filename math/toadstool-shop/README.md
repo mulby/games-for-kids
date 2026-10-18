@@ -139,10 +139,38 @@ of 10, make 10, count back and count up. `mental.js` builds that into the shop:
     two jars together (doubles, near doubles, make 10) and how many more fill a jar of ten. Five firefly cards.
   The choice screen lists `Mental.ACTIVITIES`, so another day-off activity can be added there.
 
+## Hoot's challenge board (plain math for money)
+
+Gabe (2026-10-17): she is in 3rd grade at a Waldorf school and at the bottom of her class in math. On the assessment
+she could not finish 58, 68, 78, ? (she expected 50, 60, 70), and she cannot keep up with the teacher's spoken chains
+("10 take away 3, add 8, halve it") because she counts every step on her fingers. She would happily do plain problems
+that earn money for her house, with a bonus for being quick and no way to guess. So the notice board in the village,
+next to Old Hoot's oak, is a challenge board (`challenges.js`, progress in `S.ch`):
+
+- Three kinds of card, each with its own level:
+  - *Tens Trail* (place value), levels 1 to 7: tens and ones from sticks, 10 more and 10 less than any number,
+    counting by 10s from any number (58, 68, 78, ?), adding and taking away tens, getting to the next ten
+    (58 + ? = 60, 58 + 4), adding 2-digit numbers (58 + 12), taking away 2-digit numbers.
+  - *Quick Facts* (fluency), levels 1 to 6: partners of 10 and small doubles, facts to 10, facts to 20 (doubles,
+    near doubles, make 10), taking away to 20, the 2, 5 and 10 times tables, then 3 and 4 and halves.
+  - *Hoot's Riddles* (spoken chains), levels 1 to 6: Hoot says one step at a time. At levels 1 and 2 she types the
+    new number after every step (the habit that matters: keep only the number so far). From level 3 the steps come
+    one after another, with nothing written down, and she gives only the answer (she taps for each step until level
+    5, when they come on their own). Doubles and halves come in at level 4, numbers up to 100 at level 6.
+- Every answer is typed on a number pad: nothing to pick from, so nothing to guess. A wrong answer rests the pad
+  (longer after a very quick tap) and shows the way to work it out; a second miss shows the answer.
+- Pay: 1 penny for each answer right the first time, 1 more (a lightning penny) when it is also quicker than her
+  usual time for that kind and level (the median of her last 12; 12 s, 6 s and 7 s until she has 3 times), and 2 for
+  finishing the card. A card is 5 problems (3 riddles), so up to 12 pennies.
+- A card with all but one right first time moves that kind up a level; about half or fewer moves it down.
+  Reaching a new level earns a binder card. The pictures (sticks of ten, a strip of the hundred chart) show at the
+  first levels and are a "Show me a picture" button after that.
+
 ## Files
 
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
 - `wardrobe.js`: the shopkeeper's clothes list and helpers.
+- `challenges.js`: Hoot's challenge board (cards, number pad, levels, pay). Uses the game's globals like `mental.js`.
 - `mental.js`: ten-frames, the strategy help, peek and cover, strategy charms and the day-off activities. It uses the game's globals (`S`, `ask`, `talk`, `setPanel`, ...).
 - `shop3d.js`: the 3D world: the toadstool shop inside and out, the shopkeeper mouse, every customer, the goods,
   coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures

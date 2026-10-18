@@ -16,6 +16,7 @@ export const PLACES = {
   burrow: { x: -12.5, door: [-12.5, -1.0], stand: [-13.8, .9], meet: [-11.3, .5] },
   stall: { x: -6, door: [-6.6, -1.3], stand: [-7.2, 1.3], meet: [-5.2, .2] },
   oak: { x: 0.5, door: [.5, -1.2], stand: [-.8, 1.0], meet: [1.8, .4] },
+  board: { x: 3.8, door: [4.6, -1.6], stand: [3.0, 1.1], meet: [4.7, .5] }, // Hoot's challenge board (the notice board)
   market: { x: 7, door: [7.6, -1.3], stand: [6.4, 1.3], meet: [8.2, .2] },
   ring: { x: 13.5, door: [13.5, -1.6], stand: [12.2, 1.0], meet: [14.6, .5] },
   pond: { x: 20, door: [21.2, -2.3], stand: [18.9, 1.0], meet: [21.1, .7] },
@@ -306,7 +307,8 @@ export function buildVillage(opts = {}) {
   const mill = windmill(); mill.position.set(-1.5, 0, -19); env.add(mill);
   chimneySmoke(PLACES.burrow.x + 1.0, 2.8, -2.8, smoke, sm);
   chimneySmoke(PLACES.house.x + 1.0, 4.35, -3.3, smoke, sm);
-  const nb = noticeBoard(); nb.position.set(3.8, 0, -1.9); nb.rotation.y = -.1; env.add(nb);
+  const nb = noticeBoard(); nb.position.set(3.8, 0, -1.9); nb.rotation.y = -.1; env.add(nb); places.board = nb;
+  const ns = sign('Challenges', 1.5, .38, { bg: '#fff6c8', border: '#e9b949' }); ns.position.set(0, .8, .1); nb.add(ns);
   for (const x of [-24.0, -15.8, -9.3, -2.6, 2.4, 5.2, 10.4, 16.6, 24.0]) { const lp = D.lanternPost(); lp.position.set(x, 0, -.25); env.add(lp); }
   env.add(D.buntingCord([[2.4, 2.05, -.25], [3.8, 1.55, -.2], [5.2, 2.05, -.25]], { n: 7 }));
   const wl = washingLine(); wl.position.set(-17.2, 0, -2.6); wl.rotation.y = .1; env.add(wl);
