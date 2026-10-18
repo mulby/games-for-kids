@@ -22,7 +22,7 @@ to the grand reopening, is the game's Legendary card.
 ## The shopkeeper's wardrobe
 
 She can change her shopkeeper's clothes any time with the 👗 button in the top bar: the dress colour (all five are free), and whatever she owns.
-The list lives in `wardrobe.js` (shared by all three looks, and meant to be reused by any other clothes seller) and the save keeps `closet` (what she owns) and `keeper.wear` (what is on, by slot).
+The list lives in `wardrobe.js` (meant to be reused by any other clothes seller) and the save keeps `closet` (what she owns) and `keeper.wear` (what is on, by slot).
 
 | Slot | Free | To buy (evening "For me" shelf) | Presents |
 | --- | --- | --- | --- |
@@ -40,7 +40,7 @@ Owning every piece of clothing earns the "Best Dressed in Bramble Wood" card.
 
 After closing time on day 5 and later, she walks down the lane into Bramble Wood village. Tap a place on the map (or on the 3D lane) and her mouse walks there; "Back to my shop" walks her back to count the till. It is all optional: she can go straight home.
 
-The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down the lane and stop to chat (tap one and they wave and say hello), smoke curls from the chimneys, ducks paddle on the pond, a windmill turns behind the cottages further back. Mrs. Bunbury and Old Hoot ask her inside: their jobs happen in the burrow's kitchen and the library inside the oak. At the far end of the lane she has a little house of her own, with her bed, wardrobe (👗 change clothes) and fireplace, which fills up with the home things she buys from Tansy.
+The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down the lane and stop to chat (tap one and they wave and say hello), smoke curls from the chimneys, ducks paddle on the pond, a windmill turns behind the cottages further back. Mrs. Bunbury and Old Hoot ask her inside: their jobs happen in the burrow's kitchen and the library inside the oak. At the far end of the lane she has a little house of her own, with her bed, wardrobe (👗 change clothes) and fireplace. She decorates it herself: things she buys from Tansy wait in a tray at the bottom; she taps one to put it in the room, drags things around (small things hop up onto the table or bed, pictures slide along the wall), taps one to turn it, and drags it back down to the tray to put it away. Wallpapers she buys can be switched with the Wallpaper button. The whole room is shown, like a dollhouse.
 
 | Place | Who | What she does | Math |
 | --- | --- | --- | --- |
@@ -50,10 +50,10 @@ The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down 
 | The duck pond | Captain Whiskers | Count the coins in his chest | Counting coins |
 | Dot's flower stall | Dot | Buy garden things that appear outside her shop (daisies 4¢ up to a fairy house 20¢) | Paying, change, taking away |
 | Miu's treasure stall | Miu | Buy treasures from Egypt, the Greek gods, pirates and fairies for a ledge on her counter (3¢ to 16¢), each a binder card | Paying, change, taking away |
-| Tansy's home things | Tansy | Buy things for her own house: a pot plant 3¢, tea set, meadow painting, cozy armchair, reading lamp, tall clock, tiny dollhouse, bed canopy 15¢ | Paying, change, taking away |
-| My house | herself | See her home things ("3 things for my house, 5 more to find!"), change clothes | How many more |
+| Tansy's home things | Tansy | Buy things for her own house: 24 things from a toadstool stool 2¢ to a bed canopy 15¢, including four wallpapers | Paying, change, taking away |
+| My house | herself | Decorate with what she bought ("3 things for my house, 21 more to find!"), pick wallpaper, change clothes | How many more |
 
-Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter"; every home thing earns "Coziest House in the Wood". The save keeps `garden`, `treasures`, `home` and `village` (today's jobs). Lantern Tale and Pixel Valley have the same village, drawn in their own styles (octo-view.js, sdv-view.js).
+Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter"; every home thing earns "Coziest House in the Wood". The save keeps `garden`, `treasures`, `home`, `homeTray` (bought but not out), `homeAt` (where each thing stands), `paper` (wallpaper) and `village` (today's jobs).
 
 ## The first days (onramp)
 
@@ -88,7 +88,7 @@ Thinking is always the quickest way through, so tapping around stops being worth
 - **A short rest.** After a wrong tap the answers fade for about 2 seconds while the help opens. A wrong tap within 1.5 seconds of
   the answers appearing gets "Whoa, quick paws!" and a 3 second rest. The coins Done button rests for about 1 second after a miss.
 - **Counting up for change.** After a wrong try at giving change, a strip counts up from the price to what was paid, lighting one
-  number for each penny in the paw (Lantern Tale already shows this as the Wish Shield).
+  number for each penny in the paw.
 - After a second miss the answer still glows and the others fade, so she always finishes. Level-ups only count first tries, as before.
 
 ## Levels
@@ -114,7 +114,7 @@ answers in those days were right first time; it still drops after 2 misses, so a
 
 She was counting everything one by one. The research path out of that (Clements and Sarama, Fuson, Baroody) is to see
 numbers in chunks and lean on a few anchor facts: count on from the bigger number, doubles and near doubles, the partners
-of 10, make 10, count back and count up. `mental.js` builds that into all three looks:
+of 10, make 10, count back and count up. `mental.js` builds that into the shop:
 
 - **Ten-frames everywhere.** Every row of dots is drawn as ten-frames (rows of 5, frames of 10), with the empty cells
   showing, so 7 reads as "5 and 2" and "3 short of 10".
@@ -169,9 +169,9 @@ next to Old Hoot's oak, is a challenge board (`challenges.js`, progress in `S.ch
 ## Files
 
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
-- `wardrobe.js`: the shopkeeper's clothes list and helpers (also loaded by the Lantern Tale and Pixel Valley looks).
+- `wardrobe.js`: the shopkeeper's clothes list and helpers.
 - `challenges.js`: Hoot's challenge board (cards, number pad, levels, pay). Uses the game's globals like `mental.js`.
-- `mental.js`: ten-frames, the strategy help, peek and cover, strategy charms and the day-off activities (also loaded by the other two looks). It uses the game's globals (`S`, `ask`, `talk`, `setPanel`, ...).
+- `mental.js`: ten-frames, the strategy help, peek and cover, strategy charms and the day-off activities. It uses the game's globals (`S`, `ask`, `talk`, `setPanel`, ...).
 - `shop3d.js`: the 3D world: the toadstool shop inside and out, the shopkeeper mouse, every customer, the goods,
   coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures
   (goods, coins, portraits, decorations) from the same models with the same lights (`window.Shop3D`).

@@ -11,8 +11,10 @@ const WALL_R = 7, WALL_H = 5.6;
 export const ROOM_SPOTS = {
   burrow: { keeper: [-2.3, 0, .9, .55], cust: [1.9, 0, .5, -.6] },
   oak: { keeper: [-2.3, 0, .9, .55], cust: [1.9, 0, .4, -.6] },
-  home: { keeper: [-.6, 0, .9, .15], cust: [2.4, 0, .5, -.6] },
+  home: { keeper: [-3.5, 0, 2.8, .5], cust: [2.4, 0, .5, -.6] },
 };
+// in her house the camera stands back to show the whole room, so she can see where everything goes
+export const DECO_CAM = { pos: [0, 7.5, 18], look: [0, 1.4, -1.0], span: 15, minSpan: 11.5, minH: 7.4, lowY: -.2, focus: [0, 1.3, -1.5], r: 8.5 };
 export const ROOM_CAM = { pos: [0, 4.3, 15], look: [0, 1.9, -2.2], span: 11, minSpan: 7.6, minH: 4.4, lowY: -.4, focus: [0, 1.3, -2], r: 7 };
 
 /* ------------------------------------------------------------------ helpers */
@@ -208,8 +210,7 @@ function wardrobe() {
 }
 function homeRoom() {
   const g = shell({ wall: '#fde6e0', ceil: D.felt('#fff1dc', { side: THREE.BackSide, scale: .8 }), posts: 0 });
-  // wallpaper sprigs
-  for (let i = 0; i < 40; i++) { const a = PI - 2.1 + (i % 20) / 19 * 4.2, y = 2.2 + Math.floor(i / 20) * 1.5 + (i % 2) * .5; const f = D.mesh(new THREE.CircleGeometry(.07, 8), D.felt(i % 3 ? '#f6a6bd' : '#8cc46c'), [Math.sin(a) * (WALL_R - .02), y, Math.cos(a) * (WALL_R - .02)], 1, [0, a + PI, 0]); g.add(f); }
+  // the wallpaper is hung separately (wallpaper()), so she can change it
   const fp = fireplace({ stone: '#e9ddc8' }); atWall(fp, PI - .32, .35); g.add(fp);
   const clock = D.candle(); clock.position.set(-.9, 2.55, .2); fp.add(clock);
   const v = D.flowerVase(); v.scale.setScalar(.9); v.position.set(.9, 2.55, .2); fp.add(v);
@@ -240,6 +241,73 @@ function armchair(color = '#e2566b') {
   for (const x of [-.6, .6]) for (const z of [-.5, .5]) g.add(D.lathe([[0, 0], [.07, 0], [.06, .22], [0, .22]], D.wood('#6b4a33'), 10).translateX(x).translateZ(z));
   return g;
 }
+function teddy() {
+  const g = new THREE.Group(), fur = D.felt('#c98a5a', { mottle: .25 }), pale = D.felt('#f0d2a8'), eye = D.glossy('#2a1d16', { rough: .15 });
+  g.add(D.ball(fur, [0, .32, 0], [.3, .34, .26], [0, 0, 0], 24));
+  g.add(D.ball(pale, [0, .3, .2], [.17, .2, .08], [0, 0, 0], 16));
+  g.add(D.ball(fur, [0, .82, .02], .25, [0, 0, 0], 24));
+  g.add(D.ball(pale, [0, .76, .22], [.11, .08, .07], [0, 0, 0], 16));
+  g.add(D.bead(eye, [0, .8, .29], .035));
+  for (const s of [-1, 1]) {
+    g.add(D.ball(fur, [s * .2, 1.03, 0], [.09, .09, .05], [0, 0, 0], 14)); g.add(D.ball(pale, [s * .2, 1.03, .03], [.05, .05, .03], [0, 0, 0], 10));
+    g.add(D.bead(eye, [s * .09, .88, .22], .03));
+    g.add(D.ball(fur, [s * .3, .42, .08], [.09, .18, .09], [0, 0, s * .5], 14));
+    g.add(D.ball(fur, [s * .16, .1, .18], [.11, .1, .16], [0, 0, 0], 14)); g.add(D.ball(pale, [s * .16, .1, .33], [.07, .07, .02], [0, 0, 0], 10));
+  }
+  g.add(D.mesh(new THREE.TorusGeometry(.13, .035, 8, 20), D.felt('#e2566b'), [0, .6, .05], [1, 1, .6], [PI2, 0, 0]));
+  return g;
+}
+function piano() {
+  const g = new THREE.Group(), w = D.wood('#5a3a28', { axis: 0 }), wv = D.wood('#5a3a28', { axis: 1 });
+  g.add(D.rbox(2.4, 1.5, .7, .06, w).translateY(.95).translateZ(-.2));
+  g.add(D.rbox(2.5, .1, .8, .04, w).translateY(1.75).translateZ(-.2));
+  g.add(D.rbox(2.3, .14, .5, .03, w).translateY(.98).translateZ(.3));
+  g.add(D.rbox(2.2, .06, .34, .01, D.glaze('#fffaf0', { rough: .3 })).translateY(1.07).translateZ(.34));
+  for (let i = 0; i < 14; i++) if (i % 7 !== 2 && i % 7 !== 6) g.add(D.rbox(.07, .07, .18, .01, D.glossy('#2a1d16', { rough: .3 })).translateX(-1.0 + i * .148 + .074).translateY(1.12).translateZ(.27));
+  for (const x of [-1.05, 1.05]) g.add(D.rbox(.12, .9, .12, .03, wv).translateX(x).translateY(.45).translateZ(.42));
+  g.add(D.rbox(.9, .5, .04, .02, w).translateY(1.5).translateZ(.16).rotateX(-.2));
+  const sheet = D.rbox(.6, .4, .01, .005, D.paper('#fff6e6')); sheet.position.set(0, 1.52, .2); sheet.rotation.x = -.2; g.add(sheet);
+  const c = D.candle(); c.scale.setScalar(.7); c.position.set(-.9, 1.8, -.2); g.add(c);
+  return g;
+}
+function toyChest() {
+  const g = new THREE.Group(), w = D.wood('#f2b8c6', { axis: 0 }), dark = D.wood('#d48aa2', { axis: 0 });
+  g.add(D.rbox(1.6, .8, .9, .06, w).translateY(.45));
+  g.add(D.mesh(new THREE.CylinderGeometry(.45, .45, 1.6, 24, 1, false, 0, PI), dark, [0, .85, 0], [1, .5, 1], [0, 0, PI2]));
+  g.add(D.rbox(.2, .25, .05, .02, D.metal(D.PAL.gold)).translateY(.82).translateZ(.47));
+  for (const x of [-.55, .55]) g.add(D.mesh(new THREE.CircleGeometry(.2, 20), D.felt('#fff6e6', { print: { kind: 'stars', color: '#ffd86b', n: 3, scale: 2 } }), [x, .45, .46]));
+  for (const x of [-.65, .65]) for (const z of [-.35, .35]) g.add(D.ball(D.wood('#8a5a36'), [x, .06, z], .07, [0, 0, 0], 10));
+  // a striped ball on the lid
+  g.add(D.ball(D.felt('#7bb4d9', { print: { kind: 'stripes', color: '#ffd86b', n: 4, w: .4, scale: 3 } }), [.4, 1.2, 0], .2, [0, 0, .5], 20));
+  return g;
+}
+function mirror() {
+  const g = new THREE.Group();
+  g.add(D.mesh(new THREE.TorusGeometry(.62, .09, 12, 48), D.wood('#c99a4a', { axis: 0 }), [0, 0, 0], [1, 1.3, 1]));
+  g.add(D.mesh(new THREE.CircleGeometry(.6, 48), D.metal('#e4eef6', { rough: .06 }), [0, 0, .01], [1, 1.3, 1]));
+  for (const s of [-1, 1]) g.add(D.ball(D.felt('#f6a6bd'), [s * .16, .9, .08], [.16, .09, .05], [0, 0, s * -.4], 14));
+  g.add(D.ball(D.felt('#e2566b'), [0, .9, .1], .07, [0, 0, 0], 12));
+  for (let i = 0; i < 7; i++) { const a = PI * .15 + i / 6 * PI * .7; g.add(D.ball(D.felt(['#ffd86b', '#fff6e6', '#f6a6bd'][i % 3]), [Math.cos(a) * .66, -Math.sin(a) * .85, .1], .06, [0, 0, 0], 10)); }
+  return g;
+}
+function stool() {
+  const g = new THREE.Group();
+  g.add(D.lathe([[0, 0], [.26, 0], [.2, .1], [.18, .5], [0, .5]], D.felt('#fff3dc'), 20));
+  g.add(D.ball(D.felt('#e2566b', { print: { kind: 'dots', color: '#ffffff', n: 4, r: .14, scale: 2 } }), [0, .58, 0], [.48, .2, .48], [0, 0, 0], 28));
+  return g;
+}
+function rug() {
+  const g = new THREE.Group();
+  g.add(D.rbox(3.0, .04, 1.9, .02, D.felt('#7bb4d9', { print: { kind: 'stripes', color: '#fff6e6', n: 6, w: .3, scale: 1.4 } })).translateY(.02));
+  for (const s of [-1, 1]) for (let i = 0; i < 12; i++) g.add(D.capsule(D.felt('#fff6e6'), [s * 1.5, .02, -.85 + i * .155], [s * 1.68, .02, -.85 + i * .155], .022, 4));
+  return g;
+}
+function bunting() {
+  const g = D.buntingCord([[-1.5, 0, 0], [-.75, -.32, .06], [0, -.42, .08], [.75, -.32, .06], [1.5, 0, 0]], { n: 9, colors: ['#f6a6bd', '#ffd86b', '#7bb4d9', '#8cc46c', '#b9a6e8'] });
+  for (const x of [-1.5, 1.5]) g.add(D.bead(D.metal(D.PAL.gold), [x, 0, 0], .06));
+  return g;
+}
+
 export const HOME_MODELS = {
   plant() { const g = new THREE.Group(); g.add(D.lathe([[0, 0], [.32, 0], [.42, .6], [.46, .65], [0, .62]], D.glaze('#e2836a'), 24)); g.add(D.mesh(new THREE.CircleGeometry(.4, 20).rotateX(-PI / 2), D.felt('#6b4a33'), [0, .6, 0])); for (let i = 0; i < 9; i++) { const a = i / 9 * TAU, h = .9 + (i % 3) * .35; g.add(D.tube([[0, .6, 0], [Math.cos(a) * .2, .6 + h * .6, Math.sin(a) * .2], [Math.cos(a) * .5, .6 + h, Math.sin(a) * .5]], .025, D.felt('#5f9a62'), 8, 4)); g.add(D.ball(D.felt(i % 2 ? '#7cc06e' : '#5f9a62'), [Math.cos(a) * .52, .6 + h, Math.sin(a) * .52], [.26, .05, .14], [0, -a, .4], 12)); } return g; },
   teaset() { const g = new THREE.Group(), china = D.glaze('#ffffff', { rough: .18, speckle: .05 }), rose = D.glaze('#f2a7b5'); g.add(D.lathe([[0, 0], [.22, 0], [.34, .18], [.3, .4], [.14, .48], [0, .5]], china, 32, { smooth: 14 })); g.add(D.mesh(new THREE.CylinderGeometry(.28, .3, .06, 32), rose, [0, .2, 0])); g.add(D.ball(rose, [0, .56, 0], .07)); g.add(D.taperTube([[.3, .2, 0], [.48, .32, 0], [.56, .48, 0]], .06, .03, china, 10, 8)); g.add(D.mesh(new THREE.TorusGeometry(.14, .03, 8, 20, PI * 1.2), rose, [-.32, .3, 0], 1, [0, 0, PI * .4])); for (const [x, z] of [[.6, .35], [-.5, .45]]) { const c = D.teacup(); c.scale.setScalar(.7); c.position.set(x, 0, z); g.add(c); } return g; },
@@ -249,17 +317,112 @@ export const HOME_MODELS = {
   clock() { const g = new THREE.Group(), w = D.wood('#8a5a36', { axis: 1 }); g.add(D.rbox(.9, 3.0, .6, .05, w).translateY(1.5)); g.add(D.ball(w, [0, 3.1, 0], [.5, .35, .3], [0, 0, 0], 24)); g.add(D.mesh(new THREE.CircleGeometry(.34, 32), D.felt('#fff6e6'), [0, 2.55, .31])); g.add(D.mesh(new THREE.TorusGeometry(.35, .04, 8, 32), D.metal(D.PAL.gold), [0, 2.55, .32])); for (let i = 0; i < 12; i++) { const a = i / 12 * TAU; g.add(D.bead(D.felt('#4a3428'), [Math.sin(a) * .27, 2.55 + Math.cos(a) * .27, .33], .025)); } const hand = new THREE.Group(); hand.name = 'clockHand'; hand.userData.live = true; hand.position.set(0, 2.55, .34); hand.add(D.rbox(.03, .22, .02, .005, D.felt('#2e2650')).translateY(.1)); g.add(hand); g.add(D.rbox(.03, .15, .02, .005, D.felt('#2e2650')).translateX(.06).translateY(2.6).translateZ(.34).rotateZ(-1)); g.add(D.rbox(.5, 1.2, .04, .02, D.glossy('#3a2a20', { rough: .2 })).translateY(1.25).translateZ(.31)); const pend = new THREE.Group(); pend.name = 'clockPend'; pend.userData.live = true; pend.position.set(0, 1.85, .34); pend.add(D.capsule(D.metal(D.PAL.gold), [0, 0, 0], [0, -.7, 0], .015, 6)); pend.add(D.mesh(new THREE.CylinderGeometry(.14, .14, .03, 20), D.metal(D.PAL.gold), [0, -.75, 0], 1, [PI / 2, 0, 0])); g.add(pend); return g; },
   dollhouse() { const g = new THREE.Group(); g.scale.setScalar(.82); g.add(D.rbox(1.6, .1, 1.0, .03, D.wood('#c08a58')).translateY(.05)); g.add(D.rbox(1.4, 1.1, .8, .04, D.felt('#fff3dc')).translateY(.65)); const roof = D.mesh(new THREE.ConeGeometry(1.1, .7, 4), D.felt('#e2566b', { print: { kind: 'stripes', color: '#f6a6bd', n: 6, w: .4, scale: 2 } }), [0, 1.55, 0], [1, 1, .7], [0, PI / 4, 0]); g.add(roof); g.add(D.rbox(.3, .5, .04, .02, D.wood('#7bb4d9')).translateY(.35).translateZ(.42)); for (const x of [-.45, .45]) { g.add(D.mesh(new THREE.PlaneGeometry(.3, .3), D.glowMat('#ffd98a', .5, { color: '#ffe9b8' }), [x, .85, .41])); g.add(D.rbox(.36, .04, .04, .01, D.wood(D.PAL.woodFrame)).translateX(x).translateY(.85).translateZ(.43)); } const m = D.ball(D.felt('#d9d2c8'), [.45, .35, .45], [.1, .12, .1], [0, 0, 0], 12); g.add(m); for (const s of [-1, 1]) g.add(D.ball(D.felt('#f6a6bd'), [.45 + s * .07, .48, .45], .045, [0, 0, 0], 10)); return g; },
   canopy() { const g = new THREE.Group(), w = D.wood('#c08a58', { axis: 1 }); for (const x of [-1, 1]) for (const z of [-1.45, 1.45]) g.add(D.rbox(.1, 3.2, .1, .02, w).translateX(x).translateY(1.6).translateZ(z)); const cl = D.felt('#fff6e6', { side: THREE.DoubleSide, print: { kind: 'dots', color: '#f6a6bd', n: 8, scale: 3 } }); g.add(D.rbox(2.2, .12, 3.1, .04, D.felt('#f6a6bd')).translateY(3.2)); for (const s of [-1, 1]) for (const z of [-1.45, 1.45]) { g.add(D.mesh(D.lumpy(D.SPH(20), .04, 3, s + z + 5), cl, [s * 1.0, 2.45, z], [.13, .8, .07])); g.add(D.mesh(new THREE.TorusGeometry(.13, .03, 6, 16), D.felt('#f6a6bd'), [s * 1.0, 2.0, z], [1, 1, .6], [PI2, 0, 0])); } const bc = D.buntingCord([[-1.05, 3.05, 1.5], [0, 2.75, 1.52], [1.05, 3.05, 1.5]], { n: 6 }); g.add(bc); return g; },
+  stool, teddy, piano, rug, bunting, mirror,
+  chest: toyChest,
+  candle() { const c = D.candle(); c.scale.setScalar(.9); return c; },
+  vase() { const v = D.flowerVase(); v.scale.setScalar(.8); return v; },
+  catbed() { const c = D.catBed(); c.scale.setScalar(.75); return c; },
+  sea() { return frame(picture('sea'), 1.3, 1.0); },
+  bookcase() { return shelfBooks(2.0, 3, 1.0, 9); },
 };
-// where each one goes in her house: [x, y, z, yaw] (painting hangs on the wall; canopy goes over the bed)
+
+/* ------------------------------------------------------------------ decorating her house */
+// How each thing sits in the room: on the floor, small (on the floor, or up on the table or bed if she drops it there),
+// flat on the floor (others can stand on it), on the wall, or fixed over the bed. r is about how much floor it takes.
+export const HOME_KIND = {
+  plant: { at: 'floor', r: .5 }, teaset: { at: 'small', r: .6 }, painting: { at: 'wall', w: 1.7 }, armchair: { at: 'floor', r: .8 },
+  lamp: { at: 'floor', r: .4 }, clock: { at: 'floor', r: .5 }, dollhouse: { at: 'floor', r: .7 }, canopy: { at: 'bed' },
+  stool: { at: 'floor', r: .45 }, candle: { at: 'small', r: .2 }, teddy: { at: 'small', r: .35 }, vase: { at: 'small', r: .25 },
+  bunting: { at: 'wall', w: 3.0 }, rug: { at: 'flat', r: 1.5 }, sea: { at: 'wall', w: 1.5 }, catbed: { at: 'floor', r: .75 },
+  mirror: { at: 'wall', w: 1.4 }, chest: { at: 'floor', r: .8 }, bookcase: { at: 'floor', r: 1.0 }, piano: { at: 'floor', r: 1.2 },
+};
+// Where each one goes the first time: floor things {x, z, r: yaw}, wall things {a: angle round the wall, y: height}.
 export const HOME_SPOTS = {
-  plant: [-1.75, 0, -5.2, .3], teaset: [2.6, 1.1, -2.45, -.3], painting: [0, 0, 0, 0], armchair: [.15, 0, -3.7, -.35],
-  lamp: [-.95, 0, -4.7, 0], clock: [4.55, 0, -4.4, -1.0], dollhouse: [4.1, 0, -1.6, -.9], canopy: [0, 0, 0, 0],
+  plant: { x: -1.75, z: -5.0, r: .3 }, teaset: { x: 2.6, z: -2.45, r: -.3 }, painting: { a: PI + .02, y: 3.95 }, armchair: { x: .15, z: -3.7, r: -.35 },
+  lamp: { x: -.95, z: -4.7, r: 0 }, clock: { x: 4.55, z: -4.4, r: -1.0 }, dollhouse: { x: 4.1, z: -1.6, r: -.9 },
+  stool: { x: -1.7, z: -1.6, r: .2 }, candle: { x: 2.05, z: -2.15, r: 0 }, teddy: { x: -3.3, z: -3.8, r: .7 }, vase: { x: 3.1, z: -2.65, r: 0 },
+  bunting: { a: PI - 1.15, y: 4.7 }, rug: { x: 1.0, z: 1.7, r: 0 }, sea: { a: PI + 1.25, y: 3.3 }, catbed: { x: 1.4, z: -.7, r: .3 },
+  mirror: { a: PI - 1.2, y: 3.2 }, chest: { x: -2.2, z: -.3, r: .5 }, bookcase: { x: -5.3, z: -.6, r: 1.45 }, piano: { x: 5.0, z: .3, r: -1.45 },
 };
-export function placeHome(id, o) {
-  if (id === 'painting') { atWall(o, PI + .02, .08, 3.95); return o; }
-  if (id === 'canopy') { o.position.set(-3.7, 0, -3.5); o.rotation.y = .7; return o; }
-  const [x, y, z, ry] = HOME_SPOTS[id]; o.position.set(x, y, z); o.rotation.y = ry; return o;
+// tops that small things can sit on: the table (with its cloth) and the bed
+const SURFACES = [{ x: 2.6, z: -2.4, w: 1.9, d: 1.3, ry: 0, y: 1.1 }, { x: -3.7, z: -3.5, w: 2.0, d: 2.4, ry: .7, y: .8 }];
+// the furniture that is always there, as circles on the floor, so new things land in a free spot
+const FIXED = [[2.1, -6.3, 1.5], [-2.3, -5.85, 1.2], [-3.7, -3.5, 1.9], [2.6, -2.4, 1.2], [3.9, -2.2, .6], [-3.5, 2.8, 1.0]];
+// (only the back of the wall: further round, the camera sees the wall from outside)
+export const WALL_A = [PI - 1.7, PI + 1.7], WALL_Y = [2.3, 4.9];
+export function surfaceAt(x, z, r = 0) {
+  for (const s of SURFACES) {
+    const dx = x - s.x, dz = z - s.z, c = Math.cos(s.ry), sn = Math.sin(s.ry), lx = dx * c - dz * sn, lz = dx * sn + dz * c;
+    if (Math.abs(lx) < s.w / 2 - r * .5 && Math.abs(lz) < s.d / 2 - r * .5) return s.y;
+  }
+  return 0;
 }
+// keep a floor thing inside the round room and in front of the camera's near edge
+export function clampFloor(x, z, r = .5) {
+  const max = WALL_R - .55 - r * .7, d = Math.hypot(x, z);
+  if (d > max) { x *= max / d; z *= max / d; }
+  return [x, Math.min(z, 3.4 - r * .3)];
+}
+export const clampWall = (a, y) => [THREE.MathUtils.clamp(a, WALL_A[0], WALL_A[1]), THREE.MathUtils.clamp(y, WALL_Y[0], WALL_Y[1])];
+// put a home thing where its spot says (o.at is the saved spot, or its first spot)
+export function placeHome(id, o, at) {
+  const k = HOME_KIND[id] || { at: 'floor' };
+  at = at || HOME_SPOTS[id] || { x: 0, z: 1, r: 0 };
+  if (k.at === 'bed') { o.position.set(-3.7, 0, -3.5); o.rotation.y = .7; return o; }
+  if (k.at === 'wall') { atWall(o, at.a ?? PI, id === 'bunting' ? .3 : .08, at.y ?? 3.5); return o; }
+  o.position.set(at.x, k.at === 'small' ? surfaceAt(at.x, at.z, k.r) : k.at === 'flat' ? .012 : 0, at.z); o.rotation.y = at.r || 0;
+  return o;
+}
+// a free spot for something just taken out of the tray: its own first spot if nothing is there, or else the roomiest
+// place on the floor (wall things: the emptiest stretch of wall). taken: {id: spot} of the things already in the room.
+export function freeSpot(id, taken = {}) {
+  const k = HOME_KIND[id] || { at: 'floor', r: .5 };
+  if (k.at === 'bed') return {};
+  const others = Object.entries(taken).map(([o, s]) => [o, s || HOME_SPOTS[o]]).filter(([o, s]) => o !== id && HOME_KIND[o] && s);
+  if (k.at === 'wall') {
+    const walls = others.filter(([o]) => HOME_KIND[o].at === 'wall').map(([o, s]) => [s.a, s.y, HOME_KIND[o].w]);
+    const room = (a, y) => Math.min(9, ...walls.map(([b, yy, w]) => Math.hypot((a - b) * WALL_R, (y - yy) * 1.4) - (w + k.w) / 2));
+    const first = HOME_SPOTS[id]; if (first && room(first.a, first.y) > 0) return { ...first };
+    let best = { a: PI, y: 3.4, d: -99 };
+    for (let i = 0; i <= 24; i++) for (const y of [3.3, 4.3, 2.6]) { const a = WALL_A[0] + i / 24 * (WALL_A[1] - WALL_A[0]), d = room(a, y) - Math.abs(a - PI) * .3; if (d > best.d) best = { a, y, d }; }
+    return { a: +best.a.toFixed(3), y: best.y };
+  }
+  const solid = others.filter(([o]) => !['wall', 'bed', 'flat'].includes(HOME_KIND[o].at)).map(([o, s]) => [s.x, s.z, HOME_KIND[o].r || .5]);
+  const blocks = k.at === 'flat' ? [] : FIXED.concat(solid);
+  const room = (x, z) => Math.min(9, ...blocks.map(([bx, bz, br]) => Math.hypot(x - bx, z - bz) - br - k.r));
+  const first = HOME_SPOTS[id];
+  if (first && (room(first.x, first.z) > 0 || (k.at === 'small' && surfaceAt(first.x, first.z, k.r)))) return { ...first };
+  let best = { x: 0, z: 1, d: -99 };
+  for (let i = 0; i < 15; i++) for (let j = 0; j < 9; j++) {
+    const [x, z] = clampFloor(-5.6 + i * .8, -5.6 + j * 1.1, k.r), d = room(x, z) - Math.hypot(x * .15, z + 1) * .15;
+    if (d > best.d) best = { x, z, d };
+  }
+  return { x: +best.x.toFixed(2), z: +best.z.toFixed(2), r: 0 };
+}
+
+/* ------------------------------------------------------------------ wallpapers */
+// The wall above the panelling is papered in felt; rose is the paper she starts with.
+export const PAPERS = {
+  rose: { wall: '#fde6e0', print: { kind: 'dots', color: '#f6a6bd', n: 4, r: .11, scale: .5 } },
+  stripes: { wall: '#dff2df', print: { kind: 'stripes', color: '#ffffff', n: 4, w: .35, scale: .35 } },
+  flowers: { wall: '#fff3dc', print: { kind: 'flowers', color: '#f6a6bd', color2: '#ffd86b', n: 3, scale: .45 } },
+  stars: { wall: '#cfdcf5', print: { kind: 'stars', color: '#fff6c0', n: 3, scale: .45 } },
+  hearts: { wall: '#fff0f4', print: { kind: 'hearts', color: '#f6a6bd', color2: '#e2566b', n: 3, scale: .45 } },
+};
+export function wallpaper(id) {
+  const P = PAPERS[id] || PAPERS.rose, h = WALL_H - 1.42;
+  const m = D.mesh(new THREE.CylinderGeometry(WALL_R - .03, WALL_R - .03, h, 96, 1, true, PI - 2.3, 4.6), D.felt(P.wall, { side: THREE.BackSide, print: P.print, fibre: .2 }), [0, 1.42 + h / 2, 0]);
+  m.receiveShadow = true; return m;
+}
+// a little piece of papered wall, for the picture on Tansy's stall
+function paperSwatch(id) {
+  const P = PAPERS[id] || PAPERS.rose, g = new THREE.Group();
+  g.add(D.rbox(2.0, 1.8, .08, .03, D.felt(P.wall, { print: P.print, fibre: .2 })).translateY(1.3));
+  g.add(D.rbox(2.0, .5, .12, .03, D.wood('#e3c49a', { axis: 1, freq: 3 })).translateY(.25));
+  g.add(D.rbox(2.1, .1, .2, .03, D.wood(D.PAL.woodDark)).translateY(.52));
+  return g;
+}
+
 // the picture on Tansy's stall: the canopy is shown over a little bed, so it reads as a bed canopy
-export const HOME_THUMB = id => id === 'canopy' ? (() => { const g = new THREE.Group(); g.add(bed()); g.add(HOME_MODELS.canopy()); return g; })() : HOME_MODELS[id] ? HOME_MODELS[id]() : new THREE.Group();
-export const HOME_ORDER = ['plant', 'teaset', 'painting', 'armchair', 'lamp', 'clock', 'dollhouse', 'canopy'];
+export const HOME_THUMB = id => id === 'canopy' ? (() => { const g = new THREE.Group(); g.add(bed()); g.add(HOME_MODELS.canopy()); return g; })()
+  : id.startsWith('wp-') ? paperSwatch(id.slice(3)) : HOME_MODELS[id] ? HOME_MODELS[id]() : new THREE.Group();

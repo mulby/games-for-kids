@@ -13,7 +13,7 @@ Open `index.html` (The Wonder Shelf) to pick a game. Every collectible card a ga
 | `math/gemling-grids/` | **Gemling Grids**: kid sudoku/KenKen with crystal creatures and Nib the mole | Logic, addition, missing addends |
 | `math/egypt-puzzles/` | **Miu's Magic Pyramids**: addition pyramids with Miu the temple cat | Addition, missing addends |
 | `math/pirate-voyage/` | **The Shining Sea**: sail the islands of the Greek gods | Number partners, add/subtract within 20, tens and ones, equal sides |
-| `math/toadstool-shop/` | **The Toadstool Shop**: run a shop in a toadstool; buy stock, serve customers, count the till, save up to decorate | Money, adding, making change, equal groups, tens and ones |
+| `math/toadstool-shop/` | **The Toadstool Shop**: run a shop in a toadstool; buy stock, serve customers, count the till, save up to decorate the shop and her own house (drag things around, pick wallpaper) | Money, adding, making change, equal groups, tens and ones |
 
 Each game is one self-contained `index.html` that saves progress in localStorage and has a press-and-hold "Grown-ups" view.
 

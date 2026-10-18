@@ -332,7 +332,7 @@ function updateActors(dt, t) {
 /* ------------------------------------------------------------------ camera framing */
 // eye/look set the angle; span is the width (and at least ~.6 of it in height) that must fit in the free band.
 const CAMS = {
-  room: RM.ROOM_CAM,
+  room: RM.ROOM_CAM, decorate: RM.DECO_CAM,
   outside: { pos: [0, 3.9, 17], look: [0, 3.1, 0], span: 14.5, minSpan: 9.5, minH: 5.2, lowY: -1.0, focus: [0, 1.5, 0], r: 9 },
   inside: { pos: [.4, 5.0, 16], look: [.4, 2.0, -2.4], span: 11.5, minSpan: 7.5, minH: 3.6, lowY: -.45, focus: [.4, 1.3, -2.4], r: 7 },
   meet: { pos: [-.6, 2.9, 6.8], look: [-.4, 1.75, -2.6], span: 4.4, minH: 2.2, focus: [-.2, 1.3, -3.2], r: 4 },
@@ -403,7 +403,7 @@ function update(dt) {
   if (sc === 'room') showRoom(v.room);
   inside.visible = sc === 'inside'; outside.visible = sc === 'outside'; village.visible = sc === 'village'; rooms.visible = sc === 'room';
   setPreset(sc === 'inside' || sc === 'room' ? 'inside' : sc === 'village' ? 'morning' : eve ? 'evening' : 'morning');
-  syncOwned(v.garden, 'garden'); syncOwned(v.treasures, 'treasures'); syncOwned(v.home, 'home');
+  syncOwned(v.garden, 'garden'); syncOwned(v.treasures, 'treasures'); if (roomGroups.home) syncHome(v);
   outside.userData.cart.visible = !!v.cart;
   for (const o of parts.morning) o.visible = !eve;
   for (const o of parts.evening) o.visible = eve;
@@ -439,16 +439,14 @@ function ensureVillage() {
   VG.ringGlows.forEach(s => { s.userData.glowBase = 0; }); // switched on by hand, not by the time of day
 }
 // Things she bought in the village appear the moment they are hers: garden things round the shop, treasures on the counter ledge.
-const owned = { garden: {}, treasures: {}, home: {} };
+const owned = { garden: {}, treasures: {}, home: {} }; // home: her house's things (syncHome)
 let ledge = null;
 function syncOwned(list, kind) {
   for (const id of list || []) {
     if (owned[kind][id]) continue;
-    if (kind === 'home' && !roomGroups.home) return; // built with her house, the first time she goes in
-    const make = (kind === 'garden' ? VL.GARDEN_MODELS : kind === 'home' ? RM.HOME_MODELS : VL.TREASURE_MODELS)[id]; if (!make) continue;
+    const make = (kind === 'garden' ? VL.GARDEN_MODELS : VL.TREASURE_MODELS)[id]; if (!make) continue;
     const o = make(); D.freeze(o);
-    if (kind === 'home') { RM.placeHome(id, o); roomGroups.home.add(o); if (id === 'clock') clock = o; }
-    else if (kind === 'garden') { const [x, y, z, ry] = VL.GARDEN_SPOTS[id]; o.position.set(x, y, z); o.rotation.y = ry; outside.add(o); }
+    if (kind === 'garden') { const [x, y, z, ry] = VL.GARDEN_SPOTS[id]; o.position.set(x, y, z); o.rotation.y = ry; outside.add(o); }
     else {
       if (!ledge) { ledge = VL.treasureShelf(); ledge.position.set(-.8, .62, -1.74); inside.add(ledge); }
       const [x, y, z] = VL.treasureSpot(id); o.position.set(x, y, z); o.scale.setScalar(1.25); ledge.add(o);
@@ -581,7 +579,105 @@ function showRoom(id) {
 }
 function roomAfter(t) {
   if (clock && roomKey === 'home') { const pd = clock.getObjectByName('clockPend'), hd = clock.getObjectByName('clockHand'); if (pd) pd.rotation.z = Math.sin(t * 2.4) * (calm ? .05 : .22); if (hd) hd.rotation.z = -t * .2; }
+  if (roomKey === 'home') animateHome(t);
 }
+
+/* ------------------------------------------------------------------ decorating her house */
+// The game keeps what she owns (TSV.home), what waits in the tray (TSV.homeTray), where each thing stands
+// (TSV.homeAt: {id: spot}, see rooms3d.js) and the wallpaper (TSV.paper). While TSV.decorate is on she can drag
+// things about, tap one to turn it, or drag it down onto the tray (below TSV.bottom) to put it away;
+// each of those is reported to TSV.onHome({type, id, at}), and the game saves it.
+let paperKey = '', hdrag = null;
+function syncHome(v) {
+  const g = roomGroups.home, tray = v.homeTray || [], at = v.homeAt || {};
+  if ((v.paper || 'rose') !== paperKey) {
+    paperKey = v.paper || 'rose';
+    if (g.userData.paper) { g.remove(g.userData.paper); g.userData.paper.geometry.dispose(); }
+    g.userData.paper = RM.wallpaper(paperKey); g.add(g.userData.paper);
+  }
+  for (const id of v.home || []) {
+    const make = RM.HOME_MODELS[id]; if (!make) continue; // wallpapers are in the list too
+    let o = owned.home[id];
+    if (!o) { o = make(); D.freeze(o); o.userData.homeId = id; o.visible = false; g.add(o); collectGlows(o); setGlowOne(o); owned.home[id] = o; if (id === 'clock') clock = o; }
+    const show = !tray.includes(id);
+    if (hdrag && hdrag.o === o) continue;
+    const key = JSON.stringify(at[id] || null);
+    if (show && (!o.visible || o.userData.spot !== key)) {
+      const fresh = !o.visible && o.userData.spot !== undefined; // it was in the tray: drop it in
+      RM.placeHome(id, o, at[id]); o.userData.spot = key; o.userData.baseY = o.position.y; o.visible = true;
+      if (fresh && !calm) o.userData.drop = T;
+    } else if (!show && o.visible) { o.visible = false; o.userData.spot = key; }
+    else if (o.userData.spot === undefined) o.userData.spot = key;
+  }
+}
+function animateHome(t) {
+  for (const o of Object.values(owned.home)) {
+    const u = o.userData;
+    if (u.drop != null) { const k = Math.min(1, (t - u.drop) / .5); o.position.y = u.baseY + 2.5 * (1 - k) * (1 - k) + Math.sin(k * Math.PI) * .15 * (k > .6 ? 1 : 0); if (k >= 1) { o.position.y = u.baseY; u.drop = null; } }
+    if (u.spin) { const k = Math.min(1, (t - u.spin.t0) / .35), e = 1 - (1 - k) ** 3; o.rotation.y = u.spin.from + (u.spin.to - u.spin.from) * e; if (k >= 1) u.spin = null; }
+    if (u.wiggle != null) { const k = Math.min(1, (t - u.wiggle) / .5); o.rotation.z = Math.sin(k * Math.PI * 4) * .08 * (1 - k); if (k >= 1) { o.rotation.z = 0; u.wiggle = null; } }
+  }
+}
+const floorPl = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hp = new THREE.Vector3();
+function rayAt(e) { ndc.set(e.clientX / W * 2 - 1, -(e.clientY / H) * 2 + 1); ray.setFromCamera(ndc, cam); return ray.ray; }
+// where the ray leaves the round wall (the camera is outside the circle, so the far crossing is the back wall)
+function wallHit(r) {
+  const R0 = 6.92, ox = r.origin.x, oz = r.origin.z, dx = r.direction.x, dz = r.direction.z;
+  const a = dx * dx + dz * dz, b = 2 * (ox * dx + oz * dz), c = ox * ox + oz * oz - R0 * R0, disc = b * b - 4 * a * c;
+  if (disc < 0 || a < 1e-6) return null;
+  const tt = (-b + Math.sqrt(disc)) / (2 * a), p = r.at(tt, new THREE.Vector3());
+  let ang = Math.atan2(p.x, p.z); if (ang < 0) ang += TAU;
+  return RM.clampWall(ang, p.y);
+}
+function homeHit(e, list = Object.values(owned.home).filter(o => o.visible)) {
+  rayAt(e); const h = ray.intersectObjects(list, true)[0]; if (!h) return null;
+  let o = h.object; while (o && !o.userData.homeId) o = o.parent; return o || null;
+}
+function homeEv(ev) { const f = V().onHome; if (typeof f === 'function') try { f(ev); } catch (e) { console.warn(e); } }
+canvas.addEventListener('pointerdown', e => {
+  const v = V(); if (hdrag || !v.decorate || sceneOf(v) !== 'room' || roomKey !== 'home') return;
+  const list = Object.values(owned.home).filter(o => o.visible);
+  const o = homeHit(e, list); if (!o) return;
+  const id = o.userData.homeId, kind = (RM.HOME_KIND[id] || {}).at || 'floor';
+  const fh = ray.ray.intersectPlane(floorPl, hp) ? hp.clone() : o.position.clone();
+  hdrag = { o, id, kind, pid: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, over: false, off: [o.position.x - fh.x, o.position.z - fh.z], at: JSON.parse(o.userData.spot || 'null') || { ...(RM.HOME_SPOTS[id] || {}) } };
+  if (o.userData.drop != null) { o.userData.drop = null; o.position.y = o.userData.baseY; } // still falling in: land it now
+  if (o.userData.spin) { o.rotation.y = o.userData.spin.to; o.userData.spin = null; }
+  hdrag.up = kind === 'small' && o.position.y > .5; // on the table or bed: the floor offset is worked out when it steps off
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+});
+canvas.addEventListener('pointermove', e => {
+  const d = hdrag; if (!d || e.pointerId !== d.pid) return;
+  if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 10) { d.moved = true; homeEv({ type: 'lift', id: d.id }); }
+  if (!d.moved) return;
+  const v = V(), over = e.clientY > (v.bottom || H) - 6;
+  if (over !== d.over) { d.over = over; homeEv({ type: 'over', id: d.id, on: over }); }
+  const r = rayAt(e), o = d.o, k = RM.HOME_KIND[d.id] || { r: .5 };
+  if (d.kind === 'wall') { const w = wallHit(r); if (w) { d.at = { a: +w[0].toFixed(3), y: +w[1].toFixed(2) }; RM.placeHome(d.id, o, d.at); o.translateZ(.15); } return; }
+  if (d.kind === 'bed') return;
+  let x, z, y = 0;
+  if (d.kind === 'small') { // over the table or the bed it hops up on top
+    for (const s of [1.1, .8]) { const pl = new THREE.Plane(new THREE.Vector3(0, 1, 0), -s); if (r.intersectPlane(pl, hp) && RM.surfaceAt(hp.x, hp.z, k.r) === s) { x = hp.x; z = hp.z; y = s; d.up = true; break; } }
+  }
+  if (x === undefined) { if (!r.intersectPlane(floorPl, hp)) return; if (d.up) { d.up = false; d.off = [o.position.x - hp.x, o.position.z - hp.z]; } x = hp.x + d.off[0]; z = hp.z + d.off[1]; [x, z] = RM.clampFloor(x, z, k.r); }
+  d.at = { x: +x.toFixed(2), z: +z.toFixed(2), r: +o.rotation.y.toFixed(3) };
+  o.position.set(x, (d.kind === 'flat' ? .012 : y) + (over ? 0 : .3), z);
+});
+function endHomeDrag(e) {
+  const d = hdrag; if (!d || (e && e.pointerId !== d.pid)) return; hdrag = null;
+  const o = d.o;
+  if (!d.moved) {
+    if (d.kind === 'wall' || d.kind === 'bed') { o.userData.wiggle = T; homeEv({ type: 'tap', id: d.id }); return; }
+    const from = o.rotation.y, to = from + Math.PI / 4; o.userData.spin = { from, to, t0: T };
+    d.at = { ...d.at, r: +(((to % TAU) + TAU) % TAU).toFixed(3) }; o.userData.spot = JSON.stringify(d.at);
+    homeEv({ type: 'turn', id: d.id, at: d.at }); return;
+  }
+  if (d.over) { o.visible = false; homeEv({ type: 'away', id: d.id }); return; }
+  RM.placeHome(d.id, o, d.at); o.userData.spot = JSON.stringify(d.at); o.userData.baseY = o.position.y;
+  homeEv({ type: 'move', id: d.id, at: d.at });
+}
+canvas.addEventListener('pointerup', endHomeDrag);
+canvas.addEventListener('pointercancel', endHomeDrag);
 
 // test helper: run the scene forward (walks, camera moves) without drawing, then draw once
 function settle(sec = 3) { for (let i = 0; i < sec * 30; i++) update(1 / 30); R.render(scene, cam); }
@@ -677,6 +773,8 @@ const portraitModel = spec => {
   if (o.userData.kind === 'fairy') { const w = o.getObjectByName('wand'); if (w) w.visible = false; }
   return o;
 };
+// flat or wide home things are seen from higher up, or closer, so they fill their picture
+const HOME_VIEW = { rug: { yaw: .2, pitch: .95, pad: 1.0 }, bunting: { yaw: 0, pitch: .1, pad: .8 } };
 G.Shop3D = {
   good: id => bake('good:' + id, () => goodModel(id), { yaw: .45, pitch: .4, pad: 1.08 }),
   // the value is printed flat on top (white with a dark outline) so 1, 5 and 10 read clearly at chip size
@@ -689,9 +787,11 @@ G.Shop3D = {
   decor: id => bake('d:' + id + (id === 'sign' ? signText : ''), THUMB[id] || (() => new THREE.Group()), { yaw: .35, pitch: .3, pad: 1.1, ...(DECOR_VIEW[id] || {}) }),
   garden: id => bake('g:' + id, VL.GARDEN_MODELS[id] || (() => new THREE.Group()), { yaw: .35, pitch: .35, pad: 1.1 }),
   treasure: id => bake('t:' + id, VL.TREASURE_MODELS[id] || (() => new THREE.Group()), { yaw: .3, pitch: .3, pad: 1.15 }),
-  home: id => bake('h:' + id, () => RM.HOME_THUMB(id), { yaw: .35, pitch: .3, pad: 1.12 }),
+  home: id => bake('h:' + id, () => RM.HOME_THUMB(id), { yaw: .35, pitch: .3, pad: 1.12, ...(HOME_VIEW[id] || (id.startsWith('wp-') ? { yaw: 0, pitch: .05 } : {})) }),
+  // a free spot in her house for something taken out of the tray (taken: {id: spot} of what is already in the room)
+  homeSpot: (id, taken) => RM.freeSpot(id, taken),
 };
-G.__ts3d = { R, scene, cam, bakeLog, stats, actors, settle, get dpr() { return dpr; }, CAMS, SPOTS, D, bakeObj, makeModel };
+G.__ts3d = { homeHit: (x, y) => (homeHit({ clientX: x, clientY: y }) || {}).userData?.homeId, get hdrag() { return hdrag && hdrag.id; }, R, scene, cam, bakeLog, stats, actors, settle, get dpr() { return dpr; }, CAMS, SPOTS, D, bakeObj, makeModel };
 if (G.__ts && G.__ts.on3d) G.__ts.on3d();
 
 // warm up: build and compile the whole cast while the player reads, so nobody stutters in later
