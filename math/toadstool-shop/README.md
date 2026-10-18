@@ -40,7 +40,7 @@ Owning every piece of clothing earns the "Best Dressed in Bramble Wood" card.
 
 After closing time on day 5 and later, she walks down the lane into Bramble Wood village. Tap a place on the map (or on the 3D lane) and her mouse walks there; "Back to my shop" walks her back to count the till. It is all optional: she can go straight home.
 
-The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down the lane and stop to chat (tap one and they wave and say hello), smoke curls from the chimneys, ducks paddle on the pond, a windmill turns behind the cottages further back. Mrs. Bunbury and Old Hoot ask her inside: their jobs happen in the burrow's kitchen and the library inside the oak. At the far end of the lane she has a little house of her own, with her bed, wardrobe (👗 change clothes) and fireplace, which fills up with the home things she buys from Tansy.
+The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down the lane and stop to chat (tap one and they wave and say hello), smoke curls from the chimneys, ducks paddle on the pond, a windmill turns behind the cottages further back. Mrs. Bunbury and Old Hoot ask her inside: their jobs happen in the burrow's kitchen and the library inside the oak. At the far end of the lane she has a little house of her own, with her bed, wardrobe (👗 change clothes) and fireplace. She decorates it herself: things she buys from Tansy wait in a tray at the bottom; she taps one to put it in the room, drags things around (small things hop up onto the table or bed, pictures slide along the wall), taps one to turn it, and drags it back down to the tray to put it away. Wallpapers she buys can be switched with the Wallpaper button. The whole room is shown, like a dollhouse.
 
 | Place | Who | What she does | Math |
 | --- | --- | --- | --- |
@@ -50,10 +50,10 @@ The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down 
 | The duck pond | Captain Whiskers | Count the coins in his chest | Counting coins |
 | Dot's flower stall | Dot | Buy garden things that appear outside her shop (daisies 4¢ up to a fairy house 20¢) | Paying, change, taking away |
 | Miu's treasure stall | Miu | Buy treasures from Egypt, the Greek gods, pirates and fairies for a ledge on her counter (3¢ to 16¢), each a binder card | Paying, change, taking away |
-| Tansy's home things | Tansy | Buy things for her own house: a pot plant 3¢, tea set, meadow painting, cozy armchair, reading lamp, tall clock, tiny dollhouse, bed canopy 15¢ | Paying, change, taking away |
-| My house | herself | See her home things ("3 things for my house, 5 more to find!"), change clothes | How many more |
+| Tansy's home things | Tansy | Buy things for her own house: 24 things from a toadstool stool 2¢ to a bed canopy 15¢, including four wallpapers | Paying, change, taking away |
+| My house | herself | Decorate with what she bought ("3 things for my house, 21 more to find!"), pick wallpaper, change clothes | How many more |
 
-Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter"; every home thing earns "Coziest House in the Wood". The save keeps `garden`, `treasures`, `home` and `village` (today's jobs).
+Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter"; every home thing earns "Coziest House in the Wood". The save keeps `garden`, `treasures`, `home`, `homeTray` (bought but not out), `homeAt` (where each thing stands), `paper` (wallpaper) and `village` (today's jobs).
 
 ## The first days (onramp)
 
