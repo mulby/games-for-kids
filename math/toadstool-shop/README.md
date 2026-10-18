@@ -168,6 +168,10 @@ next to Old Hoot's oak, is a challenge board (`challenges.js`, progress in `S.ch
   Reaching a new level earns a binder card. The pictures (sticks of ten, a strip of the hundred chart) show at the
   first levels and are a "Show me a picture" button after that.
 
+## Grown-ups: jump to a day
+
+Press and hold the ⚙️ gear for the grown-ups panel. "Jump to a day" sets the day, her money, where the day starts (Bramble's cart, the shop open, the village after the shop, or the evening till) and each skill level, then reloads into that moment. It skips Aunt Clover's letter if she has not met it yet, and stocks the shelves when jumping straight into an empty shop. The save from before the first jump is kept under `toadstoolShop.v1.before-jump`, and "Put her real game back" restores it.
+
 ## Files
 
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
