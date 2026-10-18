@@ -122,3 +122,30 @@ bramble	Hello!
 bramble	I'm stretching my legs after a busy day with my cart.
 tansy	I have lovely things to make your house cozy!
 # mental-math hints and day-off activities (math/toadstool-shop/mental.js): pieces between numbers
+# Hoot's challenge board (math/toadstool-shop/challenges.js): riddle steps are built from these pieces plus a number
+hoot	Start with
+hoot	Add
+hoot	Take away
+hoot	Double it.
+hoot	Halve it.
+hoot	What is the number now?
+main	doubled is
+main	half of
+main	more than
+main	less than
+main	tens and
+main	ones
+main	What comes next?
+main	Lightning quick!
+hoot	Hoo!
+hoot	pennies for you.
+hoot	You are ready for a harder card!
+hoot	Here are
+hoot	Next time I'll pin up an easier card to practise.
+hoot	Well done!
+main	Count by twos.
+main	Count by threes.
+main	Count by fours.
+main	Count by fives.
+main	Count by tens.
+main	Double

@@ -1174,6 +1174,7 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
 <div id="wardrobe" hidden><div class="card"></div></div>
 <script src="wardrobe.js"></script>
 <script src="mental.js"></script>
+<script src="challenges.js"></script>
 <script>
 'use strict';
 /* ================= basics ================= */
@@ -2130,6 +2131,7 @@ const PLACES = {
   house: { name: 'My house', who: 'keeper', home: true, room: 'home', emoji: '🏠' },
   burrow: { name: "Mrs. Bunbury's burrow", who: 'bunbury', job: carrotJob, room: 'burrow', emoji: '🥕', come: 'Come in, come in, dear! Mind the carrots.', ask: 'I planted my carrots in neat rows. Could you help me count them?' },
   stall: { name: "Dot's flower stall", who: 'dot', shop: 'garden', emoji: '🌷', hi: 'Hello! Flowers and pretty things for your garden!' },
+  board: { name: "Hoot's challenge board", who: 'hoot', board: true, emoji: '⭐' }, // challenges.js: plain math cards that pay
   oak: { name: "Old Hoot's library", who: 'hoot', job: bookJob, room: 'oak', emoji: '📚', come: 'Hoo! Welcome to my library, inside my old oak tree.', ask: 'I keep my books in stacks of ten. Will you help me count them?' },
   market: { name: "Miu's treasure stall", who: 'miu', shop: 'treasures', emoji: '🏺', hi: 'Greetings! Treasures from faraway lands. Each one is one of a kind!' },
   ring: { name: 'The fairy ring', who: 'fern', job: lanternJob, emoji: '🧚', ask: 'The fairies dance here tonight, and the lanterns need lighting. Will you help me count?' },
@@ -2217,7 +2219,7 @@ function villageMap() {
     };
     const draw = () => setPanel(`
       ${coach ? `<div class="coach">👆 Tap a place to walk there. You can tap the houses, the lane and the neighbours too!</div>` : ''}
-      <div class="places">${Object.entries(PLACES).map(([id, P]) => `<button data-p="${id}" class="${P.job && S_.done[id] ? 'own' : ''}"><span class="pp">${portrait(P.who)}</span><span>${P.name}</span><span class="tag">${P.home ? `${P.emoji} my home` : P.job ? (S_.done[id] ? '✓ helped' : `${P.emoji} job`) : `${P.emoji} shop`}</span></button>`).join('')}</div>
+      <div class="places">${Object.entries(PLACES).map(([id, P]) => `<button data-p="${id}" class="${P.job && S_.done[id] ? 'own' : ''}"><span class="pp">${portrait(P.who)}</span><span>${P.name}</span><span class="tag">${P.home ? `${P.emoji} my home` : P.board ? `${P.emoji} challenges` : P.job ? (S_.done[id] ? '✓ helped' : `${P.emoji} job`) : `${P.emoji} shop`}</span></button>`).join('')}</div>
       <button class="btn alt" id="home">Back to my shop 🍄</button>`, p => {
       $$('[data-p]', p).forEach(b => b.addEventListener('click', () => go(b.dataset.p)));
       $('#home', p).addEventListener('click', () => go('home'));
@@ -2234,7 +2236,7 @@ async function visit(id) {
   TSV.place = id; TSV.cust = CAST[who].spec; mood('cust', 'idle');
   await wait(has3d() ? (P.room ? 700 : 1300) : 150);
   if (P.room) { mood('cust', 'wave', 1600); await talk(who, P.come, 'Thank you!'); }
-  if (P.job) await jobVisit(id); else await stallVisit(id);
+  if (P.board) await Challenges.run(); else if (P.job) await jobVisit(id); else await stallVisit(id);
   hush(); setPanel('');
   if (P.room) { await leaveRoom(id); return; }
   TSV.cust = null; await wait(has3d() ? 900 : 100); TSV.place = null;
@@ -2476,6 +2478,7 @@ async function title() {
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
       <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Garden ${S.garden.length}/${GARDEN.length} · Treasures ${S.treasures.length}/${TREASURES.length} · Home things ${S.home.length}/${HOME.length} · Clothes ${ShopWardrobe.CLOTHES.filter(c => ShopWardrobe.owns(S, c.id)).length}/${ShopWardrobe.CLOTHES.length} · Friends ${Object.keys(S.friends).length}</p>
       <p>From day ${VILLAGE_DAY}, after the shop closes, she can walk to Bramble Wood village: four neighbours each have one little job a day (2 pennies, plus 1 when every answer is right the first time; two of them happen inside their houses), and three stalls sell garden things, treasures and things for her own house with the money above the 10 she keeps for Bramble. She has a house of her own at the end of the lane, where her wardrobe is too.</p>
+      <p>Hoot's challenge board (in the village, next to his oak) has cards of 5 plain problems typed on a number pad: a penny for each right first time, a lightning penny more when it is quicker than her usual time, and 2 for finishing. A good card (4 of 5) moves up a level, 2 or fewer moves down. ${Challenges.summary()}</p>
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
     $('#gclose').addEventListener('click', () => { box.hidden = true; });

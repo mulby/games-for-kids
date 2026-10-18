@@ -121,6 +121,8 @@ def add(table, s):
 pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(str(root / "fun/*/index.html")))
 # The shop's shared mental-math helper (hints and day-off activities) speaks too.
 pages.append(str(root / "math/toadstool-shop/mental.js"))
+# and Hoot's challenge board (challenges.js)
+pages.append(str(root / "math/toadstool-shop/challenges.js"))
 for page in pages:
     src = open(page).read()
     found = fun_lines(src) if "/fun/" in page else shop_lines(src) if re.search(r"/toadstool-shop[^/]*/", page) else ((None, t) for q, t in CALL.findall(src))

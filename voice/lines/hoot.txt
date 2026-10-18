@@ -231,3 +231,37 @@ stacks of ten books	stacks of ten books
 thank you for your help today	Thank you for your help today!
 will you help me count them	Will you help me count them?
 welcome to my library inside my old oak tree	Welcome to my library, inside my old oak tree.
+come back soon	Come back soon!
+back	back!
+and a card for your binder	And a card for your binder!
+what is the number now	What is the number now?
+this is my challenge board	This is my challenge board.
+i pin up math cards for clever shopkeepers	I pin up math cards for clever shopkeepers.
+each card has 5 problems	Each card has 5 problems.
+you get a penny for every one you get right the first time	You get a penny for every one you get right the first time.
+answer quickly and you get a lightning penny too	Answer quickly and you get a lightning penny too!
+and 2 more pennies for finishing a card	And 2 more pennies for finishing a card.
+which card would you like today	Which card would you like today?
+good day	Good day!
+pick a card	Pick a card.
+ready for a challenge	Ready for a challenge?
+i will say a riddle one step at a time	I will say a riddle, one step at a time.
+here is my secret	Here is my secret.
+you never have to remember the whole riddle	You never have to remember the whole riddle.
+just keep the number so far	Just keep the number so far!
+ok	OK!
+here we go	Here we go!
+another card	Another card?
+would you like another card	Would you like another card?
+one more	One more?
+come back soon for more challenges	Come back soon for more challenges!
+see you soon clever one	See you soon, clever one.
+start with	Start with
+add	Add
+take away	Take away
+double it	Double it.
+halve it	Halve it.
+pennies for you	pennies for you.
+you are ready for a harder card	You are ready for a harder card!
+next time i'll pin up an easier card to practise	Next time I'll pin up an easier card to practise.
+well done	Well done!
