@@ -143,6 +143,7 @@ button.coin{padding:0}
 #grownups[hidden]{display:none}
 #grownups .card{background:#fffdf7;border-radius:20px;padding:20px;max-width:640px;width:100%;max-height:90vh;overflow:auto;font-family:system-ui,sans-serif;font-size:16px}
 #grownups table{width:100%;border-collapse:collapse}#grownups td,#grownups th{padding:6px;border-bottom:1px solid #eee;text-align:left}
+#grownups .jump{background:#f6efe2;border-radius:14px;padding:12px 14px;margin:12px 0}#grownups .jump h3{margin:0 0 6px}#grownups .jump label{display:inline-flex;align-items:center;gap:6px;margin:6px 14px 6px 0}#grownups .jump input,#grownups .jump select{font-size:18px;padding:6px 8px;border:1px solid #cbb;border-radius:8px;background:#fff}#grownups .jump input{width:5em}#grownups .jump .btn{min-height:48px;font-size:18px;margin:8px 8px 0 0}
 @media (max-height:640px){.opt{min-height:70px;font-size:36px}.btn{min-height:56px;font-size:22px}#bubble .pt{width:54px;height:54px}.gimg{width:52px;height:52px}}
 @media (prefers-reduced-motion:reduce){.pop,.opt.glow,.pulse,.spark{animation:none!important}}
 /* felt look (3D on): self-hosted Comic Neue, stitched felt badges, paper grain, embossed coin pictures */
@@ -2550,6 +2551,7 @@ async function title() {
     }).join('');
     const box = $('#grownups'); box.hidden = false;
     $('.card', box).innerHTML = `<h2 style="margin-top:0">The Toadstool Shop: grown-ups</h2>
+      ${jumpPanel()}
       <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors. After that it slowly gets harder: from day 7 one more customer on days when she has been getting at least 70% right, orders with up to 3 kinds of goods once her adding is past level 1, the smallest orders get a little bigger every 3 days up to day 13, and a skill that has not moved for 3 days moves up overnight if at least 70% of its answers in those days were right first time.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
@@ -2559,6 +2561,45 @@ async function title() {
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
     $('#gclose').addEventListener('click', () => { box.hidden = true; });
+    $('#jgo').addEventListener('click', jump);
+    const u = $('#jundo'); if (u) u.addEventListener('click', undoJump);
+  }
+
+  /* Jump to a day: for a grown-up trying things out. The save from before the first jump is kept
+     under BACKUP so "Put her real game back" can restore it. */
+  const BACKUP = KEY + '.before-jump';
+  const PHASES = [['morning', "Morning (Bramble's cart)"], ['shop', 'Shop open'], ['village', `After the shop: village (day ${VILLAGE_DAY}+)`], ['evening', 'Evening (counting the till)']];
+  function backup() { try { return JSON.parse(localStorage.getItem(BACKUP)); } catch (e) { return null; } }
+  function jumpPanel() {
+    const b = backup(), now = ['shop', 'village', 'evening'].includes(S.phase) ? S.phase : 'morning';
+    return `<div class="jump"><h3>Jump to a day</h3>
+      <p style="margin:0 0 4px">Set the day, money and skill levels to try any part of the game. Village, her house and Hoot's board open from day ${VILLAGE_DAY}; price tags from day ${PRICES_DAY}; giving change from day ${CHANGE_DAY}.</p>
+      <label>Day <input id="jday" type="number" inputmode="numeric" min="1" max="60" value="${S.day}"></label>
+      <label>Money <input id="jmoney" type="number" inputmode="numeric" min="0" max="999" value="${S.till}">¢</label>
+      <label>Start at <select id="jphase">${PHASES.map(([v, n]) => `<option value="${v}" ${v === now ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <div>${Object.keys(RANGE).map(k => `<label>${STRAND_NAME[k].split(' (')[0]} <select data-jlv="${k}">${Array.from({ length: RANGE[k][1] - RANGE[k][0] + 1 }, (_, i) => RANGE[k][0] + i).map(n => `<option ${n === S.lv[k] ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`).join('')}</div>
+      <button class="btn" id="jgo">Jump</button>${b ? `<button class="btn" id="jundo">Put her real game back (day ${b.day}, ${b.till}¢)</button>` : ''}
+      <p style="font-size:14px;opacity:.7;margin:6px 0 0">${b ? 'Her real game is kept safe until you put it back.' : 'Her real game is kept safe, and a button here puts it back.'}</p></div>`;
+  }
+  const num = (id, lo, hi, d) => { const n = Math.round(+$(id).value); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
+  function jump() {
+    if (!backup()) try { localStorage.setItem(BACKUP, JSON.stringify(S)); } catch (e) {}
+    const day = num('#jday', 1, 60, S.day);
+    let phase = $('#jphase').value; if (phase === 'village' && day < VILLAGE_DAY) phase = 'morning';
+    if (!S.keeper) S.keeper = { fur: 'grey', dress: 'pink', name: 'Poppy' }; // skip Aunt Clover's letter
+    S.day = day; S.till = num('#jmoney', 0, 999, S.till); S.phase = phase;
+    S.shop = null; S.had = {}; S.sold = {}; S.village = null; S.villageGo = null; S.villageBack = null;
+    $$('[data-jlv]').forEach(el => { S.lv[el.dataset.jlv] = +el.value; });
+    S.streak = {}; S.lvDay = Object.fromEntries(Object.keys(RANGE).map(k => [k, day]));
+    S.log = S.log.filter(x => x.day < day); // the day-to-day ramp only looks at earlier days
+    if (phase === 'shop' && !inStock().length) unlocked(day).forEach(g => { S.stock[g] = 4; }); // something on the shelves to sell
+    if (phase === 'shop') S.had = Object.assign({}, S.stock);
+    save(); location.reload();
+  }
+  function undoJump() {
+    const b = backup(); if (!b) return;
+    try { localStorage.setItem(KEY, JSON.stringify(b)); localStorage.removeItem(BACKUP); } catch (e) {}
+    location.reload();
   }
 })();
 
