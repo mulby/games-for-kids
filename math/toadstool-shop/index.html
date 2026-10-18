@@ -14,6 +14,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:linear-gradient(#bfe3f
   font-family:"Chalkboard SE","Comic Sans MS","Comic Neue",ui-rounded,"Trebuchet MS",system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 body.g3d{background:#bfe3ff}
 #gl3d{position:fixed;inset:0;z-index:0;display:block}
+body.decorating #gl3d{touch-action:none}
 #flat{position:fixed;inset:0;z-index:0;display:grid;place-items:center;font-size:min(34vw,34vh);opacity:.9;pointer-events:none}
 body.g3d #flat{display:none}
 button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
@@ -192,6 +193,13 @@ body.g3d .btn.red{background:linear-gradient(#ea6b7e,var(--red))}
 .books i{display:block;width:54px;height:9px;border-radius:3px;background:#e2566b}
 .books.loose i{width:9px;height:40px}
 .books i.b1{background:#7bb4d9}.books i.b2{background:#8cc46c}.books i.b3{background:#e9b949}.books i.b4{background:#b9a6e8}
+.htray{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;width:100%;min-height:118px;align-items:center;padding:8px;border-radius:20px;background:#fff7ea;box-shadow:inset 0 0 0 3px #f0dcc0;touch-action:pan-x;scrollbar-width:none}
+.htray::-webkit-scrollbar{display:none}
+.htray.drop{background:#ffe3ec;box-shadow:inset 0 0 0 4px #f09ab8}
+.htray button{flex:0 0 auto;width:112px;background:#fff;border-radius:18px;padding:6px;box-shadow:0 5px 0 #d8c4a8;display:flex;flex-direction:column;align-items:center;font-size:15px;font-weight:700;line-height:1.1}
+.htray button img{width:70px;height:70px;object-fit:contain}.htray button .em{font-size:44px;line-height:70px}
+.htray .small{margin:auto;text-align:center}
+.htray button.own{background:#e3f2d8;box-shadow:0 5px 0 #8cc46c}
 .decor.one{display:flex;justify-content:center}.decor.one button{min-width:160px}
 
 /* the wardrobe (👗) and the "For me" shelf */
@@ -1278,7 +1286,7 @@ function rampUp() {
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START);
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], homeTray: [], homeAt: {}, paper: 'rose', village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
@@ -1321,7 +1329,7 @@ function keeperSpec() { return ShopWardrobe.keeperSpec(S, FURS, DRESSES); }
 function syncView() {
   TSV.stock = S.stock; TSV.decor = S.decor; TSV.signText = S.keeper ? `${S.keeper.name}'s Shop` : 'The Toadstool Shop';
   TSV.keeper = keeperSpec();
-  TSV.garden = S.garden; TSV.treasures = S.treasures; TSV.home = S.home; TSV.ringLit = !!(S.village && S.village.day === S.day && S.village.done.ring);
+  TSV.garden = S.garden; TSV.treasures = S.treasures; TSV.home = S.home; TSV.homeTray = S.homeTray; TSV.homeAt = S.homeAt; TSV.paper = S.paper; TSV.ringLit = !!(S.village && S.village.day === S.day && S.village.done.ring);
 }
 let moodT = {};
 function mood(who, m, ms) { TSV.mood[who] = m; clearTimeout(moodT[who]); if (ms) moodT[who] = setTimeout(() => { TSV.mood[who] = 'idle'; }, ms); }
@@ -2158,15 +2166,33 @@ const TREASURES = [
   { id: 'crown', name: 'Fairy crown', cost: 16, emoji: '👑', from: 'The Fairy Queen wore it when she was little.' },
 ];
 const HOME = [
+  { id: 'stool', name: 'Toadstool stool', cost: 2, emoji: '🍄' },
+  { id: 'candle', name: 'Candlestick', cost: 2, emoji: '🕯️' },
+  { id: 'teddy', name: 'Teddy bear', cost: 3, emoji: '🧸' },
+  { id: 'vase', name: 'Flower vase', cost: 3, emoji: '💐' },
+  { id: 'bunting', name: 'Bunting', cost: 3, emoji: '🎏' },
   { id: 'plant', name: 'Pot plant', cost: 3, emoji: '🪴' },
   { id: 'teaset', name: 'Tea set', cost: 4, emoji: '🫖' },
+  { id: 'rug', name: 'Stripy rug', cost: 4, emoji: '🧶' },
   { id: 'painting', name: 'Meadow painting', cost: 5, emoji: '🖼️' },
+  { id: 'sea', name: 'Sailboat painting', cost: 5, emoji: '⛵' },
+  { id: 'wp-stripes', name: 'Stripy wallpaper', cost: 5, emoji: '🎨', paper: true },
+  { id: 'catbed', name: 'Cat basket', cost: 5, emoji: '🐱' },
   { id: 'armchair', name: 'Cozy armchair', cost: 6, emoji: '🛋️' },
+  { id: 'mirror', name: 'Round mirror', cost: 6, emoji: '🪞' },
+  { id: 'wp-flowers', name: 'Flower wallpaper', cost: 6, emoji: '🌸', paper: true },
+  { id: 'chest', name: 'Toy chest', cost: 7, emoji: '🎁' },
+  { id: 'wp-stars', name: 'Starry wallpaper', cost: 7, emoji: '⭐', paper: true },
   { id: 'lamp', name: 'Reading lamp', cost: 8, emoji: '💡' },
+  { id: 'wp-hearts', name: 'Heart wallpaper', cost: 8, emoji: '💗', paper: true },
+  { id: 'bookcase', name: 'Bookcase', cost: 9, emoji: '📚' },
   { id: 'clock', name: 'Tall clock', cost: 10, emoji: '🕰️' },
   { id: 'dollhouse', name: 'Tiny dollhouse', cost: 12, emoji: '🏡' },
+  { id: 'piano', name: 'Little piano', cost: 14, emoji: '🎹' },
   { id: 'canopy', name: 'Bed canopy', cost: 15, emoji: '🛏️' },
 ];
+// the wallpaper her house starts with, plus the ones she buys
+const ROSE_PAPER = { id: 'wp-rose', name: 'Rose wallpaper', emoji: '🌹', paper: true };
 const ITEMS = { garden: GARDEN, treasures: TREASURES, home: HOME };
 function itemImg(kind, it) { return has3d() && Shop3D[kind === 'garden' ? 'garden' : kind === 'home' ? 'home' : 'treasure'] ? `<img src="${Shop3D[kind === 'garden' ? 'garden' : kind === 'home' ? 'home' : 'treasure'](it.id)}" alt="">` : `<span class="em">${it.emoji}</span>`; }
 const spare = () => Math.max(0, S.till - 10);
@@ -2245,28 +2271,71 @@ async function leaveRoom(id) {
   setScene('village', { time: 'day' });
   await wait(has3d() ? 500 : 50);
 }
-// her own house: what she has bought for it, and her wardrobe
+// her own house: she decorates it with what she has bought (the tray holds what isn't out), and keeps her wardrobe there
+const homeThings = () => S.home.filter(id => !id.startsWith('wp-'));
+function homeTaken() { const t = {}; for (const id of homeThings()) if (!S.homeTray.includes(id)) t[id] = S.homeAt[id] || null; return t; }
 async function houseVisit() {
-  SFX.door(); setScene('room', { room: 'home', time: 'day' }); TSV.place = 'house'; TSV.cust = null;
+  SFX.door(); setScene('room', { room: 'home', time: 'day', cam: 'decorate' }); TSV.place = 'house'; TSV.cust = null;
   await wait(has3d() ? 700 : 100);
   mood('keeper', 'happy', 1800);
   if (coachOnce('myhouse')) {
     await talk('keeper', 'This is my very own house! It is cozy, but it is a bit empty.', 'Next');
     await talk('keeper', "Tansy sells lovely things for houses. I can buy them with the money I earn!", 'OK!');
   }
+  let walls = false, placed = 0;
   await new Promise(res => {
     const n = S.home.length, left = HOME.length - n;
-    say('keeper', !n ? "My house is ready for some lovely things. Tansy's stall is at the end of the lane." : left ? `I have ${n} ${plural(n, 'thing', 'things')} for my house. ${left} more to find!` : 'My house has everything! It is the coziest house in the wood.');
+    say('keeper', S.homeTray.length ? 'My new things are waiting in the tray. Tap one to put it in my house!' : !n ? "My house is ready for some lovely things. Tansy's stall is at the end of the lane." : left ? `I have ${n} ${plural(n, 'thing', 'things')} for my house. ${left} more to find!` : 'My house has everything! It is the coziest house in the wood.');
     DBG.cur = { type: 'house' };
-    const draw = () => setPanel(`
-      ${n ? `<div class="decor">${HOME.filter(it => S.home.includes(it.id)).map(it => `<button data-h="${it.id}" class="own">${itemImg('home', it)}<span>${it.name}</span></button>`).join('')}</div>` : ''}
-      <div class="row"><button class="btn" id="dress">Change my clothes 👗</button><button class="btn alt" id="bye">Go outside</button></div>`, p => {
-      $$('[data-h]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); say('keeper', `I love my ${HOME.find(x => x.id === b.dataset.h).name.toLowerCase()}!`); mood('keeper', 'happy', 1500); }));
-      $('#dress', p).addEventListener('click', () => { SFX.tap(); openWardrobe(); });
-      $('#bye', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
-    });
+    const item = id => id === 'wp-rose' ? ROSE_PAPER : HOME.find(x => x.id === id);
+    const draw = () => {
+      DBG.cur = { type: walls ? 'walls' : 'house' };
+      if (walls) {
+        const list = [ROSE_PAPER].concat(HOME.filter(it => it.paper && S.home.includes(it.id)));
+        setPanel(`<div class="decor">${list.map(it => `<button data-w="${it.id}" class="${'wp-' + S.paper === it.id ? 'on' : ''}">${itemImg('home', it)}<span>${it.name}</span></button>`).join('')}</div>
+          <button class="btn" id="wdone">Done</button>`, p => {
+          $$('[data-w]', p).forEach(b => b.addEventListener('click', () => { SFX.ok(); S.paper = b.dataset.w.slice(3); save(); syncView(); mood('keeper', 'happy', 1500); say('keeper', pick(['Ooh, pretty!', 'I love it!', 'What a lovely wallpaper!'])); draw(); }));
+          $('#wdone', p).addEventListener('click', () => { SFX.tap(); walls = false; draw(); });
+        });
+        return;
+      }
+      const tray = S.homeTray.filter(id => item(id)), papers = S.home.some(id => id.startsWith('wp-'));
+      const out = has3d() ? [] : homeThings().filter(id => !S.homeTray.includes(id) && item(id)); // without 3D, what's out shows here too
+      setPanel(`
+        <div class="htray" id="htray">${tray.length || out.length ? tray.map(id => `<button data-t="${id}">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') + out.map(id => `<button data-o="${id}" class="own">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') : `<span class="small">${homeThings().length ? 'Drag things down here to put them away.' : "Things I buy from Tansy will wait here."}</span>`}</div>
+        <div class="row">${papers ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button><button class="btn alt" id="bye">Go outside</button></div>`, p => {
+        $$('[data-t]', p).forEach(b => b.addEventListener('click', () => {
+          const id = b.dataset.t, spot = window.Shop3D && Shop3D.homeSpot ? Shop3D.homeSpot(id, homeTaken()) : null;
+          S.homeTray = S.homeTray.filter(x => x !== id);
+          if (spot) S.homeAt[id] = spot; else delete S.homeAt[id];
+          save(); syncView(); SFX.ok(); mood('keeper', 'happy', 1500); placed++;
+          if (has3d() && coachOnce('dragtip')) say('keeper', 'Drag things to move them. Tap one to turn it around. Drag it down to the tray to put it away.');
+          else say('keeper', `My ${item(id).name.toLowerCase()} is in my house!`);
+          draw();
+        }));
+        $$('[data-o]', p).forEach(b => b.addEventListener('click', () => TSV.onHome({ type: 'away', id: b.dataset.o })));
+        if ($('#walls', p)) $('#walls', p).addEventListener('click', () => { SFX.tap(); walls = true; say('keeper', 'Which wallpaper shall I have?'); draw(); });
+        $('#dress', p).addEventListener('click', () => { SFX.tap(); openWardrobe(); });
+        $('#bye', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
+      });
+    };
+    // what she does to things in the room (shop3d.js reports drags, turns and taps)
+    TSV.onHome = ev => {
+      const it = item(ev.id); if (!it) return;
+      if (ev.type === 'lift') SFX.stack();
+      else if (ev.type === 'over') { const t = $('#htray'); if (t) t.classList.toggle('drop', ev.on); }
+      else if (ev.type === 'move' || ev.type === 'turn') {
+        S.homeAt[ev.id] = ev.at; save(); SFX.tap();
+        if (ev.type === 'move' && Math.random() < .3) { mood('keeper', 'happy', 1200); say('keeper', pick(['That looks just right there!', 'So cozy!', 'Lovely!'])); }
+      } else if (ev.type === 'away') {
+        if (!S.homeTray.includes(ev.id)) S.homeTray.push(ev.id);
+        delete S.homeAt[ev.id]; save(); syncView(); SFX.soft(); say('keeper', `My ${it.name.toLowerCase()} is back in the tray.`); draw();
+      } else if (ev.type === 'tap') { SFX.tap(); mood('keeper', 'happy', 1500); say('keeper', `I love my ${it.name.toLowerCase()}!`); }
+    };
+    TSV.decorate = true; document.body.classList.add('decorating'); // one-finger drags move things instead of panning
     rerender = draw; draw();
   });
+  TSV.decorate = false; TSV.onHome = null; document.body.classList.remove('decorating');
   hush(); setPanel('');
   await leaveRoom('house');
 }
@@ -2383,10 +2452,12 @@ async function buy(who, kind, it) {
   if (given === null) return;
   if (given > it.cost) await talk(who, `You gave me ${given}. Here ${given - it.cost === 1 ? 'is 1 penny' : 'are ' + (given - it.cost)} back!`);
   const had = S.till, left = had - it.cost;
-  S.till = left; S[kind].push(it.id); save(); syncView(); hud(); SFX.cheer(); mood('keeper', 'happy', 2000); mood('cust', 'happy', 1800);
+  S.till = left; S[kind].push(it.id);
+  if (kind === 'home') { if (it.paper) S.paper = it.id.slice(3); else S.homeTray.push(it.id); } // new things wait in the tray at home
+  save(); syncView(); hud(); SFX.cheer(); mood('keeper', 'happy', 2000); mood('cust', 'happy', 1800);
   if (window.GFKCards && kind === 'treasures') GFKCards.collect({ game: GAME, id: 'treasure-' + it.id, name: it.name, emoji: it.emoji, rarity: it.cost >= 13 ? 'sparkly' : it.cost >= 7 ? 'rare' : 'common' });
   if (window.GFKCards && S[kind].length === ITEMS[kind].length) GFKCards.collect({ game: GAME, id: 'all-' + kind, name: kind === 'garden' ? 'Greenest Garden in the Wood' : kind === 'home' ? 'Coziest House in the Wood' : 'Treasure Hunter', emoji: kind === 'garden' ? '🌻' : kind === 'home' ? '🏡' : '🗝️', rarity: 'rare' });
-  await talk('keeper', `${kind === 'garden' ? `My ${it.name.toLowerCase()} will go in the garden by my shop!` : kind === 'home' ? `My ${it.name.toLowerCase()} will go in my house!` : `I'll put the ${it.name.toLowerCase()} on the ledge in my shop!`} ${had} take away ${it.cost} leaves ${left}.`, 'Lovely!',
+  await talk('keeper', `${kind === 'garden' ? `My ${it.name.toLowerCase()} will go in the garden by my shop!` : kind === 'home' ? (it.paper ? `My ${it.name.toLowerCase()} will go up in my house!` : `I'll take my ${it.name.toLowerCase()} home and find the perfect spot for it!`) : `I'll put the ${it.name.toLowerCase()} on the ledge in my shop!`} ${had} take away ${it.cost} leaves ${left}.`, 'Lovely!',
     `<div class="decor one"><button class="own">${itemImg(kind, it)}<span>${it.name}</span><span class="tag">✓ yours</span></button></div>`);
 }
 /* ================= the wardrobe: clothes and accessories (wardrobe.js holds the list) ================= */

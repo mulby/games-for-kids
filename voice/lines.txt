@@ -708,3 +708,36 @@ sprout	Sprout
 tinsel	Tinsel
 little bean	Little Bean
 that makes	That makes
+ok	OK!
+my new things are waiting in the tray	My new things are waiting in the tray.
+tap one to put it in my house	Tap one to put it in my house!
+ooh pretty	Ooh, pretty!
+i love it	I love it!
+what a lovely wallpaper	What a lovely wallpaper!
+drag things to move them	Drag things to move them.
+tap one to turn it around	Tap one to turn it around.
+drag it down to the tray to put it away	Drag it down to the tray to put it away.
+is in my house	is in my house!
+which wallpaper shall i have	Which wallpaper shall I have?
+that looks just right there	That looks just right there!
+is back in the tray	is back in the tray.
+in my garden	in my garden
+in my shop	in my shop
+will go up in my house	will go up in my house!
+i'll take my	I'll take my
+home and find the perfect spot for it	home and find the perfect spot for it!
+toadstool stool	toadstool stool
+candlestick	candlestick
+teddy bear	teddy bear
+bunting	bunting
+stripy rug	stripy rug
+sailboat painting	sailboat painting
+stripy wallpaper	stripy wallpaper
+cat basket	cat basket
+round mirror	round mirror
+flower wallpaper	flower wallpaper
+toy chest	toy chest
+starry wallpaper	starry wallpaper
+heart wallpaper	heart wallpaper
+bookcase	bookcase
+little piano	little piano
