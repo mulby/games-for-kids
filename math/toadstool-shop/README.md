@@ -137,7 +137,9 @@ of 10, make 10, count back and count up. `mental.js` builds that into the shop:
     A new sibling card each time (ten in all). Levels: Taking away.
   - *Firefly Jars* with Fern at the fairy ring: fireflies glow in rows of five for a moment (a quick look), then
     two jars together (doubles, near doubles, make 10) and how many more fill a jar of ten. Five firefly cards.
-  The choice screen lists `Mental.ACTIVITIES`, so another day-off activity can be added there.
+  The choice screen lists `Mental.ACTIVITIES`, so another day-off activity can be added there. It also offers
+  *My house* (straight in to decorate, showing how many new things wait in her tray) and *Bramble Wood village*;
+  both come back to the same morning choice afterwards (`S.villageBack`), so she can still open the shop.
 
 ## Hoot's challenge board (plain math for money)
 

@@ -1605,7 +1605,12 @@ function wantAt(g, n) {
 async function morning() {
   // from day 5 she can take a day off for Hide and Seek or Firefly Jars instead (mental.js)
   setScene('outside', { time: 'morning' });
-  const off = await Mental.chooseDay();
+  // ...or walk to the village (or straight to her house to decorate) before opening, and come back to this choice
+  const off = await Mental.chooseDay(S.day >= VILLAGE_DAY ? [
+    { id: 'house', emoji: '🏠', name: 'My house', blurb: S.homeTray.length ? `Decorate! ${S.homeTray.length} new ${plural(S.homeTray.length, 'thing', 'things')} to put out` : 'Decorate my little house' },
+    { id: 'village', emoji: '🏡', name: 'Bramble Wood village', blurb: 'Help neighbours, visit the shops' },
+  ] : []);
+  if (off === 'house' || off === 'village') { S.villageBack = 'morning'; S.villageGo = off === 'house' ? 'house' : null; S.phase = 'village'; save(); hush(); setPanel(''); return; }
   if (off) { S.play = off; S.phase = 'play'; save(); hush(); setPanel(''); return; }
   setScene('outside', { time: 'morning', cart: true, cam: 'cart' });
   S.sold = {}; S.missed = {}; S.dear = {}; S.spent = 0; S.shop = null;
@@ -2212,7 +2217,8 @@ async function village() {
     await talk('keeper', 'My friends live here. Maybe they need some help. And there are other shops to visit!', 'Next');
   }
   for (;;) {
-    const id = await villageMap();
+    const id = S.villageGo || await villageMap();
+    if (S.villageGo) { S.villageGo = null; save(); }
     if (id === 'home') break;
     hush(); setPanel('');
     await walkTo(id);
@@ -2221,7 +2227,7 @@ async function village() {
   TSV.onTap = null; hush(); setPanel('');
   await walkTo('gate');
   TSV.folk = [];
-  S.phase = 'evening'; save();
+  S.phase = S.villageBack === 'morning' ? 'morning' : 'evening'; S.villageBack = null; save();
 }
 // She walks down the lane. The 3D view says when she gets there (TSV.at); without 3D there is no walk.
 async function walkTo(id) {

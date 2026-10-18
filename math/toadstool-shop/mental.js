@@ -240,14 +240,15 @@
     fireflies: { name: 'Firefly jars', who: 'fern', emoji: '✨', blurb: 'with Fern at the fairy ring', run: fireflies },
   };
   // From day 5, before Bramble's cart: open the shop, or take a day off for an activity. Returns the activity id or null.
-  function chooseDay() {
+  // extra: more choices from the game ({ id, emoji, name, blurb }), such as the village and her house
+  function chooseDay(extra = []) {
     if (S.day < DAY) return Promise.resolve(null);
     return new Promise(res => {
       say('keeper', 'Good morning! What shall I do today?');
-      DBG.cur = { type: 'choose', options: ['shop'].concat(Object.keys(ACTIVITIES)) };
+      DBG.cur = { type: 'choose', options: ['shop'].concat(Object.keys(ACTIVITIES), extra.map(x => x.id)) };
       const draw = () => setPanel(`<div class="mm-choose">
         <button class="main" data-a="shop"><span class="em">🍄</span><span>Open the shop<br><small>Earn pennies selling to friends</small></span></button>
-        ${Object.entries(ACTIVITIES).map(([id, A]) => `<button data-a="${id}"><span class="em">${A.emoji}</span><span>${A.name}<br><small>${A.blurb}</small></span></button>`).join('')}
+        ${Object.entries(ACTIVITIES).concat(extra.map(x => [x.id, x])).map(([id, A]) => `<button data-a="${id}"><span class="em">${A.emoji}</span><span>${A.name}<br><small>${A.blurb}</small></span></button>`).join('')}
       </div>`, p => $$('[data-a]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); rerender = null; res(b.dataset.a === 'shop' ? null : b.dataset.a); })));
       rerender = draw; draw();
     });
