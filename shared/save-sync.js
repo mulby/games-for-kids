@@ -240,5 +240,59 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", resetPanel); else resetPanel();
 
-  window.SaveSync = { ready, flush: () => queue("", true), close, play, reset, docId };
+  /* Grown-ups' save code: every save on this device as one line of text, to carry her progress to
+     another web address (each address keeps its own browser storage) and paste it in there. */
+  const CODE = "GFK1:";
+  function exportCode() {
+    const saves = {};
+    for (const k of ls.keys()) { const v = ls.get(k); if (v != null) saves[k] = v; }
+    return CODE + btoa(unescape(encodeURIComponent(JSON.stringify({ at: Date.now(), saves }))));
+  }
+  function importCode(text) {
+    const t = String(text || "").replace(/\s+/g, "");
+    if (!t.startsWith(CODE)) throw new Error("That doesn't look like a save code.");
+    const data = JSON.parse(decodeURIComponent(escape(atob(t.slice(CODE.length)))));
+    const saves = data && data.saves;
+    if (!saves || typeof saves !== "object") throw new Error("That save code is empty.");
+    let n = 0;
+    for (const [k, v] of Object.entries(saves)) {
+      if (skip(k) || typeof v !== "string") continue;
+      ls.set(k, k === "gfk-collection" && ls.get(k) != null ? mergeCards(ls.get(k), v) : v);
+      pending.add(k); n++;
+    }
+    changed(); queue("", true);
+    return n;
+  }
+  function movePanel() {
+    const wrap = document.querySelector(".wrap");
+    if (!wrap || document.getElementById("gfk-move")) return;
+    css.textContent += "#gfk-move{font-size:15px;color:#7a6450;text-align:center;margin-top:10px}#gfk-move summary{cursor:pointer;font-weight:700}" +
+      "#gfk-move .box{display:flex;flex-direction:column;gap:8px;max-width:420px;margin:12px auto 0}" +
+      "#gfk-move textarea{font:12px/1.3 ui-monospace,monospace;min-height:70px;border-radius:10px;border:2px solid #c9b18f;padding:6px;background:#fffaf0;color:#4a3426}" +
+      "#gfk-move button{font:inherit;font-weight:700;min-height:44px;border-radius:10px;border:2px solid #6d3f1f;background:#fffaf0;color:#6d3f1f;padding:4px 12px}" +
+      "#gfk-move .msg{min-height:1.3em;margin:0;font-weight:700}";
+    const d = document.createElement("details");
+    d.id = "gfk-move";
+    d.innerHTML = `<summary>Grown-ups: move saves to another address</summary><div class="box">` +
+      `<button type="button" data-do="copy">Copy save code</button>` +
+      `<textarea aria-label="Save code" placeholder="Copy a save code here, or paste one in"></textarea>` +
+      `<button type="button" data-do="load">Load pasted save code</button><p class="msg" role="status"></p></div>` +
+      `<p>Each web address keeps its own saves. Copy the code on the old one, then paste it here on the new one. Loading adds her cards to the binder and replaces each game's progress with the code's.</p>`;
+    wrap.appendChild(d);
+    const area = d.querySelector("textarea"), msg = d.querySelector(".msg");
+    d.querySelector('[data-do="copy"]').addEventListener("click", async () => {
+      area.value = exportCode();
+      area.focus(); area.select(); area.setSelectionRange(0, area.value.length);
+      let ok = false;
+      try { await navigator.clipboard.writeText(area.value); ok = true; } catch (e) { try { ok = document.execCommand("copy"); } catch (e2) {} }
+      msg.textContent = ok ? "Copied ✓ Now paste it on the new address." : "Select the code above and copy it.";
+    });
+    d.querySelector('[data-do="load"]').addEventListener("click", () => {
+      try { const n = importCode(area.value); area.value = ""; msg.textContent = `Loaded ${n} save${n === 1 ? "" : "s"} ✓`; }
+      catch (e) { msg.textContent = e && /^That /.test(e.message) ? e.message : "That save code didn't work. Try copying it again."; }
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", movePanel); else movePanel();
+
+  window.SaveSync = { ready, flush: () => queue("", true), close, play, reset, docId, exportCode, importCode };
 })();
