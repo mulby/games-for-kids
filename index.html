@@ -1563,9 +1563,13 @@ document.getElementById("voiceHear").onclick = hear;
     return CODE + btoa(unescape(encodeURIComponent(JSON.stringify({ at: Date.now(), saves }))));
   }
   function importCode(text) {
-    const t = String(text || "").replace(/\s+/g, "");
-    if (!t.startsWith(CODE)) throw new Error("That doesn't look like a save code.");
-    const data = JSON.parse(decodeURIComponent(escape(atob(t.slice(CODE.length)))));
+    // Forgiving about how the code travels: any case, stray text or quotes around it, URL-safe letters.
+    let t = String(text || "").replace(/\s+/g, "");
+    try { if (/%[0-9a-f]{2}/i.test(t)) t = decodeURIComponent(t); } catch (e) {}
+    const m = t.match(/gfk1:([A-Za-z0-9+/_-]+=*)/i);
+    if (!m) throw new Error("That doesn't look like a save code.");
+    const b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+    const data = JSON.parse(decodeURIComponent(escape(atob(b64 + "==".slice(0, (4 - b64.length % 4) % 4)))));
     const saves = data && data.saves;
     if (!saves || typeof saves !== "object") throw new Error("That save code is empty.");
     let n = 0;
