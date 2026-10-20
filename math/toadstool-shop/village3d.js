@@ -204,6 +204,21 @@ function myHouse() {
   g.add(D.rbox(1.7, .07, .04, .01, D.wood('#fff6e6', { axis: 0 })).translateX(-2.15).translateY(.45).translateZ(.62));
   return g;
 }
+// The rooms she builds onto her house (family.js) show from the lane too: little round rooms with their own roofs
+// beside and behind it, and the attic as a turret on top. [x, y, z, scale] in the village.
+export const ANNEX_SPOTS = { kitchen: [-23.75, 0, -2.0, 1], bath: [-28.95, 0, -2.5, .9], kids: [-27.7, 0, -4.6, 1.15], attic: [-26.3, 3.3, -1.5, .62] };
+const ANNEX_ROOF = { kitchen: '#e2566b', bath: '#7bb4d9', kids: '#b9a6e8', attic: '#8cc46c' };
+export function houseAnnex(id) {
+  const g = new THREE.Group(), roof = ANNEX_ROOF[id] || '#e9b949';
+  g.add(D.lathe([[0, 0], [1.25, 0], [1.2, 1.7], [0, 1.7]], D.plaster(id === 'attic' ? '#fde6c8' : '#fff1dc'), 32));
+  g.add(D.mesh(new THREE.TorusGeometry(1.23, .07, 8, 40), D.wood('#c08a58'), [0, 1.7, 0], 1, [PI2, 0, 0]));
+  g.add(D.lathe([[0, 3.2], [.25, 3.0], [1.0, 2.3], [1.6, 1.6], [1.5, 1.5], [0, 1.7]], D.felt(roof, { print: { kind: 'dots', color: '#ffffff', n: 7, scale: 3 }, fibre: .3 }), 32, { smooth: 10 }));
+  const w = smallWindow(.3); w.position.set(0, 1.0, 1.2); g.add(w);
+  const sp = D.glowSprite('#ffd27a', .9, .45); sp.position.set(0, 1.0, 1.32); g.add(sp);
+  if (id === 'kitchen') g.add(D.rbox(.36, .9, .36, .04, D.felt('#c9b6a0', { fibre: .25 })).translateX(.6).translateY(2.7).translateZ(-.3));
+  if (id === 'bath') for (let i = 0; i < 3; i++) g.add(D.ball(D.glaze('#ffffff', { rough: .1 }), [.6 + i * .2, 3.0 + i * .3, 0], .12 + i * .04, [0, 0, 0], 12));
+  return g;
+}
 function homeStall() {
   const g = stall({ title: "Tansy's Home Things", signW: 2.9, cloth: '#b9a6e8', awning: '#f6a6bd', wood: '#c08a58' });
   // a tiny chair, a lamp and a teapot on the counter
@@ -327,7 +342,9 @@ export function buildVillage(opts = {}) {
   for (let i = 0; i < RING_N; i++) { const a = i / RING_N * TAU, s = D.glowSprite('#ffd27a', 1.1, .7); s.position.set(PLACES.ring.x + Math.cos(a + .35) * 2.25 + .14, .9, -1.6 + Math.sin(a + .35) * 1.65); s.visible = false; glows.push(s); group.add(s); }
   const butterflies = [D.butterfly('#f6a6bd', '#ffd86b'), D.butterfly('#b9a6e8', '#fff3cf'), D.butterfly('#ffd86b', '#ffffff')];
   butterflies.forEach(b => group.add(b));
-  return { group, ringLit, ringGlows: glows, butterflies, places, smoke, sails, ducks };
+  const annexes = {};
+  for (const [id, [x, y, z, sc]] of Object.entries(ANNEX_SPOTS)) { const o = houseAnnex(id); D.freeze(o); o.position.set(x, y, z); o.scale.setScalar(sc); o.visible = false; o.traverse(m => { if (m.isMesh) m.receiveShadow = true; }); group.add(o); annexes[id] = o; }
+  return { group, ringLit, ringGlows: glows, butterflies, places, smoke, sails, ducks, annexes };
 }
 
 /* ------------------------------------------------------------------ garden things, outside the shop */

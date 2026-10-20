@@ -231,7 +231,7 @@ function model(spec) {
   const key = JSON.stringify(spec);
   if (!modelCache.has(key)) {
     modelCache.set(key, makeModel(spec));
-    if (!castKeys.has(key)) {
+    if (!castKeys.has(key) && !spec.fam) { // her family (family.js) stay cached like the cast
       keeperKeys.push(key);
       while (keeperKeys.length > 2) { const old = keeperKeys.shift(); const o = modelCache.get(old); modelCache.delete(old); if (o) disposeModel(o); }
     }
@@ -494,6 +494,7 @@ function villageAfter(v, t) {
   VG.smoke.forEach(m => { const u = m.userData, k = (t * .16 + u.k) % 1; m.position.set(u.x + k * 1.4 + Math.sin(k * 5 + u.x) * .2, u.y + k * 2.4, u.z); m.scale.setScalar((.16 + k * .55) * Math.min(1, (1 - k) * 3, k * 8 + .2)); });
   if (!calm) VG.sails.rotation.z = -t * .5;
   VG.ducks.forEach((d, i) => { const a = t * (.22 - i * .03) + i * 2.1, P = VL.PLACES.pond; d.position.set(P.x + .8 + Math.cos(a) * (2.0 - i * .3), Math.sin(t * 3 + i) * .02, -2.6 + Math.sin(a) * (1.1 - i * .15)); d.rotation.y = -a; });
+  for (const [id, o] of Object.entries(VG.annexes || {})) o.visible = (v.rooms || []).includes(id); // the rooms she has built
   updateFolk(v, t);
   VG.butterflies.forEach((b, i) => {
     const kx = t * .3 + i * 2.1, f = calm ? .3 : Math.sin(t * 16 + i);
@@ -580,6 +581,24 @@ function showRoom(id) {
 function roomAfter(t) {
   if (clock && roomKey === 'home') { const pd = clock.getObjectByName('clockPend'), hd = clock.getObjectByName('clockHand'); if (pd) pd.rotation.z = Math.sin(t * 2.4) * (calm ? .05 : .22); if (hd) hd.rotation.z = -t * .2; }
   if (roomKey === 'home') animateHome(t);
+  syncFamily(V(), t);
+}
+// Her husband and children (TSV.family: [{id, spec, kid}], family.js) are at home in a row at the front of her room;
+// the children are smaller. TSV.famMood[id] says who is talking, waving or happy.
+const fam = [];
+function syncFamily(v, t) {
+  const list = RM.FAMILY_ROOMS.includes(roomKey) ? v.family || [] : [], key = list.map(f => f.id + JSON.stringify(f.spec)).join('|');
+  if (key !== fam.key) {
+    for (const f of fam.splice(0)) rooms.remove(f.obj);
+    fam.key = key;
+    list.forEach((f, i) => {
+      const obj = D.instance(model(f.spec)), s = RM.FAMILY_SPOTS[i] || RM.FAMILY_SPOTS[0];
+      if (f.kid) obj.scale.setScalar(.68);
+      obj.position.set(s[0], 0, s[1]); obj.rotation.y = s[2]; rooms.add(obj); fam.push({ id: f.id, obj });
+    });
+  }
+  const m = v.famMood || {};
+  for (const f of fam) { f.obj.userData.mood = m[f.id] || 'idle'; animCritter(f.obj, t); }
 }
 
 /* ------------------------------------------------------------------ decorating her house */

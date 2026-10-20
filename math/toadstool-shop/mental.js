@@ -257,7 +257,8 @@
   async function playDay() {
     const A = ACTIVITIES[S.play] || ACTIVITIES.hide;
     S.shop = null; S.spent = 0; S.profit = 0;
-    S.offDay = { day: S.day, earned: 0, what: A.name.toLowerCase() };
+    const O = S.offDay; // a reload mid-day carries on with the same day off, keeping what she earned
+    if (!O || O.day !== S.day || O.what !== A.name.toLowerCase()) S.offDay = { day: S.day, earned: 0, what: A.name.toLowerCase() };
     save();
     await A.run();
     TSV.cust = null; hush(); setPanel('');
@@ -385,8 +386,9 @@
   // The bedtime line after a day off, for the game's night().
   function nightLine() {
     const O = S.offDay; if (!O || O.day !== S.day) return null;
+    if (O.papa) return `Day ${S.day} is done! ${O.papa} worked hard as a carpenter, and earned ${O.earned} ${O.earned === 1 ? 'penny' : 'pennies'} for our family. Time for bed.`;
     return `Day ${S.day} is done! I had a lovely day off playing ${O.what}, and I earned ${O.earned} ${O.earned === 1 ? 'penny' : 'pennies'}. Time for bed.`;
   }
 
-  G.Mental = { DAY, frames, dots, two, bag, hops, addKind, addHelp, sumHelp, subKind, subHelp, CHARMS, credit, solved, armPeek, ACTIVITIES, chooseDay, playDay, nightLine, SIBS };
+  G.Mental = { DAY, frames, dots, two, bag, hops, addKind, addHelp, sumHelp, subKind, subHelp, CHARMS, toast, credit, solved, armPeek, ACTIVITIES, chooseDay, playDay, nightLine, SIBS };
 })(window);

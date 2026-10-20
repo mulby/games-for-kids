@@ -7,6 +7,7 @@
    ELEVENLABS_API_KEY=... node tools/make-voice-clips.mjs --voices   # list voices to choose from
    ELEVENLABS_API_KEY=... node tools/make-voice-clips.mjs <voice_id> # record the main voice (skips clips already made)
    ELEVENLABS_API_KEY=... node tools/make-voice-clips.mjs all        # main voice + every character in voice/voices.json
+   ONLY=papa,kid ELEVENLABS_API_KEY=... node tools/make-voice-clips.mjs all   # main voice + only those characters
    node tools/pack-voice.mjs                                         # bundle the clips into a few files for the shelf
 
    Writes voice/clips/*.mp3 and voice/manifest.json, which KidVoice (shared/voice.js) reads. */
@@ -65,7 +66,9 @@ async function record(id, lines, table) {
 }
 await record(voiceId, read(path.join(dir, 'lines.txt')), manifest.lines);
 if (arg === 'all') {
+  const only = process.env.ONLY ? process.env.ONLY.split(',') : null; // ONLY=papa,kid records just those characters
   for (const [c, info] of Object.entries(cast.characters)) {
+    if (only && !only.includes(c)) continue;
     const f = path.join(dir, 'lines', c + '.txt');
     if (!fs.existsSync(f)) continue;
     const v = manifest.voices[c] = manifest.voices[c] && manifest.voices[c].voice === info.voice ? manifest.voices[c] : { voice: info.voice, lines: {} };

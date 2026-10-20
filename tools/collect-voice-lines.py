@@ -91,6 +91,9 @@ def shop_lines(src):
             who.add(None if w == "keeper" else w)
         if re.search(r"\b(?:say|talk)\(\s*who\b|\bthanks =|\bwho[,}]|\bwho: who\b", line):
             who.update(CUSTOMERS)
+        # family.js: the children (kidId(i), or id) share one voice, and so do the needs they say
+        if re.search(r"\b(?:say|talk)\(\s*(?:kidId\(|id\b)|\bwho: (?:kidId\(|id\b)|^\s+\w+: \{ emoji: '[^']+', say: ", line):
+            who.add("kid")
         m = re.match(r"\s*(\w+): \{.*\bhi: ", line)
         if m and VOICE_OF.get(m.group(1), m.group(1)) in VOICES["characters"]:  # a CAST line (not a village PLACES one, which names its who:)
             who.add(VOICE_OF.get(m.group(1), m.group(1)))
@@ -123,6 +126,8 @@ pages = sorted(glob.glob(str(root / "math/*/index.html"))) + sorted(glob.glob(st
 pages.append(str(root / "math/toadstool-shop/mental.js"))
 # and Hoot's challenge board (challenges.js)
 pages.append(str(root / "math/toadstool-shop/challenges.js"))
+# and her family at home (family.js)
+pages.append(str(root / "math/toadstool-shop/family.js"))
 for page in pages:
     src = open(page).read()
     found = fun_lines(src) if "/fun/" in page else shop_lines(src) if re.search(r"/toadstool-shop[^/]*/", page) else ((None, t) for q, t in CALL.findall(src))
@@ -141,7 +146,9 @@ for page in pages:
             add(lines if who is None else char_lines[who], s)
     if re.search(r"/toadstool-shop[^/]*/index.html", page):
         words, names, decor, cards = shop_words(src)
-        for w in words + names + [n + "'s shop" for n in names] + decor + cards:
+        fam = open(root / "math/toadstool-shop/family.js").read()
+        fam_names = [n for lst in ("PAPA_NAMES", "KID_NAMES") for n in re.findall(r"'(\w+)'", re.search(lst + r" = \[([^\]]*)\]", fam).group(1))]
+        for w in words + names + [n + "'s shop" for n in names] + decor + cards + fam_names:
             add(lines, w)
         the = ["the " + w for w in words[:words.index("a")] + decor]  # "the apples are 2 pennies", "the lanterns costs 24"
         for w in the:

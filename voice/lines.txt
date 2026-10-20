@@ -1761,3 +1761,62 @@ minus	minus
 equals	equals
 makes	makes
 times	times
+my family is home	My family is home!
+tap a child to see what they need	Tap a child to see what they need.
+rowan	Rowan
+jasper	Jasper
+barnaby	Barnaby
+alder	Alder
+hugo	Hugo
+oliver	Oliver
+fennel	Fennel
+bramwell	Bramwell
+teddy	Teddy
+lulu	Lulu
+bertie	Bertie
+tilly	Tilly
+basil	Basil
+acorn	Acorn
+sorrel	Sorrel
+my little house is lovely but it is very quiet	My little house is lovely, but it is very quiet.
+i wish i had a family to live there with me	I wish I had a family to live there with me!
+here is my husband	Here is my husband.
+shall he look different	Shall he look different?
+first my husband	First, my husband!
+pick his fur his scarf and his name	Pick his fur, his scarf and his name.
+how many children do	How many children do
+and i have	and I have?
+now my little one	Now my little one!
+pick their fur clothes and name	Pick their fur, clothes and name.
+now child number	Now child number
+this is my family	This is my family!
+and me	, and me.
+hello family	Hello, family!
+when a child needs something a little bubble shows over their picture	When a child needs something, a little bubble shows over their picture.
+tap them to help	Tap them to help!
+my lovely family	My lovely family!
+of us at breakfast	of us at breakfast.
+everyone wants	Everyone wants
+do i make	do I make?
+the bath holds	The bath holds
+cups of warm water	cups of warm water.
+i poured in	I poured in
+how many more cups will fill it	How many more cups will fill it?
+into the oven	Into the oven!
+mmm	Mmm!
+for my shop shelf	for my shop shelf.
+i can sell	I can sell
+we ate them all up	We ate them all up!
+yum	Yum!
+back in my living room	Back in my living room.
+which room shall i build	Which room shall I build?
+i keep 10 pennies for bramble's cart so i have	I keep 10 pennies for Bramble's cart, so I have
+i already have a	I already have a
+now let's build	Now let's build!
+let's build	Let's build!
+a new room	A new room!
+it is so lovely	It is so lovely!
+can we play in here	Can we play in here?
+my new	My new
+my house is getting bigger	My house is getting bigger.
+ta da	Ta-da!
