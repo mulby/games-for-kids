@@ -494,6 +494,7 @@ function villageAfter(v, t) {
   VG.smoke.forEach(m => { const u = m.userData, k = (t * .16 + u.k) % 1; m.position.set(u.x + k * 1.4 + Math.sin(k * 5 + u.x) * .2, u.y + k * 2.4, u.z); m.scale.setScalar((.16 + k * .55) * Math.min(1, (1 - k) * 3, k * 8 + .2)); });
   if (!calm) VG.sails.rotation.z = -t * .5;
   VG.ducks.forEach((d, i) => { const a = t * (.22 - i * .03) + i * 2.1, P = VL.PLACES.pond; d.position.set(P.x + .8 + Math.cos(a) * (2.0 - i * .3), Math.sin(t * 3 + i) * .02, -2.6 + Math.sin(a) * (1.1 - i * .15)); d.rotation.y = -a; });
+  for (const [id, o] of Object.entries(VG.annexes || {})) o.visible = (v.rooms || []).includes(id); // the rooms she has built
   updateFolk(v, t);
   VG.butterflies.forEach((b, i) => {
     const kx = t * .3 + i * 2.1, f = calm ? .3 : Math.sin(t * 16 + i);
@@ -586,7 +587,7 @@ function roomAfter(t) {
 // the children are smaller. TSV.famMood[id] says who is talking, waving or happy.
 const fam = [];
 function syncFamily(v, t) {
-  const list = roomKey === 'home' ? v.family || [] : [], key = list.map(f => f.id + JSON.stringify(f.spec)).join('|');
+  const list = RM.FAMILY_ROOMS.includes(roomKey) ? v.family || [] : [], key = list.map(f => f.id + JSON.stringify(f.spec)).join('|');
   if (key !== fam.key) {
     for (const f of fam.splice(0)) rooms.remove(f.obj);
     fam.key = key;

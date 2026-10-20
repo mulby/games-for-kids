@@ -12,7 +12,13 @@ export const ROOM_SPOTS = {
   burrow: { keeper: [-2.3, 0, .9, .55], cust: [1.9, 0, .5, -.6] },
   oak: { keeper: [-2.3, 0, .9, .55], cust: [1.9, 0, .4, -.6] },
   home: { keeper: [-3.5, 0, 2.8, .5], cust: [2.4, 0, .5, -.6] },
+  kitchen: { keeper: [-3.5, 0, 2.8, .5], cust: [2.4, 0, .5, -.6] },
+  kids: { keeper: [-3.5, 0, 2.8, .5], cust: [2.4, 0, .5, -.6] },
+  bath: { keeper: [-3.5, 0, 2.8, .5], cust: [2.4, 0, .5, -.6] },
+  attic: { keeper: [-3.5, 0, 2.8, .5], cust: [2.4, 0, .5, -.6] },
 };
+// the rooms of her own house: the family is at home in all of them
+export const FAMILY_ROOMS = ['home', 'kitchen', 'kids', 'bath', 'attic'];
 // her family at home (family.js): Papa next to her, then the children along the front, [x, z, yaw]
 export const FAMILY_SPOTS = [[-2.1, 3.0, .35], [-.6, 3.35, .15], [.6, 3.45, 0], [1.8, 3.35, -.15], [3.0, 3.05, -.35]];
 // in her house the camera stands back to show the whole room, so she can see where everything goes
@@ -227,8 +233,112 @@ function homeRoom() {
   return g;
 }
 
+/* ------------------------------------------------------------------ the rooms she builds onto her house (family.js) */
+// a big black cooking range with an oven door, a pipe up through the ceiling and a pot on top
+function range() {
+  const g = new THREE.Group(), iron = D.metal('#3a3438', { rough: .5 }), brass = D.metal(D.PAL.gold);
+  g.add(D.rbox(2.6, 1.6, 1.1, .08, iron).translateY(.8));
+  g.add(D.rbox(2.7, .12, 1.2, .04, D.metal('#4a4448', { rough: .35 })).translateY(1.64));
+  for (const x of [-.65, .65]) { g.add(D.rbox(1.0, .8, .05, .04, D.metal('#2a2428', { rough: .4 })).translateX(x).translateY(.7).translateZ(.56)); g.add(D.capsule(brass, [x - .3, 1.18, .62], [x + .3, 1.18, .62], .035, 8)); }
+  const glow = D.mesh(new THREE.PlaneGeometry(.5, .2), D.glowMat('#ff9a3a', 1.2, { color: '#ffb060' }), [-.65, .55, .59]); g.add(glow);
+  g.add(D.capsule(iron, [.8, 1.7, -.3], [.8, 8, -.3], .16, 12));
+  const pot = D.lathe([[0, 0], [.38, 0], [.42, .35], [.4, .42], [0, .42]], D.metal('#c86b4a', { rough: .35 }), 24); pot.position.set(-.6, 1.7, 0); g.add(pot);
+  g.add(D.capsule(D.wood('#6b4a33'), [-.95, 2.05, 0], [-1.35, 2.2, 0], .04, 8));
+  const kettle = D.teacup(); kettle.scale.setScalar(1.1); kettle.position.set(.35, 1.7, .1); g.add(kettle);
+  return g;
+}
+function flourSack(color = '#f3e6d2') {
+  const g = new THREE.Group(), f = D.felt(color, { mottle: .3 });
+  g.add(D.mesh(D.lumpy(D.SPH(24), .05, 2.5, 3), f, [0, .55, 0], [.5, .6, .45]));
+  g.add(D.mesh(new THREE.CylinderGeometry(.22, .32, .3, 16), f, [0, 1.15, 0]));
+  g.add(D.mesh(new THREE.TorusGeometry(.24, .04, 6, 20), D.thread('#c9a676'), [0, 1.05, 0], 1, [PI2, 0, 0]));
+  g.add(D.mesh(new THREE.CircleGeometry(.22, 20), D.felt('#e2566b'), [0, .6, .46]));
+  return g;
+}
+function kitchenRoom() {
+  const g = shell({ wall: '#fff3dc', ceil: D.felt('#fde6c8', { side: THREE.BackSide, scale: .8 }), posts: 0 });
+  const r = range(); atWall(r, PI - .25, .75); g.add(r);
+  const dr = dresser(); atWall(dr, PI + .62, .55); g.add(dr);
+  const w = D.roundWindow({ r: .8, sky: '#cfeaff' }); atWall(w, PI - .95, .3, 3.4); g.add(w);
+  const t = table(2.6, 1.4, '#d0a473'); t.position.set(0, 0, -1.6); g.add(t);
+  g.add(cloth(2.7, 1.5, '#fff6e6', { kind: 'gingham', color: '#e2566b', n: 8, scale: 2 }).translateZ(-1.6));
+  // a mixing bowl, a rolling pin and buns cooling on the table
+  g.add(D.lathe([[0, 0], [.18, 0], [.42, .3], [.44, .34], [0, .1]], D.glaze('#7bb4d9', { rough: .3 }), 28).translateX(-.6).translateY(1.1).translateZ(-1.5));
+  g.add(D.ball(D.felt('#f6ecd8', { mottle: .3 }), [-.6, 1.36, -1.5], [.32, .1, .32], [0, 0, 0], 20));
+  g.add(D.capsule(D.wood('#e0b07a', { axis: 0 }), [.1, 1.16, -1.25], [.9, 1.16, -1.45], .06, 10));
+  for (let i = 0; i < 4; i++) { const b = D.acornBun(); b.scale.setScalar(.55); b.position.set(.5 + (i % 2) * .35, 1.1, -1.9 + Math.floor(i / 2) * .3); g.add(b); }
+  for (const [x, ry] of [[-1.9, 1.4], [1.9, -1.4]]) { const c = chair('#d0a473', '#e2566b'); c.position.set(x, 0, -1.5); c.rotation.y = ry; g.add(c); }
+  const s1 = flourSack(); s1.position.set(-4.2, 0, -2.4); g.add(s1);
+  const s2 = flourSack('#efe2cc'); s2.scale.setScalar(.8); s2.position.set(-3.5, 0, -3.2); g.add(s2);
+  const bk = basketOf(() => D.apple(), 6); bk.position.set(4.0, 0, -1.2); g.add(bk);
+  g.add(D.capsule(D.wood('#6b4a33', { axis: 0 }), [-3.6, 4.7, -4.0], [3.6, 4.7, -4.0], .1, 10));
+  for (let i = 0; i < 5; i++) { const b = hangingBunch(herb, 4, .5 + (i % 2) * .25); b.position.set(-2.6 + i * 1.3, 4.65, -4.0); g.add(b); }
+  const lamp = D.hangingLamp({ drop: 1.4 }); lamp.position.set(0, 7.4, -1.6); g.add(lamp);
+  const rug = D.braidRug(1.8, { colors: ['#e2566b', '#fff6e6', '#ffd86b'] }); rug.position.set(0, .01, 1.4); g.add(rug);
+  return g;
+}
+// a child's bed: a little bed with a quilt in that child's colour
+function kidBed(color) {
+  const g = new THREE.Group(), w = D.wood('#e9c79a', { axis: 1 });
+  g.add(D.rbox(1.3, .4, 2.1, .05, D.wood('#e9c79a', { axis: 2 })).translateY(.35));
+  g.add(D.rbox(1.4, 1.3, .12, .05, w).translateY(.65).translateZ(-1.05));
+  g.add(D.ball(w, [0, 1.3, -1.05], [.7, .22, .07], [0, 0, 0], 20));
+  g.add(D.ball(D.felt('#fff6e6'), [0, .65, -.7], [.5, .15, .25], [0, 0, 0], 20));
+  g.add(D.rbox(1.36, .1, 1.4, .04, D.felt(color, { print: { kind: 'stars', color: '#fff6e6', n: 4, scale: 2 } })).translateY(.6).translateZ(.3));
+  return g;
+}
+function kidsRoom() {
+  const g = shell({ wall: '#e3f0ff', ceil: D.felt('#d6e6fb', { side: THREE.BackSide, scale: .8, print: { kind: 'stars', color: '#fff6c0', n: 6, scale: 3 } }), posts: 0 });
+  ['#f6a6bd', '#7bb4d9', '#ffd86b', '#8cc46c'].forEach((c, i) => { const b = kidBed(c); atWall(b, PI - 1.05 + i * .7, 1.45); g.add(b); });
+  const ch = toyChest(); ch.position.set(-4.3, 0, -.6); ch.rotation.y = 1.2; g.add(ch);
+  const td = teddy(); td.position.set(-3.6, 0, .4); td.rotation.y = .8; g.add(td);
+  const bc = shelfBooks(1.6, 2, .9, 11); bc.position.set(4.6, 0, -1.0); bc.rotation.y = -1.25; g.add(bc);
+  // a mobile of felt stars over the beds
+  for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; g.add(D.yarn([[Math.cos(a) * .7, 6.2, -2.5 + Math.sin(a) * .7], [Math.cos(a) * .7, 5.3 - (i % 2) * .3, -2.5 + Math.sin(a) * .7]], .01, D.thread('#c9a676'), { seg: 4 })); g.add(D.ball(D.felt('#ffd86b'), [Math.cos(a) * .7, 5.2 - (i % 2) * .3, -2.5 + Math.sin(a) * .7], [.16, .16, .05], [0, 0, i], 5)); }
+  const w = D.roundWindow({ r: .7, sky: '#2e3a5a' }); atWall(w, PI, .3, 4.2); g.add(w);
+  const rug = D.braidRug(2.2, { colors: ['#7bb4d9', '#ffd86b', '#f6a6bd', '#8cc46c'] }); rug.position.set(0, .01, .6); g.add(rug);
+  const lamp = D.hangingLamp({ drop: 1.4 }); lamp.position.set(.6, 7.4, -.8); g.add(lamp);
+  return g;
+}
+function bathRoom() {
+  const g = shell({ wall: '#e4f5ef', ceil: D.felt('#f3fbf8', { side: THREE.BackSide, scale: .8 }), posts: 0 });
+  // a claw-foot tub full of bubbles
+  const tub = new THREE.Group(), china = D.glaze('#ffffff', { rough: .2, speckle: .05 });
+  const bowl = D.lathe([[0, 0], [.1, 0], [.9, .05], [1.0, .9], [.95, .95], [0, .9]], china, 40); bowl.position.y = .3; bowl.scale.set(1.5, 1, .85); tub.add(bowl);
+  for (const x of [-1, 1]) for (const z of [-.5, .5]) tub.add(D.ball(D.metal(D.PAL.gold), [x * 1.05, .14, z], [.12, .16, .12], [0, 0, 0], 12));
+  for (let i = 0; i < 16; i++) tub.add(D.ball(D.glaze('#ffffff', { rough: .1 }), [Math.cos(i * 2.4) * (.3 + (i % 4) * .25) * 1.4, 1.22 + (i % 3) * .06, Math.sin(i * 2.4) * (.2 + (i % 3) * .15)], .14 + (i % 3) * .05, [0, 0, 0], 12));
+  const duck = new THREE.Group(), yel = D.glossy('#ffd84a', { rough: .25 }); duck.add(D.ball(yel, [0, 0, 0], [.18, .13, .14], [0, 0, 0], 16)); duck.add(D.ball(yel, [.12, .14, 0], .09, [0, 0, 0], 14)); duck.add(D.ball(D.glossy('#f08a3a'), [.21, .13, 0], [.06, .025, .04], [0, 0, 0], 8)); duck.position.set(.6, 1.35, .25); tub.add(duck);
+  tub.add(D.capsule(D.metal(D.PAL.gold), [-1.3, .95, 0], [-1.3, 1.6, 0], .05, 8)); tub.add(D.capsule(D.metal(D.PAL.gold), [-1.3, 1.6, 0], [-1.0, 1.6, 0], .05, 8));
+  tub.position.set(-.8, 0, -3.4); g.add(tub);
+  // a towel rail, a mat, a mirror and a plant
+  const rail = new THREE.Group(); rail.add(D.capsule(D.metal(D.PAL.gold), [-.8, 2.2, 0], [.8, 2.2, 0], .04, 8));
+  ['#f6a6bd', '#7bb4d9', '#ffd86b'].forEach((c, i) => rail.add(D.rbox(.45, 1.0, .06, .03, D.felt(c, { print: { kind: 'stripes', color: '#fff6e6', n: 3, w: .3, scale: 2 } })).translateX(-.5 + i * .5).translateY(1.75)));
+  atWall(rail, PI + .7, .35); g.add(rail);
+  const mi = mirror(); atWall(mi, PI - .75, .3, 3.2); g.add(mi);
+  g.add(D.rbox(2.0, .04, 1.1, .02, D.felt('#8cc46c', { print: { kind: 'dots', color: '#fff6e6', n: 5, scale: 2 } })).translateX(-.8).translateY(.02).translateZ(-1.8));
+  const pl = HOME_MODELS.plant(); pl.position.set(3.6, 0, -3.0); g.add(pl);
+  const lamp = D.hangingLamp({ drop: 1.4 }); lamp.position.set(0, 7.4, -1.6); g.add(lamp);
+  return g;
+}
+function atticRoom() {
+  const g = shell({ wall: '#f3dcb8', ceil: D.wood('#c99a6a', { side: THREE.BackSide, axis: 1, freq: 5 }), posts: 0 });
+  // beams across the sloping roof
+  for (let i = 0; i < 4; i++) g.add(D.capsule(D.wood('#8a5a36', { axis: 0 }), [-6, 5.0 - (i % 2) * .2, -4 + i * 2], [6, 5.0 - (i % 2) * .2, -4 + i * 2], .14, 10));
+  // a swing hanging from a beam, a dollhouse, a tower of blocks and a ball
+  const sw = new THREE.Group(); for (const x of [-.6, .6]) sw.add(D.yarn([[x, 5.0, 0], [x, 1.0, 0]], .025, D.thread('#c9a676'), { seg: 6 })); sw.add(D.rbox(1.5, .12, .5, .04, D.wood('#e2566b', { axis: 0 })).translateY(.95)); sw.position.set(2.2, 0, -2.6); g.add(sw);
+  const dh = HOME_MODELS.dollhouse(); dh.scale.setScalar(1.3); dh.position.set(-3.4, 0, -3.0); dh.rotation.y = .6; g.add(dh);
+  const cols = ['#e2566b', '#7bb4d9', '#8cc46c', '#ffd86b', '#b9a6e8'];
+  for (let i = 0; i < 6; i++) g.add(D.rbox(.45, .45, .45, .06, D.felt(cols[i % 5])).translateX(-.6 + (i % 2) * .05).translateY(.23 + i * .46).translateZ(-3.8).rotateY(i * .3));
+  g.add(D.ball(D.felt('#e2566b', { print: { kind: 'dots', color: '#ffffff', n: 5, scale: 2 } }), [1.2, .35, .4], .35, [0, 0, 0], 24));
+  const ch = toyChest(); ch.position.set(4.3, 0, -.4); ch.rotation.y = -1.2; g.add(ch);
+  const bean = D.ball(D.felt('#b9a6e8', { print: { kind: 'dots', color: '#ffffff', n: 6, scale: 2 } }), [-4.0, .5, .2], [.9, .55, .9], [0, 0, 0], 24); g.add(bean);
+  const w = D.roundWindow({ r: .6, sky: '#cfeaff' }); atWall(w, PI, .3, 3.6); g.add(w);
+  const lamp = D.hangingLamp({ drop: 1.0 }); lamp.position.set(0, 6.8, -1.2); g.add(lamp);
+  return g;
+}
+
 export function buildRoom(id) {
-  const g = id === 'burrow' ? burrowRoom() : id === 'oak' ? oakRoom() : homeRoom();
+  const g = id === 'burrow' ? burrowRoom() : id === 'oak' ? oakRoom() : id === 'kitchen' ? kitchenRoom() : id === 'kids' ? kidsRoom() : id === 'bath' ? bathRoom() : id === 'attic' ? atticRoom() : homeRoom();
   D.freeze(g); g.traverse(o => { if (o.isMesh) o.receiveShadow = true; });
   return g;
 }

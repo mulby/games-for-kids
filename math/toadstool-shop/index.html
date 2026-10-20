@@ -1290,7 +1290,7 @@ function rampUp() {
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START);
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], homeTray: [], homeAt: {}, paper: 'rose', family: null, village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], homeTray: [], homeAt: {}, paper: 'rose', rooms: [], family: null, village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
@@ -1333,7 +1333,7 @@ function keeperSpec() { return ShopWardrobe.keeperSpec(S, FURS, DRESSES); }
 function syncView() {
   TSV.stock = S.stock; TSV.decor = S.decor; TSV.signText = S.keeper ? `${S.keeper.name}'s Shop` : 'The Toadstool Shop';
   TSV.keeper = keeperSpec();
-  TSV.garden = S.garden; TSV.treasures = S.treasures; TSV.home = S.home; TSV.homeTray = S.homeTray; TSV.homeAt = S.homeAt; TSV.paper = S.paper; TSV.ringLit = !!(S.village && S.village.day === S.day && S.village.done.ring);
+  TSV.rooms = S.rooms; TSV.garden = S.garden; TSV.treasures = S.treasures; TSV.home = S.home; TSV.homeTray = S.homeTray; TSV.homeAt = S.homeAt; TSV.paper = S.paper; TSV.ringLit = !!(S.village && S.village.day === S.day && S.village.done.ring);
 }
 let moodT = {};
 function mood(who, m, ms) { TSV.mood[who] = m; clearTimeout(moodT[who]); if (ms) moodT[who] = setTimeout(() => { TSV.mood[who] = 'idle'; }, ms); }
@@ -2326,18 +2326,26 @@ async function houseVisit() {
       }
       const tray = S.homeTray.filter(id => item(id)), papers = S.home.some(id => id.startsWith('wp-'));
       const out = has3d() ? [] : homeThings().filter(id => !S.homeTray.includes(id) && item(id)); // without 3D, what's out shows here too
-      const fam = Family.has(), baked = fam && Family.bakedToday();
+      const fam = Family.has(), baked = fam && Family.bakedToday(), here = TSV.room || 'home', inHome = here === 'home';
       setPanel(`
         ${fam ? Family.row() : ''}
-        <div class="htray" id="htray">${tray.length || out.length ? tray.map(id => `<button data-t="${id}">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') + out.map(id => `<button data-o="${id}" class="own">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') : `<span class="small">${homeThings().length ? 'Drag things down here to put them away.' : "Things I buy from Tansy will wait here."}</span>`}</div>
-        <div class="row">${fam ? `<button class="btn alt" id="bake" ${baked ? 'disabled' : ''}>${baked ? 'We baked today ✓' : 'Bake together 🥣'}</button>` : `<button class="btn" id="fam">Make my family 👪</button>`}${papers ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button>${fam ? '<button class="btn alt" id="fam">My family ✏️</button>' : ''}<button class="btn alt" id="bye">Go outside</button></div>`, p => {
+        ${Family.roomBar(here)}
+        <div class="htray" id="htray" ${inHome ? '' : 'hidden'}>${tray.length || out.length ? tray.map(id => `<button data-t="${id}">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') + out.map(id => `<button data-o="${id}" class="own">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') : `<span class="small">${homeThings().length ? 'Drag things down here to put them away.' : "Things I buy from Tansy will wait here."}</span>`}</div>
+        <div class="row">${fam ? `<button class="btn alt" id="bake" ${baked ? 'disabled' : ''}>${baked ? 'We baked today ✓' : 'Bake together 🥣'}</button>` : `<button class="btn" id="fam">Make my family 👪</button>`}${papers && inHome ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button>${fam ? '<button class="btn alt" id="fam">My family ✏️</button>' : ''}<button class="btn alt" id="bye">Go outside</button></div>`, p => {
         // looking after the family takes over the panel for a while, then the house comes back
         const busy = async fn => {
           if (busyNow) return; busyNow = true; setPanel(''); // no second tap while it starts
           rerender = null; TSV.decorate = false; document.body.classList.remove('decorating');
           try { await fn(); } catch (e) { console.warn(e); }
-          busyNow = false; TSV.decorate = true; document.body.classList.add('decorating'); hello(); rerender = draw; draw();
+          busyNow = false; decorating(); hello(); rerender = draw; draw();
         };
+        // things can be moved about in the living room; the other rooms are built already furnished
+        const decorating = () => { const on = (TSV.room || 'home') === 'home'; TSV.decorate = on; document.body.classList.toggle('decorating', on); };
+        $$('[data-room]', p).forEach(b => b.addEventListener('click', () => {
+          const id = b.dataset.room; if (id === (TSV.room || 'home')) return;
+          SFX.door(); Family.goRoom(id); decorating(); say('keeper', id === 'home' ? 'Back in my living room.' : `My ${Family.ROOMS[id].name.toLowerCase()}!`); draw();
+        }));
+        if ($('#build', p)) $('#build', p).addEventListener('click', () => { SFX.tap(); busy(() => Family.build()); });
         $$('[data-kid]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); busy(() => Family.care(+b.dataset.kid)); }));
         if ($('#bake', p)) $('#bake', p).addEventListener('click', () => { if (Family.bakedToday()) return; SFX.tap(); busy(() => Family.bake()); });
         $('#fam', p).addEventListener('click', () => { SFX.tap(); busy(() => Family.make()); });

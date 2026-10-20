@@ -56,6 +56,18 @@
 .fm-recipe h4{margin:0;font-size:22px;color:#c23f55}
 .fm-cup{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:8px 8px 18px 18px;background:#fff;box-shadow:inset 0 0 0 3px #d8c4a8;font-size:24px}
 .fm-pins{font-size:30px;letter-spacing:2px}
+.fm-rooms{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;width:100%}
+.fm-rooms button{background:#fff;border-radius:999px;padding:6px 14px;font-size:18px;font-weight:700;box-shadow:0 4px 0 #d8c4a8;min-height:48px}
+.fm-rooms button.on{background:#fff6c8;outline:3px solid var(--gold)}
+.fm-rooms button.build{background:#e3f2d8;box-shadow:0 4px 0 #8cc46c}
+.fm-tiles{display:inline-grid;gap:3px;padding:8px;background:#c9a27a;border-radius:10px}
+.fm-tiles i{width:22px;height:22px;border-radius:3px;background:#f3e6d2;box-shadow:inset 0 0 0 2px #e0cdb3}
+.fm-tiles i.r{background:#f6c3cf}
+.fm-tiles .lab{grid-column:1/-1;font-size:14px;font-weight:700;color:#fff;text-align:right}
+.fm-planks{display:inline-flex;gap:8px;align-items:flex-end;flex-wrap:wrap;justify-content:center}
+.fm-bundle{display:inline-flex;flex-direction:column;align-items:center;gap:2px;font-size:14px;font-weight:700}
+.fm-bundle span{display:inline-flex;gap:2px;padding:4px;border-radius:6px;box-shadow:inset 0 0 0 3px #e2566b}
+.fm-bundle span i,.fm-plank{display:inline-block;width:7px;height:46px;border-radius:2px;background:#d9a46a;box-shadow:inset -2px 0 0 #b77b4c}
 `;
   function injectCSS() { if (document.getElementById('fm-css')) return; const s = document.createElement('style'); s.id = 'fm-css'; s.textContent = CSS; document.head.appendChild(s); }
   if (document.head) injectCSS(); else document.addEventListener('DOMContentLoaded', injectCSS);
@@ -234,11 +246,13 @@
   async function care(i) {
     const T = today(), k = kids()[i], id = kidId(i); if (!k) return;
     if (T.done[i]) { famMood(id, 'happy', 1500); SFX.ok(); await talk(id, pick(['I love you!', 'Thank you for looking after me!', 'Hug!', 'You are the best!']), 'Hug 💖'); return; }
-    const need = T.needs[i];
+    const need = T.needs[i], back = TSV.room || 'home', there = roomFor(need);
+    if (there !== back) { goRoom(there); await wait(has3d() ? 700 : 50); }
     famMood(id, 'wave', 1500);
     await talk(id, NEEDS[need].say, pick(['OK!', "Let's do it!"]));
     TIP = null;
     const helped = await NEEDS[need].job(i);
+    if (there !== back) { goRoom(back); await wait(has3d() ? 500 : 50); }
     // breakfast feeds every hungry child at once
     T.needs.forEach((n, j) => { if (j === i || (need === 'hungry' && n === 'hungry')) T.done[j] = true; });
     const fed = helped || [i];
@@ -363,6 +377,12 @@
   const bakedToday = () => !!(today() && today().baked);
   async function bake() {
     const T = today(); if (!T || T.baked) return;
+    const back = TSV.room || 'home', there = roomFor('bake');
+    if (there !== back) { goRoom(there); await wait(has3d() ? 700 : 50); }
+    await bakeHere(T);
+    if (there !== back) { goRoom(back); await wait(has3d() ? 500 : 50); }
+  }
+  async function bakeHere(T) {
     const morning = S.villageBack === 'morning';
     const list = RECIPES.filter(r => (morning || !r.fresh) && unlocked(S.day).includes(r.good) && (S.stock[r.good] || 0) < 10);
     const R = list.length ? pick(list) : RECIPES[0];
@@ -401,6 +421,88 @@
     await drawingDue();
   }
 
+  /* ---------------- building onto the house ---------------- */
+  // New rooms are paid for (money above the 10 kept for Bramble's cart, like the stalls), then built with two
+  // building sums: the floor tiles in rows (equal groups) and the planks in bundles of ten (tens and ones).
+  // Each room shows from the lane too (village3d.js). In a room that fits a need, that job happens there.
+  const ROOMS = {
+    bath: { name: 'Bathroom', emoji: '🛁', cost: 15, for: ['bath'], blurb: 'Bath time happens here' },
+    kitchen: { name: 'Kitchen', emoji: '🍳', cost: 20, for: ['hungry', 'bake'], blurb: 'Breakfast and baking' },
+    kids: { name: "Children's bedroom", emoji: '🛏️', cost: 25, for: ['story'], blurb: 'Beds and bedtime stories' },
+    attic: { name: 'Attic playroom', emoji: '🪀', cost: 30, for: ['play'], blurb: 'A swing and toys up top' },
+  };
+  const built = () => S.rooms || [];
+  const roomName = id => (id === 'home' ? 'Living room' : ROOMS[id].name);
+  // where a job happens: its own room if she has built it, otherwise the living room
+  const roomFor = need => Object.keys(ROOMS).find(id => built().includes(id) && ROOMS[id].for.includes(need)) || 'home';
+  // the whole room shows, like a dollhouse
+  function goRoom(id) { setScene('room', { room: id, time: 'day', cam: 'decorate' }); TSV.place = 'house'; TSV.cust = null; }
+  // the bar of rooms in her house: tap one to go there, or build a new one
+  function roomBar(here) {
+    const list = ['home'].concat(Object.keys(ROOMS).filter(id => built().includes(id)));
+    const more = Object.keys(ROOMS).some(id => !built().includes(id));
+    return `<div class="fm-rooms">${list.length > 1 ? list.map(id => `<button data-room="${id}" class="${id === here ? 'on' : ''}">${id === 'home' ? '🛋️' : ROOMS[id].emoji} ${roomName(id)}</button>`).join('') : ''}${more ? '<button class="build" id="build">🔨 Build a room</button>' : ''}</div>`;
+  }
+  const tiles = (rows, per, upTo = rows) => `<span class="fm-tiles" style="grid-template-columns:repeat(${per},22px)">${Array.from({ length: rows }, (_, r) => Array.from({ length: per }, () => `<i class="${r < upTo ? '' : 'r'}"></i>`).join('')).join('')}</span>`;
+  const planks = (b, o) => `<span class="fm-planks">${Array.from({ length: b }, () => `<span class="fm-bundle"><span>${'<i></i>'.repeat(10)}</span>10</span>`).join('')}${'<i class="fm-plank"></i>'.repeat(o)}</span>`;
+  function pickRoom() {
+    return new Promise(res => {
+      const spare = Math.max(0, S.till - 10);
+      say('keeper', `Which room shall I build? I keep 10 pennies for Bramble's cart, so I have ${spare} ${plural(spare, 'penny', 'pennies')} to spend.`);
+      DBG.cur = { type: 'build' };
+      const draw = () => setPanel(`<div class="decor">${Object.entries(ROOMS).map(([id, R]) => `<button data-b="${id}" class="${built().includes(id) ? 'own' : spare < R.cost ? 'cant' : ''}"><span class="em">${R.emoji}</span><span>${R.name}</span><span class="tag">${built().includes(id) ? '✓ built' : R.cost + '¢'}</span><small>${R.blurb}</small></button>`).join('')}</div>
+        <button class="btn alt" id="nb">Not now</button>`, p => {
+        $$('[data-b]', p).forEach(b => b.addEventListener('click', () => {
+          const id = b.dataset.b, R = ROOMS[id];
+          if (built().includes(id)) { say('keeper', `I already have a ${R.name.toLowerCase()}!`); return; }
+          if (spare < R.cost) { SFX.soft(); say('keeper', `The ${R.name.toLowerCase()} costs ${R.cost}. I have ${spare} to spend. I need ${R.cost - spare} more.`); return; }
+          SFX.tap(); rerender = null; res(id);
+        }));
+        $('#nb', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(null); });
+      });
+      rerender = draw; draw();
+    });
+  }
+  async function build() {
+    const id = await pickRoom(); if (!id) return null;
+    const R = ROOMS[id], spare = S.till - 10;
+    const given = await coinsTask({ who: 'bramble', amount: R.cost, source: coinsFor(spare), title: 'My money to spend', prompt: `Wood, nails and paint for a ${R.name.toLowerCase()}. That's ${R.cost} pennies, please.`, mode: S.day >= SUMS_DAY ? 'pay' : 'exact', back: 'Not today' });
+    if (given === null) return null;
+    if (given > R.cost) await talk('bramble', `You gave me ${given}. Here ${given - R.cost === 1 ? 'is 1 penny' : 'are ' + (given - R.cost)} back!`);
+    const had = S.till; S.till -= R.cost; save(); hud();
+    const who = has() ? 'papa' : 'keeper';
+    await talk('keeper', `${had} take away ${R.cost} leaves ${S.till}. Now let's build!`, 'Let\'s build! 🔨');
+    // 1. the floor: rows of tiles
+    const M = S.lv.M, per = M <= 2 ? 2 : M === 3 ? 5 : 10, rows = M <= 2 ? 3 + rnd(3) : 2 + rnd(4);
+    await ask({
+      k: 'M', who, helpWho: 'keeper', strat: 'skip', answer: rows * per, q: `The floor has ${rows} rows of tiles, with ${per} tiles in each row. How many tiles do we need?`,
+      show: () => tiles(rows, per),
+      help: () => `<div class="row">${Array.from({ length: rows }, (_, r) => `<span class="grp"><span class="lab">${r === rows - 1 ? '?' : (r + 1) * per}</span>${dots(per)}</span>`).join('')}</div><div class="small">Count by ${per}s</div>`,
+      helpSay: `Count by ${per === 2 ? 'twos' : per === 5 ? 'fives' : 'tens'}, one row at a time.`,
+    });
+    // 2. the walls: planks in bundles of ten and some loose ones
+    const P = S.lv.P, b = P <= 1 ? 1 + rnd(2) : 2 + rnd(7), o = 1 + rnd(9);
+    await ask({
+      k: 'P', who, helpWho: 'keeper', strat: 'tens', answer: b * 10 + o, q: `Here are the planks for the walls: ${b} ${plural(b, 'bundle', 'bundles')} of 10, and ${o} more. How many planks is that?`,
+      show: () => planks(b, o),
+      help: () => `<div class="row"><span class="grp"><span class="lab">${b} tens</span>${Mental.bag(b * 10)}</span><b style="font-size:30px">+</b><span class="grp"><span class="lab">${o} ones</span>${dots(o)}</span></div><div class="mm-tip">${b} tens is ${b * 10}. And ${o} more.</div>`,
+      helpSay: `${b} tens is ${b * 10}. Then ${o} more.`,
+    });
+    setPanel(`<div class="mm-eyes">🔨</div><div class="mm-tip">Tap, tap, tap…</div>`);
+    for (let i = 0; i < 6; i++) { SFX.tap(); await wait(320); }
+    S.rooms = built().concat(id); save(); syncView();
+    goRoom(id); await wait(has3d() ? 900 : 100);
+    SFX.cheer(); mood('keeper', 'happy', 2200); if (has()) { famMood('papa', 'happy', 2200); kids().forEach((_, i) => famMood(kidId(i), 'happy', 2200)); }
+    if (window.GFKCards) {
+      if (built().length === 1) GFKCards.collect({ game: GAME, id: 'builder', name: 'Little Builder', emoji: '🔨', rarity: 'common' });
+      GFKCards.collect({ game: GAME, id: 'room-' + id, name: `My ${R.name}`, emoji: R.emoji, rarity: R.cost >= 25 ? 'rare' : 'common' });
+      if (built().length === Object.keys(ROOMS).length) GFKCards.collect({ game: GAME, id: 'biggest-house', name: 'Biggest House in the Wood', emoji: '🏰', rarity: 'sparkly' });
+    }
+    await talk(has() ? kidId(rnd(kids().length)) : 'keeper', has() ? pick(['Wow! A new room!', 'It is so lovely!', 'Can we play in here?']) : `My new ${R.name.toLowerCase()}! My house is getting bigger.`, 'Ta-da! 🎉');
+    if (has()) heart(1);
+    return id;
+  }
+
   /* ---------------- in her house ---------------- */
   // the bedtime line: who she tucked in tonight
   function nightLine() {
@@ -409,5 +511,5 @@
     return ok === kids().length ? ` I kissed ${names(kids().map(k => k.name))} goodnight.` : ` ${S.family.papa.name} tucked the children into bed.`;
   }
 
-  G.Family = { DAY, has, kids, isFam, register, sync, famMood, offer, make, today, waiting, blurb, row, care, bake, bakedToday, nightLine, NEEDS, DRAWINGS, PAPA_NAMES, KID_NAMES };
+  G.Family = { DAY, ROOMS, built, roomBar, goRoom, build, has, kids, isFam, register, sync, famMood, offer, make, today, waiting, blurb, row, care, bake, bakedToday, nightLine, NEEDS, DRAWINGS, PAPA_NAMES, KID_NAMES };
 })(window);
