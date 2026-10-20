@@ -1517,7 +1517,8 @@ function generate(si, idx){
   if (s.id === "giza") holes = [[1,0]];
   else if (s.id === "saqqara") holes = (idx % 2 === 0 || ease) ? [[1,0]] : [[0, rnd(0,1)]];
   else {
-    const k = (s.id==="karnak" ? 2 : s.id==="valley" ? 2 : s.id==="abu" ? (ease?2:3) : (ease?3:4)) + (!ease && S.stretch[s.id] ? 1 : 0);
+    let k = (s.id==="karnak" ? 2 : s.id==="valley" ? 2 : s.id==="abu" ? (ease?2:3) : (ease?3:4)) + (!ease && S.stretch[s.id] ? 1 : 0);
+    k = Math.min(k, all.length - rows); // a pyramid needs at least one known stone per row to be solvable
     for (let t=0; t<500; t++){
       let pool = s.id==="karnak" ? all.filter(([r])=>r>=1) : all.slice();
       const h = shuffle(pool).slice(0,k);

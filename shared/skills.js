@@ -255,9 +255,16 @@
   // so the grown-ups' chart can list them.
   const ADAPT = 'gfk-adapt';
   const codesOf = c => [].concat(c || []).filter(x => SKILLS[x]);
-  function known(codes, d) { d = d || read(); codes = codesOf(codes); return codes.length > 0 && codes.every(c => status(c, d).state === 'mastered'); }
+  // o.notGame: leave out one game's tries; o.since: only tries after this time (seconds)
+  function only(d, o) {
+    if (!o || (!o.notGame && !o.since)) return d;
+    const out = { v: 1, s: {} };
+    for (const c in d.s) { const e = (d.s[c].e || []).filter(r => (!o.notGame || r[3] !== String(o.notGame).slice(0, 12)) && (!o.since || r[0] > o.since)); out.s[c] = { n: e.length, e }; }
+    return out;
+  }
+  function known(codes, d, o) { d = only(d || read(), o); codes = codesOf(codes); return codes.length > 0 && codes.every(c => status(c, d).state === 'mastered'); }
   function shaky(codes, d) { d = d || read(); return codesOf(codes).some(c => { const s = status(c, d); return s.recent >= 6 && s.acc < 0.5; }); }
-  function readAdapt() { try { const a = JSON.parse(localStorage.getItem(ADAPT)); if (a && a.d && a.m) return a; } catch (e) {} return { v: 1, d: {}, m: [] }; }
+  function readAdapt() { try { const a = JSON.parse(localStorage.getItem(ADAPT)); if (a && a.d && a.m) { a.at = a.at || {}; return a; } } catch (e) {} return { v: 1, d: {}, m: [], at: {} }; }
   function noteMove(A, game, what, from, to, why) {
     A.m.push([Date.now(), String(game || ''), String(what || ''), from, to, why]);
     if (A.m.length > 40) A.m.splice(0, A.m.length - 40);
@@ -276,18 +283,25 @@
   //   Struggling with her level's skills: one level easier. Her level's skills mastered: one level harder, and a second
   //   step when the next level practises different skills and she has mastered those too. Asked once a day per key;
   //   later calls that day return cur unchanged.
+  //   When her level practises the same skill as the level below (equal groups at every level, say), mastery from the
+  //   easier level proves nothing about this one, so it only counts tries since she has been at this level
+  //   (A.at[key] = [level, seconds when the chart first saw her there], whoever moved her).
   function place(key, levels, cur, o) {
     o = o || {};
     const min = o.min || 1, max = o.max || Math.max(...Object.keys(levels).map(Number)), at = L => codesOf(levels[L]);
     if (!once(key)) return cur;
-    const d = read();
+    const d = read(), A = readAdapt(), now = Math.round(Date.now() / 1000);
+    if (!A.at[key] || A.at[key][0] !== cur) A.at[key] = [cur, now];
+    const fresh = L => at(L).join() !== at(L - 1).join();
+    const ready = L => known(at(L), d, fresh(L) ? null : { since: L === cur ? A.at[key][1] : now });
     let lv = cur, why = '';
     if (lv > min && shaky(at(lv), d)) { lv--; why = 'shaky'; }
-    else if (lv < max && known(at(lv), d)) {
+    else if (lv < max && ready(lv)) {
       lv++; why = 'mastered';
-      if (lv < max && at(lv).join() !== at(lv - 1).join() && known(at(lv), d)) lv++;
+      if (lv < max && fresh(lv) && ready(lv)) lv++;
     }
-    if (lv !== cur) note(o.game, o.name || key, cur, lv, why);
+    if (lv !== cur) { noteMove(A, o.game, o.name || key, cur, lv, why); A.at[key] = [lv, now]; }
+    try { localStorage.setItem(ADAPT, JSON.stringify(A)); } catch (e) {}
     return lv;
   }
   const moves = () => readAdapt().m.slice();

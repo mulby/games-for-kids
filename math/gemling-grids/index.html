@@ -2265,8 +2265,9 @@ function setupShelfInput(){bindPress($('#shelfWrap'),e=>{const g=e.target.closes
   drop(p,e){killGhost(p.ghost);const el=document.elementFromPoint(e.clientX,e.clientY-28);const s=el&&el.closest('[data-slot]');if(s)shelfPlace(p.info.id,+s.dataset.slot);else if(p.info.from!=null&&el&&el.closest('#pouch')){S.gems.placed=S.gems.placed.filter(x=>x.id!==p.info.id);save();renderShelf()}else renderShelf()},cancel(p){killGhost(p.ghost);renderShelf()}})}
 
 /* ---------- INIT ---------- */
-function init(){load();fitToChart();
+function init(){load();
  if(Date.now()-(S.lastActive||0)>30*60*1000){S.sessionWalls=0;S.sessionOpeningDone=false;S.doors=null}
+ fitToChart();
  $('#peek').innerHTML=[1,2,3,4].map(v=>gemSVG(v,{mode:'face'})).join('');$('#crystalBtn').innerHTML=crystalSVG();
  $$('[data-home]').forEach(b=>{b.innerHTML=ICON.home;b.onclick=()=>{sfx('tap');goHome()}});
  $$('.say').forEach(b=>b.innerHTML=ICON.say);

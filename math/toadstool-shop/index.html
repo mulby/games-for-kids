@@ -1311,8 +1311,9 @@ function rampUp() {
     // each skill, from the shared chart
     for (const k of Object.keys(RANGE)) {
       if (!window.GFKSkills || !GFKSkills.place) break;
-      const was = S.lv[k], lv = GFKSkills.place('shop.' + k, LV_CODES[k], was, { min: RANGE[k][0], max: RANGE[k][1], game: GAME, name: STRAND_NAME[k] });
-      if (typeof lv === 'number' && lv !== was) { S.lv[k] = lv; moved(k); if (lv > was && !up.includes(k)) up.push(k); }
+      // a strand the 3-day rule just moved up can still come down, but not climb further tonight
+      const was = S.lv[k], lv = GFKSkills.place('shop.' + k, LV_CODES[k], was, { min: RANGE[k][0], max: up.includes(k) ? was : RANGE[k][1], game: GAME, name: STRAND_NAME[k] });
+      if (typeof lv === 'number' && lv !== was) { S.lv[k] = lv; moved(k); if (lv > was) up.push(k); }
     }
   }
   save();
