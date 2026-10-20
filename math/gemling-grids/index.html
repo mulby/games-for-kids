@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#23263a">
 <title>Gemling Grids</title>
+<script src="../../shared/skills.js"></script>
 <script src="../../shared/veil3d.js" data-bg="#120e22" data-glow="#b77cff" data-ink="#f7f2ff" data-text="Polishing the crystals…"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1986,6 +1987,8 @@ function applyStats(clean){const P=cur.P,tr=S.tracks[P.track];const key=P.track+
  tr.solves++;if(clean)tr.clean++;tr.hintSteps+=cur.hintSteps;if(cur.usedGlasses)tr.glasses++;
  S.history.push({t:Date.now(),track:P.track,level:P.level,n:P.n,blanks:P.givens.filter(x=>!x).length,hintMax:cur.hintMax,hintSteps:cur.hintSteps,twins:cur.twins,wrongCages:cur.wrongCages,ms:cur.activeMs||Date.now()-cur.startedAt,door:cur.door,clean,glasses:cur.usedGlasses,tut:P.tut||null});
  if(S.history.length>200)S.history=S.history.slice(-200);
+ // the grown-ups' skill chart (shared/skills.js): a sum wall is one try at its level's adding skill; logic walls have no number standard
+ if(P.track==='sum'&&window.GFKSkills&&!P.tut)GFKSkills.log(GFKSkills.GEMLING[P.level],{ok:clean,ms:cur.activeMs||Date.now()-cur.startedAt,game:'gemling-grids'});
  const maxL=P.track==='logic'?8:10;const rate=recentCleanRate();
  if(cur.frontier&&P.level===tr.level){const first=!S.seen.levels[key];
   const express=first&&clean&&cur.hintSteps===0&&!cur.twins&&!cur.wrongCages&&(P.track==='logic'?P.level<=3:P.level<=2);

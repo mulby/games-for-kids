@@ -1181,6 +1181,7 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
 <div id="panel"></div>
 <div id="grownups" hidden><div class="card"></div></div>
 <div id="wardrobe" hidden><div class="card"></div></div>
+<script src="../../shared/skills.js"></script>
 <script src="wardrobe.js"></script>
 <script src="mental.js"></script>
 <script src="challenges.js"></script>
@@ -1426,10 +1427,14 @@ function freshOpt(ans, not, lo = 0) {
 // Guessing should not pay. While she serves a friend, TIP tracks whether every answer was right on the first tap;
 // if so the friend leaves a penny tip. A wrong tap that comes this soon after the buttons appear is a guess.
 let TIP = null; const QUICK_MS = 1500;
-// o: {k, who, q, show(), answer, opts, help(), helpSay, labels:{v:html}}
+// The grown-ups' skill chart (shared/skills.js): std is the problem's Common Core code (or a list of them).
+// If skills.js did not load, every GFKSkills call quietly does nothing.
+if (!window.GFKSkills) window.GFKSkills = new Proxy({}, { get: () => () => null });
+const skill = (std, ok, t0) => { if (std && window.GFKSkills) GFKSkills.log(std, { ok, ms: Date.now() - t0, game: GAME }); };
+// o: {k, std, who, q, show(), answer, opts, help(), helpSay, labels:{v:html}}
 function ask(o) {
   return new Promise(res => {
-    let misses = 0, helped = false, paused = false, shownAt = Date.now(); const gone = new Set(); let done = false;
+    let misses = 0, helped = false, paused = false, shownAt = Date.now(); const gone = new Set(); let done = false; const t0 = shownAt;
     const fixed = !!o.opts, opts = o.opts || options(o.answer, o.lo || 0);
     DBG.cur = { type: 'ask', answer: o.answer, k: o.k, opts };
     say(o.who, o.q);
@@ -1451,7 +1456,7 @@ function ask(o) {
       v = isNaN(+v) ? v : +v;
       if (v === o.answer) {
         done = true; rerender = null;
-        record(o.k, misses === 0 && !helped); Mental.solved(o, misses === 0 && !helped);
+        record(o.k, misses === 0 && !helped); Mental.solved(o, misses === 0 && !helped); skill(o.std, misses === 0 && !helped, t0);
         b.classList.add('yes', 'pop'); sparkle(b); SFX.ok();
         if (o.after !== false) speak(pick(['Yes!', 'That\'s right!', 'You got it!', 'Perfect!']));
         await wait(900); res(misses === 0);
@@ -1475,7 +1480,7 @@ function ask(o) {
 // She counts goods into the customer's basket.
 function pickTask(order, who) {
   return new Promise(res => {
-    const basket = {}; let tries = 0; DBG.cur = { type: 'pick', order };
+    const basket = {}; let tries = 0; DBG.cur = { type: 'pick', order }; const t0 = Date.now();
     const goods = order.map(o => o[0]);
     const coach = coachOnce('pick');
     if (coach) speak(`Tap the ${GOODS[goods[0]].one} to put it in the basket. Then tap Here you go!`, { queue: true });
@@ -1494,7 +1499,7 @@ function pickTask(order, who) {
         const wrong = order.find(([g, n]) => (basket[g] || 0) !== n);
         if (!wrong) {
           rerender = null; const qty = order.reduce((s, o) => s + o[1], 0);
-          if (qty >= 3) record('N', tries === 0);
+          if (qty >= 3) { record('N', tries === 0); skill(GFKSkills.count(Math.max(...order.map(o => o[1]))), tries === 0, t0); }
           SFX.ok(); res(); return;
         }
         tries++; SFX.soft(); if (TIP) TIP.ok = false;
@@ -1506,7 +1511,10 @@ function pickTask(order, who) {
   });
 }
 // She moves coins from a tray into someone's paw. mode 'pay' lets her give more and get change back.
-function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F', helpSay = '', coach = '', back = '', countUp = null }) {
+function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F', std = null, helpSay = '', coach = '', back = '', countUp = null }) {
+  // pennies only is counting; dimes and pennies is money
+  if (!std && window.GFKSkills) std = source.some(v => v > 1) ? '2.MD.C.8' : GFKSkills.count(amount);
+  const t0 = Date.now();
   return new Promise(res => {
     const src = source.map((v, i) => ({ v, i, given: false })); let tries = 0, rest = false; DBG.cur = { type: 'coins', amount, mode };
     say(who, prompt);
@@ -1524,7 +1532,7 @@ function coinsTask({ who, amount, source, title, prompt, mode = 'exact', k = 'F'
       $('#done', p).addEventListener('click', () => {
         if (rest) return;
         const t = total();
-        if (t === amount || (mode === 'pay' && t > amount)) { rerender = null; record(k, tries === 0); SFX.ok(); res(t); return; }
+        if (t === amount || (mode === 'pay' && t > amount)) { rerender = null; record(k, tries === 0); skill(std, tries === 0, t0); SFX.ok(); res(t); return; }
         tries++; SFX.soft(); if (TIP) TIP.ok = false;
         rest = true; setTimeout(() => { rest = false; }, 1200); if (rerender) draw();
         if (helpSay && tries === 1) say(who, `Hmm, not quite. ${helpSay}`);
@@ -1656,7 +1664,7 @@ async function morning() {
           `<div class="row">${Array.from({ length: n }, () => `<span class="grp">${dots(size)}</span>`).join('')}</div>`);
       } else {
         await ask({
-          k: 'M', who: 'bramble', q: `${n} ${PACKS[size]} with ${size} in each. How many ${GOODS[g].many} is that?`, answer: n * size, strat: 'skip', peek: n * size <= 30 ? 3000 : 0,
+          k: 'M', std: '3.OA.A.1', who: 'bramble', q: `${n} ${PACKS[size]} with ${size} in each. How many ${GOODS[g].many} is that?`, answer: n * size, strat: 'skip', peek: n * size <= 30 ? 3000 : 0,
           show: () => Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${PACK[size]} ${i + 1}</span>${dots(size)}</span>`).join(''),
           help: () => `<div class="row">${Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${(i + 1) * size}</span>${dots(size)}</span>`).join('')}</div><div class="small">Count by ${size}s: ${Array.from({ length: n }, (_, i) => (i + 1) * size).join(', ')}</div>`,
           helpSay: `Count by ${size}s: ${Array.from({ length: n }, (_, i) => (i + 1) * size).join(', ')}.`,
@@ -1670,7 +1678,7 @@ async function morning() {
     } else if (cart.length > 1) {
       const sum = Mental.sumHelp(cart.map(c => c.cost), S.lv.A);
       const r = await ask({
-        k: 'A', who: 'bramble', helpWho: 'keeper', strat: sum.kind, q: `${cart.map(c => `The ${GOODS[c.g].many} are ${c.cost} ${plural(c.cost, 'penny', 'pennies')}`).join('. ')}. How much is that altogether?`, answer: total,
+        k: 'A', std: GFKSkills.add(cart.map(c => c.cost)), who: 'bramble', helpWho: 'keeper', strat: sum.kind, q: `${cart.map(c => `The ${GOODS[c.g].many} are ${c.cost} ${plural(c.cost, 'penny', 'pennies')}`).join('. ')}. How much is that altogether?`, answer: total,
         show: () => cart.map(c => `<span class="grp">${goodImg(c.g, 'sm')}<span class="lab">${c.cost}¢</span></span>`).join('<b style="font-size:30px">+</b>'),
         help: () => sum.html, helpSay: sum.say, back: 'Change my order',
       });
@@ -1848,7 +1856,7 @@ async function serve(c) {
     const coins = coinsFor(total);
     say(who, `Here you are!`);
     await ask({
-      k: 'F', who, q: 'Here are my coins. How much did I give you?', answer: total,
+      k: 'F', std: coins.some(v => v > 1) ? '2.MD.C.8' : GFKSkills.count(total), who, q: 'Here are my coins. How much did I give you?', answer: total,
       show: () => `<div class="tray">${coins.map(v => coinHTML(v)).join('')}</div>`,
       help: () => { let run = 0; return `<div class="row">${coins.map(v => { run += v; return `<span class="grp">${coinHTML(v)}<span class="lab">${run}</span></span>`; }).join('')}</div>`; },
       helpSay: coins[0] === 10 ? 'Count the dimes by tens, then the pennies by ones.' : 'Touch each coin and count.',
@@ -1856,7 +1864,7 @@ async function serve(c) {
     await talk('keeper', total === 1 ? 'One penny. Just right!' : `${orderTotal(order)} pennies. ${order.length > 1 || order[0][1] > 1 ? 'Just right!' : 'Thank you!'}`, 'Into the till');
   } else {
     await ask({
-      k: 'A', who, q: 'How much do I owe you?', answer: total, show: priceShow, help: () => sum.html,
+      k: 'A', std: GFKSkills.add(order.flatMap(([g, n]) => Array(n).fill(priceOf(g)))), who, q: 'How much do I owe you?', answer: total, show: priceShow, help: () => sum.html,
       helpWho: 'keeper', helpSay: sum.say, strat: sum.kind,
     });
     const S_ = S.lv.S, F = S.lv.F;
@@ -1914,7 +1922,7 @@ async function shopFor(c) {
   return order.length ? order : null;
 }
 function coinsTaskWithHelp({ who, change, paid, total, source }) {
-  return coinsTask({ who, amount: change, source, title: 'The till drawer', k: 'S', mode: 'change', countUp: { from: total, to: paid },
+  return coinsTask({ who, amount: change, source, title: 'The till drawer', k: 'S', std: ['2.MD.C.8', GFKSkills.sub(paid, total, { missing: true })], mode: 'change', countUp: { from: total, to: paid },
     prompt: `It costs ${total}. I gave you ${paid}. How much change do I get? Put the coins in my paw.`,
     helpSay: `Start at ${total} and count up to ${paid}, one penny for each number you say.`,
       coach: coachOnce('change') ? `Start at ${total}. Tap one penny for each number as you count up to ${paid}. Then tap <b>Done</b>.` : '' });
@@ -1927,7 +1935,7 @@ async function captainOrder(who) {
   if (size === 1) { groups = Math.min(groups, S.stock[g]); }
   const n = groups * size;
   await ask({
-    k: 'M', who, strat: 'skip', peek: n <= 20 && S.lv.M >= 2 ? 3000 : 0, q: `I have ${groups} sailors. Each sailor wants ${size} ${plural(size, GOODS[g].one, GOODS[g].many)}. How many ${GOODS[g].many} do I need?`, answer: n,
+    k: 'M', std: size === 1 ? GFKSkills.count(n) : '3.OA.A.1', who, strat: 'skip', peek: n <= 20 && S.lv.M >= 2 ? 3000 : 0, q: `I have ${groups} sailors. Each sailor wants ${size} ${plural(size, GOODS[g].one, GOODS[g].many)}. How many ${GOODS[g].many} do I need?`, answer: n,
     show: () => Array.from({ length: groups }, (_, i) => `<span class="grp"><span class="lab">⚓ sailor ${i + 1}</span>${dots(size)}</span>`).join(''),
     help: () => `<div class="row">${Array.from({ length: groups }, (_, i) => `<span class="grp"><span class="lab">${(i + 1) * size}</span>${dots(size)}</span>`).join('')}</div>`,
     helpSay: `Count by ${size}s for each sailor.`,
@@ -1938,7 +1946,7 @@ async function miuOrder(who) {
   const g = inStock().sort((a, b) => S.stock[b] - S.stock[a])[0]; if (!g) return null;
   let n = Math.min(S.stock[g], S.lv.F >= 2 ? 10 : 6); if (n % 2) n--; if (n < 2) return null;
   await ask({
-    k: 'F', who, q: `My sister and I will share ${n} ${GOODS[g].many}, half each. How many does each of us get?`, answer: n / 2,
+    k: 'F', std: '3.OA.A.2', who, q: `My sister and I will share ${n} ${GOODS[g].many}, half each. How many does each of us get?`, answer: n / 2,
     show: () => `<span class="grp">${dots(n)}</span>`,
     help: () => `<div class="row"><span class="grp"><span class="lab">Miu</span>${dots(n / 2)}</span><span class="grp"><span class="lab">Sister</span>${dots(n / 2)}</span></div><div class="mm-tip">The same number for each: a double.</div>`,
     helpWho: 'keeper', helpSay: `What number and the same number make ${n}? That's a double!`, strat: 'double',
@@ -1950,7 +1958,7 @@ async function athenaRiddle(who) {
   const [a, b] = shuffle(gs).slice(0, 2); if (S.stock[a] === S.stock[b]) return;
   const more = S.stock[a] > S.stock[b] ? a : b;
   await ask({
-    k: 'N', who, q: `Here is my riddle. Look at your shelf. Do you have more ${GOODS[a].many} or more ${GOODS[b].many}?`, answer: more, opts: [a, b],
+    k: 'N', std: GFKSkills.compare(S.stock[a], S.stock[b], { groups: true }), who, q: `Here is my riddle. Look at your shelf. Do you have more ${GOODS[a].many} or more ${GOODS[b].many}?`, answer: more, opts: [a, b],
     labels: { [a]: `${goodImg(a)} ${S.stock[a]}`, [b]: `${goodImg(b)} ${S.stock[b]}` },
     help: () => `<div class="row"><span class="grp">${goodImg(a, 'sm')}${dots(S.stock[a], 10)}</span><span class="grp">${goodImg(b, 'sm')}${dots(S.stock[b], 10)}</span></div>`,
     helpSay: 'Line them up and see which row is longer.',
@@ -1968,7 +1976,7 @@ async function evening() {
   if (g && S.day >= SUMS_DAY) {
     const had = S.had[g], sold = S.sold[g], left = Mental.subHelp(had, sold, S.lv.S);
     await ask({
-      k: 'S', who: 'keeper', q: `This morning I had ${had} ${GOODS[g].many}. I sold ${sold}. How many are left?`, answer: S.stock[g],
+      k: 'S', std: GFKSkills.sub(had, sold), who: 'keeper', q: `This morning I had ${had} ${GOODS[g].many}. I sold ${sold}. How many are left?`, answer: S.stock[g],
       show: () => `<span class="grp">${goodImg(g, 'sm')}${dots(had)}</span>`,
       help: () => left.html, helpSay: left.say, strat: left.kind,
     });
@@ -2016,7 +2024,7 @@ async function profitTask() {
   } else {
     const earn = Mental.subHelp(took, spent, S.lv.S);
     await ask({
-      k: 'S', who: 'keeper', q: `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent} this morning. How much did my shop earn today?`, answer: P,
+      k: 'S', std: GFKSkills.sub(took, spent), who: 'keeper', q: `I took in ${took} ${plural(took, 'penny', 'pennies')}. I paid Bramble ${spent} this morning. How much did my shop earn today?`, answer: P,
       show: () => `<span class="grp"><span class="lab">Took in ${took}</span>${dots(took)}</span>`,
       help: () => earn.html, helpSay: earn.say, strat: earn.kind,
     });
@@ -2056,7 +2064,7 @@ function stackTask(T) {
     if (loose < 10) setTimeout(() => { rerender = null; finish(); }, 50);
     async function finish() {
       await ask({
-        k: 'P', who: 'keeper', q: `${stacks} ${plural(stacks, 'stack', 'stacks')} of ten and ${loose} more. How many pennies is that?`, answer: T,
+        k: 'P', std: GFKSkills.tens(T), who: 'keeper', q: `${stacks} ${plural(stacks, 'stack', 'stacks')} of ten and ${loose} more. How many pennies is that?`, answer: T,
         show: () => `${Array.from({ length: stacks }, () => `<span class="grp"><span class="stack">${Array.from({ length: 10 }, () => coinHTML(1)).join('')}</span><span class="lab">10</span></span>`).join('')}<span class="grp"><span class="row">${Array.from({ length: loose }, () => coinHTML(1)).join('')}</span></span>`,
         help: () => `<div class="small">${Array.from({ length: stacks }, (_, i) => (i + 1) * 10).join(', ')}${loose ? ', then ' + Array.from({ length: loose }, (_, i) => stacks * 10 + i + 1).join(', ') : ''}</div>`,
         helpSay: `Count the stacks by tens, then the pennies by ones.`,
@@ -2376,7 +2384,7 @@ async function carrotJob(who) {
   for (let q = 0; q < 2; q++) {
     const [rows, per] = M <= 1 ? [2, 1 + rnd(4)] : M === 2 ? [2 + rnd(4), 2] : M === 3 ? [2 + rnd(3), 5] : pick([[2 + rnd(4), 5], [2 + rnd(3), 10]]);
     await ask({
-      k: 'M', who, q: q ? `And the next patch has ${rows} rows with ${per} in each. How many carrots?` : `I planted ${rows} rows of carrots, with ${per} in each row. How many carrots is that?`, answer: rows * per,
+      k: 'M', std: per === 1 ? GFKSkills.count(rows) : '2.OA.C.4', who, q: q ? `And the next patch has ${rows} rows with ${per} in each. How many carrots?` : `I planted ${rows} rows of carrots, with ${per} in each row. How many carrots is that?`, answer: rows * per,
       show: () => Array.from({ length: rows }, (_, i) => `<span class="grp"><span class="lab">row ${i + 1}</span>${dots(per, 0, 'or')}</span>`).join(''),
       help: () => groupsHelp(rows, per, 'or'),
       helpWho: rows === 2 ? 'keeper' : undefined, helpSay: rows === 2 ? `${per} and ${per}. That's a double!` : `Count by ${per}s, one row at a time.`,
@@ -2390,7 +2398,7 @@ async function bookJob(who) {
     const tens = P <= 1 ? 1 : 2 + rnd(4), ones = P <= 1 ? 1 + rnd(9) : rnd(10), n = tens * 10 + ones;
     const pile = () => `${Array.from({ length: tens }, () => `<span class="grp"><span class="books">${Array.from({ length: 10 }, (_, i) => `<i class="b${i % 5}"></i>`).join('')}</span><span class="lab">10</span></span>`).join('')}${ones ? `<span class="grp"><span class="books loose">${Array.from({ length: ones }, (_, i) => `<i class="b${i % 5}"></i>`).join('')}</span><span class="lab">&nbsp;</span></span>` : ''}`;
     await ask({
-      k: 'P', who, q: `${q ? 'And on this shelf: ' : ''}${tens} ${plural(tens, 'stack', 'stacks')} of ten books${ones ? ` and ${ones} more` : ''}. How many books is that?`, answer: n,
+      k: 'P', std: GFKSkills.tens(n), who, q: `${q ? 'And on this shelf: ' : ''}${tens} ${plural(tens, 'stack', 'stacks')} of ten books${ones ? ` and ${ones} more` : ''}. How many books is that?`, answer: n,
       show: pile,
       help: () => `<div class="small">${Array.from({ length: tens }, (_, i) => (i + 1) * 10).join(', ')}${ones ? ', then ' + Array.from({ length: ones }, (_, i) => tens * 10 + i + 1).join(', ') : ''}</div>`,
       helpSay: 'Count the stacks by tens, then the books by ones.',
@@ -2405,7 +2413,7 @@ async function lanternJob(who) {
     const sub = Mental.subHelp(T, L, S_);
     const lan = (help) => `<span class="lan">${Array.from({ length: T }, (_, i) => i < L ? '<i class="on"></i>' : `<i>${help ? i - L + 1 : ''}</i>`).join('')}</span>`;
     await ask({
-      k: 'S', who, q: q ? `Now the little ring by the stream. It has ${T} lanterns, and ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?` : `There are ${T} lanterns around the ring. ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?`, answer: T - L,
+      k: 'S', std: GFKSkills.sub(T, L, { missing: true }), who, q: q ? `Now the little ring by the stream. It has ${T} lanterns, and ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?` : `There are ${T} lanterns around the ring. ${L} ${L === 1 ? "is" : "are"} glowing. How many more do I need to light?`, answer: T - L,
       show: () => lan(false), help: () => `${lan(false)}${sub.html}`,
       helpWho: 'keeper', helpSay: sub.say, strat: sub.kind,
     });
@@ -2417,7 +2425,7 @@ async function chestJob(who) {
   for (let q = 0; q < 2; q++) {
     const n = F <= 1 ? 3 + rnd(7) : F === 2 ? 6 + rnd(10) : F === 3 ? 12 + rnd(24) : 15 + rnd(31), coins = coinsFor(n);
     await ask({
-      k: 'F', who, q: q ? 'Arr, there was more in the boat! How many pennies is this pile?' : 'Here is my treasure. How many pennies is it worth?', answer: n,
+      k: 'F', std: coins.some(v => v > 1) ? '2.MD.C.8' : GFKSkills.count(n), who, q: q ? 'Arr, there was more in the boat! How many pennies is this pile?' : 'Here is my treasure. How many pennies is it worth?', answer: n,
       show: () => `<div class="tray chest">${coins.map(v => coinHTML(v)).join('')}</div>`,
       help: () => { let run = 0; return `<div class="row">${coins.map(v => { run += v; return `<span class="grp">${coinHTML(v)}<span class="lab">${run}</span></span>`; }).join('')}</div>`; },
       helpSay: coins[0] === 10 ? 'Count the dimes by tens, then the rest.' : 'Touch each coin and count.',

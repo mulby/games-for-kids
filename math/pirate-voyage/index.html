@@ -2,6 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>[hidden]{display:none!important}body{margin:0}</style>
 <title>The Shining Sea</title>
+<script src="../../shared/skills.js"></script>
 <script src="../../shared/veil3d.js" data-bg="#9fd3f0" data-glow="#ffffff" data-ink="#17375e" data-text="Raising the sails…"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Shining Sea">
@@ -1573,6 +1574,8 @@ function choices(ans, min, max, extra = []) {
   return [...set].sort((a, b) => a - b);
 }
 
+// Each puzzle names its Common Core skill for the grown-ups' skill chart (shared/skills.js); without that file this does nothing.
+if (!window.GFKSkills) window.GFKSkills = new Proxy({}, { get: () => () => null });
 const GEN = {
   bonds(L) {
     const total = L === 1 ? 5 : L < 4 ? 10 : 20;
@@ -1587,7 +1590,7 @@ const GEN = {
       ? `<div class="needs">Needs ${total}</div><div class="necklace">${items(have, thing.e)}</div>`
       : frames([{ n: have, e: thing.e }], total);
     return {
-      prompt: thing.txt, answer: ans, choices: choices(ans, 0, total),
+      std: GFKSkills.sub(total, have, { missing: true }), prompt: thing.txt, answer: ans, choices: choices(ans, 0, total),
       visual: vis + `<div class="eq">${have} + <span class="q">?</span> = ${total}</div>`,
       hint: frames([{ n: have, e: thing.e }, { n: ans, e: "", cls: "glow" }], total) + `<div class="eq">${have} + <span class="q">?</span> = ${total}</div>`,
       hintText: "Count the glowing empty spaces!",
@@ -1610,7 +1613,7 @@ const GEN = {
       ? `<div class="groups"><div class="group">${items(a, s.e)}</div><span class="op">+</span><div class="group">${items(b, s.e, "b")}</div></div><div class="eq">${a} + ${b} = <span class="q">?</span></div>`
       : `<div class="eq">${a} + ${b} = <span class="q">?</span></div><div class="caption">${s.e} ${a} and ${s.e} ${b} more</div>`;
     return {
-      prompt: s.t, answer: ans, choices: choices(ans, 0, 20, [ans + 10, ans - 10]),
+      std: GFKSkills.add([a, b]), prompt: s.t, answer: ans, choices: choices(ans, 0, 20, [ans + 10, ans - 10]),
       visual, hint: frames([{ n: a, e: s.e }, { n: b, e: s.e, cls: "b" }], ans) + `<div class="eq">${a} + ${b} = <span class="q">?</span></div>`,
       hintText: ans > 10 ? "Fill up ten first. Then count the extras!" : "Count them all, one at a time!",
     };
@@ -1628,7 +1631,7 @@ const GEN = {
       ? `<div class="row">${items(t - k, e)}${items(k, e, "gone")}</div><div class="eq">${t} − ${k} = <span class="q">?</span></div>`
       : `<div class="eq">${t} − ${k} = <span class="q">?</span></div><div class="caption">${e} ${t} played, ${k} went to bed</div>`;
     return {
-      prompt, answer: ans, choices: choices(ans, 0, 20),
+      std: GFKSkills.sub(t, k), prompt, answer: ans, choices: choices(ans, 0, 20),
       visual, hint: frames([{ n: t - k, e }, { n: k, e, cls: "gone" }], t) + `<div class="eq">${t} − ${k} = <span class="q">?</span></div>`,
       hintText: "The crossed-out ones went to bed. Count the ones still playing!",
     };
@@ -1639,7 +1642,7 @@ const GEN = {
     const hintText = `Each gold bar is 10. Count the bars by tens, then add the coins. ${n} is ${tens} ${tens === 1 ? "bar" : "bars"} and ${ones} ${ones === 1 ? "coin" : "coins"}.`;
     if (Math.random() < 0.5) {
       return {
-        kind: "build", target: n, answer: n,
+        kind: "build", std: GFKSkills.tens(n), target: n, answer: n,
         prompt: `Hephaestus needs ${n} gold coins. Build ${n} with gold bars and coins!`,
         visual: `<div class="target">Build<b>${n}</b></div>`,
         hint: `<div class="target">Build<b>${n}</b></div>${goldPile(tens, ones, true)}`,
@@ -1649,7 +1652,7 @@ const GEN = {
     const extra = [n + 10, n - 10];
     if (ones && ones !== tens) extra.unshift(ones * 10 + tens);
     return {
-      prompt: "How many gold coins does Hephaestus have? Each bar is worth 10 coins.",
+      std: GFKSkills.tens(n), prompt: "How many gold coins does Hephaestus have? Each bar is worth 10 coins.",
       answer: n, choices: choices(n, 1, 99, extra),
       visual: goldPile(tens, ones, false),
       hint: goldPile(tens, ones, true), hintText,
@@ -1662,7 +1665,7 @@ const GEN = {
     else { const a = rnd(5, 10), b = rnd(3, Math.min(10, 20 - a)); left = [a, b]; c = rnd(Math.max(1, a + b - 9), a + b - 1); }
     const sumL = left.reduce((x, y) => x + y, 0), ans = sumL - c;
     return {
-      kind: "balance", left, right: [c], answer: ans, choices: choices(ans, 1, 20),
+      kind: "balance", std: "1.OA.D.8", left, right: [c], answer: ans, choices: choices(ans, 1, 20),
       prompt: "Athena's scales must be equal on both sides. Which stone will make them balance?",
       hintText: left.length > 1
         ? `This side has ${left.join(" + ")}, that makes ${sumL}. The other side has ${c}. How many more to make ${sumL}?`
@@ -1981,7 +1984,7 @@ function nextQ() {
   if (run.n >= run.total) return finishQuest();
   const skill = run.isle.skill === "mixed" ? pick(["bonds", "add", "sub", "place", "balance"]) : run.isle.skill;
   const q = GEN[skill](S.skills[skill].level);
-  q.skill = skill; q.kind = q.kind || "choice";
+  q.skill = skill; q.kind = q.kind || "choice"; q.t0 = Date.now();
   run.q = q; run.miss = 0; run.locked = false; run.build = { bars: 0, coins: 0 };
   screen = "play"; RENDER.play(); say(q.prompt);
 }
@@ -1998,6 +2001,7 @@ async function onCorrect(btn) {
   sfx.right();
   const first = run.miss === 0;
   const up = record(q.skill, first);
+  GFKSkills.log(q.std, { ok: first, ms: Date.now() - q.t0, game: "pirate-voyage" });
   if (first) run.firstTries++;
   const won = first ? 2 : 1;
   run.coinsWon += won;

@@ -143,65 +143,65 @@
     1: () => {
       if (Math.random() < .6) {
         const t = ri(2, 8), o = ri(2, 9), n = t * 10 + o;
-        return { q: `<span class="qm">?</span><small>${t} tens and ${o} ones</small>`, say: `${t} tens and ${o} ones. What number is that?`, answer: n, show: sticks(t, o), pic: true,
+        return { std: GFKSkills.tens(n), q: `<span class="qm">?</span><small>${t} tens and ${o} ones</small>`, say: `${t} tens and ${o} ones. What number is that?`, answer: n, show: sticks(t, o), pic: true,
           help: { say: `${t} tens make ${t * 10}. ${o} more makes ${n}.`, html: `${sticks(t, o)}<div class="mm-tip">${t} tens = ${t * 10}, and ${o} more</div>` } };
       }
       const t = ri(2, 8), up = Math.random() < .6, n = t * 10, a = up ? n + 10 : n - 10;
-      return { q: `10 ${up ? 'more' : 'less'} than ${n}`, say: up ? `What is 10 more than ${n}?` : `What is 10 less than ${n}?`, answer: a, show: sticks(t, 0, up ? 1 : -1), pic: true,
+      return { std: '1.NBT.C.5', q: `10 ${up ? 'more' : 'less'} than ${n}`, say: up ? `What is 10 more than ${n}?` : `What is 10 less than ${n}?`, answer: a, show: sticks(t, 0, up ? 1 : -1), pic: true,
         help: { say: up ? `One more ten. ${t} tens and 1 more ten makes ${t + 1} tens.` : `One ten less. ${t} tens take away 1 ten leaves ${t - 1} tens.`, html: sticks(t, 0, up ? 1 : -1) } };
     },
     2: () => {
       const n = notRound(11, 89), up = n < 20 || (n < 90 && Math.random() < .6), a = up ? n + 10 : n - 10, t = Math.floor(n / 10), o = n % 10;
-      return { q: `10 ${up ? 'more' : 'less'} than ${n}`, say: up ? `What is 10 more than ${n}?` : `What is 10 less than ${n}?`, answer: a, show: column(up ? [n, a] : [a, n], a), pic: true,
+      return { std: '1.NBT.C.5', q: `10 ${up ? 'more' : 'less'} than ${n}`, say: up ? `What is 10 more than ${n}?` : `What is 10 less than ${n}?`, answer: a, show: column(up ? [n, a] : [a, n], a), pic: true,
         help: { say: up ? `10 more. The tens go up by 1. The ones stay ${o}.` : `10 less. The tens go down by 1. The ones stay ${o}.`,
           html: `${sticks(t, o, up ? 1 : -1)}<div class="ch-seq">${split(n)} ➜ ${split(a)}</div>` } };
     },
     3: () => {
       const up = Math.random() < .65, s = up ? notRound(11, 59) : notRound(41, 99), d = up ? 10 : -10, seq = [s, s + d, s + 2 * d], a = s + 3 * d, o = s % 10;
-      return { q: `${seq.join(', ')}, <span class="qm">?</span>`, say: `${seq.join(', ')}. What comes next?`, answer: a, show: column(up ? [...seq, a] : [a, ...seq.slice().reverse()], a), pic: false,
+      return { std: '1.NBT.C.5', q: `${seq.join(', ')}, <span class="qm">?</span>`, say: `${seq.join(', ')}. What comes next?`, answer: a, show: column(up ? [...seq, a] : [a, ...seq.slice().reverse()], a), pic: false,
         help: { say: `Look at the ones. They stay ${o}. Only the tens change.`, html: `<div class="ch-seq">${seq.map(split).join(', ')}, …</div><div class="mm-tip">The ones stay ${o}. The tens go ${up ? 'up' : 'down'} 1 each time.</div>` } };
     },
     4: () => {
       const up = Math.random() < .6, k = ri(2, 4) * 10;
       const n = up ? notRound(11, 99 - k) : notRound(k + 1, 99), a = up ? n + k : n - k, t = k / 10;
       const steps = Array.from({ length: t }, () => up ? 10 : -10);
-      return { q: `${n} ${up ? '+' : '−'} ${k}`, say: `${n} ${word(up ? 1 : -1)} ${k}.`, answer: a, show: sticks(Math.floor(n / 10), n % 10, up ? t : -t), pic: false,
+      return { std: up ? GFKSkills.add([n, k]) : GFKSkills.sub(n, k), q: `${n} ${up ? '+' : '−'} ${k}`, say: `${n} ${word(up ? 1 : -1)} ${k}.`, answer: a, show: sticks(Math.floor(n / 10), n % 10, up ? t : -t), pic: false,
         help: { say: up ? `Count on by tens from ${n}.` : `Count back by tens from ${n}.`, html: `${jumps(n, steps)}<div class="mm-tip">${k} is ${t} tens</div>` } };
     },
     5: () => {
       const n = notRound(12, 88), next = Math.ceil(n / 10) * 10, need = next - n;
-      if (Math.random() < .45) return { q: `${n} + <span class="qm">?</span> = ${next}`, say: `${n} plus what makes ${next}?`, answer: need, show: sticks(Math.floor(n / 10), n % 10), pic: false,
+      if (Math.random() < .45) return { std: '1.NBT.C.4', q: `${n} + <span class="qm">?</span> = ${next}`, say: `${n} plus what makes ${next}?`, answer: need, show: sticks(Math.floor(n / 10), n % 10), pic: false,
         help: { say: `Look at the ones. ${n % 10} needs ${need} more to make 10.`, html: `${sticks(Math.floor(n / 10), n % 10)}<div class="mm-tip">${n % 10} and ${need} make 10</div>` } };
       const d = ri(need + 1, 9), a = n + d;
-      return { q: `${n} + ${d}`, say: `${n} plus ${d}.`, answer: a, show: null, pic: false,
+      return { std: GFKSkills.add([n, d]), q: `${n} + ${d}`, say: `${n} plus ${d}.`, answer: a, show: null, pic: false,
         help: { say: `${n} and ${need}. That makes ${next}. Then ${d - need} more.`, html: jumps(n, [need, d - need]) } };
     },
     6: () => {
       let a, b; do { a = ri(14, 78); b = ri(11, 45); } while (a + b > 99 || b % 10 === 0 || a % 10 === 0);
       const bt = Math.floor(b / 10) * 10, bo = b % 10, ans = a + b;
-      return { q: `${a} + ${b}`, say: `${a} plus ${b}.`, answer: ans, show: null, pic: false,
+      return { std: GFKSkills.add([a, b]), q: `${a} + ${b}`, say: `${a} plus ${b}.`, answer: ans, show: null, pic: false,
         help: { say: `First add the tens. ${a} and ${bt}. That makes ${a + bt}. Then add the ones. ${a + bt} and ${bo}. That makes ${ans}.`, html: jumps(a, [...Array(bt / 10).fill(10), bo]) } };
     },
     7: () => {
       let a, b; do { a = ri(31, 99); b = ri(11, 49); } while (a - b < 3 || b % 10 === 0);
       const bt = Math.floor(b / 10) * 10, bo = b % 10, ans = a - b;
-      return { q: `${a} − ${b}`, say: `${a} take away ${b}.`, answer: ans, show: null, pic: false,
+      return { std: GFKSkills.sub(a, b), q: `${a} − ${b}`, say: `${a} take away ${b}.`, answer: ans, show: null, pic: false,
         help: { say: `First take away the tens. ${a} take away ${bt}. That leaves ${a - bt}. Then take away ${bo}. That leaves ${ans}.`, html: jumps(a, [...Array(bt / 10).fill(-10), -bo]) } };
     },
   };
 
   /* ---------------- Quick Facts ---------------- */
-  const addFact = (a, b, lv) => { const h = Mental.addHelp(a, b, lv); return { q: `${a} + ${b}`, say: `${a} plus ${b}.`, answer: a + b, help: { say: h.say, html: h.html } }; };
-  const subFact = (w, p, lv) => { const h = Mental.subHelp(w, p, lv); return { q: `${w} − ${p}`, say: `${w} take away ${p}.`, answer: w - p, help: { say: h.say, html: h.html } }; };
+  const addFact = (a, b, lv) => { const h = Mental.addHelp(a, b, lv); return { std: GFKSkills.add([a, b]), q: `${a} + ${b}`, say: `${a} plus ${b}.`, answer: a + b, help: { say: h.say, html: h.html } }; };
+  const subFact = (w, p, lv) => { const h = Mental.subHelp(w, p, lv); return { std: GFKSkills.sub(w, p), q: `${w} − ${p}`, say: `${w} take away ${p}.`, answer: w - p, help: { say: h.say, html: h.html } }; };
   const BY = { 2: 'Count by twos.', 3: 'Count by threes.', 4: 'Count by fours.', 5: 'Count by fives.', 10: 'Count by tens.' };
   const timesFact = (a, b) => {
     const list = Array.from({ length: a }, (_, i) => (i + 1) * b);
-    return { q: `${a} × ${b}`, say: `${a} times ${b}.`, answer: a * b,
+    return { std: '3.OA.C.7', q: `${a} × ${b}`, say: `${a} times ${b}.`, answer: a * b,
       help: { say: `${a} groups of ${b}. ${BY[b]} ${list.join('. ')}.`, html: `<div class="ch-line">${list.map(v => `<span class="n">${v}</span>`).join('')}</div><div class="mm-tip">${a} jumps of ${b}</div>` } };
   };
   const FACTS = {
     1: () => {
-      if (Math.random() < .55) { const a = ri(1, 9), h = Mental.subHelp(10, a, 1); return { q: `${a} + <span class="qm">?</span> = 10`, say: `${a} plus what makes 10?`, answer: 10 - a, help: { say: h.say, html: h.html } }; }
+      if (Math.random() < .55) { const a = ri(1, 9), h = Mental.subHelp(10, a, 1); return { std: 'K.OA.A.4', q: `${a} + <span class="qm">?</span> = 10`, say: `${a} plus what makes 10?`, answer: 10 - a, help: { say: h.say, html: h.html } }; }
       const a = ri(1, 5); return addFact(a, a, 1);
     },
     2: () => Math.random() < .55 ? (() => { const a = ri(1, 8), b = ri(1, 10 - a); return addFact(a, b, 2); })() : (() => { const w = ri(4, 10), p = ri(1, w - 1); return subFact(w, p, 2); })(),
@@ -221,7 +221,7 @@
     6: () => any([
       () => { const b = any([3, 4]), a = ri(2, 10); return timesFact(a, b); },
       () => { const b = any([2, 5, 10]), a = ri(2, 10); return timesFact(a, b); },
-      () => { const h = ri(2, 10); return { q: `half of ${h * 2}`, say: `What is half of ${h * 2}?`, answer: h, help: { say: `Half means two equal parts. ${h} and ${h}. That makes ${h * 2}.`, html: `<div class="row">${Mental.dots(h)}${Mental.dots(h)}</div>` } }; },
+      () => { const h = ri(2, 10); return { std: '3.OA.A.2', q: `half of ${h * 2}`, say: `What is half of ${h * 2}?`, answer: h, help: { say: `Half means two equal parts. ${h} and ${h}. That makes ${h * 2}.`, html: `<div class="row">${Mental.dots(h)}${Mental.dots(h)}</div>` } }; },
     ])(),
   };
 
@@ -337,12 +337,15 @@
     const n = riddles ? RIDDLES_PER_CARD : PER_CARD, marks = [];
     let firsts = 0, zaps = 0, pennies = 0;
     for (let i = 0; i < n; i++) {
-      let r;
+      let r, std = '3.OA.D.8';
       if (riddles) r = await playRiddle(lv, dotsHTML(marks, n, i), C, k);
       else {
         const p = (track === 'tens' ? TENS : FACTS)[lv]();
+        std = p.std;
         r = await padAsk(Object.assign({ who: 'keeper', dots: dotsHTML(marks, n, i) }, p));
       }
+      // the grown-ups' skill chart: plain typed facts, so their times say whether she knows them or counts them
+      GFKSkills.log(std, { ok: r.first, ms: r.ms, game: 'board', bare: !riddles });
       const fast = r.first && r.ms <= target(C, k, track);
       if (r.first) { addTime(C, k, r.ms); firsts++; pennies++; }
       if (fast) { zaps++; pennies++; }

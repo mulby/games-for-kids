@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1d2147">
 <title>Fairy Lantern Festival</title>
+<script src="../../shared/skills.js"></script>
 <script src="../../shared/veil3d.js" data-bg="#141836" data-glow="#ffd86b" data-ink="#fff4d6" data-text="Lighting the lanterns…"></script>
 <style>
 :root{
@@ -2357,6 +2358,8 @@ function recordResult(cur, firstTry) {
   r.attempts++; if (firstTry) r.firstTry++;
   r.hintSteps += cur.hintStep; r.toolUses += cur.tools.length; r.lastSeen = Date.now();
   S.history.push({ t: Date.now(), skill: id, params: cur.params, fact: cur.params.fact, firstTry, hintStep: cur.hintStep, tools: cur.tools.slice(), ms: Date.now() - cur.t0, role: cur.role });
+  // the grown-ups' skill chart (shared/skills.js)
+  if (window.GFKSkills) GFKSkills.log(GFKSkills.FAIRY[id], { ok: firstTry, ms: Date.now() - cur.t0, game: 'fairy-lantern' });
   if (S.history.length > 200) S.history = S.history.slice(-200);
   if (cur.role === 'frontier' && r.status === 'learning') {
     r.fAttempts++; if (firstTry) r.fFirst++;

@@ -17,6 +17,18 @@ Open `index.html` (The Wonder Shelf) to pick a game. Every collectible card a ga
 
 Each game is one self-contained `index.html` that saves progress in localStorage and has a press-and-hold "Grown-ups" view.
 
+## Skills chart (for grown-ups)
+Every math problem in every game is filed under its **Common Core** standard (kindergarten to 3rd grade, codes like
+`2.NBT.B.5`), so a grown-up can see how far she has come. Open **Grown-ups: math skills chart** at the bottom of the shelf.
+- `shared/skills.js` (GFKSkills) holds the skill list, picks a standard from a problem's numbers (`GFKSkills.add([8, 5])`),
+  and logs each try: right first time with no help or not, and how long it took. Saved in `localStorage["gfk-skills"]`
+  (last 30 tries per skill), which the shelf syncs like any save and merges try by try across devices.
+- A skill is **mastered** at 8 of the last 10 tries right first time on 2+ different days; **right, but slow** when plain facts
+  are right but slower than knowing them (she is probably counting); **check again** after 3 weeks unseen.
+- `shared/skill-chart.js` draws the chart on the shelf. The first time it runs it also brings in the history the
+  Moonlit Map, Fairy Lantern Festival, Gemling Grids and Hoot's board had already saved.
+- When adding a game or a new kind of problem, pass its standard to `GFKSkills.log(code, {ok, ms, game, bare})`.
+
 ## Break Time (just for fun)
 Short, no-math 3D games for a break between practice games. The shelf offers one after about four minutes of
 practice (`WORK_FOR_BREAK` in `index.html`), and each one then gives a single bonus for that break.
