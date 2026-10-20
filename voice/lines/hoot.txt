@@ -288,3 +288,22 @@ well done	Well done!
 700	700
 800	800
 900	900
+the floor has	The floor has
+rows of tiles with	rows of tiles, with
+tiles in each row	tiles in each row.
+how many tiles do we need	How many tiles do we need?
+of 10 and	of 10, and
+more	more.
+how many planks is that	How many planks is that?
+this plank is	This plank is
+long and i need it	long, and I need it
+long	long.
+how much does papa saw off	How much does Papa saw off?
+one board is	One board is
+long and the other is	long and the other is
+end to end how long is that	End to end, how long is that?
+could you make	Could you make
+i can do that	I can do that!
+wonderful work	Wonderful work!
+here are 3 pennies and 1 more for getting every sum right the first time	Here are 3 pennies, and 1 more for getting every sum right the first time!
+here are 3 pennies	Here are 3 pennies.

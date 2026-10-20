@@ -159,3 +159,25 @@ how many are left for my shop	How many are left for my shop?
 700	700
 800	800
 900	900
+first i measure the plank	First I measure the plank.
+it starts at 0 on my ruler	It starts at 0 on my ruler.
+how long is it	How long is it?
+boards and each board needs	boards, and each board needs
+nails	nails.
+how many nails do i need	How many nails do I need?
+i have	I have
+of 10 planks and	of 10 planks and
+more	more.
+how many planks is that	How many planks is that?
+today you are	Today you are
+papa is a carpenter	Papa is a carpenter.
+he makes and mends things for the neighbours	He makes and mends things for the neighbours.
+measure saw nail	Measure, saw, nail!
+every job needs some careful counting	Every job needs some careful counting.
+and the pennies go in our family purse	And the pennies go in our family purse.
+let's go	Let's go!
+off to work	Off to work!
+who needs a carpenter today	Who needs a carpenter today?
+my toolbox is ready	My toolbox is ready.
+i earned	I earned
+pennies for our family today	pennies for our family today.

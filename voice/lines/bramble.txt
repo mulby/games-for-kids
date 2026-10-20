@@ -283,3 +283,6 @@ i'm stretching my legs after a busy day with my cart	I'm stretching my legs afte
 700	700
 800	800
 900	900
+my money to spend	My money to spend
+wood nails and paint for a	Wood, nails and paint for a
+not today	Not today

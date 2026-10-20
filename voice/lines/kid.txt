@@ -191,3 +191,7 @@ how many cups for two batches	How many cups for two batches?
 700	700
 800	800
 900	900
+papa is home	Papa is home!
+papa	Papa!
+you're home	You're home!
+hugs	Hugs!

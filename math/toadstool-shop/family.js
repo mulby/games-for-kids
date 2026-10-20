@@ -67,6 +67,11 @@
 .fm-planks{display:inline-flex;gap:8px;align-items:flex-end;flex-wrap:wrap;justify-content:center}
 .fm-bundle{display:inline-flex;flex-direction:column;align-items:center;gap:2px;font-size:14px;font-weight:700}
 .fm-bundle span{display:inline-flex;gap:2px;padding:4px;border-radius:6px;box-shadow:inset 0 0 0 3px #e2566b}
+.fm-ruler{position:relative;display:inline-block;padding:34px 10px 6px;background:#ffe9a8;border-radius:8px;box-shadow:inset 0 0 0 3px #e5c56a}
+.fm-ruler .bar{position:absolute;top:8px;height:22px;border-radius:4px;background:repeating-linear-gradient(90deg,#d9a46a 0 18px,#c98f55 18px 20px);box-shadow:inset 0 -3px 0 #b77b4c}
+.fm-ruler .bar.cut{background:repeating-linear-gradient(90deg,#f2c9a0 0 18px,#e6b88a 18px 20px);opacity:.75;box-shadow:none;border:2px dashed #b77b4c}
+.fm-ruler .ticks{display:flex}
+.fm-ruler .ticks b{width:24px;text-align:left;font-size:13px;border-left:2px solid #6b4a33;padding-left:2px;height:20px;line-height:24px}
 .fm-bundle span i,.fm-plank{display:inline-block;width:7px;height:46px;border-radius:2px;background:#d9a46a;box-shadow:inset -2px 0 0 #b77b4c}
 `;
   function injectCSS() { if (document.getElementById('fm-css')) return; const s = document.createElement('style'); s.id = 'fm-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -95,6 +100,7 @@
   // Papa has a voice of his own; the children share one.
   function register() {
     for (const id of Object.keys(CAST)) if (isFam(id)) delete CAST[id];
+    papaActivity();
     if (!has()) { TSV.family = []; return; }
     const F = S.family;
     CAST.papa = { name: F.papa.name, emoji: '🐭', spec: papaSpec(F.papa) };
@@ -103,7 +109,8 @@
   }
   // what shop3d.js draws in her house: Papa and the children in a row at the front of the room
   function sync() {
-    TSV.family = has() ? [{ id: 'papa', spec: CAST.papa.spec }].concat(kids().map((_, i) => ({ id: kidId(i), spec: CAST[kidId(i)].spec, kid: true }))) : [];
+    // on Papa's day she is Papa, so the shopkeeper (Mama) stands with the children instead
+    TSV.family = has() ? [playingPapa() ? { id: 'mama', spec: keeperSpec() } : { id: 'papa', spec: CAST.papa.spec }].concat(kids().map((_, i) => ({ id: kidId(i), spec: CAST[kidId(i)].spec, kid: true }))) : [];
     TSV.famMood = TSV.famMood || {};
   }
   const famT = {};
@@ -503,6 +510,100 @@
     return id;
   }
 
+  /* ---------------- Papa's day: she plays her husband, the carpenter ---------------- */
+  // From the morning menu (it is one of Mental.ACTIVITIES once she has a family): the shop stays shut, she is Papa for
+  // the day, and he walks down the lane doing carpentry jobs for three neighbours. Every job is two building sums:
+  // reading a ruler, sawing a plank down to size, nails in equal groups, boards end to end, planks in bundles of ten.
+  // Each job pays 3 pennies (and 1 more if every answer was right the first time), into the family's one purse.
+  let asPapa = false;
+  const playingPapa = () => asPapa && has();
+  const U = 24; // px per unit on the ruler
+  function ruler(len, opts = {}) {
+    const n = Math.max(len, opts.need || 0, 10) + 1;
+    return `<span class="fm-ruler"><span class="bar" style="left:10px;width:${len * U}px"></span>${opts.need ? `<span class="bar cut" style="left:${10 + opts.need * U}px;width:${(len - opts.need) * U}px"></span>` : ''}<span class="ticks">${Array.from({ length: n }, (_, i) => `<b>${i}</b>`).join('')}</span></span>`;
+  }
+  const JOBS = {
+    burrow: { who: 'bunbury', what: 'a new shelf for my jam jars', steps: ['measure', 'nails'] },
+    oak: { who: 'hoot', what: 'a taller bookcase', steps: ['boards', 'planks'] },
+    stall: { who: 'dot', what: 'a bench for my flower stall', steps: ['saw', 'nails'] },
+    pond: { who: 'captain', what: 'a new plank for my little boat', steps: ['measure', 'saw'] },
+  };
+  async function carpentry(kind, who) {
+    const A = S.lv.A, Sv = S.lv.S, M = S.lv.M;
+    if (kind === 'measure') {
+      const len = (Sv <= 1 ? 4 : 6) + rnd(Sv <= 1 ? 6 : 9);
+      await ask({ k: 'N', who: 'papa', strat: 'none', answer: len, q: 'First I measure the plank. It starts at 0 on my ruler. How long is it?',
+        show: () => ruler(len), help: () => `<div class="mm-tip">Look where the plank ends. ${len > 10 ? `It goes past 10 by ${len - 10}.` : len > 5 ? `5 and ${len - 5} more.` : ''}</div>`,
+        helpSay: len > 10 ? `It goes past 10, and ${len - 10} more.` : 'Look at the number where the plank ends.' });
+    } else if (kind === 'saw') {
+      const len = (Sv <= 1 ? 6 : 10) + rnd(Sv <= 1 ? 5 : 9), need = 2 + rnd(len - 3), h = Mental.subHelp(len, need, Sv);
+      await ask({ k: 'S', who, helpWho: 'papa', strat: h.kind, answer: len - need, q: `This plank is ${len} long, and I need it ${need} long. How much does Papa saw off?`,
+        show: () => ruler(len, { need }), help: () => h.html, helpSay: h.say });
+    } else if (kind === 'nails') {
+      const per = M <= 2 ? 2 : M === 3 ? 5 : 10, n = 2 + rnd(M <= 2 ? 4 : 3);
+      await ask({ k: 'M', who: 'papa', strat: 'skip', answer: n * per, q: `There are ${n} boards, and each board needs ${per} nails. How many nails do I need?`,
+        show: () => Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">board ${i + 1}</span>${dots(per)}</span>`).join(''),
+        help: () => `<div class="row">${Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${i === n - 1 ? '?' : (i + 1) * per}</span>${dots(per)}</span>`).join('')}</div>`,
+        helpSay: `Count by ${per === 2 ? 'twos' : per === 5 ? 'fives' : 'tens'}.` });
+    } else if (kind === 'boards') {
+      const [a, b] = A <= 1 ? [2 + rnd(4), 1 + rnd(4)] : A === 2 ? [3 + rnd(5), 2 + rnd(5)] : [6 + rnd(4), 4 + rnd(6)], h = Mental.addHelp(a, b, A);
+      await ask({ k: 'A', who, helpWho: 'papa', strat: h.kind, answer: a + b, q: `One board is ${a} long and the other is ${b} long. End to end, how long is that?`,
+        show: () => `<span class="fm-ruler" style="padding-top:8px"><span class="ticks"><b style="width:${a * U}px;background:#d9a46a;color:#fff">${a}</b><b style="width:${b * U}px;background:#c98f55;color:#fff">${b}</b></span></span>`,
+        help: () => h.html, helpSay: h.say });
+    } else {
+      const P = S.lv.P, bn = P <= 1 ? 1 + rnd(2) : 2 + rnd(7), o = 1 + rnd(9);
+      await ask({ k: 'P', who: 'papa', strat: 'tens', answer: bn * 10 + o, q: `I have ${bn} ${plural(bn, 'bundle', 'bundles')} of 10 planks and ${o} more. How many planks is that?`,
+        show: () => planks(bn, o), help: () => `<div class="mm-tip">${bn} tens is ${bn * 10}. And ${o} more.</div>`, helpSay: `${bn} tens is ${bn * 10}. Then ${o} more.` });
+    }
+  }
+  async function papaDay() {
+    const F = S.family, name = F.papa.name;
+    asPapa = true; S.offDay.papa = name; sync(); syncView();
+    try {
+      setScene('room', { room: 'home', time: 'day', cam: 'decorate' }); TSV.place = 'house'; TSV.cust = null;
+      await wait(has3d() ? 700 : 50);
+      famMood('papa', 'happy', 1500);
+      if (coachOnce('papaday')) {
+        await talk('papa', `Today you are ${name}! Papa is a carpenter. He makes and mends things for the neighbours.`, 'Next');
+        await talk('papa', 'Measure, saw, nail! Every job needs some careful counting. And the pennies go in our family purse.', "Let's go! 🔨");
+      } else await talk('papa', pick(['Off to work! Who needs a carpenter today?', 'My toolbox is ready. Let\'s go!']), "Let's go! 🔨");
+      setScene('village', { time: 'day' });
+      Object.assign(TSV, { cust: null, place: null, go: 'gate', at: null, folk: [], folkMood: {} });
+      await wait(has3d() ? 900 : 0);
+      for (const id of shuffle(Object.keys(JOBS)).slice(0, 3)) {
+        const J = JOBS[id], who = J.who;
+        hush(); setPanel('');
+        await walkTo(id);
+        TSV.place = id; TSV.cust = CAST[who].spec; mood('cust', 'wave', 1500);
+        await wait(has3d() ? 1300 : 100);
+        await talk(who, `Hello, ${name}! Could you make ${J.what}?`, 'I can do that!');
+        TIP = { ok: true };
+        for (const step of J.steps) await carpentry(step, who);
+        setPanel(`<div class="mm-eyes">🔨</div><div class="mm-tip">Tap, tap, tap…</div>`);
+        for (let i = 0; i < 4; i++) { SFX.tap(); await wait(280); }
+        const tip = !!(TIP && TIP.ok), pay = 3 + (tip ? 1 : 0); TIP = null;
+        S.till += pay; S.offDay.earned += pay; save(); hud(); SFX.coin(1); SFX.cheer(); mood('cust', 'happy', 2000);
+        await talk(who, tip ? `Wonderful work! Here are 3 pennies, and 1 more for getting every sum right the first time!` : 'Wonderful work! Here are 3 pennies.', 'Thank you!',
+          `<div class="tray tipcoin">${Array.from({ length: pay }, () => coinHTML(1)).join('')}</div>`);
+        TSV.cust = null; await wait(has3d() ? 900 : 100); TSV.place = null;
+      }
+      hush(); setPanel('');
+      await walkTo('house');
+      F.papaDays = (F.papaDays || 0) + 1; save();
+      if (F.papaDays === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'papa-carpenter', name: `${name} the Carpenter`, emoji: '🔨', rarity: 'rare' });
+      setScene('room', { room: 'home', time: 'day', cam: 'decorate' }); TSV.place = 'house'; TSV.cust = null;
+      await wait(has3d() ? 700 : 50);
+      kids().forEach((_, i) => famMood(kidId(i), 'happy', 2500)); mood('keeper', 'happy', 2500);
+      await talk(kidId(rnd(kids().length)), pick(['Papa is home!', 'Papa! Papa! You\'re home!']), 'Hugs! 💖');
+      await talk('papa', `I earned ${S.offDay.earned} pennies for our family today.`, 'Hooray!');
+    } finally { asPapa = false; sync(); syncView(); }
+  }
+  function papaActivity() {
+    if (!Mental.ACTIVITIES) return;
+    if (has()) Mental.ACTIVITIES.papa = { name: `${S.family.papa.name}'s day`, who: 'papa', emoji: '🔨', blurb: 'Be Papa the carpenter, and earn pennies mending things', run: papaDay };
+    else delete Mental.ACTIVITIES.papa;
+  }
+
   /* ---------------- in her house ---------------- */
   // the bedtime line: who she tucked in tonight
   function nightLine() {
@@ -511,5 +612,5 @@
     return ok === kids().length ? ` I kissed ${names(kids().map(k => k.name))} goodnight.` : ` ${S.family.papa.name} tucked the children into bed.`;
   }
 
-  G.Family = { DAY, ROOMS, built, roomBar, goRoom, build, has, kids, isFam, register, sync, famMood, offer, make, today, waiting, blurb, row, care, bake, bakedToday, nightLine, NEEDS, DRAWINGS, PAPA_NAMES, KID_NAMES };
+  G.Family = { DAY, playingPapa, ROOMS, built, roomBar, goRoom, build, has, kids, isFam, register, sync, famMood, offer, make, today, waiting, blurb, row, care, bake, bakedToday, nightLine, NEEDS, DRAWINGS, PAPA_NAMES, KID_NAMES };
 })(window);

@@ -1808,3 +1808,15 @@ for my shop shelf	for my shop shelf.
 i can sell	I can sell
 we ate them all up	We ate them all up!
 yum	Yum!
+back in my living room	Back in my living room.
+which room shall i build	Which room shall I build?
+i keep 10 pennies for bramble's cart so i have	I keep 10 pennies for Bramble's cart, so I have
+i already have a	I already have a
+now let's build	Now let's build!
+let's build	Let's build!
+a new room	A new room!
+it is so lovely	It is so lovely!
+can we play in here	Can we play in here?
+my new	My new
+my house is getting bigger	My house is getting bigger.
+ta da	Ta-da!

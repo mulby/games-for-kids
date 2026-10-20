@@ -385,6 +385,7 @@
   // The bedtime line after a day off, for the game's night().
   function nightLine() {
     const O = S.offDay; if (!O || O.day !== S.day) return null;
+    if (O.papa) return `Day ${S.day} is done! ${O.papa} worked hard as a carpenter, and earned ${O.earned} ${O.earned === 1 ? 'penny' : 'pennies'} for our family. Time for bed.`;
     return `Day ${S.day} is done! I had a lovely day off playing ${O.what}, and I earned ${O.earned} ${O.earned === 1 ? 'penny' : 'pennies'}. Time for bed.`;
   }
 
