@@ -476,7 +476,8 @@
     const given = await coinsTask({ who: 'bramble', amount: R.cost, source: coinsFor(spare), title: 'My money to spend', prompt: `Wood, nails and paint for a ${R.name.toLowerCase()}. That's ${R.cost} pennies, please.`, mode: S.day >= SUMS_DAY ? 'pay' : 'exact', back: 'Not today' });
     if (given === null) return null;
     if (given > R.cost) await talk('bramble', `You gave me ${given}. Here ${given - R.cost === 1 ? 'is 1 penny' : 'are ' + (given - R.cost)} back!`);
-    const had = S.till; S.till -= R.cost; save(); hud();
+    // the room is hers as soon as it is paid for, so a reload in the middle never loses the pennies
+    const had = S.till; S.till -= R.cost; S.rooms = built().concat(id); save(); hud();
     const who = has() ? 'papa' : 'keeper';
     await talk('keeper', `${had} take away ${R.cost} leaves ${S.till}. Now let's build!`, 'Let\'s build! 🔨');
     // 1. the floor: rows of tiles
@@ -497,7 +498,7 @@
     });
     setPanel(`<div class="mm-eyes">🔨</div><div class="mm-tip">Tap, tap, tap…</div>`);
     for (let i = 0; i < 6; i++) { SFX.tap(); await wait(320); }
-    S.rooms = built().concat(id); save(); syncView();
+    syncView();
     goRoom(id); await wait(has3d() ? 900 : 100);
     SFX.cheer(); mood('keeper', 'happy', 2200); if (has()) { famMood('papa', 'happy', 2200); kids().forEach((_, i) => famMood(kidId(i), 'happy', 2200)); }
     if (window.GFKCards) {
@@ -558,11 +559,14 @@
   }
   async function papaDay() {
     const F = S.family, name = F.papa.name;
-    asPapa = true; S.offDay.papa = name; sync(); syncView();
+    asPapa = true; const O = S.offDay; O.papa = name;
+    // which three neighbours, and the jobs done so far, are saved: a reload carries on instead of paying again
+    if (!O.jobs) O.jobs = shuffle(Object.keys(JOBS)).slice(0, 3), O.done = [];
+    save(); sync(); syncView();
     try {
       setScene('room', { room: 'home', time: 'day', cam: 'decorate' }); TSV.place = 'house'; TSV.cust = null;
       await wait(has3d() ? 700 : 50);
-      famMood('papa', 'happy', 1500);
+      famMood('mama', 'happy', 1500);
       if (coachOnce('papaday')) {
         await talk('papa', `Today you are ${name}! Papa is a carpenter. He makes and mends things for the neighbours.`, 'Next');
         await talk('papa', 'Measure, saw, nail! Every job needs some careful counting. And the pennies go in our family purse.', "Let's go! 🔨");
@@ -570,7 +574,7 @@
       setScene('village', { time: 'day' });
       Object.assign(TSV, { cust: null, place: null, go: 'gate', at: null, folk: [], folkMood: {} });
       await wait(has3d() ? 900 : 0);
-      for (const id of shuffle(Object.keys(JOBS)).slice(0, 3)) {
+      for (const id of O.jobs.filter(j => !O.done.includes(j))) {
         const J = JOBS[id], who = J.who;
         hush(); setPanel('');
         await walkTo(id);
@@ -582,7 +586,7 @@
         setPanel(`<div class="mm-eyes">🔨</div><div class="mm-tip">Tap, tap, tap…</div>`);
         for (let i = 0; i < 4; i++) { SFX.tap(); await wait(280); }
         const tip = !!(TIP && TIP.ok), pay = 3 + (tip ? 1 : 0); TIP = null;
-        S.till += pay; S.offDay.earned += pay; save(); hud(); SFX.coin(1); SFX.cheer(); mood('cust', 'happy', 2000);
+        S.till += pay; O.earned += pay; O.done.push(id); save(); hud(); SFX.coin(1); SFX.cheer(); mood('cust', 'happy', 2000);
         await talk(who, tip ? `Wonderful work! Here are 3 pennies, and 1 more for getting every sum right the first time!` : 'Wonderful work! Here are 3 pennies.', 'Thank you!',
           `<div class="tray tipcoin">${Array.from({ length: pay }, () => coinHTML(1)).join('')}</div>`);
         TSV.cust = null; await wait(has3d() ? 900 : 100); TSV.place = null;
@@ -593,7 +597,7 @@
       if (F.papaDays === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'papa-carpenter', name: `${name} the Carpenter`, emoji: '🔨', rarity: 'rare' });
       setScene('room', { room: 'home', time: 'day', cam: 'decorate' }); TSV.place = 'house'; TSV.cust = null;
       await wait(has3d() ? 700 : 50);
-      kids().forEach((_, i) => famMood(kidId(i), 'happy', 2500)); mood('keeper', 'happy', 2500);
+      kids().forEach((_, i) => famMood(kidId(i), 'happy', 2500)); famMood('mama', 'happy', 2500);
       await talk(kidId(rnd(kids().length)), pick(['Papa is home!', 'Papa! Papa! You\'re home!']), 'Hugs! 💖');
       await talk('papa', `I earned ${S.offDay.earned} pennies for our family today.`, 'Hooray!');
     } finally { asPapa = false; sync(); syncView(); }

@@ -257,7 +257,8 @@
   async function playDay() {
     const A = ACTIVITIES[S.play] || ACTIVITIES.hide;
     S.shop = null; S.spent = 0; S.profit = 0;
-    S.offDay = { day: S.day, earned: 0, what: A.name.toLowerCase() };
+    const O = S.offDay; // a reload mid-day carries on with the same day off, keeping what she earned
+    if (!O || O.day !== S.day || O.what !== A.name.toLowerCase()) S.offDay = { day: S.day, earned: 0, what: A.name.toLowerCase() };
     save();
     await A.run();
     TSV.cust = null; hush(); setPanel('');
