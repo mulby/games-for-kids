@@ -4,7 +4,7 @@ hello i'm miu the temple cat	Hello, I'm Miu, the temple cat!
 a sandstorm knocked stones off pharaoh's pyramids	A sandstorm knocked stones off Pharaoh's pyramids.
 in a magic pyramid the two stones underneath add up to the stone on top	In a magic pyramid, the two stones underneath add up to the stone on top.
 and	and
-make	make...
+together make	together make...
 how many	how many?
 tap the right blue stone	Tap the right blue stone!
 now tap the empty stone where it goes	Now tap the empty stone where it goes.
@@ -88,65 +88,6 @@ can you help me tuck them back in	Can you help me tuck them back in?
 this gemling is still hiding in a geode	This Gemling is still hiding in a geode.
 keep lighting walls to find it	Keep lighting walls to find it!
 you found the	You found the
-welcome to your very own bakery in bramblewick hollow	Welcome to your very own bakery in Bramblewick Hollow.
-the animals of the hedgerow are hungry	The animals of the hedgerow are hungry.
-let's open the shop	Let's open the shop!
-new card for your album	New card for your album!
-wow	Wow!
-a sparkly card	A sparkly card!
-gave you a sparkly card	gave you a sparkly card!
-new kinds of customers are coming to your bakery	New kinds of customers are coming to your bakery!
-let's look at my order together	Let's look at my order together.
-fill up each empty spot	Fill up each empty spot!
-tap the	Tap the
-on the shelf to put them in the basket	on the shelf to put them in the basket!
-let's count the	Let's count the
-in the basket	in the basket.
-here i'll show you where each one goes	Here, I'll show you where each one goes.
-it's full	It's full!
-thank you	Thank you!
-did you put in	did you put in?
-let's peek inside the box	Let's peek inside the box!
-count the empty spaces	Count the empty spaces.
-here's a peek inside the box	Here's a peek inside the box.
-on the shelf to put them in the box until there are no empty spaces	on the shelf to put them in the box, until there are no empty spaces.
-let's count the dots on the price tags together	Let's count the dots on the price tags together.
-so it's	So it's
-acorns altogether	acorns altogether!
-fill up each empty spot with an acorn	Fill up each empty spot with an acorn.
-here are dots to help	Here are dots to help.
-count them all	Count them all!
-count all the dots on the price tags	Count all the dots on the price tags.
-start with the first tag then keep going	Start with the first tag, then keep going!
-only costs	only costs
-now the rest go back to me	Now the rest go back to me.
-how many acorns go back	How many acorns go back?
-acorns go in the till for the	acorns go in the till for the
-now count the ones that are left	Now count the ones that are left.
-tap the acorns to move them into the till one at a time	Tap the acorns to move them into the till, one at a time.
-stop at	Stop at
-i put	I put
-in the till for the	in the till for the
-count the acorns that are left	Count the acorns that are left!
-those go back	Those go back!
-the bakery is closed for today	The bakery is closed for today!
-you helped	You helped
-customers and earned	customers and earned
-acorns	acorns.
-now you have	Now you have
-acorns to spend on your mouse house	acorns to spend on your mouse house.
-this is your mouse house	This is your mouse house!
-it's a bit empty	It's a bit empty.
-use your acorns to make it cozy	Use your acorns to make it cozy.
-you can drag your treasures to move them anywhere you like	You can drag your treasures to move them anywhere you like!
-costs	costs
-open the bakery to earn	Open the bakery to earn
-more	more!
-loves	loves
-you have helped	You have helped
-these are your friend cards	These are your friend cards.
-every animal you help at the bakery gives you a card	Every animal you help at the bakery gives you a card.
-some rare cards and sparkly cards are very hard to find	Some rare cards and sparkly cards are very hard to find!
 what's your name captain	What's your name, Captain?
 and what shall we call our ship	And what shall we call our ship?
 that's the most gold the forge can hold	That's the most gold the forge can hold!
@@ -160,6 +101,7 @@ yes	Yes!
 that's right	That's right!
 you got it	You got it!
 perfect	Perfect!
+tap the	Tap the
 to put it in the basket	to put it in the basket.
 then tap here you go	Then tap Here you go!
 that's you	That's you!
@@ -174,7 +116,8 @@ honey pot	honey pot
 a honey pot	a honey pot
 nobody would pay more than	Nobody would pay more than
 that's all your shelf can hold	That's all your shelf can hold!
-that's all the pennies in your till	That's all the pennies in your till!
+that's all i have today	That's all I have today!
+left	left.
 my very own shop	My very own shop!
 i'll flip the sign to open	I'll flip the sign to Open.
 time to open the shop	Time to open the shop!
@@ -191,8 +134,12 @@ what a busy day	What a busy day!
 time to close the shop	Time to close the shop.
 one penny	One penny.
 just right	Just right!
+thank you	Thank you!
 pennies	pennies.
 into the till	Into the till
+when i get every answer right the first time friends give me a penny tip	When I get every answer right the first time, friends give me a penny tip.
+i'll take my time and count	I'll take my time and count.
+i'll count carefully	I'll count carefully
 it costs	It costs
 i gave you	I gave you
 how much change do i get	How much change do I get?
@@ -213,16 +160,12 @@ after mine ran out	after mine ran out.
 that's	That's
 i didn't get	I didn't get!
 into my notebook	Into my notebook 📒
+penny tip	penny tip
+penny tips	penny tips
+friends gave me	Friends gave me
+today for careful counting	today for careful counting!
+hooray	Hooray!
 in the till	in the till.
-penny goes	penny goes
-i'll keep 10 for bramble's cart tomorrow	I'll keep 10 for Bramble's cart tomorrow.
-the other	The other
-in my savings jar	in my savings jar.
-into the jar	Into the jar 🫙
-i'll keep	I'll keep
-pennies for bramble's cart tomorrow	pennies for Bramble's cart tomorrow.
-how many go in my savings jar	How many go in my savings jar?
-for bramble tomorrow	for Bramble tomorrow!
 i took in	I took in
 today and i didn't buy anything from bramble	today, and I didn't buy anything from Bramble.
 so i earned	So I earned
@@ -234,7 +177,6 @@ tomorrow i'll think about what to buy and my prices	Tomorrow I'll think about wh
 aunt clover's tin will look after the till	Aunt Clover's tin will look after the till.
 i'll try again	I'll try again!
 so my shop earned	So my shop earned
-hooray	Hooray!
 this morning	this morning.
 how much did my shop earn today	How much did my shop earn today?
 that's my best day ever	That's my best day ever!
@@ -243,26 +185,81 @@ my shop has earned	My shop has earned
 pennies so far	pennies so far!
 i won the	I won the
 card	card!
-how much shall i keep in the till for bramble's cart	How much shall I keep in the till for Bramble's cart?
-more pennies buys more things to sell	More pennies buys more things to sell.
-the rest goes in my savings jar	The rest goes in my savings jar.
+wow	Wow!
 let's count the till	Let's count the till.
 aunt clover's coin roller made some stacks	Aunt Clover's coin roller made some stacks.
 tap pennies to make another stack of ten	Tap pennies to make another stack of ten!
 tap pennies to make a stack of ten	Tap pennies to make a stack of ten.
 a stack of ten	A stack of ten!
 of ten and	of ten and
+more	more.
 how many pennies is that	How many pennies is that?
-my savings jar has	My savings jar has
-i can buy something for my shop	I can buy something for my shop!
-i need	I need
+i keep 10 pennies for bramble's cart	I keep 10 pennies for Bramble's cart.
 i have	I have
+more to spend	more to spend.
+i can buy something for my shop or something to wear	I can buy something for my shop, or something to wear!
+i need	I need
+things to wear	Things to wear
+things for my shop	Things for my shop
+to spend	to spend.
 take away	take away
-in my jar	in my jar.
+i can wear it with the dress button	I can wear it with the dress button.
+sleep until morning	Sleep until morning 🌙
 and earned	and earned
 is done	is done!
 time for bed	Time for bed.
-sleep until morning	Sleep until morning 🌙
+a little lane goes from my shop into bramble wood village	A little lane goes from my shop into Bramble Wood village.
+let's explore	Let's explore!
+my friends live here	My friends live here.
+maybe they need some help	Maybe they need some help.
+and there are other shops to visit	And there are other shops to visit!
+where shall i go	Where shall I go?
+where next	Where next?
+who shall i visit next	Who shall I visit next?
+i helped everyone today	I helped everyone today!
+i can still visit the shops	I can still visit the shops.
+this is my very own house	This is my very own house!
+it is cozy but it is a bit empty	It is cozy, but it is a bit empty.
+tansy sells lovely things for houses	Tansy sells lovely things for houses.
+i can buy them with the money i earn	I can buy them with the money I earn!
+ok	OK!
+my new things are waiting in the tray	My new things are waiting in the tray.
+tap one to put it in my house	Tap one to put it in my house!
+my house is ready for some lovely things	My house is ready for some lovely things.
+tansy's stall is at the end of the lane	Tansy's stall is at the end of the lane.
+for my house	for my house.
+more to find	more to find!
+my house has everything	My house has everything!
+it is the coziest house in the wood	It is the coziest house in the wood.
+ooh pretty	Ooh, pretty!
+i love it	I love it!
+what a lovely wallpaper	What a lovely wallpaper!
+drag things to move them	Drag things to move them.
+tap one to turn it around	Tap one to turn it around.
+drag it down to the tray to put it away	Drag it down to the tray to put it away.
+is in my house	is in my house!
+which wallpaper shall i have	Which wallpaper shall I have?
+that looks just right there	That looks just right there!
+so cozy	So cozy!
+lovely	Lovely!
+is back in the tray	is back in the tray.
+i love my	I love my
+in my garden	in my garden
+in my house	in my house
+in my shop	in my shop
+is already	is already
+will go in the garden by my shop	will go in the garden by my shop!
+will go up in my house	will go up in my house!
+i'll take my	I'll take my
+home and find the perfect spot for it	home and find the perfect spot for it!
+i'll put the	I'll put the
+on the ledge in my shop	on the ledge in my shop!
+dress	dress!
+i took off my	I took off my
+gave me	gave me
+i'm wearing	I'm wearing
+now	now.
+i can change my clothes any time with the dress button	I can change my clothes any time with the dress button.
 it's day	It's day
 's shop	's shop.
 acorn bun	acorn bun
@@ -322,6 +319,44 @@ lanterns	lanterns
 flag bunting	flag bunting
 cat bed and cat	cat bed and cat
 fairy lights	fairy lights
+daisy patch	daisy patch
+tulip bed	tulip bed
+sunflowers	sunflowers
+bird bath	bird bath
+garden bench	garden bench
+wishing well	wishing well
+fairy house	fairy house
+pearl seashell	pearl seashell
+golden scarab	golden scarab
+pirate map	pirate map
+little pyramid	little pyramid
+silver owl	silver owl
+golden apple	golden apple
+golden lyre	golden lyre
+fairy crown	fairy crown
+toadstool stool	toadstool stool
+candlestick	candlestick
+teddy bear	teddy bear
+bunting	bunting
+pot plant	pot plant
+tea set	tea set
+stripy rug	stripy rug
+meadow painting	meadow painting
+sailboat painting	sailboat painting
+stripy wallpaper	stripy wallpaper
+cat basket	cat basket
+cozy armchair	cozy armchair
+round mirror	round mirror
+flower wallpaper	flower wallpaper
+toy chest	toy chest
+starry wallpaper	starry wallpaper
+reading lamp	reading lamp
+heart wallpaper	heart wallpaper
+bookcase	bookcase
+tall clock	tall clock
+tiny dollhouse	tiny dollhouse
+little piano	little piano
+bed canopy	bed canopy
 busy bee shopkeeper	Busy Bee Shopkeeper
 golden acorn award	Golden Acorn Award
 hundred penny purse	Hundred Penny Purse
@@ -352,6 +387,44 @@ the lanterns	the lanterns
 the flag bunting	the flag bunting
 the cat bed and cat	the cat bed and cat
 the fairy lights	the fairy lights
+the daisy patch	the daisy patch
+the tulip bed	the tulip bed
+the sunflowers	the sunflowers
+the bird bath	the bird bath
+the garden bench	the garden bench
+the wishing well	the wishing well
+the fairy house	the fairy house
+the pearl seashell	the pearl seashell
+the golden scarab	the golden scarab
+the pirate map	the pirate map
+the little pyramid	the little pyramid
+the silver owl	the silver owl
+the golden apple	the golden apple
+the golden lyre	the golden lyre
+the fairy crown	the fairy crown
+the toadstool stool	the toadstool stool
+the candlestick	the candlestick
+the teddy bear	the teddy bear
+the bunting	the bunting
+the pot plant	the pot plant
+the tea set	the tea set
+the stripy rug	the stripy rug
+the meadow painting	the meadow painting
+the sailboat painting	the sailboat painting
+the stripy wallpaper	the stripy wallpaper
+the cat basket	the cat basket
+the cozy armchair	the cozy armchair
+the round mirror	the round mirror
+the flower wallpaper	the flower wallpaper
+the toy chest	the toy chest
+the starry wallpaper	the starry wallpaper
+the reading lamp	the reading lamp
+the heart wallpaper	the heart wallpaper
+the bookcase	the bookcase
+the tall clock	the tall clock
+the tiny dollhouse	the tiny dollhouse
+the little piano	the little piano
+the bed canopy	the bed canopy
 a golden bubble	A golden bubble!
 ooh sparkly gold	Ooh, sparkly gold!
 you found the golden one	You found the golden one!
@@ -372,7 +445,6 @@ drag something back to the tray first	Drag something back to the tray first.
 squeak	Squeak!
 hee hee	Hee hee!
 i love my room	I love my room!
-so cozy	So cozy!
 you are a great decorator	You are a great decorator!
 tickles	Tickles!
 a parcel came for you	A parcel came for you!
@@ -395,6 +467,83 @@ your museum is full of treasures	Your museum is full of treasures.
 amazing	Amazing!
 miu is so proud of you	Miu is so proud of you.
 want to dig again	Want to dig again?
+that's a double	That's a double!
+that makes	That makes
+then 1 more	Then 1 more.
+are ten partners	are ten partners.
+they fill the ten frame	They fill the ten frame!
+then	Then
+more to make 10	more to make 10.
+i'll start at	I'll start at
+and count on	and count on
+count by	Count by
+and count on the rest	and count on the rest.
+what goes with	What goes with
+to make	to make
+and count up to	and count up to
+to get to 10	to get to 10.
+and count back	and count back
+good morning	Good morning!
+what shall i do today	What shall I do today?
+we can play in aunt clover's old dollhouse	We can play in Aunt Clover's old dollhouse.
+it has ten little rooms	It has ten little rooms.
+again	Again!
+little mice in the	little mice in the
+little mice one in each room	little mice, one in each room.
+ready	Ready?
+close my eyes	Close my eyes 🙈
+1 2 3 4 5	1, 2, 3, 4, 5.
+ready or not here i come	Ready or not, here I come!
+some of us are hiding under the blanket	Some of us are hiding under the blanket!
+how many are hiding	How many are hiding?
+found you	Found you!
+all found	All found!
+play again	Play again!
+gave me a little card to keep	gave me a little card to keep!
+tens and	tens and
+ones	ones.
+what number is that	What number is that?
+tens make	tens make
+more makes	more makes
+what is 10 more than	What is 10 more than
+what is 10 less than	What is 10 less than
+one more ten	One more ten.
+tens and 1 more ten makes	tens and 1 more ten makes
+tens	tens.
+one ten less	One ten less.
+tens take away 1 ten leaves	tens take away 1 ten leaves
+10 more	10 more.
+the tens go up by 1	The tens go up by 1.
+the ones stay	The ones stay
+10 less	10 less.
+the tens go down by 1	The tens go down by 1.
+what comes next	What comes next?
+look at the ones	Look at the ones.
+they stay	They stay
+only the tens change	Only the tens change.
+the tens go	The tens go
+count on by tens from	Count on by tens from
+count back by tens from	Count back by tens from
+plus what makes	plus what makes
+first add the tens	First add the tens.
+then add the ones	Then add the ones.
+first take away the tens	First take away the tens.
+that leaves	That leaves
+then take away	Then take away
+groups of	groups of
+jumps of	jumps of
+plus what makes 10	plus what makes 10?
+half of	half of
+what is half of	What is half of
+half means two equal parts	Half means two equal parts.
+whoa quick paws	Whoa, quick paws!
+type	Type
+lightning	⚡ Lightning!
+1 more	+1 more
+lightning quick	Lightning quick!
+let's do it one step at a time	Let's do it one step at a time.
+then i can buy lovely things for my house	Then I can buy lovely things for my house!
+let's try	Let's try!
 go in my savings jar	go in my savings jar
 my notebook friends wanted	my notebook friends wanted
 my notebook says friends asked for	my notebook says friends asked for
@@ -402,6 +551,1102 @@ stack of ten and	stack of ten and
 stacks of ten and	stacks of ten and
 tap a penny to give it to bramble	tap a penny to give it to bramble
 then tap done	then tap done
+penny goes	penny goes
+you got it right the first time	You got it right the first time!
+here is a penny tip	Here is a penny tip.
+white bow	white bow
+pink bow	pink bow
+blue bow	blue bow
+straw sun hat	straw sun hat
+flower crown	flower crown
+sparkly tiara	sparkly tiara
+pirate hat	pirate hat
+laurel wreath	laurel wreath
+knitted scarf	knitted scarf
+pearl necklace	pearl necklace
+golden collar	golden collar
+round glasses	round glasses
+fairy wings	fairy wings
+shop apron	shop apron
+flowery dress	flowery dress
+plain dress	plain dress
+spotty dress	spotty dress
+stripy dress	stripy dress
+picnic check dress	picnic check dress
+heart dress	heart dress
+starry dress	starry dress
+i can buy the	i can buy the
+in the evening	in the evening
+is a present	is a present
+maybe a friend will bring it one day	maybe a friend will bring it one day
+captain whiskers gave me a	captain whiskers gave me a
+miu the temple cat gave me a	miu the temple cat gave me a
+athena's owl gave me a	athena's owl gave me a
+the fairy queen gave me some	the fairy queen gave me some
+will go in my house	will go in my house!
+thing	thing
+things	things
+change my clothes	Change my clothes
+go outside	Go outside
+doubled is	doubled is
+more than	more than
+less than	less than
+count by twos	Count by twos.
+count by threes	Count by threes.
+count by fours	Count by fours.
+count by fives	Count by fives.
+count by tens	Count by tens.
+double	Double
+welcome to giza	Welcome to Giza!
+these little pyramids lost their top stones	These little pyramids lost their top stones.
+remember two stones side by side add up to the stone on top of them	Remember: two stones side by side add up to the stone on top of them.
+saqqara has the oldest step pyramid	Saqqara has the oldest step pyramid!
+some bottom stones are missing here	Some bottom stones are missing here.
+karnak	Karnak!
+these pyramids are taller	These pyramids are taller.
+fix them one stone at a time	Fix them one stone at a time.
+the valley of the kings	The Valley of the Kings!
+here the missing stones can hide anywhere	Here the missing stones can hide anywhere.
+think like a detective	Think like a detective.
+abu simbel has giant statues and bigger numbers	Abu Simbel has giant statues and bigger numbers.
+you can do it	You can do it!
+we found the hidden tomb	We found the Hidden Tomb!
+only the cleverest scribes can fix these pyramids	Only the cleverest scribes can fix these pyramids.
+first	first!
+giza	Giza
+saqqara	Saqqara
+valley of the kings	Valley of the Kings
+abu simbel	Abu Simbel
+the hidden tomb	The Hidden Tomb
+you restored every pyramid in egypt	You restored every pyramid in Egypt!
+you can visit any place again for more puzzles	You can visit any place again for more puzzles.
+let's sail up the nile	Let's sail up the Nile!
+tap giza to start	Tap Giza to start.
+where shall we sail next	Where shall we sail next?
+the blue outline shows our next stop	The blue outline shows our next stop.
+which stone fits here	Which stone fits here?
+can you find the missing stone	Can you find the missing stone?
+here's another pyramid	Here's another pyramid!
+psst	Psst!
+i think it might be the wiggly one	I think it might be the wiggly one.
+let's count together to check	Let's count together to check!
+this stone is a tricky one	This stone is a tricky one!
+try a different empty stone first then come back	Try a different empty stone first, then come back.
+this pyramid is missing	This pyramid is missing
+stones	stones.
+which one can you fix first	Which one can you fix first?
+look at the two stones underneath	Look at the two stones underneath.
+count all the dots	Count all the dots!
+count the blue dots then keep counting the orange ones	Count the blue dots, then keep counting the orange ones.
+and what make	and what make
+count the empty circles	Count the empty circles!
+we need	We need
+in all	in all.
+are already there	are already there.
+how many empty circles are left	How many empty circles are left?
+hmm not that one	Hmm, not that one.
+oops that stone doesn't fit	Oops, that stone doesn't fit.
+so close	So close!
+one more stone to go	One more stone to go!
+stones left	stones left.
+purr fect	Purr-fect!
+clever scribe	Clever scribe!
+wonderful	Wonderful!
+meow	Meow!
+great job	Great job!
+you fixed the whole pyramid	You fixed the whole pyramid!
+the pyramid is shining again	The pyramid is shining again!
+pharaoh would be so proud	Pharaoh would be so proud!
+new card	New card!
+of 36 cards in your binder	of 36 cards in your binder!
+it's rare	It's rare!
+it's sparkly	It's sparkly!
+is fixed	is fixed!
+now we can sail up the nile to	Now we can sail up the Nile to
+you fixed every pyramid in egypt	You fixed every pyramid in Egypt!
+you are a true royal scribe	You are a true royal scribe.
+lucky amulet card	Lucky amulet card!
+bonus pyramid	Bonus pyramid
+a shiny gold coin	A shiny gold coin!
+you have fixed	You have fixed
+pyramids so far	pyramids so far.
+the ankh of life	The Ankh of Life
+a cat statue	A Cat Statue
+a painted jar	A Painted Jar
+the eye of horus	The Eye of Horus
+a blue lotus	A Blue Lotus
+sobek's crocodile charm	Sobek's Crocodile Charm
+a papyrus scroll	A Papyrus Scroll
+the sun disk of ra	The Sun Disk of Ra
+horus the falcon	Horus the Falcon
+khonsu's moon charm	Khonsu's Moon Charm
+amun's ram	Amun's Ram
+the pharaoh's crown	The Pharaoh's Crown
+a lapis gem	A Lapis Gem
+anubis's jackal charm	Anubis's Jackal Charm
+a canopic jar	A Canopic Jar
+william the blue hippo	William the Blue Hippo
+the royal boat	The Royal Boat
+a golden camel	A Golden Camel
+a sheaf of wheat	A Sheaf of Wheat
+the feather of ma'at	The Feather of Ma'at
+the queen's ring	The Queen's Ring
+the golden key	The Golden Key
+a star of nut	A Star of Nut
+ruby beetle	Ruby Beetle
+nile fish charm	Nile Fish Charm
+frog of heqet	Frog of Heqet
+scorpion of serket	Scorpion of Serket
+hathor's cow	Hathor's Cow
+sphinx charm	Sphinx Charm
+ibis of thoth	Ibis of Thoth
+lotus flower charm	Lotus Flower Charm
+blue eye bead	Blue Eye Bead
+golden bee	Golden Bee
+butterfly brooch	Butterfly Brooch
+i'm pip a sea fairy	I'm Pip, a sea fairy.
+long long ago the greek gods hid magical treasures all over the islands of the shining sea	Long, long ago, the Greek gods hid magical treasures all over the islands of the Shining Sea.
+each god has a number puzzle	Each god has a number puzzle.
+solve the puzzles and they'll give you treasure cards for your binder	Solve the puzzles and they'll give you treasure cards for your binder!
+but first we need a brave captain	But first we need a brave captain.
+will you be our captain	Will you be our captain?
+ahoy captain	Ahoy, Captain!
+i am poseidon king of the sea	I am Poseidon, king of the sea.
+a storm broke my pearl necklaces	A storm broke my pearl necklaces!
+can you help me count how many pearls are missing	Can you help me count how many pearls are missing?
+i'm hermes the fastest messenger on olympus	I'm Hermes, the fastest messenger on Olympus.
+i have parcels to deliver but first i need to add them up	I have parcels to deliver, but first I need to add them up.
+will you help	Will you help?
+welcome to my moonlit forest	Welcome to my moonlit forest.
+i am artemis friend of all wild animals	I am Artemis, friend of all wild animals.
+my animal friends keep wandering home to bed	My animal friends keep wandering home to bed.
+help me count who is still here	Help me count who is still here!
+clang clang	Clang, clang!
+i'm hephaestus the blacksmith of the gods	I'm Hephaestus, the blacksmith of the gods.
+i melt ten gold coins into one shiny gold bar	I melt ten gold coins into one shiny gold bar.
+help me count and build my gold	Help me count and build my gold!
+greetings clever captain	Greetings, clever Captain.
+i am athena goddess of wisdom	I am Athena, goddess of wisdom.
+my magic scales only work when both sides are equal	My magic scales only work when both sides are equal.
+which stone will balance them	Which stone will balance them?
+ho ho	Ho ho!
+i am zeus king of all the gods	I am Zeus, king of all the gods!
+you have visited every island	You have visited every island.
+now show me everything you have learned brave captain	Now show me everything you have learned, brave Captain!
+blub blub	Blub blub!
+don't be scared i'm a friendly kraken	Don't be scared, I'm a friendly kraken.
+i love number riddles	I love number riddles.
+solve mine and i'll share my treasure	Solve mine and I'll share my treasure!
+hello captain	Hello, Captain!
+i'm marina	I'm Marina.
+i keep treasures in my secret grotto	I keep treasures in my secret grotto.
+answer my sea puzzles and you can have some	Answer my sea puzzles and you can have some!
+ahh	Ahh...
+hello young captain	hello, young Captain.
+i am old tortuga	I am Old Tortuga.
+i have swum these seas for 200 years	I have swum these seas for 200 years.
+let's solve some puzzles together slowly and carefully	Let's solve some puzzles together, slowly and carefully.
+eee eee	Eee-eee!
+i'm dot	I'm Dot!
+race me across the waves	Race me across the waves!
+every puzzle you solve makes us swim faster	Every puzzle you solve makes us swim faster!
+you found every god's treasure captain	You found every god's treasure, Captain
+sail the open sea to meet sea creatures and find more cards	Sail the open sea to meet sea creatures and find more cards.
+tap poseidon's island to set sail	Tap Poseidon's island to set sail.
+that island is hidden in the clouds	That island is hidden in the clouds.
+visit the next god first	Visit the next god first!
+next stop hermes's windy isle	Next stop: Hermes's Windy Isle!
+next stop artemis's moonlit isle	Next stop: Artemis's Moonlit Isle!
+next stop hephaestus's forge island	Next stop: Hephaestus's Forge Island!
+next stop athena's owl isle	Next stop: Athena's Owl Isle!
+next stop zeus's thunder peak	Next stop: Zeus's Thunder Peak!
+tap it to sail there	Tap it to sail there.
+this necklace needs	This necklace needs
+pearls	pearls.
+it has	It has
+how many more pearls do we need	How many more pearls do we need?
+poseidon wants	Poseidon wants
+shells in his basket	shells in his basket.
+there are	There are
+how many more shells	How many more shells?
+fish fit in the net	fish fit in the net.
+are in	are in.
+how many more fish can fit	How many more fish can fit?
+hermes has	Hermes has
+parcels	parcels.
+more arrive	more arrive.
+how many parcels now	How many parcels now?
+letters in the bag	letters in the bag.
+hermes adds	Hermes adds
+how many letters	How many letters?
+hermes finds	Hermes finds
+golden feathers then	golden feathers, then
+how many feathers	How many feathers?
+deer played in the moonlight	deer played in the moonlight.
+bunnies played in the moonlight	bunnies played in the moonlight.
+foxes played in the moonlight	foxes played in the moonlight.
+hedgehogs played in the moonlight	hedgehogs played in the moonlight.
+owls played in the moonlight	owls played in the moonlight.
+went home to bed	went home to bed.
+how many are still playing	How many are still playing?
+hephaestus needs	Hephaestus needs
+gold coins	gold coins.
+build	Build
+with gold bars and coins	with gold bars and coins!
+how many gold coins does hephaestus have	How many gold coins does Hephaestus have?
+each bar is worth 10 coins	Each bar is worth 10 coins.
+too much gold	Too much gold!
+not enough gold yet	Not enough gold yet!
+bar and	bar and
+bars and	bars and
+coin	coin.
+coins	coins.
+athena's scales must be equal on both sides	Athena's scales must be equal on both sides.
+which stone will make them balance	Which stone will make them balance?
+let's look again	Let's look again.
+count the glowing empty spaces	Count the glowing empty spaces!
+fill up ten first	Fill up ten first.
+then count the extras	Then count the extras!
+count them all one at a time	Count them all, one at a time!
+the crossed out ones went to bed	The crossed-out ones went to bed.
+count the ones still playing	Count the ones still playing!
+each gold bar is 10	Each gold bar is 10.
+count the bars by tens then add the coins	Count the bars by tens, then add the coins.
+is 1 bar and	is 1 bar and
+is 2 bars and	is 2 bars and
+is 3 bars and	is 3 bars and
+is 4 bars and	is 4 bars and
+is 5 bars and	is 5 bars and
+is 6 bars and	is 6 bars and
+is 7 bars and	is 7 bars and
+is 8 bars and	is 8 bars and
+is 9 bars and	is 9 bars and
+this side has	This side has
+the other side has	The other side has
+how many more to make	How many more to make
+hmm not quite	Hmm, not quite.
+ooh tricky one	Ooh, tricky one!
+here's a clue	Here's a clue.
+good try	Good try!
+let's use a clue	Let's use a clue.
+nearly	Nearly!
+let's look closely	Let's look closely.
+brilliant	Brilliant!
+clever captain	Clever captain!
+spot on	Spot on!
+ship shape	Ship-shape!
+amazing thinking	Amazing thinking!
+super sailing	Super sailing!
+you're ready for bigger puzzles	You're ready for bigger puzzles!
+thank you captain	Thank you, Captain
+please take this treasure chest	Please take this treasure chest.
+tap the treasure chest	Tap the treasure chest!
+has a treasure chest for you	has a treasure chest for you!
+poseidon	Poseidon
+hermes	Hermes
+artemis	Artemis
+hephaestus	Hephaestus
+athena	Athena
+zeus	Zeus
+kip the kraken	Kip the Kraken
+marina the mermaid	Marina the Mermaid
+old tortuga	Old Tortuga
+dot the dolphin	Dot the Dolphin
+the legendary	The legendary
+poseidon's trident	Poseidon's Trident
+winged sandals	Winged Sandals
+silver moon bow	Silver Moon Bow
+magic anchor	Magic Anchor
+athena's owl	Athena's Owl
+lightning bolt	Lightning Bolt
+sea dragon	Sea Dragon
+new cards for your binder	New cards for your binder!
+more treasure cards	More treasure cards!
+moonberry garden	Moonberry Garden
+whispering river	Whispering River
+starlight meadow	Starlight Meadow
+mushroom ring	Mushroom Ring
+moonlight blue	moonlight blue
+leaf green	leaf green
+sunset gold	sunset gold
+i light the path to the moonberry bushes	I light the path to the moonberry bushes!
+i sleep in a silver thimble	I sleep in a silver thimble.
+splish	Splish!
+i glow in every puddle	I glow in every puddle.
+dewdrop dot	Dewdrop Dot
+i sparkle on the grass at sunrise	I sparkle on the grass at sunrise.
+i knit tiny blankets out of moss	I knit tiny blankets out of moss.
+teacup twinkle	Teacup Twinkle
+tea for ten fireflies please	Tea for ten fireflies, please!
+i hop from lily pad to lily pad	I hop from lily pad to lily pad.
+everyone needs a cuddle at bedtime	Everyone needs a cuddle at bedtime.
+puffball flicker	Puffball Flicker
+achoo	Achoo!
+oops i puffed again	Oops, I puffed again.
+my acorn hat is my favorite hat	My acorn hat is my favorite hat.
+i wink at the fish as they swim by	I wink at the fish as they swim by.
+i am looking for a lucky clover	I am looking for a lucky clover!
+i collect lost buttons	I collect lost buttons.
+shiny	Shiny!
+hum hum i smell honeycake	Hum hum, I smell honeycake!
+i stack river pebbles into towers	I stack river pebbles into towers.
+i know every bramble in the hedge	I know every bramble in the hedge.
+i hide under curly ferns	I hide under curly ferns.
+toadstool tink	Toadstool Tink
+ding	Ding!
+i ring the mushroom bells	I ring the mushroom bells.
+willowisp wee	Willowisp Wee
+i swing on willow branches	I swing on willow branches.
+moonberry mo	Moonberry Mo
+moonberries are purple and sweet	Moonberries are purple and sweet!
+starling spark	Starling Spark
+i race the shooting stars	I race the shooting stars.
+crumblecake glow	Crumblecake Glow
+i share my cake crumbs with ants	I share my cake crumbs with ants.
+nightjar nell	Nightjar Nell
+i sing lullabies to the river	I sing lullabies to the river.
+i am the last light to go to sleep	I am the last light to go to sleep.
+you made ten with nine	You made ten with nine!
+i flutter for you	I flutter for you.
+the first time you made ten with 9	The first time you made ten with 9!
+two of me twice as bright	Two of me, twice as bright!
+five twin lanterns lit	Five twin lanterns lit!
+homeward hush	Homeward Hush
+shhh	Shhh.
+i tuck sleepy fireflies in	I tuck sleepy fireflies in.
+the first time you sent fireflies home across ten	The first time you sent fireflies home across ten!
+garland bee	Garland Bee
+bzzz	Bzzz!
+your garland is so long	Your garland is so long!
+your first garland over 50	Your first garland over 50!
+great moon sprite	Great Moon Sprite
+ten lanterns make one great moon	Ten lanterns make one great moon!
+your very first one hundred	Your very first one hundred!
+ribbon sprite	Ribbon Sprite
+ten loose ones	Ten loose ones?
+tie a ribbon	Tie a ribbon!
+you tied your first lantern	You tied your first lantern!
+glade keeper	Glade Keeper
+i keep the whole glade glowing	I keep the whole glade glowing.
+a whole glade is lit	A whole glade is lit!
+twenty five nights of light	Twenty-five nights of light.
+twenty five festival nights	Twenty-five festival nights!
+acorn cap lamp	Acorn-cap lamp
+petal bed	Petal bed
+mushroom stool	Mushroom stool
+thimble teapot	Thimble teapot
+moss rug	Moss rug
+gingham bunting	Gingham bunting
+button clock	Button clock
+leaf curtains	Leaf curtains
+teacup bath	Teacup bath
+walnut cradle	Walnut cradle
+dandelion chandelier	Dandelion chandelier
+seed book shelf	Seed-book shelf
+birch rocking chair	Birch rocking chair
+gingham tablecloth table	Gingham tablecloth table
+star nightlight	Star nightlight
+petal sofa	Petal sofa
+button cushion	Button cushion
+berry basket	Berry basket
+clover pot	Clover pot
+little wood stove	Little wood stove
+mouse family picture	Mouse family picture
+seashell mirror	Seashell mirror
+berry wreath	Berry wreath
+star mobile	Star mobile
+fern in a pot	Fern in a pot
+blue dresser	Blue dresser
+firefly string lights	Firefly string lights
+rosebud bed	Rosebud bed
+lavender rug	Lavender rug
+honeycomb table	Honeycomb table
+blueberry bunting	Blueberry bunting
+golden button clock	Golden button clock
+mint loveseat	Mint loveseat
+moon lamp	Moon lamp
+pink toadstool	Pink toadstool
+rose teapot	Rose teapot
+daisy pot	Daisy pot
+blue curtains	Blue curtains
+little wall shelf	Little wall shelf
+rose chandelier	Rose chandelier
+moonbeam cradle	Moonbeam cradle
+apple basket	Apple basket
+pink star nightlight	Pink star nightlight
+sunflower picture	Sunflower picture
+reading nook	Reading Nook
+this lantern needs	This lantern needs
+fireflies	fireflies.
+pull the cord when it's ready	Pull the cord when it's ready!
+tap a firefly	Tap a firefly.
+it will fly into the lantern	It will fly into the lantern!
+i think one extra squeezed in	I think one extra squeezed in!
+i think some extras squeezed in	I think some extras squeezed in!
+tap a firefly in the lantern to send it back	Tap a firefly in the lantern to send it back.
+some seats are still empty	Some seats are still empty.
+i put on my counting glasses	I put on my counting glasses.
+now every seat has a number	Now every seat has a number!
+let's light it together	Let's light it together.
+make it	Make it
+then pull the cord	, then pull the cord.
+we have	We have
+which jar fills the lantern	Which jar fills the lantern?
+don't have a seat	don't have a seat!
+let's count the empty seats together	Let's count the empty seats together.
+counting glasses on	Counting glasses on!
+look at the numbers on the empty seats	Look at the numbers on the empty seats.
+this jar wants to help	This jar wants to help.
+tap it	Tap it!
+more fly in	more fly in.
+then count the new ones	Then count the new ones.
+let's hop along the path from	Let's hop along the path from
+this petal knows	This petal knows.
+pour both jars in	Pour both jars in.
+how many fireflies	How many fireflies?
+the last number tells how many	The last number tells how many.
+make the twin lantern match plus one more	Make the twin lantern match, plus one more.
+how many in both	How many in both?
+make the twin lantern match	Make the twin lantern match.
+twins plus one	Twins plus one!
+that's the twin plus one	That's the twin plus one.
+all full	All full!
+that's a perfect match	That's a perfect match!
+count this lantern then keep counting into the twin	Count this lantern, then keep counting into the twin!
+more on the path	more on the path.
+a full lantern and	A full lantern and
+a full lantern is ten	A full lantern is ten.
+then count on	Then count on!
+fill the first lantern then count the rest	Fill the first lantern, then count the rest.
+this lantern is full now	This lantern is full now!
+can we fill this lantern first	Can we fill this lantern first?
+over to make a ten	over to make a ten.
+then count the rest	Then count the rest.
+ten in the first lantern	Ten in the first lantern.
+now count on with the rest	Now count on with the rest!
+how many are still glowing	How many are still glowing?
+fireflies are sleepy	fireflies are sleepy.
+tap them to send them home	Tap them to send them home.
+the glowing ones will count themselves	The glowing ones will count themselves.
+listen	Listen!
+the loose ones go home first then the rest from the lantern	The loose ones go home first, then the rest from the lantern.
+back to one full lantern	Back to one full lantern!
+how many did we add	How many did we add?
+let's count the pink ones we added	Let's count the pink ones we added.
+oops too many	Oops, too many!
+tap one to send it back	Tap one to send it back.
+look at the twinkling seats	Look at the twinkling seats!
+hop from	Hop from
+on the path	on the path.
+count the hops	Count the hops!
+let's fill it to	Let's fill it to
+together then pull the cord	together, then pull the cord.
+tap each lantern and count by tens	Tap each lantern and count by tens.
+look at the numbers under the lanterns	Look at the numbers under the lanterns.
+the last one tells us	The last one tells us!
+let's count them by tens together	Let's count them by tens together.
+how many fireflies on the garland	How many fireflies on the garland?
+how many loose fireflies	How many loose fireflies?
+then loose ones by ones	Then loose ones by ones.
+with lanterns and fireflies	with lanterns and fireflies.
+the jar is full	The jar is full!
+tie them into a lantern	Tie them into a lantern?
+ten loose fireflies	Ten loose fireflies!
+the lanterns match the	The lanterns match the
+the loose fireflies match the	The loose fireflies match the
+we made	We made
+one more lantern joins	One more lantern joins!
+one lantern floats away down the river	One lantern floats away down the river.
+two garlands join together	Two garlands join together.
+the loose jar is too full	The loose jar is too full!
+too many for the jar	Too many for the jar!
+tie ten into a lantern	Tie ten into a lantern!
+lantern expert	Lantern Expert
+glasses off	Glasses off.
+here is the number path	Here is the number path.
+path away	Path away.
+peek	Peek!
+now you can see under the frost	Now you can see under the frost.
+frost back on	Frost back on.
+the moon lantern	The Moon Lantern!
+the last and brightest one	The last and brightest one.
+hmm so close	Hmm, so close!
+i think i counted too fast	I think I counted too fast.
+oops i mixed that up	Oops, I mixed that up!
+hmm i'm still mixed up	Hmm, I'm still mixed up.
+let me try a fairy trick	Let me try a fairy trick!
+let's look together with a fairy trick	Let's look together with a fairy trick.
+let's do it together lantern expert	Let's do it together, Lantern Expert.
+we'll finish it together	We'll finish it together.
+you do the last tap	You do the last tap!
+you made a ten first	You made a ten first.
+that's a clever fairy trick	That's a clever fairy trick!
+you counted on from	You counted on from
+like a real lamplighter	, like a real lamplighter!
+you kept trying and now it's glowing	You kept trying, and now it's glowing!
+you checked carefully	You checked carefully.
+great tool choice	Great tool choice!
+you looked closely	You looked closely.
+lovely lamplighting	Lovely lamplighting!
+you counted every one	You counted every one.
+look at it glow	Look at it glow!
+the festival needs light	The festival needs light.
+let's begin	Let's begin!
+the whole glade is glowing because of you	The whole glade is glowing because of you!
+a little bun	A little bun!
+curly hair	Curly hair!
+a pixie cut	A pixie cut!
+the lantern festival is tonight but the lanterns are dark	The Lantern Festival is tonight, but the lanterns are dark!
+each lantern needs exactly ten fireflies	Each lantern needs exactly ten fireflies.
+two rows of five	Two rows of five.
+is learning to light lanterns	is learning to light lanterns.
+let's go	Let's go!
+let's keep lighting the lanterns	Let's keep lighting the lanterns.
+pick a glade	Pick a glade.
+then tap light the lanterns	Then tap Light the Lanterns!
+drag it to move it	Drag it to move it.
+everything is placed	Everything is placed.
+treasures from the petal jar will wait here	Treasures from the Petal Jar will wait here.
+make a ten with 9	Make a ten with 9.
+light five twin lanterns	Light five twin lanterns.
+send fireflies home across ten	Send fireflies home across ten.
+make a garland over 50	Make a garland over 50.
+reach one hundred	Reach one hundred.
+tie a ribbon on ten loose fireflies	Tie a ribbon on ten loose fireflies.
+light a whole glade	Light a whole glade.
+light lanterns for 25 nights	Light lanterns for 25 nights.
+a gold card is still hiding	A gold card is still hiding.
+still to find	Still to find!
+each festival night hatches a new sprite	Each festival night hatches a new sprite.
+you kept trying and now they are all in order	You kept trying, and now they are all in order!
+a sticker for your field guide	A sticker for your Field Guide!
+all in order	All in order!
+the smallest glow number goes first	The smallest glow number goes first.
+let's look at the number path	Let's look at the number path.
+which glow is smallest	Which glow is smallest?
+let's do it together	Let's do it together.
+tap the bouncing card each time	Tap the bouncing card each time.
+moonlight blue wings	moonlight blue wings
+rose wings	rose wings
+leaf green wings	leaf green wings
+sunset gold wings	sunset gold wings
+posy	Posy
+fern	Fern
+clover	Clover
+tansy	Tansy
+willow	Willow
+bluebell	Bluebell
+bedroom	Bedroom
+kitchen	Kitchen
+attic	Attic
+garden	Garden
+a gold card	A gold card:
+loose ones	loose ones?
+these	These
+lantern and	lantern and
+lanterns and	lanterns and
+firefly make	firefly make
+fireflies make	fireflies make
+firefly	firefly.
+let's count what we made tens then ones	Let's count what we made: tens, then ones.
+hop	Hop
+hop back	Hop back
+to	to
+pouch and	pouch and
+pouches and	pouches and
+petal	petal.
+petals	petals.
+welcome	Welcome,
+here are	Here are
+and here are	and here are
+start at ten	Start at ten.
+wren's teapot cottage	Wren's Teapot Cottage!
+posy's teapot cottage	Posy's Teapot Cottage!
+fern's teapot cottage	Fern's Teapot Cottage!
+juniper's teapot cottage	Juniper's Teapot Cottage!
+clover's teapot cottage	Clover's Teapot Cottage!
+tansy's teapot cottage	Tansy's Teapot Cottage!
+willow's teapot cottage	Willow's Teapot Cottage!
+bluebell's teapot cottage	Bluebell's Teapot Cottage!
+that's super rare	That's super rare!
+another	Another
+pharaoh's ring	Pharaoh's ring
+pharaoh's golden mask	Pharaoh's golden mask
+cat statue just like me	cat statue, just like me
+jackal jar	jackal jar
+jewel necklace	jewel necklace
+little gold pyramid	little gold pyramid
+lotus flower	lotus flower
+papyrus scroll	papyrus scroll
+shining gem	shining gem
+tiny sphinx	tiny sphinx
+ankh the sign of life	ankh, the sign of life
+magic eye amulet	magic Eye amulet
+an	an
+big cheese	big cheese
+blue armchair	blue armchair
+bookshelf	bookshelf
+bubble bath	bubble bath
+cozy bed	cozy bed
+flower stand	flower stand
+glowing lamp	glowing lamp
+leafy plant	leafy plant
+little chair	little chair
+pink dresser	pink dresser
+round table	round table
+squishy armchair	squishy armchair
+strawberry cake	strawberry cake
+thank you for teaching me the cave rules	Thank you for teaching me the cave rules!
+i polish my spectacles every morning	I polish my spectacles every morning.
+did you know	Did you know?
+moles can dig a whole tunnel in one night	Moles can dig a whole tunnel in one night!
+the gemlings say you are a wonderful puzzle expert	The Gemlings say you are a wonderful Puzzle Expert.
+i love my cozy nook	I love my cozy nook.
+it glows with your gems	It glows with your gems!
+when i get muddled i take a deep breath and look again	When I get muddled, I take a deep breath and look again.
+every row has one of each friend	Every row has one of each friend.
+i remember now	I remember now!
+shall we light up another wall together	Shall we light up another wall together?
+rule one no twins	Rule one: no twins!
+every row and every column has one of each gemling	Every row and every column has one of each Gemling.
+rule two cozy nooks	Rule two: cozy nooks!
+the sparkles inside a nook add up to its crystal number	The sparkles inside a nook add up to its crystal number.
+rule three gap nooks	Rule three: gap nooks!
+these two gemlings are this many apart	These two Gemlings are this many apart.
+the bigger one take away the smaller one	The bigger one take away the smaller one.
+who is missing here	Who is missing here?
+two gemlings tumbled out	Two Gemlings tumbled out!
+look at each row	Look at each row.
+who is missing	Who is missing?
+this nook wants	This nook wants
+sparkles	sparkles.
+rubbit	Rubbit
+has	has
+a bigger wall	A bigger wall!
+each nook is missing one friend	Each nook is missing one friend.
+count the sparkles	Count the sparkles.
+wait	Wait!
+in every row	in EVERY row!
+you noticed every row makes	You noticed every row makes
+you tried it checked it and fixed it	You tried it, checked it, and fixed it.
+real puzzle experts do that	Real puzzle experts do that!
+you used the sparkles to check the nook	You used the sparkles to check the nook!
+you kept trying and the whole wall is glowing	You kept trying, and the whole wall is glowing!
+you found the only nook it could go in	You found the only nook it could go in.
+that's careful thinking	That's careful thinking!
+two	Two
+rubbits	Rubbits
+in one row	in one row.
+they'd like to live apart	They'd like to live apart.
+in one column	in one column.
+here's who fits	Here's who fits!
+can you tuck	Can you tuck
+in	in?
+see	See?
+this row already has a	This row already has a
+this column already has a	This column already has a
+let's try a different friend here	Let's try a different friend here.
+sapphlies	Sapphlies
+sapphly	Sapphly
+topips	Topips
+topip	Topip
+mosslings	Mosslings
+mossling	Mossling
+amethyxes	Amethyxes
+amethyx	Amethyx
+they're	They're
+apart	apart!
+hmm	Hmm
+but this gap nook wants them	but this gap nook wants them
+hmm these sparkles make	Hmm, these sparkles make
+but the nook wants	but the nook wants
+this gap nook wants two friends	This gap nook wants two friends
+let's look at it	Let's look at it.
+this one has	This one has
+its friend is	Its friend is
+hop along the path	Hop along the path!
+these two are	These two are
+the faded friends can't fit here	The faded friends can't fit here.
+sparkles here	sparkles here.
+look at the gap	Look at the gap.
+these two want to be	These two want to be
+look at the sparkles	Look at the sparkles.
+this nook makes	This nook makes
+but it wants	but it wants
+and that's too many already	and that's too many already.
+sparkle here	sparkle here.
+look at this row	Look at this row.
+look at this column	Look at this column.
+the faded friends are already in this row or column	The faded friends are already in this row or column.
+who is left	Who is left?
+hmm i think this one might want a different nook	Hmm, I think this one might want a different nook.
+let's check its row and its column	Let's check its row and its column.
+let's check its row and its nook	Let's check its row and its nook.
+this one is tricky	This one is tricky!
+its row and its nook are glowing	Its row and its nook are glowing.
+let's look together	Let's look together.
+ooh	Ooh!
+rose quartz	rose quartz
+it goes on your gem shelf	It goes on your Gem Shelf.
+for your gem shelf	for your Gem Shelf!
+moonstone	moonstone
+amethyst	amethyst
+sunstone	sunstone
+star sapphire	star sapphire
+rainbow opal	rainbow opal
+heart crystal	heart crystal
+pebblepuff	Pebblepuff
+a sleepy rock bunny who naps on warm pebbles	A sleepy rock-bunny who naps on warm pebbles.
+glintwhisker	Glintwhisker
+a kitten who chases every glint of light	A kitten who chases every glint of light.
+quartzle	Quartzle
+a little chick who hums songs to the crystals	A little chick who hums songs to the crystals.
+lumabun	Lumabun
+a bunny whose fluffy tail glows like a lamp	A bunny whose fluffy tail glows like a lamp.
+opal mothling	Opal Mothling
+a soft moth who sips dewdrops from the moss	A soft moth who sips dewdrops from the moss.
+gleamtoad	Gleamtoad
+a toad who polishes stones until they shine	A toad who polishes stones until they shine.
+shardy owlet	Shardy Owlet
+a wise little owlet who reads crystal books	A wise little owlet who reads crystal books.
+crystafin	Crystafin
+a shimmery swimmer from the underground lake	A shimmery swimmer from the underground lake.
+dewdrop hopper	Dewdrop Hopper
+a frog who collects shiny dewdrops	A frog who collects shiny dewdrops.
+micamuffin	Micamuffin
+a bunny who bakes tiny crystal muffins	A bunny who bakes tiny crystal muffins.
+fizzlewing	Fizzlewing
+a butterfly whose wings fizz with sparkles	A butterfly whose wings fizz with sparkles.
+glimmerkit	Glimmerkit
+a kitten who curls up in glowing corners	A kitten who curls up in glowing corners.
+sparkchirp	Sparkchirp
+a chick who sings one bright note every morning	A chick who sings one bright note every morning.
+bramblegleam	Bramblegleam
+a frog who lives under a bramble of crystals	A frog who lives under a bramble of crystals.
+honeyglow	Honeyglow
+a chick who smells like warm honeycake	A chick who smells like warm honeycake.
+moonmallow	Moonmallow
+a marshmallow soft bunny who loves the moon	A marshmallow-soft bunny who loves the moon.
+prismpaw	Prismpaw
+a kitten who leaves rainbow paw prints	A kitten who leaves rainbow paw prints.
+ripplewing	Ripplewing
+a butterfly who dances over still water	A butterfly who dances over still water.
+glowcap	Glowcap
+a frog who wears a glowing mushroom hat	A frog who wears a glowing mushroom hat.
+starnibble	Starnibble
+a bunny who nibbles on starlight crumbs	A bunny who nibbles on starlight crumbs.
+lanternbug	Lanternbug
+a butterfly who lights the way for lost friends	A butterfly who lights the way for lost friends.
+pipquartz	Pipquartz
+a chick who counts pebbles one two three	A chick who counts pebbles: one, two, three.
+velvetmoss	Velvetmoss
+a frog with the softest mossy back	A frog with the softest mossy back.
+duskwhisker	Duskwhisker
+a kitten who wakes up when the stars do	A kitten who wakes up when the stars do.
+bubblegem	Bubblegem
+a frog who blows sparkly bubbles	A frog who blows sparkly bubbles.
+rosy thimble	Rosy Thimble
+a tiny bunny who sleeps in a thimble	A tiny bunny who sleeps in a thimble.
+echochirp	Echochirp
+a chick who loves to hear her song echo back	A chick who loves to hear her song echo back.
+shimmerling	Shimmerling
+a butterfly with wings like stained glass	A butterfly with wings like stained glass.
+cozycrag	Cozycrag
+a frog who knits scarves for chilly caves	A frog who knits scarves for chilly caves.
+mistmitten	Mistmitten
+a kitten who hides in the morning mist	A kitten who hides in the morning mist.
+tumblestone	Tumblestone
+a bunny who rolls downhill just for fun	A bunny who rolls downhill just for fun.
+saffronsprout	Saffronsprout
+a chick who plants crystal seeds	A chick who plants crystal seeds.
+glaciwing	Glaciwing
+a frosty butterfly who makes snowflake sparkles	A frosty butterfly who makes snowflake sparkles.
+lilypebble	Lilypebble
+a frog who naps on lily pads of stone	A frog who naps on lily pads of stone.
+nightpurr	Nightpurr
+a kitten whose purr sounds like tiny bells	A kitten whose purr sounds like tiny bells.
+sugarshard	Sugarshard
+a bunny made of sweet pink sugar crystal	A bunny made of sweet pink sugar crystal.
+lady glimmerhare	Lady Glimmerhare
+the kind guardian of	The kind guardian of
+glimmer hall	Glimmer Hall
+who keeps every lamp lit	who keeps every lamp lit.
+old toadstool tom	Old Toadstool Tom
+he tells mushroom stories that last all night	He tells mushroom stories that last all night.
+queen ripplewing	Queen Ripplewing
+she paints the lake with moonlight ripples	She paints the lake with moonlight ripples.
+hush the echo owl	Hush the Echo Owl
+she whispers and the whole cave whispers back	She whispers, and the whole cave whispers back.
+prismella	Prismella
+she keeps every color of the rainbow safe	She keeps every color of the rainbow safe.
+starroot sage	Starroot Sage
+he grows star roots that twinkle underground	He grows star-roots that twinkle underground.
+heartstone hen	Heartstone Hen
+her warm heart makes the crystals glow pink	Her warm heart makes the crystals glow pink.
+moonwhisker the wise	Moonwhisker the Wise
+the oldest gemling who sings to the moon	The oldest Gemling, who sings to the moon.
+row of ten rabbit	Row-of-Ten Rabbit
+she found out that	She found out that
+mosaic mothling	Mosaic Mothling
+made of sixteen tiny painted tiles	Made of sixteen tiny painted tiles.
+nookmaster newt	Nookmaster Newt
+he can solve a wall with no helpers at all	He can solve a wall with no helpers at all.
+gap hopper	Gap Hopper
+she hops from one number to another and counts the jumps	She hops from one number to another and counts the jumps.
+fivefold kitten	Fivefold Kitten
+a kitten with five sparkly whiskers	A kitten with five sparkly whiskers.
+tenlight bunny	Tenlight Bunny
+she lit ten walls with her lantern	She lit ten walls with her lantern.
+quartermoon toad	Quartermoon Toad
+he has seen twenty five glowing walls	He has seen twenty-five glowing walls.
+fifty star phoenixfly	Fifty-Star Phoenixfly
+her wings hold fifty tiny stars	Her wings hold fifty tiny stars.
+steady glow chick	Steady Glow Chick
+she checks every nook so carefully	She checks every nook so carefully.
+moonheart kitten	Moonheart Kitten
+the finale friend from the	The finale friend from the
+moon geode	Moon Geode
+the whole	The whole
+is glowing	is glowing!
+its guardian	Its guardian
+came to say hello	came to say hello!
+is glowing with a second glow	is glowing with a second glow!
+mushroom grotto	Mushroom Grotto
+underground lake	Underground Lake
+echo chamber	Echo Chamber
+rainbow vault	Rainbow Vault
+starroot cavern	Starroot Cavern
+crystal heart	Crystal Heart
+miner's cap	miner's cap
+he looks so proud	He looks so proud.
+do you like my	Do you like my
+star scarf	star scarf
+tiny rocking chair	tiny rocking chair
+it is in his nook now	It is in his nook now.
+ahh no hat today	Ahh, no hat today!
+mushroom lamp	mushroom lamp
+cozy moss rug	cozy moss rug
+crystal bookshelf	crystal bookshelf
+moon nightcap	moon nightcap
+mossy little bed	mossy little bed
+star telescope	star telescope
+tap explore to find a wall of sleepy gemlings	Tap Explore to find a wall of sleepy Gemlings!
+let's explore the crystal caves	Let's explore the Crystal Caves!
+tap explore	Tap Explore.
+little puzzle big puzzle or picture puzzle	Little puzzle, big puzzle, or picture puzzle.
+you choose	You choose!
+little puzzle or big puzzle	Little puzzle or big puzzle.
+little puzzle or picture puzzle	Little puzzle or picture puzzle.
+gemling cards	Gemling cards!
+tap one to say hello	Tap one to say hello.
+gemling card	Gemling card!
+your binder is waiting for gemling cards	Your binder is waiting for Gemling cards.
+geodes hatch new friends	Geodes hatch new friends!
+which card has the fewest sparkles	Which card has the fewest sparkles?
+it goes first	It goes first.
+look at the number path	Look at the number path.
+the smallest number is closest to zero	The smallest number is closest to zero.
+the bouncing card goes in the glowing spot	The bouncing card goes in the glowing spot.
+tap a card on the shelf to take it off then try again	Tap a card on the shelf to take it off, then try again.
+can you move it	Can you move it?
+drag your gems onto the shelf	Drag your gems onto the shelf.
+put them anywhere you like	Put them anywhere you like!
+solve a wall to earn your first gem	Solve a wall to earn your first gem!
+welcome to my nook	Welcome to my nook!
+tap me to chat	Tap me to chat.
+this is my little nook	This is my little nook.
+but every glowing wall makes it cozier	but every glowing wall makes it cozier!
+sparkle glasses on	Sparkle Glasses on!
+now you can see every sparkle	Now you can see every sparkle.
+sparkle glasses off	Sparkle Glasses off.
+make 1	make 1!
+make 2	make 2!
+make 3	make 3!
+make 4	make 4!
+make 5	make 5!
+make 6	make 6!
+make 7	make 7!
+make 8	make 8!
+make 9	make 9!
+make 10	make 10!
+make 11	make 11!
+make 12	make 12!
+make 13	make 13!
+make 14	make 14!
+make 15	make 15!
+every night the fireflies of starlight meadow line up to glow	Every night, the fireflies of Starlight Meadow line up to glow.
+but luma the firefly queen keeps losing count	But Luma, the firefly queen, keeps losing count!
+can you help her	Can you help her?
+starlight gem	Starlight Gem
+one jar has	One jar has
+another jar has	Another jar has
+which number is bigger	Which number is BIGGER?
+luma's little fireflies are waking up	Luma's little fireflies are waking up.
+luma counts her fireflies	Luma counts her fireflies
+what number comes next	… What number comes next?
+how many fireflies are glowing	How many fireflies are glowing?
+four jars of fireflies	Four jars of fireflies!
+which jar has the most fireflies	Which jar has the MOST fireflies?
+luma's fireflies count up to	Luma's fireflies count up to
+what number comes right after	What number comes right after
+the fireflies blink by	The fireflies blink by
+the firefly kingdoms are counting their fireflies	The firefly kingdoms are counting their fireflies.
+which kingdom has the most	Which kingdom has the MOST?
+luma has	Luma has
+about how many is that to the nearest ten	About how many is that, to the nearest ten?
+the meadow has	The meadow has
+to the nearest hundred about how many	To the nearest hundred, about how many?
+deep in the crystal caves gnomes tie crystals into sticks of ten and stack ten sticks into big flat hundreds	Deep in the Crystal Caves, gnomes tie crystals into sticks of ten, and stack ten sticks into big flat hundreds.
+pebble the gnome needs help reading his piles	Pebble the gnome needs help reading his piles.
+cave crystal	Cave Crystal
+pebble has one stick of	Pebble has one stick of
+crystals and	crystals and
+single crystal	single crystal.
+how many crystals	How many crystals?
+single crystals	single crystals.
+pebble has crystal sticks each stick is	Pebble has crystal sticks (each stick is
+and single crystals	) and single crystals.
+how many crystals in all	How many crystals in all?
+in the number	In the number
+how much is the	how much is the
+worth	worth?
+pebble stacked flats	Pebble stacked flats (
+each sticks	each), sticks (
+each and single crystals	each) and single crystals.
+pebble has	Pebble has
+crystals and gives away	crystals and gives away
+crystals and finds	crystals and finds
+pebble wrote his crystals as parts	Pebble wrote his crystals as parts
+what is the whole number	What is the whole number?
+crystals	crystals.
+bramble the bear is baking treats for the moon festival	Bramble the bear is baking treats for the Moon Festival.
+he has so many trays that he needs a helper to add them all up	He has so many trays that he needs a helper to add them all up!
+golden honeycake	Golden Honeycake
+bramble has	Bramble has
+cupcakes	cupcakes.
+he bakes	He bakes
+how many cupcakes now	How many cupcakes now?
+cupcake	cupcake.
+bramble baked	Bramble baked
+cupcakes then	cupcakes, then
+one tray has	One tray has
+honey buns and another has	honey buns and another has
+how many honey buns	How many honey buns?
+cookies and bakes	cookies and bakes
+how many cookies	How many cookies?
+blueberry muffins and	blueberry muffins and
+lemon muffins	lemon muffins.
+how many muffins	How many muffins?
+for the moon festival bramble made	For the Moon Festival, Bramble made
+tarts and	tarts and
+pies	pies.
+how many treats	How many treats?
+otto the otter carries fish across the whispering river in his little boat	Otto the otter carries fish across the Whispering River in his little boat.
+but some fish are sneaky and swim away	But some fish are sneaky and swim away!
+help otto keep track	Help Otto keep track.
+river pearl	River Pearl
+otto had	Otto had
+fish	fish.
+swam away	swam away.
+how many fish are left	How many fish are left?
+fish in his boat	fish in his boat.
+jumped out and swam away	jumped out and swam away!
+there were	There were
+lily pads	lily pads.
+frogs sank	Frogs sank
+of them	of them.
+how many lily pads are left	How many lily pads are left?
+otto counted	Otto counted
+pebbles	pebbles.
+he threw	He threw
+into the river	into the river.
+how many does he have left	How many does he have left?
+the river carried	The river carried
+otto scooped out	Otto scooped out
+how many leaves are still floating	How many leaves are still floating?
+in the moonberry garden berries grow in neat little groups	In the Moonberry Garden, berries grow in neat little groups.
+clover the bunny is filling baskets for the feast and wants a quick counter	Clover the bunny is filling baskets for the feast and wants a quick counter.
+moonberry seed	Moonberry Seed
+baskets	baskets.
+each basket has	Each basket has
+moonberries	moonberries.
+how many moonberries in all	How many moonberries in all?
+clover puts moonberries in pairs	Clover puts moonberries in pairs.
+how many berries	How many berries?
+baskets with	baskets with
+moonberries in each basket	moonberries in each basket.
+how many moonberries	How many moonberries?
+moon flowers are blooming	moon-flowers are blooming.
+each has	Each has
+bunnies are hopping by	bunnies are hopping by.
+each bunny has	Each bunny has
+ears	ears.
+how many ears	How many ears?
+baskets each hold	baskets each hold
+clover planted	Clover planted
+rows of carrots with	rows of carrots with
+carrots in each row	carrots in each row.
+how many carrots	How many carrots?
+moonberries are shared fairly among	moonberries are shared fairly among
+bunnies	bunnies.
+how many does each bunny get	How many does each bunny get?
+rows of moon flowers with	rows of moon-flowers with
+in each row	in each row.
+how many moon flowers	How many moon-flowers?
+when the great clock chimes the market opens	When the great clock chimes, the market opens!
+madame whiskers sells pies ribbons and moon cheese and she always needs help with the clock and the coins	Madame Whiskers sells pies, ribbons and moon-cheese, and she always needs help with the clock and the coins.
+clocktower key	Clocktower Key
+how many cents	How many cents?
+each penny is one cent	Each penny is one cent.
+the great clock chimes	The great clock chimes!
+what time is it	What time is it?
+madame whiskers cut a pie into	Madame Whiskers cut a pie into
+equal pieces	equal pieces.
+what part is cherry pink	What part is cherry (pink)?
+how much money is in the purse	How much money is in the purse?
+count the cents	Count the cents.
+the market opens at this time	The market opens at this time.
+what part of the pie is pink	What part of the pie is pink?
+out of	out of
+how much money is it	How much money is it?
+a pie goes in the oven at	A pie goes in the oven at
+and bakes for	and bakes for
+minutes	minutes.
+when is it ready	When is it ready?
+madame whiskers' pies come out of the oven at this time	Madame Whiskers' pies come out of the oven at this time.
+a ribbon costs	A ribbon costs
+cents	cents.
+you pay with	You pay with
+how much change do you get	How much change do you get?
+one third of them are cherry	One third of them are cherry.
+how many cherry pies	How many cherry pies?
+one half of them are cherry	One half of them are cherry.
+one fourth of them are cherry	One fourth of them are cherry.
+i'm	I'm
+ember	Ember
+this map only lights up when we explore it	This map only lights up when we explore it.
+pick any glowing land to start	Pick any glowing land to start!
+we did it	We did it
+every land on the map is shining	Every land on the map is shining.
+down	down!
+where should we go next	Where should we go next
+starla	Starla
+hoot	Hoot
+explorer	Explorer
+look how the map is glowing	Look how the map is glowing!
+pick our next land	Pick our next land.
+i'm ready for more adventure	I'm ready for more adventure.
+which land next	Which land next?
+the fireflies blink by 5s	The fireflies blink by 5s.
+the fireflies blink by 10s	The fireflies blink by 10s.
+count by 2s	Count by 2s!
+clover has	Clover has
+or	Or
+o'clock	o'clock
+oh	oh
+one half	one half
+one third	one third
+one fourth	one fourth
 0	0
 1	1
 2	2
@@ -516,275 +1761,3 @@ minus	minus
 equals	equals
 makes	makes
 times	times
-that's all i have today	That's all I have today!
-left	left.
-my shop money pays bramble for things to sell	My shop money pays Bramble for things to sell.
-my savings jar is for treats for my shop like decorations	My savings jar is for treats for my shop, like decorations.
-i keep 10 pennies for bramble's cart	I keep 10 pennies for Bramble's cart.
-more to spend	more to spend.
-to spend	to spend.
-when i get every answer right the first time friends give me a penny tip	When I get every answer right the first time, friends give me a penny tip.
-i'll take my time and count	I'll take my time and count.
-i'll count carefully	I'll count carefully
-penny tip	penny tip
-penny tips	penny tips
-friends gave me	Friends gave me
-today for careful counting	today for careful counting!
-whoa quick paws	Whoa, quick paws!
-you got it right the first time	You got it right the first time!
-here is a penny tip	Here is a penny tip.
-i can buy something for my shop or something to wear	I can buy something for my shop, or something to wear!
-things to wear	Things to wear
-things for my shop	Things for my shop
-i can wear it with the dress button	I can wear it with the dress button.
-dress	dress!
-i took off my	I took off my
-gave me	gave me
-i'm wearing	I'm wearing
-now	now.
-i can change my clothes any time with the dress button	I can change my clothes any time with the dress button.
-white bow	white bow
-pink bow	pink bow
-blue bow	blue bow
-straw sun hat	straw sun hat
-flower crown	flower crown
-sparkly tiara	sparkly tiara
-pirate hat	pirate hat
-laurel wreath	laurel wreath
-knitted scarf	knitted scarf
-pearl necklace	pearl necklace
-golden collar	golden collar
-round glasses	round glasses
-fairy wings	fairy wings
-shop apron	shop apron
-flowery dress	flowery dress
-plain dress	plain dress
-spotty dress	spotty dress
-stripy dress	stripy dress
-picnic check dress	picnic check dress
-heart dress	heart dress
-starry dress	starry dress
-i can buy the	i can buy the
-in the evening	in the evening
-is a present	is a present
-maybe a friend will bring it one day	maybe a friend will bring it one day
-captain whiskers gave me a	captain whiskers gave me a
-miu the temple cat gave me a	miu the temple cat gave me a
-athena's owl gave me a	athena's owl gave me a
-the fairy queen gave me some	the fairy queen gave me some
-a little lane goes from my shop into bramble wood village	A little lane goes from my shop into Bramble Wood village.
-and there are other shops to visit	And there are other shops to visit!
-bird bath	bird bath
-daisy patch	daisy patch
-fairy crown	fairy crown
-fairy house	fairy house
-garden bench	garden bench
-golden apple	golden apple
-golden lyre	golden lyre
-golden scarab	golden scarab
-i can still visit the shops	I can still visit the shops.
-i helped everyone today	I helped everyone today!
-i'll put the	I'll put the
-is already in my garden	is already in my garden!
-is already in my shop	is already in my shop!
-little pyramid	little pyramid
-maybe they need some help	Maybe they need some help.
-my bird bath	my bird bath
-my daisy patch	my daisy patch
-my fairy house	my fairy house
-my friends live here	My friends live here.
-my garden bench	my garden bench
-my sunflowers	my sunflowers
-my tulip bed	my tulip bed
-my wishing well	my wishing well
-on the ledge in my shop	on the ledge in my shop!
-pearl seashell	pearl seashell
-pennies to spend	pennies to spend
-penny to spend	penny to spend
-pirate map	pirate map
-silver owl	silver owl
-sunflowers	sunflowers
-the bird bath	the bird bath
-the daisy patch	the daisy patch
-the fairy crown	the fairy crown
-the fairy house	the fairy house
-the garden bench	the garden bench
-the golden apple	the golden apple
-the golden lyre	the golden lyre
-the golden scarab	the golden scarab
-the little pyramid	the little pyramid
-the pearl seashell	the pearl seashell
-the pirate map	the pirate map
-the silver owl	the silver owl
-the sunflowers	the sunflowers
-the tulip bed	the tulip bed
-the wishing well	the wishing well
-tulip bed	tulip bed
-where next	Where next?
-where shall i go	Where shall I go?
-who shall i visit next	Who shall I visit next?
-will go in the garden by my shop	will go in the garden by my shop!
-wishing well	wishing well
-i'm wearing it now	I'm wearing it now.
-i'm wearing them now	I'm wearing them now.
-this is my very own house	This is my very own house!
-it is cozy but it is a bit empty	It is cozy, but it is a bit empty.
-tansy sells lovely things for houses	Tansy sells lovely things for houses.
-i can buy them with the money i earn	I can buy them with the money I earn!
-my house is ready for some lovely things	My house is ready for some lovely things.
-tansy's stall is at the end of the lane	Tansy's stall is at the end of the lane.
-will go in my house	will go in my house!
-for my house	for my house.
-more to find	more to find!
-thing	thing
-things	things
-my house has everything	My house has everything!
-it is the coziest house in the wood	It is the coziest house in the wood.
-i love my	I love my
-is already	is already
-in my house	in my house
-pot plant	pot plant
-tea set	tea set
-meadow painting	meadow painting
-cozy armchair	cozy armchair
-reading lamp	reading lamp
-tall clock	tall clock
-tiny dollhouse	tiny dollhouse
-bed canopy	bed canopy
-change my clothes	Change my clothes
-go outside	Go outside
-let's explore	Let's explore!
-lovely	Lovely!
-that's a double	That's a double!
-then 1 more	Then 1 more.
-are ten partners	are ten partners.
-they fill the ten frame	They fill the ten frame!
-more to make 10	more to make 10.
-then	Then
-i'll start at	I'll start at
-and count on	and count on
-count by	Count by
-and count on the rest	and count on the rest.
-what goes with	What goes with
-to make	to make
-and count up to	and count up to
-to get to 10	to get to 10.
-and count back	and count back
-good morning	Good morning!
-what shall i do today	What shall I do today?
-we can play in aunt clover's old dollhouse	We can play in Aunt Clover's old dollhouse.
-it has ten little rooms	It has ten little rooms.
-again	Again!
-little mice in the	little mice in the
-little mice one in each room	little mice, one in each room.
-ready	Ready?
-close my eyes	Close my eyes 🙈
-1 2 3 4 5	1, 2, 3, 4, 5.
-ready or not here i come	Ready or not, here I come!
-some of us are hiding under the blanket	Some of us are hiding under the blanket!
-how many are hiding	How many are hiding?
-found you	Found you!
-all found	All found!
-play again	Play again!
-gave me a little card to keep	gave me a little card to keep!
-needs	needs
-count by twos	Count by twos.
-count by fives	Count by fives.
-count by tens	Count by tens.
-little mice in the dollhouse	little mice in the dollhouse.
-little mice in the dollhouses	little mice in the dollhouses.
-i had a lovely day off playing hide and seek and i earned	I had a lovely day off playing hide and seek, and I earned
-i had a lovely day off playing firefly jars and i earned	I had a lovely day off playing firefly jars, and I earned
-what number and the same number make	What number and the same number make
-a row of 5 and	A row of 5 and
-look at the row of 5	Look at the row of 5.
-button	Button
-thimble	Thimble
-bluebell	Bluebell
-nutmeg	Nutmeg
-clementine	Clementine
-pepper	Pepper
-sprout	Sprout
-tinsel	Tinsel
-little bean	Little Bean
-that makes	That makes
-ok	OK!
-my new things are waiting in the tray	My new things are waiting in the tray.
-tap one to put it in my house	Tap one to put it in my house!
-ooh pretty	Ooh, pretty!
-i love it	I love it!
-what a lovely wallpaper	What a lovely wallpaper!
-drag things to move them	Drag things to move them.
-tap one to turn it around	Tap one to turn it around.
-drag it down to the tray to put it away	Drag it down to the tray to put it away.
-is in my house	is in my house!
-which wallpaper shall i have	Which wallpaper shall I have?
-that looks just right there	That looks just right there!
-is back in the tray	is back in the tray.
-in my garden	in my garden
-in my shop	in my shop
-will go up in my house	will go up in my house!
-i'll take my	I'll take my
-home and find the perfect spot for it	home and find the perfect spot for it!
-toadstool stool	toadstool stool
-candlestick	candlestick
-teddy bear	teddy bear
-bunting	bunting
-stripy rug	stripy rug
-sailboat painting	sailboat painting
-stripy wallpaper	stripy wallpaper
-cat basket	cat basket
-round mirror	round mirror
-flower wallpaper	flower wallpaper
-toy chest	toy chest
-starry wallpaper	starry wallpaper
-heart wallpaper	heart wallpaper
-bookcase	bookcase
-little piano	little piano
-tens and	tens and
-ones	ones.
-what number is that	What number is that?
-tens make	tens make
-more makes	more makes
-what is 10 more than	What is 10 more than
-what is 10 less than	What is 10 less than
-one more ten	One more ten.
-tens and 1 more ten makes	tens and 1 more ten makes
-tens	tens.
-one ten less	One ten less.
-tens take away 1 ten leaves	tens take away 1 ten leaves
-10 more	10 more.
-the tens go up by 1	The tens go up by 1.
-the ones stay	The ones stay
-10 less	10 less.
-the tens go down by 1	The tens go down by 1.
-what comes next	What comes next?
-look at the ones	Look at the ones.
-they stay	They stay
-only the tens change	Only the tens change.
-the tens go	The tens go
-count on by tens from	Count on by tens from
-count back by tens from	Count back by tens from
-plus what makes	plus what makes
-first add the tens	First add the tens.
-then add the ones	Then add the ones.
-first take away the tens	First take away the tens.
-then take away	Then take away
-that leaves	That leaves
-groups of	groups of
-jumps of	jumps of
-plus what makes 10	plus what makes 10?
-half of	half of
-what is half of	What is half of
-half means two equal parts	Half means two equal parts.
-type	Type
-lightning	⚡ Lightning!
-lightning quick	Lightning quick!
-then i can buy lovely things for my house	Then I can buy lovely things for my house!
-let's try	Let's try!
-doubled is	doubled is
-more than	more than
-less than	less than
-count by threes	Count by threes.
-count by fours	Count by fours.
-double	Double
