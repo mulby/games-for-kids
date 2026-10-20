@@ -976,6 +976,7 @@ body.g3d .spot.empty{background:rgba(255,250,235,.6)}
 </head>
 <body>
 <title>Miu's Magic Pyramids</title>
+<script src="../../shared/skills.js"></script>
 <script src="../../shared/veil3d.js" data-bg="#e9b77a" data-glow="#ffd86b" data-ink="#5a3410" data-text="Waking the pyramids…"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Cinzel+Decorative:wght@700&display=swap">
@@ -1525,7 +1526,7 @@ function newPuzzle(si, arriving){
   const s = SITES[si];
   const idx = Math.min(doneAt(s.id), PER_SITE);
   P = generate(si, idx);
-  P.mistakes = 0; P.miss = {}; P.selTile = null; P.selHole = null; P.locked = false;
+  P.mistakes = 0; P.miss = {}; P.selTile = null; P.selHole = null; P.locked = false; P.tLast = Date.now();
   // tiles: every answer plus a couple of near-miss decoys
   const answers = P.holes.map(([r,i]) => P.grid[r][i]);
   const decoyCount = s.id === "giza" ? 2 : P.holes.length > 2 ? 2 : 2;
@@ -1682,12 +1683,21 @@ function showTablet(rel){
   }
   t.hidden = false; requestAnimationFrame(layout);
 }
+// The grown-ups' skill chart (shared/skills.js): each stone she places is an adding fact or a missing part,
+// right first time if she had no miss on that stone. A stone she could not work out yet (no relation) is not counted.
+if (!window.GFKSkills) window.GFKSkills = new Proxy({}, { get: () => () => null });
+function skillLog(hi){
+  const rel = relation(hi), now = Date.now(), ms = now - P.tLast; P.tLast = now;
+  if (!rel) return;
+  GFKSkills.log(rel.type === "add" ? GFKSkills.add([rel.a, rel.b]) : GFKSkills.sub(rel.whole, rel.part, {missing:true}), {ok: !P.miss[hi], ms, game: "egypt-puzzles"});
+}
 function attempt(hi, tileId){
   if (hi < 0) return;
   const t = P.tiles[tileId], [r,i] = P.holes[hi];
   if (P.known[r][i] || t.used) return;
   const el = blk(r,i);
   if (t.v === P.grid[r][i]){
+    skillLog(hi);
     P.known[r][i] = true; t.used = true; P.selTile = null;
     if (!S.seenIntro){ S.seenIntro = true; save(); }
     const open = P.holes.map((h,k)=>k).filter(k => !P.known[P.holes[k][0]][P.holes[k][1]]);

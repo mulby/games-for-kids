@@ -968,6 +968,7 @@ body.g3d .coin{text-shadow:0 1px 0 #fff9}
 </head>
 <body>
 <title>The Moonlit Map</title>
+<script src="../../shared/skills.js"></script>
 <script src="../../shared/veil3d.js" data-bg="#141836" data-glow="#cfe3ff" data-ink="#f2f6ff" data-text="Unrolling the map…"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@500;700;800&display=swap">
@@ -1521,6 +1522,7 @@ function answer(idx){
   if(!unsure) $("q-choices").children[idx].classList.add("picked");
   const rec={level:it.level, kind:it.kind, prompt:it.prompt, answer:fmt(it.answer,it.unit), chosen:unsure?null:fmt(c.v,it.unit), correct:!!(c&&c.correct), unsure, tag:c?c.tag:null, secs};
   run.items.push(rec);
+  if(window.GFKSkills) GFKSkills.log(GFKSkills.KINDS[it.kind], {ok:rec.correct && !unsure, ms:performance.now()-shownAt, game:"moonlit-map"});
   run.level = rec.correct ? Math.min(TOP,run.level+1) : Math.max(1,run.level-1);
   const l1Miss = run.items.filter(x=>x.level===1 && !x.correct).length>=2;
   cheer(unsure ? pick(["That's okay! Explorers skip some paths.","No problem, we'll find another path!","Good to know! On we go."])

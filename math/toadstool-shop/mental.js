@@ -313,7 +313,7 @@
       SFX.tap(); await wait(2600);
       const help = subHelp(whole, seen, L);
       await ask({
-        k: 'S', who: 'mo', helpWho: 'keeper', strat: whole === 10 || whole === 5 ? 'ten' : help.kind,
+        k: 'S', std: GFKSkills.sub(whole, seen, { missing: true }), who: 'mo', helpWho: 'keeper', strat: whole === 10 || whole === 5 ? 'ten' : help.kind,
         q: `Some of us are hiding under the blanket! How many are hiding?`, answer: hide,
         show: () => `${houses(whole, seen)}<span class="mm-blanket">🫣</span>`,
         peek: L >= 3 ? 3200 : 0,
@@ -354,7 +354,7 @@
     for (const kind of plan) {
       if (kind === 'look') {
         const n = A <= 1 ? 2 + rnd(4) : A === 2 ? 4 + rnd(7) : 6 + rnd(9);
-        await ask({ k: 'N', who: 'fern', q: 'How many fireflies are in my jar?', answer: n, show: () => jar(n), peek: look, strat: 'none',
+        await ask({ k: 'N', std: GFKSkills.count(n), who: 'fern', q: 'How many fireflies are in my jar?', answer: n, show: () => jar(n), peek: look, strat: 'none',
           help: () => `<div class="mm-tip">${n > 10 ? `A full ten and ${n - 10} more.` : n > 5 ? `A row of 5 and ${n - 5} more.` : 'Look at the row of 5.'}</div>`,
           helpWho: 'keeper', helpSay: n > 10 ? `A full ten and ${n - 10} more.` : n > 5 ? `A row of 5 and ${n - 5} more.` : 'Look at the row of 5.' });
       } else if (kind === 'two') {
@@ -362,12 +362,12 @@
         const [a, b] = A <= 1 ? (() => { const x = 1 + rnd(4); return [x, x]; })() : A === 2 ? pick([() => { const x = 2 + rnd(4); return [x, x]; }, () => { const x = 2 + rnd(4); return [x, x + 1]; }, () => [5, 1 + rnd(5)]])() :
           pick([() => { const x = 3 + rnd(5); return [x, x + 1]; }, () => { const x = 6 + rnd(4), need = 10 - x; return [x, need + 1 + rnd(9 - need)]; }, () => { const x = 4 + rnd(6); return [x, x]; }])();
         const help = addHelp(a, b, A);
-        await ask({ k: 'A', who: 'fern', helpWho: 'keeper', strat: help.kind, q: `${a} fireflies in this jar, and ${b} in that one. How many fireflies altogether?`, answer: a + b,
+        await ask({ k: 'A', std: GFKSkills.add([a, b]), who: 'fern', helpWho: 'keeper', strat: help.kind, q: `${a} fireflies in this jar, and ${b} in that one. How many fireflies altogether?`, answer: a + b,
           show: () => `<div class="row">${jar(a)}${jar(b)}</div>`, peek: A >= 3 ? 2400 : 0, help: () => help.html, helpSay: help.say });
       } else {
         const have = A <= 2 ? 5 + rnd(5) : 3 + rnd(7);
         const help = subHelp(10, have, A);
-        await ask({ k: 'S', who: 'fern', helpWho: 'keeper', strat: 'ten', q: `This jar holds 10 fireflies. It has ${have}. How many more will fill it?`, answer: 10 - have,
+        await ask({ k: 'S', std: 'K.OA.A.4', who: 'fern', helpWho: 'keeper', strat: 'ten', q: `This jar holds 10 fireflies. It has ${have}. How many more will fill it?`, answer: 10 - have,
           show: () => jar(have, 10), help: () => help.html, helpSay: help.say });
       }
       SFX.ok(); mood('cust', 'happy', 1200);

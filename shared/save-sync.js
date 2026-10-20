@@ -37,6 +37,11 @@
     return JSON.stringify(out);
   }
 
+  // The skill chart's log from two devices: keep every try either side has (GFKSkills.merge, shared/skills.js).
+  function mergeSkills(a, b) {
+    try { return window.GFKSkills ? JSON.stringify(GFKSkills.merge(JSON.parse(a) || {}, JSON.parse(b) || {})) : b; } catch (e) { return b; }
+  }
+
   let db = null;
   const pending = new Set();
   let timer = 0, flushing = false;
@@ -94,6 +99,7 @@
       if (rh === m) { pending.add(k); continue; }                      // this device is newer
       // Both changed since the last sync (two devices).
       if (k === "gfk-collection") { ls.set(k, mergeCards(l, r.value)); meta[k] = rh; pending.add(k); touched = true; }
+      else if (k === "gfk-skills") { ls.set(k, mergeSkills(l, r.value)); meta[k] = rh; pending.add(k); touched = true; }
       else { ls.set(k + ".conflict-backup", l); ls.set(k, r.value); meta[k] = rh; touched = true; }
     }
     saveMeta();
@@ -201,6 +207,7 @@
     "egypt-puzzles": ["Miu's Magic Pyramids", ["games-for-kids.egypt-puzzles.v1"]],
     "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]],
     "toadstool-shop": ["The Toadstool Shop", ["toadstoolShop.v1"]],
+    "skills": ["The math skills chart", ["gfk-skills"]],
     "bubble-garden": ["Bubble Garden", ["funBubbleGarden.v1"]],
     "mouse-house": ["Hazel's House", ["funMouseHouse.v1"]],
     "treasure-dig": ["Treasure Dig", ["funTreasureDig.v1"]]
@@ -261,7 +268,7 @@
     let n = 0;
     for (const [k, v] of Object.entries(saves)) {
       if (skip(k) || typeof v !== "string") continue;
-      ls.set(k, k === "gfk-collection" && ls.get(k) != null ? mergeCards(ls.get(k), v) : v);
+      ls.set(k, ls.get(k) == null ? v : k === "gfk-collection" ? mergeCards(ls.get(k), v) : k === "gfk-skills" ? mergeSkills(ls.get(k), v) : v);
       pending.add(k); n++;
     }
     changed(); queue("", true);
@@ -298,5 +305,5 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", movePanel); else movePanel();
 
-  window.SaveSync = { ready, flush: () => queue("", true), close, play, reset, docId, exportCode, importCode };
+  window.SaveSync = { ready, flush: () => queue("", true), sweep, close, play, reset, docId, exportCode, importCode };
 })();
