@@ -182,7 +182,10 @@
       famMood(kidId(i), 'happy', 1800);
     }
     // a child added or taken away changes today's needs
-    if (F.today && F.today.needs.length !== n) F.today = null;
+    if (F.today && F.today.needs.length !== n) {
+      const was = F.today, order = shuffle(Object.keys(NEEDS));
+      F.today = { day: was.day, needs: F.kids.map((_, j) => was.needs[j] || order[j % order.length]), done: F.kids.map((_, j) => !!was.done[j]), baked: was.baked, happy: was.happy };
+    }
     register(); save(); syncView();
     mood('keeper', 'happy', 2200); famMood('papa', 'happy', 2200); kids().forEach((_, i) => famMood(kidId(i), 'happy', 2200)); SFX.cheer();
     const all = `<div class="fm-row">${pt('keeper')}${pt('papa')}${kids().map((_, i) => pt(kidId(i), 'kid')).join('')}</div>`;
@@ -241,7 +244,7 @@
     const fed = helped || [i];
     for (const j of fed) famMood(kidId(j), 'happy', 2200);
     heart(fed.length);
-    if (T.done.every(Boolean)) await happyDay();
+    if (T.done.every(Boolean) && !T.happy) { T.happy = true; await happyDay(); }
     await drawingDue();
   }
   /* ---------------- hearts, drawings and happy days ---------------- */
@@ -392,7 +395,8 @@
     if (window.GFKCards && !S.family.bakes) GFKCards.collect({ game: GAME, id: 'family-recipes', name: 'Family Recipe Book', emoji: '📒', rarity: 'common' });
     S.family.bakes = (S.family.bakes || 0) + 1; save();
     heart(1);
-    await talk('keeper', toShop ? `Mmm! ${toShop} home-baked ${plural(toShop, GOODS[R.good].one, GOODS[R.good].many)} for my shop shelf. I can sell ${toShop === 1 ? 'it' : 'them'}!` : 'Mmm! We ate them all up!', 'Yum!',
+    const room = left > 0 && toShop < left ? (toShop ? ` My shelf only has room for ${toShop}, so we'll share the rest with the neighbours.` : " My shelf is full, so we'll share them with the neighbours.") : '';
+    await talk('keeper', !toShop && left > 0 ? `Mmm!${room}` : toShop ? `Mmm! ${toShop} home-baked ${plural(toShop, GOODS[R.good].one, GOODS[R.good].many)} for my shop shelf. I can sell ${toShop === 1 ? 'it' : 'them'}!${room}` : 'Mmm! We ate them all up!', 'Yum!',
       `<div class="row">${Array.from({ length: Math.max(1, toShop) }, () => goodImg(R.good, 'sm')).join('')}</div>`);
     await drawingDue();
   }

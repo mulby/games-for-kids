@@ -2142,6 +2142,8 @@ async function night() {
   else await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.${Family.nightLine()}`, 'Sleep until morning 🌙',
     `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">My money: ${S.till}¢</span>${S.village && S.village.day === S.day && S.village.earned ? `<span class="tag">Village jobs: ${S.village.earned}¢</span>` : ''}</div>`);
   rampUp();
+  // fresh goods never keep overnight (home-baked buns on a day off, when the evening's ducks don't come)
+  for (const g of Object.keys(S.stock)) if (GOODS[g] && GOODS[g].fresh) S.stock[g] = 0;
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
 }
 
@@ -2303,7 +2305,7 @@ async function houseVisit() {
     await talk('keeper', 'This is my very own house! It is cozy, but it is a bit empty.', 'Next');
     await talk('keeper', "Tansy sells lovely things for houses. I can buy them with the money I earn!", 'OK!');
   }
-  let walls = false, placed = 0;
+  let walls = false, placed = 0, busyNow = false;
   await new Promise(res => {
     const n = S.home.length, left = HOME.length - n;
     const hello = () => Family.has() && Family.waiting().length ? say('keeper', Family.waiting().length === Family.kids().length ? 'My family is home! Tap a child to see what they need.' : 'Tap a child to see what they need.') :
@@ -2331,9 +2333,10 @@ async function houseVisit() {
         <div class="row">${fam ? `<button class="btn alt" id="bake" ${baked ? 'disabled' : ''}>${baked ? 'We baked today ✓' : 'Bake together 🥣'}</button>` : `<button class="btn" id="fam">Make my family 👪</button>`}${papers ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button>${fam ? '<button class="btn alt" id="fam">My family ✏️</button>' : ''}<button class="btn alt" id="bye">Go outside</button></div>`, p => {
         // looking after the family takes over the panel for a while, then the house comes back
         const busy = async fn => {
+          if (busyNow) return; busyNow = true; setPanel(''); // no second tap while it starts
           rerender = null; TSV.decorate = false; document.body.classList.remove('decorating');
           try { await fn(); } catch (e) { console.warn(e); }
-          TSV.decorate = true; document.body.classList.add('decorating'); hello(); rerender = draw; draw();
+          busyNow = false; TSV.decorate = true; document.body.classList.add('decorating'); hello(); rerender = draw; draw();
         };
         $$('[data-kid]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); busy(() => Family.care(+b.dataset.kid)); }));
         if ($('#bake', p)) $('#bake', p).addEventListener('click', () => { if (Family.bakedToday()) return; SFX.tap(); busy(() => Family.bake()); });
