@@ -245,5 +245,52 @@
     return was.length;
   }
 
-  G.GFKSkills = { KEY, SKILLS, LIST: LIST.map(r => r[0]), STRANDS, log, read, merge, status, summary, importOld, KINDS, BOARD, FAIRY, GEMLING, add, sub, times, count, compare, tens };
+  /* ---------------- fitting each game to her ---------------- */
+  // Gabe (2026-10-20) wanted every math game to get harder as she gets better, from what she does in all of them, not
+  // just in that game. Each game keeps its own up-and-down rules while she plays; once a day it also asks the chart:
+  //   known(codes)  every one mastered (quick too, for the fluency skills): she is ready for more
+  //   shaky(codes)  struggling with one: 6 or more recent tries and under half right first time
+  // "Right, but slow", "check again" and still learning are neither, so the game leaves her where she is.
+  // Moves are kept in localStorage["gfk-adapt"] = {v:1, d:{key: date it last asked}, m:[[t, game, what, from, to, why], ...]}
+  // so the grown-ups' chart can list them.
+  const ADAPT = 'gfk-adapt';
+  const codesOf = c => [].concat(c || []).filter(x => SKILLS[x]);
+  function known(codes, d) { d = d || read(); codes = codesOf(codes); return codes.length > 0 && codes.every(c => status(c, d).state === 'mastered'); }
+  function shaky(codes, d) { d = d || read(); return codesOf(codes).some(c => { const s = status(c, d); return s.recent >= 6 && s.acc < 0.5; }); }
+  function readAdapt() { try { const a = JSON.parse(localStorage.getItem(ADAPT)); if (a && a.d && a.m) return a; } catch (e) {} return { v: 1, d: {}, m: [] }; }
+  function noteMove(A, game, what, from, to, why) {
+    A.m.push([Date.now(), String(game || ''), String(what || ''), from, to, why]);
+    if (A.m.length > 40) A.m.splice(0, A.m.length - 40);
+  }
+  // once(key): true the first time it is asked today (a game's daily check), false after
+  function once(key) {
+    const A = readAdapt(), today = new Date().toDateString();
+    if (A.d[key] === today) return false;
+    A.d[key] = today; try { localStorage.setItem(ADAPT, JSON.stringify(A)); } catch (e) {}
+    return true;
+  }
+  // note(game, what, from, to, why): a game that adapts in its own way records the move for the grown-ups
+  function note(game, what, from, to, why) { const A = readAdapt(); noteMove(A, game, what, from, to, why); try { localStorage.setItem(ADAPT, JSON.stringify(A)); } catch (e) {} }
+  // place(key, levels, cur, {min, max, game, name}): the level a game should use today for one of its skills.
+  //   levels[L] = the code(s) level L practises.
+  //   Struggling with her level's skills: one level easier. Her level's skills mastered: one level harder, and a second
+  //   step when the next level practises different skills and she has mastered those too. Asked once a day per key;
+  //   later calls that day return cur unchanged.
+  function place(key, levels, cur, o) {
+    o = o || {};
+    const min = o.min || 1, max = o.max || Math.max(...Object.keys(levels).map(Number)), at = L => codesOf(levels[L]);
+    if (!once(key)) return cur;
+    const d = read();
+    let lv = cur, why = '';
+    if (lv > min && shaky(at(lv), d)) { lv--; why = 'shaky'; }
+    else if (lv < max && known(at(lv), d)) {
+      lv++; why = 'mastered';
+      if (lv < max && at(lv).join() !== at(lv - 1).join() && known(at(lv), d)) lv++;
+    }
+    if (lv !== cur) note(o.game, o.name || key, cur, lv, why);
+    return lv;
+  }
+  const moves = () => readAdapt().m.slice();
+
+  G.GFKSkills = { KEY, ADAPT, SKILLS, LIST: LIST.map(r => r[0]), STRANDS, log, read, merge, status, summary, importOld, KINDS, BOARD, FAIRY, GEMLING, add, sub, times, count, compare, tens, known, shaky, once, note, place, moves };
 })(window);

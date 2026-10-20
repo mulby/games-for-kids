@@ -21,7 +21,10 @@ Open `index.html` in Safari on the iPad (or add it to the Home Screen). Progress
 - **No-fail feedback:** a wrong tile wiggles back and Miu gives a hint with a counting tablet
   (dots to count). After three tries on the same stone, the right tile wiggles.
 - **Adaptive:** two or more slips on a pyramid makes the next ones at that place smaller and
-  adds dots to every stone; two smooth pyramids in a row brings it back up.
+  adds dots to every stone; two smooth pyramids in a row brings it back up. Arriving at a place, Miu also checks the
+  shared skills chart (`shared/skills.js`, every game together): if she is struggling with that place's sums it starts
+  easier, and if she has mastered them it is a stretch (no small warm-up pyramid, numbers about a third bigger, one more
+  missing stone on the tall pyramids).
 - **Voice:** Miu reads every line aloud (speech synthesis), with a replay button. The speaker
   button turns sound and voice off.
 

@@ -1690,6 +1690,22 @@ function record(skill, firstTry) {
   return up;
 }
 
+// Once a day each skill also asks the shared skills chart (shared/skills.js, all the games together): mastered the
+// skills at her level, up a level (two if she has mastered the next level's too); struggling with them, down one.
+// The skills a level practises are read off a dozen sample puzzles.
+function fitToChart() {
+  for (const k of Object.keys(MAX)) {
+    const levels = {};
+    for (let L = 1; L <= MAX[k]; L++) {
+      const n = {};
+      for (let i = 0; i < 12; i++) { const c = GEN[k](L).std; if (typeof c === "string") n[c] = (n[c] || 0) + 1; }
+      levels[L] = Object.keys(n).filter(c => n[c] >= 3);
+    }
+    const s = S.skills[k], lv = GFKSkills.place("sea." + k, levels, s.level, { max: MAX[k], game: "pirate-voyage", name: SKILL_NAMES[k] });
+    if (typeof lv === "number" && lv !== s.level) { s.level = lv; s.streak = 0; s.struggle = 0; save(); }
+  }
+}
+
 // ================= collecting =================
 function cardHTML(set, i, opts = {}) {
   const [e, name, r] = CARDS[set][i];
@@ -1959,7 +1975,7 @@ const RENDER = {
     app.innerHTML = `<div class="screen">
       <div class="topbar"><button class="icon-btn" data-act="map" aria-label="Back to map">🗺️</button><h2 class="page-title">For grown-ups</h2></div>
       <div class="sheet"><div class="panel grown">
-        <p>Each island practises one skill. Difficulty adjusts by itself: two right-first-time answers in a row move a skill up a level, and two shaky answers in a row move it back down. Wrong answers never cost anything. A clue appears after a miss, and after two misses the right answer gently pulses so she's never stuck.</p>
+        <p>Each island practises one skill. Difficulty adjusts by itself: two right-first-time answers in a row move a skill up a level, and two shaky answers in a row move it back down. Once a day each skill also checks the shared math skills chart (all the games together): mastered the skills at her level anywhere, up a level; struggling with them, down one. Wrong answers never cost anything. A clue appears after a miss, and after two misses the right answer gently pulses so she's never stuck.</p>
         <div class="tbl"><table><thead><tr><th>Skill</th><th>Where she is now</th><th>Puzzles</th><th>Right first try</th></tr></thead><tbody>${rows}</tbody></table></div>
         <p class="note">Islands: Poseidon = partners that make 5, 10 and 20 · Hermes = adding · Artemis = taking away · Hephaestus = tens and ones · Athena = equal sides (the meaning of =) · Zeus and the open sea = a mix.</p>
         <div class="toggle-row">
@@ -1977,6 +1993,7 @@ const RENDER = {
 
 // ================= quest flow =================
 function startQuest(isle, idx) {
+  fitToChart();
   run = { isle, idx, n: 0, total: 5, coinsWon: 0, firstTries: 0 };
   go("meet", isle);
 }
@@ -2308,7 +2325,7 @@ app.addEventListener("click", async e => {
 });
 
 // test hook for automated checks
-window.__voyage = { get state() { return S; }, get run() { return run; }, get screen() { return screen; }, GEN, CARDS, ISLES, CREATURES };
+window.__voyage = { get state() { return S; }, get run() { return run; }, get screen() { return screen; }, GEN, CARDS, ISLES, CREATURES, fitToChart };
 go("title");
 })();
 </script>
