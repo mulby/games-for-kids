@@ -120,6 +120,44 @@ the lanterns	the lanterns
 the flag bunting	the flag bunting
 the cat bed and cat	the cat bed and cat
 the fairy lights	the fairy lights
+the daisy patch	the daisy patch
+the tulip bed	the tulip bed
+the sunflowers	the sunflowers
+the bird bath	the bird bath
+the garden bench	the garden bench
+the wishing well	the wishing well
+the fairy house	the fairy house
+the pearl seashell	the pearl seashell
+the golden scarab	the golden scarab
+the pirate map	the pirate map
+the little pyramid	the little pyramid
+the silver owl	the silver owl
+the golden apple	the golden apple
+the golden lyre	the golden lyre
+the fairy crown	the fairy crown
+the toadstool stool	the toadstool stool
+the candlestick	the candlestick
+the teddy bear	the teddy bear
+the bunting	the bunting
+the pot plant	the pot plant
+the tea set	the tea set
+the stripy rug	the stripy rug
+the meadow painting	the meadow painting
+the sailboat painting	the sailboat painting
+the stripy wallpaper	the stripy wallpaper
+the cat basket	the cat basket
+the cozy armchair	the cozy armchair
+the round mirror	the round mirror
+the flower wallpaper	the flower wallpaper
+the toy chest	the toy chest
+the starry wallpaper	the starry wallpaper
+the reading lamp	the reading lamp
+the heart wallpaper	the heart wallpaper
+the bookcase	the bookcase
+the tall clock	the tall clock
+the tiny dollhouse	the tiny dollhouse
+the little piano	the little piano
+the bed canopy	the bed canopy
 a bag of	a bag of
 and the	and the
 each bag costs	each bag costs
@@ -133,6 +171,9 @@ penny left	penny left
 a box of	a box of
 a crate of	a crate of
 costs	costs
+whoa quick paws	Whoa, quick paws!
+hello	Hello!
+i'm stretching my legs after a busy day with my cart	I'm stretching my legs after a busy day with my cart.
 0	0
 1	1
 2	2
@@ -242,6 +283,3 @@ costs	costs
 700	700
 800	800
 900	900
-whoa quick paws	Whoa, quick paws!
-hello	Hello!
-i'm stretching my legs after a busy day with my cart	I'm stretching my legs after a busy day with my cart.

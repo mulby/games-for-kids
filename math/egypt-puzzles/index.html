@@ -1555,7 +1555,7 @@ function newPuzzle(si, arriving){
 function teach(){
   const [a,b] = P.grid[0];
   glow([[0,0],[0,1]]);
-  say(`Hello, I'm Miu, the temple cat! A sandstorm knocked stones off Pharaoh's pyramids. In a magic pyramid, the two stones underneath add up to the stone on top. ${a} and ${b} make... how many? Tap the right blue stone!`);
+  say(`Hello, I'm Miu, the temple cat! A sandstorm knocked stones off Pharaoh's pyramids. In a magic pyramid, the two stones underneath add up to the stone on top. ${a} and ${b} together make... how many? Tap the right blue stone!`);
 }
 const holeIndex = (r,i) => P.holes.findIndex(([hr,hi]) => hr===r && hi===i);
 function dotsHTML(n){

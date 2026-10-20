@@ -1432,7 +1432,7 @@ function cloudSave(){
 // ---------- screens ----------
 const SCREENS=["s-start","s-map","s-intro","s-q","s-done","s-final","s-grown"];
 function show(id){ SCREENS.forEach(s=>$(s).hidden = s!==id); window.scrollTo(0,0); try{speechSynthesis.cancel();}catch(e){} }
-function say(t){ try{ KidVoice.speak(t.replace(/¢/g," cents").replace(/−/g," minus ").replace(/×/g," times ").replace(/÷/g," divided by "), {rate:.9}); }catch(e){} }
+function say(t){ try{ KidVoice.speak(t.replace(/(\d+):00\b/g,"$1 o'clock").replace(/(\d+):0(\d)\b/g,"$1 oh $2").replace(/¢/g," cents").replace(/−/g," minus ").replace(/×/g," times ").replace(/÷/g," divided by "), {rate:.9}); }catch(e){} }
 function cheer(t){ const c=$("cheer"); c.textContent=t; c.hidden=false; clearTimeout(cheer.t); cheer.t=setTimeout(()=>c.hidden=true,1400); }
 
 // start
@@ -1531,7 +1531,7 @@ function answer(idx){
 }
 $("q-choices").addEventListener("click",e=>{ const b=e.target.closest(".choice"); if(b) answer(+b.dataset.i); });
 $("b-unsure").onclick=()=>answer(null);
-$("b-speak").onclick=()=>say(current.say + ". " + current.choices.map(c=>fmt(c.v,current.unit)).join(", or "));
+$("b-speak").onclick=()=>say(current.say + ". " + current.choices.map(c=>fmt(c.v,current.unit).replace(/^(\d+)\/(\d+)$/,"$1 out of $2")).join(". Or ") + ".");
 
 function finishLand(){
   const L=run.L; S.lands[L.key]={items:run.items, at:new Date().toISOString()};

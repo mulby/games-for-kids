@@ -1,6 +1,7 @@
 athena's owl	Athena's owl
 hoo	Hoo!
 the goddess athena sent me with a riddle	The goddess Athena sent me with a riddle.
+whoa quick paws	Whoa, quick paws!
 hmm not quite	Hmm, not quite.
 let's look again together	Let's look again together.
 let's count it together	Let's count it together.
@@ -70,6 +71,46 @@ do you have more	Do you have more
 or more	or more
 wise shopkeeper	Wise shopkeeper!
 athena will be pleased	Athena will be pleased.
+thank you for your help today	Thank you for your help today!
+come back tomorrow	Come back tomorrow.
+hello again	Hello again!
+see you tomorrow for another job	See you tomorrow for another job.
+i'll help	I'll help!
+and the next patch has	And the next patch has
+rows with	rows with
+in each	in each.
+how many carrots	How many carrots?
+i planted	I planted
+rows of carrots with	rows of carrots, with
+in each row	in each row.
+how many carrots is that	How many carrots is that?
+of ten books	of ten books
+how many books is that	How many books is that?
+now the little ring by the stream	Now the little ring by the stream.
+it has	It has
+lanterns and	lanterns, and
+glowing	glowing.
+how many more do i need to light	How many more do I need to light?
+there are	There are
+lanterns around the ring	lanterns around the ring.
+arr there was more in the boat	Arr, there was more in the boat!
+how many pennies is this pile	How many pennies is this pile?
+here is my treasure	Here is my treasure.
+how many pennies is it worth	How many pennies is it worth?
+come back soon	Come back soon!
+bye for now	Bye for now!
+you have everything from my stall	You have everything from my stall!
+your garden must be beautiful	Your garden must be beautiful.
+your house must be so cozy	Your house must be so cozy.
+you have every treasure i brought	You have every treasure I brought!
+what a collection	What a collection!
+i'd like it	I'd like it!
+my money to spend	My money to spend
+not today	Not today
+is 1 penny	is 1 penny
+you gave me	You gave me
+here	Here
+back	back!
 acorn bun	acorn bun
 acorn buns	acorn buns
 apple	apple
@@ -102,7 +143,8 @@ crate	crate
 crates	crates
 a honey pot	a honey pot
 one	one
-is 1 penny	is 1 penny
+you got it right the first time	You got it right the first time!
+here is a penny tip	Here is a penny tip.
 0	0
 1	1
 2	2
@@ -212,6 +254,3 @@ is 1 penny	is 1 penny
 700	700
 800	800
 900	900
-whoa quick paws	Whoa, quick paws!
-you got it right the first time	You got it right the first time!
-here is a penny tip	Here is a penny tip.

@@ -149,3 +149,1098 @@ main	Count by fours.
 main	Count by fives.
 main	Count by tens.
 main	Double
+# Pieces for Miu's Pyramids, The Shining Sea, Fairy Lantern Festival and the break-time games (lines built from data tables and names).
+# Miu's Magic Pyramids (math/egypt-puzzles)
+main	Welcome to Giza!
+main	These little pyramids lost their top stones.
+main	Remember: two stones side by side add up to the stone on top of them.
+main	Saqqara has the oldest step pyramid!
+main	Some bottom stones are missing here.
+main	Karnak!
+main	These pyramids are taller.
+main	Fix them one stone at a time.
+main	The Valley of the Kings!
+main	Here the missing stones can hide anywhere.
+main	Think like a detective.
+main	Abu Simbel has giant statues and bigger numbers.
+main	You can do it!
+main	We found the Hidden Tomb!
+main	Only the cleverest scribes can fix these pyramids.
+main	Let's finish
+main	first!
+main	Giza
+main	Saqqara
+main	Karnak
+main	Valley of the Kings
+main	Abu Simbel
+main	The Hidden Tomb
+main	You restored every pyramid in Egypt!
+main	You can visit any place again for more puzzles.
+main	Let's sail up the Nile!
+main	Tap Giza to start.
+main	Where shall we sail next?
+main	The blue outline shows our next stop.
+main	Which stone fits here?
+main	Can you find the missing stone?
+main	Here's another pyramid!
+main	Now tap the empty stone where it goes.
+main	Psst!
+main	I think it might be the wiggly one.
+main	Let's count together to check!
+main	This stone is a tricky one!
+main	Try a different empty stone first, then come back.
+main	This pyramid is missing
+main	stones.
+main	Which one can you fix first?
+main	how many?
+main	Tap the right blue stone!
+main	Look at the two stones underneath.
+main	together make...
+main	Count all the dots!
+main	Count the blue dots, then keep counting the orange ones.
+main	and what make
+main	Count the empty circles!
+main	We need
+main	in all.
+main	are already there.
+main	How many empty circles are left?
+main	Hmm, not that one.
+main	Oops, that stone doesn't fit.
+main	So close!
+main	One more stone to go!
+main	stones left.
+main	Yes!
+main	Purr-fect!
+main	That's right!
+main	Clever scribe!
+main	Wonderful!
+main	You got it!
+main	Meow!
+main	Great job!
+main	You fixed the whole pyramid!
+main	The pyramid is shining again!
+main	Pharaoh would be so proud!
+main	New card!
+main	That's
+main	of 36 cards in your binder!
+main	It's rare!
+main	It's sparkly!
+main	is fixed!
+main	Now we can sail up the Nile to
+main	You fixed every pyramid in Egypt!
+main	You are a true royal scribe.
+main	Lucky amulet card!
+main	Bonus pyramid
+main	A shiny gold coin!
+main	You have fixed
+main	pyramids so far.
+main	The Golden Scarab
+main	The Ankh of Life
+main	A Cat Statue
+main	A Painted Jar
+main	The Eye of Horus
+main	A Blue Lotus
+main	Sobek's Crocodile Charm
+main	A Papyrus Scroll
+main	The Sun Disk of Ra
+main	Horus the Falcon
+main	Khonsu's Moon Charm
+main	Amun's Ram
+main	The Pharaoh's Crown
+main	A Lapis Gem
+main	Anubis's Jackal Charm
+main	A Canopic Jar
+main	William the Blue Hippo
+main	The Royal Boat
+main	A Golden Camel
+main	A Sheaf of Wheat
+main	The Feather of Ma'at
+main	The Queen's Ring
+main	The Golden Key
+main	A Star of Nut
+main	Ruby Beetle
+main	Nile Fish Charm
+main	Frog of Heqet
+main	Scorpion of Serket
+main	Hathor's Cow
+main	Sphinx Charm
+main	Ibis of Thoth
+main	Lotus Flower Charm
+main	Honey Pot
+main	Blue Eye Bead
+main	Golden Bee
+main	Butterfly Brooch
+# The Shining Sea (math/pirate-voyage)
+main	I'm Pip, a sea fairy.
+main	Long, long ago, the Greek gods hid magical treasures all over the islands of the Shining Sea.
+main	Each god has a number puzzle.
+main	Solve the puzzles and they'll give you treasure cards for your binder!
+main	But first we need a brave captain.
+main	Will you be our captain?
+main	Ahoy, Captain!
+main	I am Poseidon, king of the sea.
+main	A storm broke my pearl necklaces!
+main	Can you help me count how many pearls are missing?
+main	I'm Hermes, the fastest messenger on Olympus.
+main	I have parcels to deliver, but first I need to add them up.
+main	Will you help?
+main	Welcome to my moonlit forest.
+main	I am Artemis, friend of all wild animals.
+main	My animal friends keep wandering home to bed.
+main	Help me count who is still here!
+main	Clang, clang!
+main	I'm Hephaestus, the blacksmith of the gods.
+main	I melt ten gold coins into one shiny gold bar.
+main	Help me count and build my gold!
+main	Greetings, clever Captain.
+main	I am Athena, goddess of wisdom.
+main	My magic scales only work when both sides are equal.
+main	Which stone will balance them?
+main	Ho ho!
+main	I am Zeus, king of all the gods!
+main	You have visited every island.
+main	Now show me everything you have learned, brave Captain!
+main	Blub blub!
+main	Don't be scared, I'm a friendly kraken.
+main	I love number riddles.
+main	Solve mine and I'll share my treasure!
+main	Hello, Captain!
+main	I'm Marina.
+main	I keep treasures in my secret grotto.
+main	Answer my sea puzzles and you can have some!
+main	Ahh...
+main	hello, young Captain.
+main	I am Old Tortuga.
+main	I have swum these seas for 200 years.
+main	Let's solve some puzzles together, slowly and carefully.
+main	Eee-eee!
+main	I'm Dot!
+main	Race me across the waves!
+main	Every puzzle you solve makes us swim faster!
+main	You found every god's treasure, Captain
+main	Ginny
+main	Sail the open sea to meet sea creatures and find more cards.
+main	Tap Poseidon's island to set sail.
+main	That island is hidden in the clouds.
+main	Visit the next god first!
+main	Next stop: Hermes's Windy Isle!
+main	Next stop: Artemis's Moonlit Isle!
+main	Next stop: Hephaestus's Forge Island!
+main	Next stop: Athena's Owl Isle!
+main	Next stop: Zeus's Thunder Peak!
+main	Tap it to sail there.
+main	This necklace needs
+main	pearls.
+main	It has
+main	How many more pearls do we need?
+main	Poseidon wants
+main	shells in his basket.
+main	There are
+main	How many more shells?
+main	fish fit in the net.
+main	are in.
+main	How many more fish can fit?
+main	Hermes has
+main	parcels.
+main	Then
+main	more arrive.
+main	How many parcels now?
+main	letters in the bag.
+main	Hermes adds
+main	more.
+main	How many letters?
+main	Hermes finds
+main	golden feathers, then
+main	How many feathers?
+main	deer played in the moonlight.
+main	bunnies played in the moonlight.
+main	foxes played in the moonlight.
+main	hedgehogs played in the moonlight.
+main	owls played in the moonlight.
+main	went home to bed.
+main	How many are still playing?
+main	Hephaestus needs
+main	gold coins.
+main	Build
+main	with gold bars and coins!
+main	How many gold coins does Hephaestus have?
+main	Each bar is worth 10 coins.
+main	Too much gold!
+main	Not enough gold yet!
+main	You have
+main	bar and
+main	bars and
+main	coin.
+main	coins.
+main	Athena's scales must be equal on both sides.
+main	Which stone will make them balance?
+main	Let's look again.
+main	Count the glowing empty spaces!
+main	Fill up ten first.
+main	Then count the extras!
+main	Count them all, one at a time!
+main	The crossed-out ones went to bed.
+main	Count the ones still playing!
+main	Each gold bar is 10.
+main	Count the bars by tens, then add the coins.
+main	is 1 bar and
+main	is 2 bars and
+main	is 3 bars and
+main	is 4 bars and
+main	is 5 bars and
+main	is 6 bars and
+main	is 7 bars and
+main	is 8 bars and
+main	is 9 bars and
+main	This side has
+main	that makes
+main	The other side has
+main	How many more to make
+main	Hmm, not quite.
+main	Ooh, tricky one!
+main	Here's a clue.
+main	Good try!
+main	Let's use a clue.
+main	Nearly!
+main	Let's look closely.
+main	Brilliant!
+main	Clever captain!
+main	Hooray!
+main	Spot on!
+main	Ship-shape!
+main	Amazing thinking!
+main	Super sailing!
+main	You're ready for bigger puzzles!
+main	Thank you, Captain
+main	Please take this treasure chest.
+main	Tap the treasure chest!
+main	has a treasure chest for you!
+main	Poseidon
+main	Hermes
+main	Artemis
+main	Hephaestus
+main	Athena
+main	Zeus
+main	Kip the Kraken
+main	Marina the Mermaid
+main	Old Tortuga
+main	Dot the Dolphin
+main	Wow!
+main	The legendary
+main	card!
+main	Poseidon's Trident
+main	Winged Sandals
+main	Silver Moon Bow
+main	Magic Anchor
+main	Athena's Owl
+main	Lightning Bolt
+main	Sea Dragon
+main	New cards for your binder!
+main	More treasure cards!
+main	You need
+main	more gold coins for that.
+main	Solve some puzzles to earn more!
+main	That's the most gold the forge can hold!
+main	Ten coins!
+main	Hephaestus melts them into one gold bar!
+main	Nine bars is all the forge can hold!
+# Fairy Lantern Festival (math/fairy-lantern-festival)
+main	Moonberry Garden
+main	Whispering River
+main	Starlight Meadow
+main	Mushroom Ring
+main	moonlight blue
+main	leaf green
+main	sunset gold
+main	I light the path to the moonberry bushes!
+main	I sleep in a silver thimble.
+main	Splish!
+main	I glow in every puddle.
+main	Dewdrop Dot
+main	I sparkle on the grass at sunrise.
+main	I knit tiny blankets out of moss.
+main	Teacup Twinkle
+main	Tea for ten fireflies, please!
+main	I hop from lily pad to lily pad.
+main	Everyone needs a cuddle at bedtime.
+main	Puffball Flicker
+main	Achoo!
+main	Oops, I puffed again.
+main	My acorn hat is my favorite hat.
+main	I wink at the fish as they swim by.
+main	I am looking for a lucky clover!
+main	I collect lost buttons.
+main	Shiny!
+main	Hum hum, I smell honeycake!
+main	I stack river pebbles into towers.
+main	I know every bramble in the hedge.
+main	I hide under curly ferns.
+main	Toadstool Tink
+main	Ding!
+main	I ring the mushroom bells.
+main	Willowisp Wee
+main	I swing on willow branches.
+main	Moonberry Mo
+main	Moonberries are purple and sweet!
+main	Starling Spark
+main	I race the shooting stars.
+main	Crumblecake Glow
+main	I share my cake crumbs with ants.
+main	Nightjar Nell
+main	I sing lullabies to the river.
+main	I am the last light to go to sleep.
+main	You made ten with nine!
+main	I flutter for you.
+main	The first time you made ten with 9!
+main	Two of me, twice as bright!
+main	Five twin lanterns lit!
+main	Homeward Hush
+main	Shhh.
+main	I tuck sleepy fireflies in.
+main	The first time you sent fireflies home across ten!
+main	Garland Bee
+main	Bzzz!
+main	Your garland is so long!
+main	Your first garland over 50!
+main	Great Moon Sprite
+main	Ten lanterns make one great moon!
+main	Your very first one hundred!
+main	Ribbon Sprite
+main	Ten loose ones?
+main	Tie a ribbon!
+main	You tied your first lantern!
+main	Glade Keeper
+main	I keep the whole glade glowing.
+main	A whole glade is lit!
+main	Twenty-five nights of light.
+main	Twenty-five festival nights!
+main	Acorn-cap lamp
+main	Petal bed
+main	Mushroom stool
+main	Thimble teapot
+main	Moss rug
+main	Gingham bunting
+main	Button clock
+main	Leaf curtains
+main	Teacup bath
+main	Walnut cradle
+main	Dandelion chandelier
+main	Seed-book shelf
+main	Birch rocking chair
+main	Gingham tablecloth table
+main	Star nightlight
+main	Petal sofa
+main	Button cushion
+main	Berry basket
+main	Clover pot
+main	Little wood stove
+main	Mouse family picture
+main	Seashell mirror
+main	Berry wreath
+main	Star mobile
+main	Fern in a pot
+main	Blue dresser
+main	Firefly string lights
+main	Rosebud bed
+main	Lavender rug
+main	Honeycomb table
+main	Blueberry bunting
+main	Golden button clock
+main	Mint loveseat
+main	Moon lamp
+main	Pink toadstool
+main	Rose teapot
+main	Daisy pot
+main	Blue curtains
+main	Little wall shelf
+main	Rose chandelier
+main	Moonbeam cradle
+main	Apple basket
+main	Pink star nightlight
+main	Sunflower picture
+main	Reading Nook
+main	This lantern needs
+main	fireflies.
+main	Pull the cord when it's ready!
+main	Tap a firefly.
+main	It will fly into the lantern!
+main	I think one extra squeezed in!
+main	I think some extras squeezed in!
+main	Tap a firefly in the lantern to send it back.
+main	Some seats are still empty.
+main	I put on my counting glasses.
+main	Now every seat has a number!
+main	Let's light it together.
+main	Make it
+main	, then pull the cord.
+main	We have
+main	Which jar fills the lantern?
+main	don't have a seat!
+main	Let's count the empty seats together.
+main	Counting glasses on!
+main	Look at the numbers on the empty seats.
+main	This jar wants to help.
+main	Tap it!
+main	more fly in.
+main	Then count the new ones.
+main	Let's hop along the path from
+main	This petal knows.
+main	Pour both jars in.
+main	How many fireflies?
+main	The last number tells how many.
+main	Make the twin lantern match, plus one more.
+main	How many in both?
+main	Make the twin lantern match.
+main	Twins plus one!
+main	That's the twin plus one.
+main	All full!
+main	That's a perfect match!
+main	Count this lantern, then keep counting into the twin!
+main	more on the path.
+main	A full lantern and
+main	A full lantern is ten.
+main	Then count on!
+main	Fill the first lantern, then count the rest.
+main	This lantern is full now!
+main	Can we fill this lantern first?
+main	over to make a ten.
+main	Then count the rest.
+main	Ten in the first lantern.
+main	Now count on with the rest!
+main	How many are still glowing?
+main	fireflies are sleepy.
+main	Tap them to send them home.
+main	The glowing ones will count themselves.
+main	Listen!
+main	The loose ones go home first, then the rest from the lantern.
+main	Back to one full lantern!
+main	How many did we add?
+main	Let's count the pink ones we added.
+main	Oops, too many!
+main	Tap one to send it back.
+main	Look at the twinkling seats!
+main	Hop from
+main	on the path.
+main	Count the hops!
+main	Let's fill it to
+main	together, then pull the cord.
+main	Tap each lantern and count by tens.
+main	Look at the numbers under the lanterns.
+main	The last one tells us!
+main	Let's count them by tens together.
+main	How many fireflies on the garland?
+main	How many loose fireflies?
+main	Then loose ones by ones.
+main	with lanterns and fireflies.
+main	The jar is full!
+main	Tie them into a lantern?
+main	Ten loose fireflies!
+main	The lanterns match the
+main	The loose fireflies match the
+main	We made
+main	One more lantern joins!
+main	One lantern floats away down the river.
+main	Two garlands join together.
+main	The loose jar is too full!
+main	Too many for the jar!
+main	Tie ten into a lantern!
+main	Lantern Expert
+main	Glasses off.
+main	Here is the number path.
+main	Path away.
+main	Peek!
+main	Now you can see under the frost.
+main	Frost back on.
+main	The Moon Lantern!
+main	The last and brightest one.
+main	Hmm, so close!
+main	I think I counted too fast.
+main	Oops, I mixed that up!
+main	Hmm, I'm still mixed up.
+main	Let me try a fairy trick!
+main	Let's look together with a fairy trick.
+main	Let's do it together, Lantern Expert.
+main	We'll finish it together.
+main	You do the last tap!
+main	You made a ten first.
+main	That's a clever fairy trick!
+main	You counted on from
+main	, like a real lamplighter!
+main	You kept trying, and now it's glowing!
+main	You checked carefully.
+main	Great tool choice!
+main	You looked closely.
+main	Lovely lamplighting!
+main	You counted every one.
+main	Look at it glow!
+main	The festival needs light.
+main	Let's begin!
+main	The whole glade is glowing because of you!
+main	A little bun!
+main	Curly hair!
+main	A pixie cut!
+main	The Lantern Festival is tonight, but the lanterns are dark!
+main	Each lantern needs exactly ten fireflies.
+main	Two rows of five.
+main	is learning to light lanterns.
+main	Let's go!
+main	Let's keep lighting the lanterns.
+main	Pick a glade.
+main	Then tap Light the Lanterns!
+main	Drag it to move it.
+main	Everything is placed.
+main	Treasures from the Petal Jar will wait here.
+main	Make a ten with 9.
+main	Light five twin lanterns.
+main	Send fireflies home across ten.
+main	Make a garland over 50.
+main	Reach one hundred.
+main	Tie a ribbon on ten loose fireflies.
+main	Light a whole glade.
+main	Light lanterns for 25 nights.
+main	A gold card is still hiding.
+main	Still to find!
+main	Each festival night hatches a new sprite.
+main	You kept trying, and now they are all in order!
+main	A sticker for your Field Guide!
+main	All in order!
+main	The smallest glow number goes first.
+main	Let's look at the number path.
+main	Which glow is smallest?
+main	Let's do it together.
+main	Tap the bouncing card each time.
+main	moonlight blue wings
+main	rose wings
+main	leaf green wings
+main	sunset gold wings
+main	Wren
+main	Posy
+main	Fern
+main	Juniper
+main	Clover
+main	Tansy
+main	Willow
+main	Bluebell
+main	Bedroom
+main	Kitchen
+main	Attic
+main	Garden
+main	A gold card:
+main	loose ones?
+main	These
+main	lantern and
+main	lanterns and
+main	firefly make
+main	fireflies make
+main	firefly.
+main	Let's count what we made: tens, then ones.
+main	Hop
+main	Hop back
+main	to
+main	pouch and
+main	pouches and
+main	petal.
+main	petals.
+main	Welcome,
+main	Welcome to
+main	Start at
+main	Here are
+main	and here are
+main	Start at ten.
+main	Wren's Teapot Cottage!
+main	Posy's Teapot Cottage!
+main	Fern's Teapot Cottage!
+main	Juniper's Teapot Cottage!
+main	Clover's Teapot Cottage!
+main	Tansy's Teapot Cottage!
+main	Willow's Teapot Cottage!
+main	Bluebell's Teapot Cottage!
+# Break-time games (fun/)
+main	That's super rare!
+main	You found
+main	Another
+main	again!
+main	Pharaoh's ring
+main	Pharaoh's golden mask
+main	cat statue, just like me
+main	golden scarab
+main	jackal jar
+main	jewel necklace
+main	little gold pyramid
+main	lotus flower
+main	papyrus scroll
+main	shining gem
+main	tiny sphinx
+main	ankh, the sign of life
+main	magic Eye amulet
+main	an
+main	big cheese
+main	blue armchair
+main	bookshelf
+main	bubble bath
+main	cozy bed
+main	flower stand
+main	glowing lamp
+main	leafy plant
+main	little chair
+main	little piano
+main	pink dresser
+main	rainbow rug
+main	round table
+main	squishy armchair
+main	strawberry cake
+main	tea set
+main	teddy bear
+# Crystal Caves (math/gemling-grids)
+main	Thank you for teaching me the cave rules!
+main	I polish my spectacles every morning.
+main	Did you know?
+main	Moles can dig a whole tunnel in one night!
+main	The Gemlings say you are a wonderful Puzzle Expert.
+main	I love my cozy nook.
+main	It glows with your gems!
+main	When I get muddled, I take a deep breath and look again.
+main	Every row has one of each friend.
+main	I remember now!
+main	Shall we light up another wall together?
+main	Rule one: no twins!
+main	Every row and every column has one of each Gemling.
+main	Rule two: cozy nooks!
+main	The sparkles inside a nook add up to its crystal number.
+main	Rule three: gap nooks!
+main	These two Gemlings are this many apart.
+main	The bigger one take away the smaller one.
+main	Who is missing here?
+main	Two Gemlings tumbled out!
+main	Look at each row.
+main	Who is missing?
+main	This nook wants
+main	sparkles.
+main	Rubbit
+main	has
+main	A bigger wall!
+main	Each nook is missing one friend.
+main	Count the sparkles.
+main	Wait!
+main	in EVERY row!
+main	You noticed every row makes
+main	You tried it, checked it, and fixed it.
+main	Real puzzle experts do that!
+main	You used the sparkles to check the nook!
+main	You kept trying, and the whole wall is glowing!
+main	You found the only nook it could go in.
+main	That's careful thinking!
+main	Two
+main	Rubbits
+main	in one row.
+main	They'd like to live apart.
+main	in one column.
+main	Here's who fits!
+main	Can you tuck
+main	in?
+main	See?
+main	This row already has a
+main	This column already has a
+main	Let's try a different friend here.
+main	Sapphlies
+main	Sapphly
+main	Topips
+main	Topip
+main	Mosslings
+main	Mossling
+main	Amethyxes
+main	Amethyx
+main	They're
+main	apart!
+main	Hmm
+main	but this gap nook wants them
+main	Hmm, these sparkles make
+main	but the nook wants
+main	This gap nook wants two friends
+main	Let's look at it.
+main	This one has
+main	Its friend is
+main	Hop along the path!
+main	These two are
+main	The faded friends can't fit here.
+main	sparkles here.
+main	Look at the gap.
+main	These two want to be
+main	Look at the sparkles.
+main	This nook makes
+main	but it wants
+main	and that's too many already.
+main	sparkle here.
+main	Look at this row.
+main	Look at this column.
+main	The faded friends are already in this row or column.
+main	Who is left?
+main	Hmm, I think this one might want a different nook.
+main	Let's check its row and its column.
+main	Let's check its row and its nook.
+main	This one is tricky!
+main	Its row and its nook are glowing.
+main	Let's look together.
+main	Ooh!
+main	rose quartz
+main	It goes on your Gem Shelf.
+main	for your Gem Shelf!
+main	moonstone
+main	amethyst
+main	sunstone
+main	star sapphire
+main	rainbow opal
+main	heart crystal
+main	Pebblepuff
+main	A sleepy rock-bunny who naps on warm pebbles.
+main	Glintwhisker
+main	A kitten who chases every glint of light.
+main	Quartzle
+main	A little chick who hums songs to the crystals.
+main	Lumabun
+main	A bunny whose fluffy tail glows like a lamp.
+main	Opal Mothling
+main	A soft moth who sips dewdrops from the moss.
+main	Gleamtoad
+main	A toad who polishes stones until they shine.
+main	Shardy Owlet
+main	A wise little owlet who reads crystal books.
+main	Crystafin
+main	A shimmery swimmer from the underground lake.
+main	Dewdrop Hopper
+main	A frog who collects shiny dewdrops.
+main	Micamuffin
+main	A bunny who bakes tiny crystal muffins.
+main	Fizzlewing
+main	A butterfly whose wings fizz with sparkles.
+main	Glimmerkit
+main	A kitten who curls up in glowing corners.
+main	Sparkchirp
+main	A chick who sings one bright note every morning.
+main	Bramblegleam
+main	A frog who lives under a bramble of crystals.
+main	Honeyglow
+main	A chick who smells like warm honeycake.
+main	Moonmallow
+main	A marshmallow-soft bunny who loves the moon.
+main	Prismpaw
+main	A kitten who leaves rainbow paw prints.
+main	Ripplewing
+main	A butterfly who dances over still water.
+main	Glowcap
+main	A frog who wears a glowing mushroom hat.
+main	Starnibble
+main	A bunny who nibbles on starlight crumbs.
+main	Lanternbug
+main	A butterfly who lights the way for lost friends.
+main	Pipquartz
+main	A chick who counts pebbles: one, two, three.
+main	Velvetmoss
+main	A frog with the softest mossy back.
+main	Duskwhisker
+main	A kitten who wakes up when the stars do.
+main	Bubblegem
+main	A frog who blows sparkly bubbles.
+main	Rosy Thimble
+main	A tiny bunny who sleeps in a thimble.
+main	Echochirp
+main	A chick who loves to hear her song echo back.
+main	Shimmerling
+main	A butterfly with wings like stained glass.
+main	Cozycrag
+main	A frog who knits scarves for chilly caves.
+main	Mistmitten
+main	A kitten who hides in the morning mist.
+main	Tumblestone
+main	A bunny who rolls downhill just for fun.
+main	Saffronsprout
+main	A chick who plants crystal seeds.
+main	Glaciwing
+main	A frosty butterfly who makes snowflake sparkles.
+main	Lilypebble
+main	A frog who naps on lily pads of stone.
+main	Nightpurr
+main	A kitten whose purr sounds like tiny bells.
+main	Sugarshard
+main	A bunny made of sweet pink sugar crystal.
+main	Lady Glimmerhare
+main	The kind guardian of
+main	Glimmer Hall
+main	who keeps every lamp lit.
+main	Old Toadstool Tom
+main	He tells mushroom stories that last all night.
+main	Queen Ripplewing
+main	She paints the lake with moonlight ripples.
+main	Hush the Echo Owl
+main	She whispers, and the whole cave whispers back.
+main	Prismella
+main	She keeps every color of the rainbow safe.
+main	Starroot Sage
+main	He grows star-roots that twinkle underground.
+main	Heartstone Hen
+main	Her warm heart makes the crystals glow pink.
+main	Moonwhisker the Wise
+main	The oldest Gemling, who sings to the moon.
+main	Row-of-Ten Rabbit
+main	She found out that
+main	Mosaic Mothling
+main	Made of sixteen tiny painted tiles.
+main	Nookmaster Newt
+main	He can solve a wall with no helpers at all.
+main	Gap Hopper
+main	She hops from one number to another and counts the jumps.
+main	Fivefold Kitten
+main	A kitten with five sparkly whiskers.
+main	Tenlight Bunny
+main	She lit ten walls with her lantern.
+main	Quartermoon Toad
+main	He has seen twenty-five glowing walls.
+main	Fifty-Star Phoenixfly
+main	Her wings hold fifty tiny stars.
+main	Steady Glow Chick
+main	She checks every nook so carefully.
+main	Moonheart Kitten
+main	The finale friend from the
+main	Moon Geode
+main	The whole
+main	is glowing!
+main	Its guardian
+main	came to say hello!
+main	is glowing with a second glow!
+main	Mushroom Grotto
+main	Underground Lake
+main	Echo Chamber
+main	Rainbow Vault
+main	Starroot Cavern
+main	Crystal Heart
+main	miner's cap
+main	He looks so proud.
+main	Do you like my
+main	star scarf
+main	tiny rocking chair
+main	It is in his nook now.
+main	Ahh, no hat today!
+main	mushroom lamp
+main	cozy moss rug
+main	crystal bookshelf
+main	moon nightcap
+main	mossy little bed
+main	star telescope
+main	Tap Explore to find a wall of sleepy Gemlings!
+main	Let's explore the Crystal Caves!
+main	Tap Explore.
+main	Little puzzle, big puzzle, or picture puzzle.
+main	You choose!
+main	Little puzzle or big puzzle.
+main	Little puzzle or picture puzzle.
+main	Gemling cards!
+main	Tap one to say hello.
+main	Gemling card!
+main	Your binder is waiting for Gemling cards.
+main	Geodes hatch new friends!
+main	Which card has the fewest sparkles?
+main	It goes first.
+main	Look at the number path.
+main	The smallest number is closest to zero.
+main	The bouncing card goes in the glowing spot.
+main	Tap a card on the shelf to take it off, then try again.
+main	Can you move it?
+main	Drag your gems onto the shelf.
+main	Put them anywhere you like!
+main	Solve a wall to earn your first gem!
+main	Welcome to my nook!
+main	Tap me to chat.
+main	This is my little nook.
+main	but every glowing wall makes it cozier!
+main	Sparkle Glasses on!
+main	Now you can see every sparkle.
+main	Sparkle Glasses off.
+main	make 1!
+main	make 2!
+main	make 3!
+main	make 4!
+main	make 5!
+main	make 6!
+main	make 7!
+main	make 8!
+main	make 9!
+main	make 10!
+main	make 11!
+main	make 12!
+main	make 13!
+main	make 14!
+main	make 15!
+# Moonlit Map (math/moonlit-map)
+main	Every night, the fireflies of Starlight Meadow line up to glow.
+main	But Luma, the firefly queen, keeps losing count!
+main	Can you help her?
+main	Starlight Gem
+main	One jar has
+main	Another jar has
+main	Which number is BIGGER?
+main	Luma's little fireflies are waking up.
+main	Luma counts her fireflies
+main	… What number comes next?
+main	How many fireflies are glowing?
+main	Four jars of fireflies!
+main	Which jar has the MOST fireflies?
+main	Luma's fireflies count up to
+main	What number comes right after
+main	The fireflies blink by
+main	The firefly kingdoms are counting their fireflies.
+main	Which kingdom has the MOST?
+main	Luma has
+main	About how many is that, to the nearest ten?
+main	The meadow has
+main	To the nearest hundred, about how many?
+main	Deep in the Crystal Caves, gnomes tie crystals into sticks of ten, and stack ten sticks into big flat hundreds.
+main	Pebble the gnome needs help reading his piles.
+main	Cave Crystal
+main	Pebble has one stick of
+main	crystals and
+main	single crystal.
+main	How many crystals?
+main	single crystals.
+main	Pebble has crystal sticks (each stick is
+main	) and single crystals.
+main	How many crystals in all?
+main	In the number
+main	how much is the
+main	worth?
+main	Pebble stacked flats (
+main	each), sticks (
+main	each) and single crystals.
+main	Pebble has
+main	crystals and gives away
+main	crystals and finds
+main	Pebble wrote his crystals as parts
+main	What is the whole number?
+main	crystals.
+main	Bramble the bear is baking treats for the Moon Festival.
+main	He has so many trays that he needs a helper to add them all up!
+main	Golden Honeycake
+main	Bramble has
+main	cupcakes.
+main	He bakes
+main	How many cupcakes now?
+main	cupcake.
+main	Bramble baked
+main	cupcakes, then
+main	One tray has
+main	honey buns and another has
+main	How many honey buns?
+main	cookies and bakes
+main	How many cookies?
+main	blueberry muffins and
+main	lemon muffins.
+main	How many muffins?
+main	For the Moon Festival, Bramble made
+main	tarts and
+main	pies.
+main	How many treats?
+main	Otto the otter carries fish across the Whispering River in his little boat.
+main	But some fish are sneaky and swim away!
+main	Help Otto keep track.
+main	River Pearl
+main	Otto had
+main	fish.
+main	swam away.
+main	How many fish are left?
+main	fish in his boat.
+main	jumped out and swam away!
+main	There were
+main	lily pads.
+main	Frogs sank
+main	of them.
+main	How many lily pads are left?
+main	Otto counted
+main	pebbles.
+main	He threw
+main	into the river.
+main	How many does he have left?
+main	The river carried
+main	Otto scooped out
+main	How many leaves are still floating?
+main	In the Moonberry Garden, berries grow in neat little groups.
+main	Clover the bunny is filling baskets for the feast and wants a quick counter.
+main	Moonberry Seed
+main	baskets.
+main	Each basket has
+main	moonberries.
+main	How many moonberries in all?
+main	Clover puts moonberries in pairs.
+main	How many berries?
+main	baskets with
+main	moonberries in each basket.
+main	How many moonberries?
+main	moon-flowers are blooming.
+main	Each has
+main	bunnies are hopping by.
+main	Each bunny has
+main	ears.
+main	How many ears?
+main	baskets each hold
+main	Clover planted
+main	rows of carrots with
+main	carrots in each row.
+main	How many carrots?
+main	moonberries are shared fairly among
+main	bunnies.
+main	How many does each bunny get?
+main	rows of moon-flowers with
+main	in each row.
+main	How many moon-flowers?
+main	When the great clock chimes, the market opens!
+main	Madame Whiskers sells pies, ribbons and moon-cheese, and she always needs help with the clock and the coins.
+main	Clocktower Key
+main	How many cents?
+main	Each penny is one cent.
+main	The great clock chimes!
+main	What time is it?
+main	Madame Whiskers cut a pie into
+main	equal pieces.
+main	What part is cherry (pink)?
+main	How much money is in the purse?
+main	Count the cents.
+main	The market opens at this time.
+main	What part of the pie is pink?
+main	out of
+main	How much money is it?
+main	A pie goes in the oven at
+main	and bakes for
+main	minutes.
+main	When is it ready?
+main	Madame Whiskers' pies come out of the oven at this time.
+main	A ribbon costs
+main	cents.
+main	You pay with
+main	How much change do you get?
+main	One third of them are cherry.
+main	How many cherry pies?
+main	One half of them are cherry.
+main	One fourth of them are cherry.
+main	I'm
+main	Ember
+main	This map only lights up when we explore it.
+main	Pick any glowing land to start!
+main	We did it
+main	Every land on the map is shining.
+main	down!
+main	Where should we go next
+main	Starla
+main	Hoot
+main	Explorer
+main	Look how the map is glowing!
+main	Pick our next land.
+main	I'm ready for more adventure.
+main	Which land next?
+main	The fireflies blink by 5s.
+main	The fireflies blink by 10s.
+main	Count by 2s!
+main	Clover has
+main	Or
+main	o'clock
+main	oh
+main	one half
+main	one third
+main	one fourth

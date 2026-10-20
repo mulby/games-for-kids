@@ -1,6 +1,7 @@
 old hoot	Old Hoot
 hoo hoo	Hoo, hoo!
 good day to you	Good day to you.
+whoa quick paws	Whoa, quick paws!
 hmm not quite	Hmm, not quite.
 let's look again together	Let's look again together.
 let's count it together	Let's count it together.
@@ -70,6 +71,46 @@ do you have more	Do you have more
 or more	or more
 wise shopkeeper	Wise shopkeeper!
 athena will be pleased	Athena will be pleased.
+thank you for your help today	Thank you for your help today!
+come back tomorrow	Come back tomorrow.
+hello again	Hello again!
+see you tomorrow for another job	See you tomorrow for another job.
+i'll help	I'll help!
+and the next patch has	And the next patch has
+rows with	rows with
+in each	in each.
+how many carrots	How many carrots?
+i planted	I planted
+rows of carrots with	rows of carrots, with
+in each row	in each row.
+how many carrots is that	How many carrots is that?
+of ten books	of ten books
+how many books is that	How many books is that?
+now the little ring by the stream	Now the little ring by the stream.
+it has	It has
+lanterns and	lanterns, and
+glowing	glowing.
+how many more do i need to light	How many more do I need to light?
+there are	There are
+lanterns around the ring	lanterns around the ring.
+arr there was more in the boat	Arr, there was more in the boat!
+how many pennies is this pile	How many pennies is this pile?
+here is my treasure	Here is my treasure.
+how many pennies is it worth	How many pennies is it worth?
+come back soon	Come back soon!
+bye for now	Bye for now!
+you have everything from my stall	You have everything from my stall!
+your garden must be beautiful	Your garden must be beautiful.
+your house must be so cozy	Your house must be so cozy.
+you have every treasure i brought	You have every treasure I brought!
+what a collection	What a collection!
+i'd like it	I'd like it!
+my money to spend	My money to spend
+not today	Not today
+is 1 penny	is 1 penny
+you gave me	You gave me
+here	Here
+back	back!
 acorn bun	acorn bun
 acorn buns	acorn buns
 apple	apple
@@ -102,7 +143,42 @@ crate	crate
 crates	crates
 a honey pot	a honey pot
 one	one
-is 1 penny	is 1 penny
+and a card for your binder	And a card for your binder!
+what is the number now	What is the number now?
+hoo	Hoo!
+this is my challenge board	This is my challenge board.
+i pin up math cards for clever shopkeepers	I pin up math cards for clever shopkeepers.
+each card has 5 problems	Each card has 5 problems.
+you get a penny for every one you get right the first time	You get a penny for every one you get right the first time.
+answer quickly and you get a lightning penny too	Answer quickly and you get a lightning penny too!
+and 2 more pennies for finishing a card	And 2 more pennies for finishing a card.
+which card would you like today	Which card would you like today?
+good day	Good day!
+pick a card	Pick a card.
+ready for a challenge	Ready for a challenge?
+i will say a riddle one step at a time	I will say a riddle, one step at a time.
+here is my secret	Here is my secret.
+you never have to remember the whole riddle	You never have to remember the whole riddle.
+just keep the number so far	Just keep the number so far!
+ok	OK!
+here we go	Here we go!
+another card	Another card?
+would you like another card	Would you like another card?
+one more	One more?
+come back soon for more challenges	Come back soon for more challenges!
+see you soon clever one	See you soon, clever one.
+you got it right the first time	You got it right the first time!
+here is a penny tip	Here is a penny tip.
+welcome to my library inside my old oak tree	Welcome to my library, inside my old oak tree.
+start with	Start with
+add	Add
+take away	Take away
+double it	Double it.
+halve it	Halve it.
+pennies for you	pennies for you.
+you are ready for a harder card	You are ready for a harder card!
+next time i'll pin up an easier card to practise	Next time I'll pin up an easier card to practise.
+well done	Well done!
 0	0
 1	1
 2	2
@@ -212,56 +288,3 @@ is 1 penny	is 1 penny
 700	700
 800	800
 900	900
-whoa quick paws	Whoa, quick paws!
-you got it right the first time	You got it right the first time!
-here is a penny tip	Here is a penny tip.
-and on this shelf	And on this shelf:
-come back tomorrow	Come back tomorrow.
-count the stacks by tens then the books by ones	Count the stacks by tens, then the books by ones.
-hello again	Hello again!
-here are 2 pennies for helping	Here are 2 pennies for helping.
-here are 2 pennies for helping and 1 more for getting it right the first time	Here are 2 pennies for helping, and 1 more for getting it right the first time!
-hoo	Hoo!
-how many books is that	How many books is that?
-i keep my books in stacks of ten	I keep my books in stacks of ten.
-more	more
-see you tomorrow for another job	See you tomorrow for another job.
-stack of ten books	stack of ten books
-stacks of ten books	stacks of ten books
-thank you for your help today	Thank you for your help today!
-will you help me count them	Will you help me count them?
-welcome to my library inside my old oak tree	Welcome to my library, inside my old oak tree.
-come back soon	Come back soon!
-back	back!
-and a card for your binder	And a card for your binder!
-what is the number now	What is the number now?
-this is my challenge board	This is my challenge board.
-i pin up math cards for clever shopkeepers	I pin up math cards for clever shopkeepers.
-each card has 5 problems	Each card has 5 problems.
-you get a penny for every one you get right the first time	You get a penny for every one you get right the first time.
-answer quickly and you get a lightning penny too	Answer quickly and you get a lightning penny too!
-and 2 more pennies for finishing a card	And 2 more pennies for finishing a card.
-which card would you like today	Which card would you like today?
-good day	Good day!
-pick a card	Pick a card.
-ready for a challenge	Ready for a challenge?
-i will say a riddle one step at a time	I will say a riddle, one step at a time.
-here is my secret	Here is my secret.
-you never have to remember the whole riddle	You never have to remember the whole riddle.
-just keep the number so far	Just keep the number so far!
-ok	OK!
-here we go	Here we go!
-another card	Another card?
-would you like another card	Would you like another card?
-one more	One more?
-come back soon for more challenges	Come back soon for more challenges!
-see you soon clever one	See you soon, clever one.
-start with	Start with
-add	Add
-take away	Take away
-double it	Double it.
-halve it	Halve it.
-pennies for you	pennies for you.
-you are ready for a harder card	You are ready for a harder card!
-next time i'll pin up an easier card to practise	Next time I'll pin up an easier card to practise.
-well done	Well done!

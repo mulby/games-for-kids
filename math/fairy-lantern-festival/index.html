@@ -1624,9 +1624,9 @@ function numWords(n) {
   return String(n);
 }
 function spokenText(t) {
-  return String(t).replace(/(\d+)\s*\+\s*(\d+)/g, (m, a, b) => numWords(+a) + ' plus ' + numWords(+b))
-    .replace(/(\d+)\s*[−-]\s*(\d+)/g, (m, a, b) => numWords(+a) + ' take away ' + numWords(+b))
-    .replace(/\d+/g, m => numWords(+m)).replace(/…/g, '. ');
+  // Numbers stay as digits so KidVoice can stitch them from the recorded number clips.
+  return String(t).replace(/(\d+)\s*\+\s*(\d+)/g, '$1 plus $2')
+    .replace(/(\d+)\s*[−-]\s*(\d+)/g, '$1 take away $2').replace(/…/g, '. ');
 }
 
 /* ================= SAVE ================= */
@@ -3367,7 +3367,7 @@ ITEMS.gJoin = {
       speak('Lanterns with lanterns, fireflies with fireflies.');
       fairySay('Lanterns with lanterns, fireflies with fireflies.', { speak: false });
       render(); sparkles(G.el, 14, 120);
-      if (oa + ob >= 10) later(() => { if (alive(me)) fairySay('Twelve loose ones? Too many for the jar! Tie ten into a lantern!'.replace('Twelve', numWords(oa + ob)[0].toUpperCase() + numWords(oa + ob).slice(1))); }, 2600);
+      if (oa + ob >= 10) later(() => { if (alive(me)) fairySay(`${oa + ob} loose ones? Too many for the jar! Tie ten into a lantern!`); }, 2600);
     }
     function tie() {
       if (st.tied) return; st.tied = true;
