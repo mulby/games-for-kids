@@ -1,0 +1,193 @@
+acorn bun	acorn bun
+acorn buns	acorn buns
+apple	apple
+apples	apples
+honey pot	honey pot
+honey pots	honey pots
+berry tart	berry tart
+berry tarts	berry tarts
+biscuit	biscuit
+biscuits	biscuits
+candle	candle
+candles	candles
+seed packet	seed packet
+seed packets	seed packets
+teacup	teacup
+teacups	teacups
+a	a
+and	and
+is	is
+are	are
+penny	penny
+pennies	pennies
+a dime	a dime
+dimes	dimes
+a nickel	a nickel
+bag	bag
+bags	bags
+box	box
+boxes	boxes
+crate	crate
+crates	crates
+a honey pot	a honey pot
+one	one
+is 1 penny	is 1 penny
+i'm hungry	I'm hungry!
+had breakfast	had breakfast
+i need a bath	I need a bath!
+had a bath	had a bath
+will you play with me	Will you play with me?
+can we read a story	Can we read a story?
+read a story	read a story
+i love you	I love you!
+thank you for looking after me	Thank you for looking after me!
+hug	Hug!
+you are the best	You are the best!
+ok	OK!
+let's do it	Let's do it!
+i made you a picture	I made you a picture!
+it's a	It's a
+i love it	I love it!
+splash	Splash!
+bubbles	Bubbles!
+i love bath time	I love bath time!
+splish splash	Splish, splash!
+all clean	All clean!
+skittles	Skittles!
+there are 10 skittles	There are 10 skittles.
+my ball knocked down	My ball knocked down
+how many are still standing	How many are still standing?
+strike	Strike!
+again again	Again, again!
+fun	Fun!
+let's build towers	Let's build towers!
+my tower has	My tower has
+blocks and yours has	blocks and yours has
+how many blocks is that altogether	How many blocks is that altogether?
+our towers are so tall	Our towers are so tall!
+crash	Crash!
+let's build them again	Let's build them again!
+we read 10 pages every night	We read 10 pages every night.
+last night we stopped on page	Last night we stopped on page
+what page will we stop on tonight	What page will we stop on tonight?
+we are on page	We are on page
+we read	We read
+what page are we on now	What page are we on now?
+the end	The end!
+night night	Night night.
+i love that story	I love that story!
+yawn	Yawn.
+one more tomorrow	One more tomorrow?
+let's make a double batch	Let's make a double batch!
+one batch needs	One batch needs
+cups of flour	cups of flour.
+how many cups for two batches	How many cups for two batches?
+0	0
+1	1
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+11	11
+12	12
+13	13
+14	14
+15	15
+16	16
+17	17
+18	18
+19	19
+20	20
+21	21
+22	22
+23	23
+24	24
+25	25
+26	26
+27	27
+28	28
+29	29
+30	30
+31	31
+32	32
+33	33
+34	34
+35	35
+36	36
+37	37
+38	38
+39	39
+40	40
+41	41
+42	42
+43	43
+44	44
+45	45
+46	46
+47	47
+48	48
+49	49
+50	50
+51	51
+52	52
+53	53
+54	54
+55	55
+56	56
+57	57
+58	58
+59	59
+60	60
+61	61
+62	62
+63	63
+64	64
+65	65
+66	66
+67	67
+68	68
+69	69
+70	70
+71	71
+72	72
+73	73
+74	74
+75	75
+76	76
+77	77
+78	78
+79	79
+80	80
+81	81
+82	82
+83	83
+84	84
+85	85
+86	86
+87	87
+88	88
+89	89
+90	90
+91	91
+92	92
+93	93
+94	94
+95	95
+96	96
+97	97
+98	98
+99	99
+100	100
+200	200
+300	300
+400	400
+500	500
+600	600
+700	700
+800	800
+900	900

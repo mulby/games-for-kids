@@ -1184,6 +1184,7 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
 <script src="../../shared/skills.js"></script>
 <script src="wardrobe.js"></script>
 <script src="mental.js"></script>
+<script src="family.js"></script>
 <script src="challenges.js"></script>
 <script>
 'use strict';
@@ -1289,7 +1290,7 @@ function rampUp() {
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START);
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], homeTray: [], homeAt: {}, paper: 'rose', village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], homeTray: [], homeAt: {}, paper: 'rose', family: null, village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
@@ -1386,7 +1387,8 @@ function say(who, text, opts = {}) {
   $('.pt', b).innerHTML = portrait(who); $('.who', b).textContent = name; $('.txt', b).textContent = text;
   lastSay = { who, text };
   if (opts.speak !== false) speak(text, { who });
-  if (who !== 'keeper' && who !== 'clover') mood(TSV.cust && who !== 'bramble' ? 'cust' : 'cust', 'talk', 1600);
+  if (Family.isFam(who)) Family.famMood(who, 'talk', 1600);
+  else if (who !== 'keeper' && who !== 'clover') mood(TSV.cust && who !== 'bramble' ? 'cust' : 'cust', 'talk', 1600);
   measure();
 }
 function hush() { $('#bubble').hidden = true; measure(); }
@@ -1614,9 +1616,11 @@ function wantAt(g, n) {
 async function morning() {
   // from day 5 she can take a day off for Hide and Seek or Firefly Jars instead (mental.js)
   setScene('outside', { time: 'morning' });
+  // from day 5 she can make her family (family.js), who live in her house
+  if (S.day >= VILLAGE_DAY) await Family.offer();
   // ...or walk to the village (or straight to her house to decorate) before opening, and come back to this choice
   const off = await Mental.chooseDay(S.day >= VILLAGE_DAY ? [
-    { id: 'house', emoji: '🏠', name: 'My house', blurb: S.homeTray.length ? `Decorate! ${S.homeTray.length} new ${plural(S.homeTray.length, 'thing', 'things')} to put out` : 'Decorate my little house' },
+    { id: 'house', emoji: '🏠', name: Family.has() ? 'My house and family' : 'My house', blurb: Family.has() ? Family.blurb() : S.homeTray.length ? `Decorate! ${S.homeTray.length} new ${plural(S.homeTray.length, 'thing', 'things')} to put out` : 'Decorate my little house' },
     { id: 'village', emoji: '🏡', name: 'Bramble Wood village', blurb: 'Help neighbours, visit the shops' },
   ] : []);
   if (off === 'house' || off === 'village') { S.villageBack = 'morning'; S.villageGo = off === 'house' ? 'house' : null; S.phase = 'village'; save(); hush(); setPanel(''); return; }
@@ -2134,8 +2138,8 @@ async function night() {
   const n = S.shop ? S.shop.list.length : 0, earned = S.shop ? S.shop.earned : 0;
   if (S.day === 1 && window.GFKCards) GFKCards.collect({ game: GAME, id: 'clover-key', name: "Aunt Clover's Key", emoji: '🗝️', rarity: 'common' });
   mood('keeper', 'happy', 2000);
-  if (Mental.nightLine()) await talk('keeper', Mental.nightLine(), 'Sleep until morning 🌙', `<div class="row"><span class="tag">Earned today: ${S.offDay.earned}¢</span><span class="tag">My money: ${S.till}¢</span><span class="tag">Earned so far: ${S.total}¢</span></div>`);
-  else await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.`, 'Sleep until morning 🌙',
+  if (Mental.nightLine()) await talk('keeper', Mental.nightLine() + Family.nightLine(), 'Sleep until morning 🌙', `<div class="row"><span class="tag">Earned today: ${S.offDay.earned}¢</span><span class="tag">My money: ${S.till}¢</span><span class="tag">Earned so far: ${S.total}¢</span></div>`);
+  else await talk('keeper', `Day ${S.day} is done! I took in ${earned} ${plural(earned, 'penny', 'pennies')}${S.profit > 0 ? ` and earned ${S.profit}` : ''}. Time for bed.${Family.nightLine()}`, 'Sleep until morning 🌙',
     `<div class="row"><span class="tag">Earned today: ${Math.max(0, S.profit)}¢</span><span class="tag">Best day: ${S.best}¢</span><span class="tag">Earned so far: ${S.total}¢</span><span class="tag">My money: ${S.till}¢</span>${S.village && S.village.day === S.day && S.village.earned ? `<span class="tag">Village jobs: ${S.village.earned}¢</span>` : ''}</div>`);
   rampUp();
   S.day++; S.had = {}; S.sold = {}; S.shop = null; S.phase = 'morning'; save();
@@ -2302,7 +2306,9 @@ async function houseVisit() {
   let walls = false, placed = 0;
   await new Promise(res => {
     const n = S.home.length, left = HOME.length - n;
+    const hello = () => Family.has() && Family.waiting().length ? say('keeper', Family.waiting().length === Family.kids().length ? 'My family is home! Tap a child to see what they need.' : 'Tap a child to see what they need.') :
     say('keeper', S.homeTray.length ? 'My new things are waiting in the tray. Tap one to put it in my house!' : !n ? "My house is ready for some lovely things. Tansy's stall is at the end of the lane." : left ? `I have ${n} ${plural(n, 'thing', 'things')} for my house. ${left} more to find!` : 'My house has everything! It is the coziest house in the wood.');
+    hello();
     DBG.cur = { type: 'house' };
     const item = id => id === 'wp-rose' ? ROSE_PAPER : HOME.find(x => x.id === id);
     const draw = () => {
@@ -2318,9 +2324,20 @@ async function houseVisit() {
       }
       const tray = S.homeTray.filter(id => item(id)), papers = S.home.some(id => id.startsWith('wp-'));
       const out = has3d() ? [] : homeThings().filter(id => !S.homeTray.includes(id) && item(id)); // without 3D, what's out shows here too
+      const fam = Family.has(), baked = fam && Family.bakedToday();
       setPanel(`
+        ${fam ? Family.row() : ''}
         <div class="htray" id="htray">${tray.length || out.length ? tray.map(id => `<button data-t="${id}">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') + out.map(id => `<button data-o="${id}" class="own">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') : `<span class="small">${homeThings().length ? 'Drag things down here to put them away.' : "Things I buy from Tansy will wait here."}</span>`}</div>
-        <div class="row">${papers ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button><button class="btn alt" id="bye">Go outside</button></div>`, p => {
+        <div class="row">${fam ? `<button class="btn alt" id="bake" ${baked ? 'disabled' : ''}>${baked ? 'We baked today ✓' : 'Bake together 🥣'}</button>` : `<button class="btn" id="fam">Make my family 👪</button>`}${papers ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button>${fam ? '<button class="btn alt" id="fam">My family ✏️</button>' : ''}<button class="btn alt" id="bye">Go outside</button></div>`, p => {
+        // looking after the family takes over the panel for a while, then the house comes back
+        const busy = async fn => {
+          rerender = null; TSV.decorate = false; document.body.classList.remove('decorating');
+          try { await fn(); } catch (e) { console.warn(e); }
+          TSV.decorate = true; document.body.classList.add('decorating'); hello(); rerender = draw; draw();
+        };
+        $$('[data-kid]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); busy(() => Family.care(+b.dataset.kid)); }));
+        if ($('#bake', p)) $('#bake', p).addEventListener('click', () => { if (Family.bakedToday()) return; SFX.tap(); busy(() => Family.bake()); });
+        $('#fam', p).addEventListener('click', () => { SFX.tap(); busy(() => Family.make()); });
         $$('[data-t]', p).forEach(b => b.addEventListener('click', () => {
           const id = b.dataset.t, spot = window.Shop3D && Shop3D.homeSpot ? Shop3D.homeSpot(id, homeTaken()) : null;
           S.homeTray = S.homeTray.filter(x => x !== id);
@@ -2565,6 +2582,7 @@ async function title() {
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
       <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Garden ${S.garden.length}/${GARDEN.length} · Treasures ${S.treasures.length}/${TREASURES.length} · Home things ${S.home.length}/${HOME.length} · Clothes ${ShopWardrobe.CLOTHES.filter(c => ShopWardrobe.owns(S, c.id)).length}/${ShopWardrobe.CLOTHES.length} · Friends ${Object.keys(S.friends).length}</p>
       <p>From day ${VILLAGE_DAY}, after the shop closes, she can walk to Bramble Wood village: four neighbours each have one little job a day (2 pennies, plus 1 when every answer is right the first time; two of them happen inside their houses), and three stalls sell garden things, treasures and things for her own house with the money above the 10 she keeps for Bramble. She has a house of her own at the end of the lane, where her wardrobe is too.</p>
+      <p>${Family.has() ? `Her family: ${S.family.papa.name} and ${Family.kids().map(k => k.name).join(', ')}. Hearts ${S.family.hearts || 0} · drawings ${(S.family.drawings || []).length}/${Family.DRAWINGS.length} · happy family days ${S.family.happyDays || 0} · bakes ${S.family.bakes || 0}.` : 'She has not made her family yet (offered each morning from day ' + VILLAGE_DAY + ', or the button in her house).'} Each day every child needs one thing (breakfast for everyone: equal groups; a bath: partners of 5, 10 and 20; play: adding or taking from 10; a bedtime story: counting on, or 10 more from any page once her adding is past level 2). Once a day the family can bake a double batch, and what is left after everyone eats one goes on her shop shelf.</p>
       <p>Hoot's challenge board (in the village, next to his oak) has cards of 5 plain problems typed on a number pad: a penny for each right first time, a lightning penny more when it is quicker than her usual time, and 2 for finishing. A good card (4 of 5) moves up a level, 2 or fewer moves down. ${Challenges.summary()}</p>
       <p style="font-size:14px;opacity:.7">To start over, use "Grown-ups: start a game over" on The Wonder Shelf.</p>
       <button class="btn" id="gclose">Close</button>`;
@@ -2611,6 +2629,7 @@ async function title() {
   }
 })();
 
+Family.register(); // her husband and children join CAST, so they can talk and be drawn
 window.__ts = { get S() { return S; }, TSV, DBG, on3d() { if (rerender) rerender(); if (lastSay) { $('#bubble .pt').innerHTML = portrait(lastSay.who); } }, record };
 syncView(); hud(); title();
 if (!/[?&](g3d|gl)=0\b/.test(location.search)) import('./shop3d.js').catch(e => { console.warn('[3d] off:', e && e.message); document.body.classList.remove('g3d'); const c = document.getElementById('gl3d'); if (c) c.remove(); }).finally(() => window.G3DVeil && G3DVeil.ready());

@@ -388,5 +388,5 @@
     return `Day ${S.day} is done! I had a lovely day off playing ${O.what}, and I earned ${O.earned} ${O.earned === 1 ? 'penny' : 'pennies'}. Time for bed.`;
   }
 
-  G.Mental = { DAY, frames, dots, two, bag, hops, addKind, addHelp, sumHelp, subKind, subHelp, CHARMS, credit, solved, armPeek, ACTIVITIES, chooseDay, playDay, nightLine, SIBS };
+  G.Mental = { DAY, frames, dots, two, bag, hops, addKind, addHelp, sumHelp, subKind, subHelp, CHARMS, toast, credit, solved, armPeek, ACTIVITIES, chooseDay, playDay, nightLine, SIBS };
 })(window);

@@ -231,7 +231,7 @@ function model(spec) {
   const key = JSON.stringify(spec);
   if (!modelCache.has(key)) {
     modelCache.set(key, makeModel(spec));
-    if (!castKeys.has(key)) {
+    if (!castKeys.has(key) && !spec.fam) { // her family (family.js) stay cached like the cast
       keeperKeys.push(key);
       while (keeperKeys.length > 2) { const old = keeperKeys.shift(); const o = modelCache.get(old); modelCache.delete(old); if (o) disposeModel(o); }
     }
@@ -580,6 +580,24 @@ function showRoom(id) {
 function roomAfter(t) {
   if (clock && roomKey === 'home') { const pd = clock.getObjectByName('clockPend'), hd = clock.getObjectByName('clockHand'); if (pd) pd.rotation.z = Math.sin(t * 2.4) * (calm ? .05 : .22); if (hd) hd.rotation.z = -t * .2; }
   if (roomKey === 'home') animateHome(t);
+  syncFamily(V(), t);
+}
+// Her husband and children (TSV.family: [{id, spec, kid}], family.js) are at home in a row at the front of her room;
+// the children are smaller. TSV.famMood[id] says who is talking, waving or happy.
+const fam = [];
+function syncFamily(v, t) {
+  const list = roomKey === 'home' ? v.family || [] : [], key = list.map(f => f.id + JSON.stringify(f.spec)).join('|');
+  if (key !== fam.key) {
+    for (const f of fam.splice(0)) rooms.remove(f.obj);
+    fam.key = key;
+    list.forEach((f, i) => {
+      const obj = D.instance(model(f.spec)), s = RM.FAMILY_SPOTS[i] || RM.FAMILY_SPOTS[0];
+      if (f.kid) obj.scale.setScalar(.68);
+      obj.position.set(s[0], 0, s[1]); obj.rotation.y = s[2]; rooms.add(obj); fam.push({ id: f.id, obj });
+    });
+  }
+  const m = v.famMood || {};
+  for (const f of fam) { f.obj.userData.mood = m[f.id] || 'idle'; animCritter(f.obj, t); }
 }
 
 /* ------------------------------------------------------------------ decorating her house */

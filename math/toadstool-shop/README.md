@@ -55,6 +55,21 @@ The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down 
 
 Each job is two questions at her own level (the same strands as the shop), once per place per day, and pays 2 pennies plus the 1-penny first-try tip. The first job with a neighbour makes them a friend card. In the shops she can only spend what is above the 10 pennies she keeps for Bramble's cart, says "52 take away 4 leaves 48" after paying, and can always say "Not today". Every garden thing earns "Greenest Garden in the Wood"; every treasure earns "Treasure Hunter"; every home thing earns "Coziest House in the Wood". The save keeps `garden`, `treasures`, `home`, `homeTray` (bought but not out), `homeAt` (where each thing stands), `paper` (wallpaper) and `village` (today's jobs).
 
+## Her family (from day 5)
+
+She plays at families, a little like The Sims. From day 5 the morning asks whether she would like to make her family (or she taps "Make my family" in her house): she picks her husband's fur, scarf colour, glasses and name, then how many children (1 to 4), and each child's fur, clothes (a dress with a bow, a sailor collar, or a scarf), colour and name. They live in her house (the children smaller), and "My family ✏️" in the house changes them any time. The code is in `family.js`.
+
+Every day each child needs one thing. A bubble shows it over their picture in the house (and on the morning menu), and she taps the child to help:
+
+| Need | What she does | Math |
+| --- | --- | --- |
+| 🥞 Hungry | Breakfast for everyone at the table: "There are 5 of us. Everyone wants 2 pancakes." (5 strawberries or 10 blueberries each at higher levels). One breakfast feeds every hungry child. | Equal groups, skip counting |
+| 🛁 Bath | The bath holds 5, 10 or 20 cups of warm water; how many more cups fill it? | Partners of 5, 10 and 20 |
+| 🧸 Play | Two block towers (how many altogether), or 10 skittles with some knocked down | Adding (with the strategy help), taking from 10 |
+| 📖 Story | We are on page 6 and read 3 more; or, once her adding is strong, "We read 10 pages a night. Last night we stopped on page 34." | Counting on; 10 more from any number |
+
+Each child she looks after earns a heart. Hearts bring the children's drawings for the binder (8 of them), the first day every child is looked after earns the "Happy Family" card, and making the family earns "My Family". Once a day the family can **bake together** from a recipe card: a double batch (a double), then everyone eats one (taking away), and what is left goes on her shop shelf to sell (buns and tarts in the morning; after closing only biscuits, since they keep). The save keeps `family` (`papa`, `kids`, `hearts`, `drawings`, `today`, `happyDays`, `bakes`).
+
 ## The first days (onramp)
 
 The first trip through the shop is very easy on purpose. Every skill starts at level 1 (The Moonlit Map is not used to start higher), and the shop teaches one new thing a day:

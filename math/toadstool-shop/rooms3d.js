@@ -13,6 +13,8 @@ export const ROOM_SPOTS = {
   oak: { keeper: [-2.3, 0, .9, .55], cust: [1.9, 0, .4, -.6] },
   home: { keeper: [-3.5, 0, 2.8, .5], cust: [2.4, 0, .5, -.6] },
 };
+// her family at home (family.js): Papa next to her, then the children along the front, [x, z, yaw]
+export const FAMILY_SPOTS = [[-2.1, 3.0, .35], [-.6, 3.35, .15], [.6, 3.45, 0], [1.8, 3.35, -.15], [3.0, 3.05, -.35]];
 // in her house the camera stands back to show the whole room, so she can see where everything goes
 export const DECO_CAM = { pos: [0, 7.5, 18], look: [0, 1.4, -1.0], span: 15, minSpan: 11.5, minH: 7.4, lowY: -.2, focus: [0, 1.3, -1.5], r: 8.5 };
 export const ROOM_CAM = { pos: [0, 4.3, 15], look: [0, 1.9, -2.2], span: 11, minSpan: 7.6, minH: 4.4, lowY: -.4, focus: [0, 1.3, -2], r: 7 };
@@ -347,7 +349,7 @@ export const HOME_SPOTS = {
 // tops that small things can sit on: the table (with its cloth) and the bed
 const SURFACES = [{ x: 2.6, z: -2.4, w: 1.9, d: 1.3, ry: 0, y: 1.1 }, { x: -3.7, z: -3.5, w: 2.0, d: 2.4, ry: .7, y: .8 }];
 // the furniture that is always there, as circles on the floor, so new things land in a free spot
-const FIXED = [[2.1, -6.3, 1.5], [-2.3, -5.85, 1.2], [-3.7, -3.5, 1.9], [2.6, -2.4, 1.2], [3.9, -2.2, .6], [-3.5, 2.8, 1.0]];
+const FIXED = [[2.1, -6.3, 1.5], [-2.3, -5.85, 1.2], [-3.7, -3.5, 1.9], [2.6, -2.4, 1.2], [3.9, -2.2, .6], [-3.5, 2.8, 1.0], [-2.1, 3.0, .7], [.6, 3.4, 1.5], [3.0, 3.05, .6]];
 // (only the back of the wall: further round, the camera sees the wall from outside)
 export const WALL_A = [PI - 1.7, PI + 1.7], WALL_Y = [2.3, 4.9];
 export function surfaceAt(x, z, r = 0) {
