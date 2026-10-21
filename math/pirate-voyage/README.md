@@ -13,7 +13,7 @@ A touch-first math voyage for iPad Safari. The player captains a ship around six
 
 **No-fail feedback:** a wrong answer fades that choice, shows a visual clue (ten-frames, crossed-out animals, labelled gold bars, the scale tipping), and Pip the sea fairy explains it aloud. After two misses the right answer gently pulses.
 
-**Adaptive:** per skill, two right-first-time answers in a row move up a level; two shaky questions in a row move down. Grown-ups can see levels and accuracy behind the ⚙️ button.
+**Adaptive:** per skill, two right-first-time answers in a row move up a level; two shaky questions in a row move down. Once a day each skill also checks the shared skills chart (`shared/skills.js`, every game together): skills at her level mastered anywhere move it up a level, struggling with them moves it down one. Grown-ups can see levels and accuracy behind the ⚙️ button.
 
 **Read-aloud:** every prompt is spoken with the browser's speech voice (tap 🔊 to repeat), so reading ability doesn't gate the math.
 

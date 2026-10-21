@@ -245,5 +245,66 @@
     return was.length;
   }
 
-  G.GFKSkills = { KEY, SKILLS, LIST: LIST.map(r => r[0]), STRANDS, log, read, merge, status, summary, importOld, KINDS, BOARD, FAIRY, GEMLING, add, sub, times, count, compare, tens };
+  /* ---------------- fitting each game to her ---------------- */
+  // Gabe (2026-10-20) wanted every math game to get harder as she gets better, from what she does in all of them, not
+  // just in that game. Each game keeps its own up-and-down rules while she plays; once a day it also asks the chart:
+  //   known(codes)  every one mastered (quick too, for the fluency skills): she is ready for more
+  //   shaky(codes)  struggling with one: 6 or more recent tries and under half right first time
+  // "Right, but slow", "check again" and still learning are neither, so the game leaves her where she is.
+  // Moves are kept in localStorage["gfk-adapt"] = {v:1, d:{key: date it last asked}, m:[[t, game, what, from, to, why], ...]}
+  // so the grown-ups' chart can list them.
+  const ADAPT = 'gfk-adapt';
+  const codesOf = c => [].concat(c || []).filter(x => SKILLS[x]);
+  // o.notGame: leave out one game's tries; o.since: only tries after this time (seconds)
+  function only(d, o) {
+    if (!o || (!o.notGame && !o.since)) return d;
+    const out = { v: 1, s: {} };
+    for (const c in d.s) { const e = (d.s[c].e || []).filter(r => (!o.notGame || r[3] !== String(o.notGame).slice(0, 12)) && (!o.since || r[0] > o.since)); out.s[c] = { n: e.length, e }; }
+    return out;
+  }
+  function known(codes, d, o) { d = only(d || read(), o); codes = codesOf(codes); return codes.length > 0 && codes.every(c => status(c, d).state === 'mastered'); }
+  function shaky(codes, d) { d = d || read(); return codesOf(codes).some(c => { const s = status(c, d); return s.recent >= 6 && s.acc < 0.5; }); }
+  function readAdapt() { try { const a = JSON.parse(localStorage.getItem(ADAPT)); if (a && a.d && a.m) { a.at = a.at || {}; return a; } } catch (e) {} return { v: 1, d: {}, m: [], at: {} }; }
+  function noteMove(A, game, what, from, to, why) {
+    A.m.push([Date.now(), String(game || ''), String(what || ''), from, to, why]);
+    if (A.m.length > 40) A.m.splice(0, A.m.length - 40);
+  }
+  // once(key): true the first time it is asked today (a game's daily check), false after
+  function once(key) {
+    const A = readAdapt(), today = new Date().toDateString();
+    if (A.d[key] === today) return false;
+    A.d[key] = today; try { localStorage.setItem(ADAPT, JSON.stringify(A)); } catch (e) {}
+    return true;
+  }
+  // note(game, what, from, to, why): a game that adapts in its own way records the move for the grown-ups
+  function note(game, what, from, to, why) { const A = readAdapt(); noteMove(A, game, what, from, to, why); try { localStorage.setItem(ADAPT, JSON.stringify(A)); } catch (e) {} }
+  // place(key, levels, cur, {min, max, game, name}): the level a game should use today for one of its skills.
+  //   levels[L] = the code(s) level L practises.
+  //   Struggling with her level's skills: one level easier. Her level's skills mastered: one level harder, and a second
+  //   step when the next level practises different skills and she has mastered those too. Asked once a day per key;
+  //   later calls that day return cur unchanged.
+  //   When her level practises the same skill as the level below (equal groups at every level, say), mastery from the
+  //   easier level proves nothing about this one, so it only counts tries since she has been at this level
+  //   (A.at[key] = [level, seconds when the chart first saw her there], whoever moved her).
+  function place(key, levels, cur, o) {
+    o = o || {};
+    const min = o.min || 1, max = o.max || Math.max(...Object.keys(levels).map(Number)), at = L => codesOf(levels[L]);
+    if (!once(key)) return cur;
+    const d = read(), A = readAdapt(), now = Math.round(Date.now() / 1000);
+    if (!A.at[key] || A.at[key][0] !== cur) A.at[key] = [cur, now];
+    const fresh = L => at(L).join() !== at(L - 1).join();
+    const ready = L => known(at(L), d, fresh(L) ? null : { since: L === cur ? A.at[key][1] : now });
+    let lv = cur, why = '';
+    if (lv > min && shaky(at(lv), d)) { lv--; why = 'shaky'; }
+    else if (lv < max && ready(lv)) {
+      lv++; why = 'mastered';
+      if (lv < max && fresh(lv) && ready(lv)) lv++;
+    }
+    if (lv !== cur) { noteMove(A, o.game, o.name || key, cur, lv, why); A.at[key] = [lv, now]; }
+    try { localStorage.setItem(ADAPT, JSON.stringify(A)); } catch (e) {}
+    return lv;
+  }
+  const moves = () => readAdapt().m.slice();
+
+  G.GFKSkills = { KEY, ADAPT, SKILLS, LIST: LIST.map(r => r[0]), STRANDS, log, read, merge, status, summary, importOld, KINDS, BOARD, FAIRY, GEMLING, add, sub, times, count, compare, tens, known, shaky, once, note, place, moves };
 })(window);

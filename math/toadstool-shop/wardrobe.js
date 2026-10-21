@@ -19,7 +19,7 @@
     ['apron', 'My apron'],
   ];
   // acc: the accessory name the renderers draw; print: the dress fabric; they: said as "some ..." / "them"; css: tints the emoji. The first cost-free item of a slot is
-  // what a new shopkeeper wears. Slots that may be empty (none: true) can be taken off with a second tap.
+  // what a new shopkeeper wears. Things marked none: true come off with a second tap (everything but the dress).
   const CLOTHES = [
     { id: 'flowers', slot: 'print', name: 'Flowery dress', emoji: '🌼', cost: 0, print: 'flowers' },
     { id: 'plain', slot: 'print', name: 'Plain dress', emoji: '👗', cost: 0, print: 'plain' },
@@ -29,14 +29,14 @@
     { id: 'hearts', slot: 'print', name: 'Heart dress', emoji: '💗', cost: 17, print: 'hearts' },
     { id: 'stars', slot: 'print', name: 'Starry dress', emoji: '⭐', cost: 22, print: 'stars' },
 
-    { id: 'bow', slot: 'head', name: 'White bow', emoji: '🎀', css: 'filter:grayscale(1) brightness(1.45)', cost: 0, acc: 'bow', bowColor: '#ffffff' },
-    { id: 'bow-pink', slot: 'head', name: 'Pink bow', emoji: '🎀', cost: 4, acc: 'bow', bowColor: '#f58fb1' },
-    { id: 'bow-blue', slot: 'head', name: 'Blue bow', emoji: '🎀', css: 'filter:hue-rotate(200deg)', cost: 4, acc: 'bow', bowColor: '#7bb4e8' },
-    { id: 'sunhat', slot: 'head', name: 'Straw sun hat', emoji: '👒', cost: 9, acc: 'sunhat' },
-    { id: 'flowercrown', slot: 'head', name: 'Flower crown', emoji: '🌸', cost: 12, acc: 'flowercrown' },
-    { id: 'tiara', slot: 'head', name: 'Sparkly tiara', emoji: '👑', cost: 25, acc: 'tiara' },
-    { id: 'tricorn', slot: 'head', name: 'Pirate hat', emoji: '🏴‍☠️', gift: 'captain', acc: 'tricorn' },
-    { id: 'leaves', slot: 'head', name: 'Laurel wreath', emoji: '🌿', gift: 'athena', acc: 'leaves' },
+    { id: 'bow', slot: 'head', name: 'White bow', emoji: '🎀', css: 'filter:grayscale(1) brightness(1.45)', cost: 0, acc: 'bow', bowColor: '#ffffff', none: true },
+    { id: 'bow-pink', slot: 'head', name: 'Pink bow', emoji: '🎀', cost: 4, acc: 'bow', bowColor: '#f58fb1', none: true },
+    { id: 'bow-blue', slot: 'head', name: 'Blue bow', emoji: '🎀', css: 'filter:hue-rotate(200deg)', cost: 4, acc: 'bow', bowColor: '#7bb4e8', none: true },
+    { id: 'sunhat', slot: 'head', name: 'Straw sun hat', emoji: '👒', cost: 9, acc: 'sunhat', none: true },
+    { id: 'flowercrown', slot: 'head', name: 'Flower crown', emoji: '🌸', cost: 12, acc: 'flowercrown', none: true },
+    { id: 'tiara', slot: 'head', name: 'Sparkly tiara', emoji: '👑', cost: 25, acc: 'tiara', none: true },
+    { id: 'tricorn', slot: 'head', name: 'Pirate hat', emoji: '🏴‍☠️', gift: 'captain', acc: 'tricorn', none: true },
+    { id: 'leaves', slot: 'head', name: 'Laurel wreath', emoji: '🌿', gift: 'athena', acc: 'leaves', none: true },
 
     { id: 'scarf', slot: 'neck', name: 'Knitted scarf', emoji: '🧣', cost: 6, acc: 'scarf', none: true },
     { id: 'pearls', slot: 'neck', name: 'Pearl necklace', emoji: '📿', cost: 16, acc: 'pearls', none: true },

@@ -2256,10 +2256,17 @@ function superExpress() {
   const mo = S.masteredOrder.slice(-3);
   return mo.length === 3 && mo.every(id => S.skills[id].express) && recentRate() >= 0.92;
 }
+// The shared skills chart (shared/skills.js, every game together): a skill she has already mastered there needs just one
+// first-try lantern here, and while she is struggling with the skill at her frontier the night leans on what she knows.
+const chartCode = id => window.GFKSkills && GFKSkills.FAIRY ? GFKSkills.FAIRY[id] : null;
+// (only tries from the other games count: many festival skills share one code, so its own lanterns would vouch for the next one)
+function knownOnChart(id) { const c = chartCode(id); return !!(c && GFKSkills.known(c, null, { notGame: 'fairy-lantern' })); }
+function shakyOnChart() { return ['core', 'garland'].map(frontierOf).some(id => { const c = id && chartCode(id); return !!(c && GFKSkills.shaky(c)); }); }
 function pStretch() {
   const r = recentRate();
   let p = r < 0.7 ? 0.15 : r <= 0.92 ? 0.30 : 0.40;
   if (momentum()) p = 0.9; // express momentum: keep a child who knows it all moving quickly
+  else if (shakyOnChart()) p = 0.15;
   return p;
 }
 function recentSkills() {
@@ -2367,6 +2374,7 @@ function recordResult(cur, firstTry) {
       r.streak++; r.missStreak = 0;
       if (r.fAttempts === 2 && r.fFirst === 2) masterSkill(id, true);
       else if (r.fAttempts === 1 && superExpress()) masterSkill(id, true);
+      else if (r.fAttempts === 1 && !r.relearn && knownOnChart(id)) { masterSkill(id, true); GFKSkills.note('fairy-lantern', SK[id].name, 'learning', 'got it', 'mastered'); }
       else if (r.streak >= (r.relearn ? 2 : 3)) masterSkill(id, false);
     } else {
       r.streak = 0; r.missStreak++;
@@ -4104,6 +4112,7 @@ function showGrown() {
   <div class="callout"><b>Working on now:</b> ${fc ? SK[fc].name : 'Core track complete'}${fg ? ` &nbsp;·&nbsp; ${SK[fg].name}` : (garlandOpen() ? ' · Garland track complete' : ' · Garland track opens after teen numbers')}</div>
   <h3>Skill ladder</h3>
   <p class="note">Dots show the picture-to-numeral stage: 1 = dots and auto-counting, 2 = numerals with dots, 3 = numerals only.</p>
+  <p class="note">The festival also follows the shared math skills chart (every game together): a skill she has already mastered in the other games is checked with one first-try lantern instead of a few, and while she is struggling with the skill she is learning, nights lean on lanterns she already knows.</p>
   <b>Core track</b><div class="chips">${CORE.map(chip).join('')}</div>
   <b style="display:block;margin-top:10px">Garland track (tens and ones)</b><div class="chips">${GARL.map(chip).join('')}</div>
   <h3>Today and the last 7 days</h3>
