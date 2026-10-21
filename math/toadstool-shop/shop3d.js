@@ -580,7 +580,7 @@ function showRoom(id) {
 }
 function roomAfter(t) {
   if (clock && roomKey === 'home') { const pd = clock.getObjectByName('clockPend'), hd = clock.getObjectByName('clockHand'); if (pd) pd.rotation.z = Math.sin(t * 2.4) * (calm ? .05 : .22); if (hd) hd.rotation.z = -t * .2; }
-  if (roomKey === 'home') animateHome(t);
+  if (myRoom()) animateHome(t);
   syncFamily(V(), t);
 }
 // Her husband and children (TSV.family: [{id, spec, kid}], family.js) are at home in a row at the front of her room;
@@ -605,7 +605,10 @@ function syncFamily(v, t) {
 // The game keeps what she owns (TSV.home), what waits in the tray (TSV.homeTray), where each thing stands
 // (TSV.homeAt: {id: spot}, see rooms3d.js) and the wallpaper (TSV.paper). While TSV.decorate is on she can drag
 // things about, tap one to turn it, or drag it down onto the tray (below TSV.bottom) to put it away;
-// each of those is reported to TSV.onHome({type, id, at}), and the game saves it.
+// each of those is reported to TSV.onHome({type, id, at}), and the game saves it. Things can stand in any room of her
+// house: a spot with room: 'bath' (say) is in that room, no room is the living room.
+const roomOf = at => (at && at.room) || 'home';
+const myRoom = () => RM.FAMILY_ROOMS.includes(roomKey);
 let paperKey = '', hdrag = null;
 function syncHome(v) {
   const g = roomGroups.home, tray = v.homeTray || [], at = v.homeAt || {};
@@ -618,7 +621,9 @@ function syncHome(v) {
     const make = RM.HOME_MODELS[id]; if (!make) continue; // wallpapers are in the list too
     let o = owned.home[id];
     if (!o) { o = make(); D.freeze(o); o.userData.homeId = id; o.visible = false; g.add(o); collectGlows(o); setGlowOne(o); owned.home[id] = o; if (id === 'clock') clock = o; }
-    const show = !tray.includes(id);
+    const rg = roomGroups[roomOf(at[id])]; // a room she has not been into yet is built when she goes in
+    if (rg && o.parent !== rg && !(hdrag && hdrag.o === o)) { rg.add(o); o.userData.spot = undefined; }
+    const show = !tray.includes(id) && !!rg;
     if (hdrag && hdrag.o === o) continue;
     const key = JSON.stringify(at[id] || null);
     if (show && (!o.visible || o.userData.spot !== key)) {
@@ -648,20 +653,22 @@ function wallHit(r) {
   let ang = Math.atan2(p.x, p.z); if (ang < 0) ang += TAU;
   return RM.clampWall(ang, p.y);
 }
-function homeHit(e, list = Object.values(owned.home).filter(o => o.visible)) {
+const homeHere = () => Object.values(owned.home).filter(o => o.visible && o.parent === roomGroups[roomKey]);
+function homeHit(e, list = homeHere()) {
   rayAt(e); const h = ray.intersectObjects(list, true)[0]; if (!h) return null;
   let o = h.object; while (o && !o.userData.homeId) o = o.parent; return o || null;
 }
 function homeEv(ev) { const f = V().onHome; if (typeof f === 'function') try { f(ev); } catch (e) { console.warn(e); } }
 canvas.addEventListener('pointerdown', e => {
-  const v = V(); if (hdrag || !v.decorate || sceneOf(v) !== 'room' || roomKey !== 'home') return;
-  const list = Object.values(owned.home).filter(o => o.visible);
+  const v = V(); if (hdrag || !v.decorate || sceneOf(v) !== 'room' || !myRoom()) return;
+  const list = homeHere();
   const o = homeHit(e, list); if (!o) return;
   const id = o.userData.homeId, kind = (RM.HOME_KIND[id] || {}).at || 'floor';
   const fh = ray.ray.intersectPlane(floorPl, hp) ? hp.clone() : o.position.clone();
-  hdrag = { o, id, kind, pid: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, over: false, off: [o.position.x - fh.x, o.position.z - fh.z], at: JSON.parse(o.userData.spot || 'null') || { ...(RM.HOME_SPOTS[id] || {}) } };
+  hdrag = { o, id, kind, pid: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, over: false, off: [o.position.x - fh.x, o.position.z - fh.z], at: JSON.parse(o.userData.spot || 'null') || { ...(RM.HOME_SPOTS[id] || {}) }, room: roomKey === 'home' ? null : roomKey };
   if (o.userData.drop != null) { o.userData.drop = null; o.position.y = o.userData.baseY; } // still falling in: land it now
   if (o.userData.spin) { o.rotation.y = o.userData.spin.to; o.userData.spin = null; }
+  if (hdrag.room && kind !== 'bed') hdrag.at.room = hdrag.room;
   hdrag.up = kind === 'small' && o.position.y > .5; // on the table or bed: the floor offset is worked out when it steps off
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
 });
@@ -672,14 +679,14 @@ canvas.addEventListener('pointermove', e => {
   const v = V(), over = e.clientY > (v.bottom || H) - 6;
   if (over !== d.over) { d.over = over; homeEv({ type: 'over', id: d.id, on: over }); }
   const r = rayAt(e), o = d.o, k = RM.HOME_KIND[d.id] || { r: .5 };
-  if (d.kind === 'wall') { const w = wallHit(r); if (w) { d.at = { a: +w[0].toFixed(3), y: +w[1].toFixed(2) }; RM.placeHome(d.id, o, d.at); o.translateZ(.15); } return; }
+  if (d.kind === 'wall') { const w = wallHit(r); if (w) { d.at = { a: +w[0].toFixed(3), y: +w[1].toFixed(2), ...(d.room ? { room: d.room } : {}) }; RM.placeHome(d.id, o, d.at); o.translateZ(.15); } return; }
   if (d.kind === 'bed') return;
   let x, z, y = 0;
   if (d.kind === 'small') { // over the table or the bed it hops up on top
-    for (const s of [1.1, .8]) { const pl = new THREE.Plane(new THREE.Vector3(0, 1, 0), -s); if (r.intersectPlane(pl, hp) && RM.surfaceAt(hp.x, hp.z, k.r) === s) { x = hp.x; z = hp.z; y = s; d.up = true; break; } }
+    for (const s of [1.1, .8]) { const pl = new THREE.Plane(new THREE.Vector3(0, 1, 0), -s); if (r.intersectPlane(pl, hp) && RM.surfaceAt(hp.x, hp.z, k.r, roomKey) === s) { x = hp.x; z = hp.z; y = s; d.up = true; break; } }
   }
   if (x === undefined) { if (!r.intersectPlane(floorPl, hp)) return; if (d.up) { d.up = false; d.off = [o.position.x - hp.x, o.position.z - hp.z]; } x = hp.x + d.off[0]; z = hp.z + d.off[1]; [x, z] = RM.clampFloor(x, z, k.r); }
-  d.at = { x: +x.toFixed(2), z: +z.toFixed(2), r: +o.rotation.y.toFixed(3) };
+  d.at = { x: +x.toFixed(2), z: +z.toFixed(2), r: +o.rotation.y.toFixed(3), ...(d.room ? { room: d.room } : {}) };
   o.position.set(x, (d.kind === 'flat' ? .012 : y) + (over ? 0 : .3), z);
 });
 function endHomeDrag(e) {
@@ -808,7 +815,7 @@ G.Shop3D = {
   treasure: id => bake('t:' + id, VL.TREASURE_MODELS[id] || (() => new THREE.Group()), { yaw: .3, pitch: .3, pad: 1.15 }),
   home: id => bake('h:' + id, () => RM.HOME_THUMB(id), { yaw: .35, pitch: .3, pad: 1.12, ...(HOME_VIEW[id] || (id.startsWith('wp-') ? { yaw: 0, pitch: .05 } : {})) }),
   // a free spot in her house for something taken out of the tray (taken: {id: spot} of what is already in the room)
-  homeSpot: (id, taken) => RM.freeSpot(id, taken),
+  homeSpot: (id, taken, room) => RM.freeSpot(id, taken, room),
 };
 G.__ts3d = { homeHit: (x, y) => (homeHit({ clientX: x, clientY: y }) || {}).userData?.homeId, get hdrag() { return hdrag && hdrag.id; }, R, scene, cam, bakeLog, stats, actors, settle, get dpr() { return dpr; }, CAMS, SPOTS, D, bakeObj, makeModel };
 if (G.__ts && G.__ts.on3d) G.__ts.on3d();

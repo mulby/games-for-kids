@@ -2189,27 +2189,36 @@ const TREASURES = [
 ];
 const HOME = [
   { id: 'stool', name: 'Toadstool stool', cost: 2, emoji: '🍄' },
+  { id: 'duck', name: 'Rubber duck', cost: 2, emoji: '🦆' },
   { id: 'candle', name: 'Candlestick', cost: 2, emoji: '🕯️' },
   { id: 'teddy', name: 'Teddy bear', cost: 3, emoji: '🧸' },
   { id: 'vase', name: 'Flower vase', cost: 3, emoji: '💐' },
   { id: 'bunting', name: 'Bunting', cost: 3, emoji: '🎏' },
+  { id: 'bathmat', name: 'Fluffy bath mat', cost: 3, emoji: '🟩' },
   { id: 'plant', name: 'Pot plant', cost: 3, emoji: '🪴' },
   { id: 'teaset', name: 'Tea set', cost: 4, emoji: '🫖' },
   { id: 'rug', name: 'Stripy rug', cost: 4, emoji: '🧶' },
+  { id: 'towels', name: 'Towel stand', cost: 4, emoji: '🧺' },
   { id: 'painting', name: 'Meadow painting', cost: 5, emoji: '🖼️' },
   { id: 'sea', name: 'Sailboat painting', cost: 5, emoji: '⛵' },
+  { id: 'sink', name: 'Little sink', cost: 5, emoji: '🚰' },
   { id: 'wp-stripes', name: 'Stripy wallpaper', cost: 5, emoji: '🎨', paper: true },
   { id: 'catbed', name: 'Cat basket', cost: 5, emoji: '🐱' },
   { id: 'armchair', name: 'Cozy armchair', cost: 6, emoji: '🛋️' },
   { id: 'mirror', name: 'Round mirror', cost: 6, emoji: '🪞' },
+  { id: 'shellmirror', name: 'Seashell mirror', cost: 6, emoji: '🐚' },
+  { id: 'toilet', name: 'Toilet', cost: 6, emoji: '🚽' },
   { id: 'wp-flowers', name: 'Flower wallpaper', cost: 6, emoji: '🌸', paper: true },
   { id: 'chest', name: 'Toy chest', cost: 7, emoji: '🎁' },
   { id: 'wp-stars', name: 'Starry wallpaper', cost: 7, emoji: '⭐', paper: true },
   { id: 'lamp', name: 'Reading lamp', cost: 8, emoji: '💡' },
   { id: 'wp-hearts', name: 'Heart wallpaper', cost: 8, emoji: '💗', paper: true },
   { id: 'bookcase', name: 'Bookcase', cost: 9, emoji: '📚' },
+  { id: 'vanity', name: 'Vanity with a basin', cost: 9, emoji: '🪥' },
   { id: 'clock', name: 'Tall clock', cost: 10, emoji: '🕰️' },
+  { id: 'crib', name: 'Baby crib', cost: 11, emoji: '🍼' },
   { id: 'dollhouse', name: 'Tiny dollhouse', cost: 12, emoji: '🏡' },
+  { id: 'bathtub', name: 'Bubble bath tub', cost: 12, emoji: '🛁' },
   { id: 'piano', name: 'Little piano', cost: 14, emoji: '🎹' },
   { id: 'canopy', name: 'Bed canopy', cost: 15, emoji: '🛏️' },
 ];
@@ -2296,7 +2305,8 @@ async function leaveRoom(id) {
 }
 // her own house: she decorates it with what she has bought (the tray holds what isn't out), and keeps her wardrobe there
 const homeThings = () => S.home.filter(id => !id.startsWith('wp-'));
-function homeTaken() { const t = {}; for (const id of homeThings()) if (!S.homeTray.includes(id)) t[id] = S.homeAt[id] || null; return t; }
+// what is out in one room of her house (a spot with no room is in the living room)
+function homeTaken(room = 'home') { const t = {}; for (const id of homeThings()) if (!S.homeTray.includes(id) && ((S.homeAt[id] || {}).room || 'home') === room) t[id] = S.homeAt[id] || null; return t; }
 async function houseVisit() {
   SFX.door(); setScene('room', { room: 'home', time: 'day', cam: 'decorate' }); TSV.place = 'house'; TSV.cust = null;
   await wait(has3d() ? 700 : 100);
@@ -2305,7 +2315,9 @@ async function houseVisit() {
     await talk('keeper', 'This is my very own house! It is cozy, but it is a bit empty.', 'Next');
     await talk('keeper', "Tansy sells lovely things for houses. I can buy them with the money I earn!", 'OK!');
   }
-  let walls = false, placed = 0, busyNow = false;
+  // With a family the panel is full of children and rooms, so moving things is its own mode that gives the room the screen
+  // (Ginny, 2026-10-20: "I can't move the furniture"). Without a family the house is always ready to decorate.
+  let walls = false, placed = 0, busyNow = false, deco = !Family.has();
   await new Promise(res => {
     const n = S.home.length, left = HOME.length - n;
     const hello = () => Family.has() && Family.waiting().length ? say('keeper', Family.waiting().length === Family.kids().length ? 'My family is home! Tap a child to see what they need.' : 'Tap a child to see what they need.') :
@@ -2313,8 +2325,23 @@ async function houseVisit() {
     hello();
     DBG.cur = { type: 'house' };
     const item = id => id === 'wp-rose' ? ROSE_PAPER : HOME.find(x => x.id === id);
+    // things can be moved about in every room of her house (with a family, while she is moving things)
+    const decorating = () => { TSV.decorate = deco; document.body.classList.toggle('decorating', deco); };
+    // the tray: tap a new thing to put it in the room (or, without 3D, a thing that is out to put it away)
+    const bindTray = p => {
+      $$('[data-t]', p).forEach(b => b.addEventListener('click', () => {
+        const here = TSV.room || 'home', spot = window.Shop3D && Shop3D.homeSpot ? Shop3D.homeSpot(b.dataset.t, homeTaken(here), here) : null, id = b.dataset.t;
+        S.homeTray = S.homeTray.filter(x => x !== id);
+        if (spot) S.homeAt[id] = spot; else delete S.homeAt[id];
+        save(); syncView(); SFX.ok(); mood('keeper', 'happy', 1500); placed++;
+        if (has3d() && coachOnce('dragtip')) say('keeper', 'Drag things to move them. Tap one to turn it around. Drag it down to the tray to put it away.');
+        else say('keeper', `My ${item(id).name.toLowerCase()} is in my house!`);
+        draw();
+      }));
+      $$('[data-o]', p).forEach(b => b.addEventListener('click', () => TSV.onHome({ type: 'away', id: b.dataset.o })));
+    };
     const draw = () => {
-      DBG.cur = { type: walls ? 'walls' : 'house' };
+      DBG.cur = { type: walls ? 'walls' : deco ? 'decorate' : 'house' };
       if (walls) {
         const list = [ROSE_PAPER].concat(HOME.filter(it => it.paper && S.home.includes(it.id)));
         setPanel(`<div class="decor">${list.map(it => `<button data-w="${it.id}" class="${'wp-' + S.paper === it.id ? 'on' : ''}">${itemImg('home', it)}<span>${it.name}</span></button>`).join('')}</div>
@@ -2327,11 +2354,21 @@ async function houseVisit() {
       const tray = S.homeTray.filter(id => item(id)), papers = S.home.some(id => id.startsWith('wp-'));
       const out = has3d() ? [] : homeThings().filter(id => !S.homeTray.includes(id) && item(id)); // without 3D, what's out shows here too
       const fam = Family.has(), baked = fam && Family.bakedToday(), here = TSV.room || 'home', inHome = here === 'home';
+      if (!fam) deco = true;
+      const trayEl = `<div class="htray" id="htray">${tray.length || out.length ? tray.map(id => `<button data-t="${id}">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') + out.map(id => `<button data-o="${id}" class="own">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') : `<span class="small">${homeThings().length ? 'Drag things down here to put them away.' : "Things I buy from Tansy will wait here."}</span>`}</div>`;
+      if (fam && deco) {
+        // moving things: just the tray and a Done button, so the room is big enough to grab things
+        setPanel(`${trayEl}<div class="row">${papers && inHome ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn" id="ddone">All done ✓</button></div>`, p => {
+          bindTray(p);
+          $('#ddone', p).addEventListener('click', () => { SFX.tap(); deco = false; decorating(); hello(); draw(); });
+        });
+        return;
+      }
       setPanel(`
         ${fam ? Family.row() : ''}
         ${Family.roomBar(here)}
-        <div class="htray" id="htray" ${inHome ? '' : 'hidden'}>${tray.length || out.length ? tray.map(id => `<button data-t="${id}">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') + out.map(id => `<button data-o="${id}" class="own">${itemImg('home', item(id))}<span>${item(id).name}</span></button>`).join('') : `<span class="small">${homeThings().length ? 'Drag things down here to put them away.' : "Things I buy from Tansy will wait here."}</span>`}</div>
-        <div class="row">${fam ? `<button class="btn alt" id="bake" ${baked ? 'disabled' : ''}>${baked ? 'We baked today ✓' : 'Bake together 🥣'}</button>` : `<button class="btn" id="fam">Make my family 👪</button>`}${papers && inHome ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button>${fam ? '<button class="btn alt" id="fam">My family ✏️</button>' : ''}<button class="btn alt" id="bye">Go outside</button></div>`, p => {
+        ${fam ? '' : trayEl}
+        <div class="row">${fam ? `<button class="btn" id="move">${tray.length ? `Decorate! ${tray.length} new 🪑` : 'Move my things 🪑'}</button>` : ''}${fam ? `<button class="btn alt" id="bake" ${baked ? 'disabled' : ''}>${baked ? 'We baked today ✓' : 'Bake together 🥣'}</button>` : `<button class="btn" id="fam">Make my family 👪</button>`}${papers && inHome && !fam ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn alt" id="dress">My clothes 👗</button>${fam ? '<button class="btn alt" id="fam">My family ✏️</button>' : ''}<button class="btn alt" id="bye">Go outside</button></div>`, p => {
         // looking after the family takes over the panel for a while, then the house comes back
         const busy = async fn => {
           if (busyNow) return; busyNow = true; setPanel(''); // no second tap while it starts
@@ -2339,8 +2376,11 @@ async function houseVisit() {
           try { await fn(); } catch (e) { console.warn(e); }
           busyNow = false; decorating(); hello(); rerender = draw; draw();
         };
-        // things can be moved about in the living room; the other rooms are built already furnished
-        const decorating = () => { const on = (TSV.room || 'home') === 'home'; TSV.decorate = on; document.body.classList.toggle('decorating', on); };
+        if ($('#move', p)) $('#move', p).addEventListener('click', () => {
+          SFX.tap(); deco = true; decorating();
+          say('keeper', S.homeTray.length ? 'Tap a new thing to put it in my house. Drag things to move them!' : 'Drag things to move them. Tap one to turn it around!');
+          draw();
+        });
         $$('[data-room]', p).forEach(b => b.addEventListener('click', () => {
           const id = b.dataset.room; if (id === (TSV.room || 'home')) return;
           SFX.door(); Family.goRoom(id); decorating(); say('keeper', id === 'home' ? 'Back in my living room.' : `My ${Family.ROOMS[id].name.toLowerCase()}!`); draw();
@@ -2349,16 +2389,7 @@ async function houseVisit() {
         $$('[data-kid]', p).forEach(b => b.addEventListener('click', () => { SFX.tap(); busy(() => Family.care(+b.dataset.kid)); }));
         if ($('#bake', p)) $('#bake', p).addEventListener('click', () => { if (Family.bakedToday()) return; SFX.tap(); busy(() => Family.bake()); });
         $('#fam', p).addEventListener('click', () => { SFX.tap(); busy(() => Family.make()); });
-        $$('[data-t]', p).forEach(b => b.addEventListener('click', () => {
-          const id = b.dataset.t, spot = window.Shop3D && Shop3D.homeSpot ? Shop3D.homeSpot(id, homeTaken()) : null;
-          S.homeTray = S.homeTray.filter(x => x !== id);
-          if (spot) S.homeAt[id] = spot; else delete S.homeAt[id];
-          save(); syncView(); SFX.ok(); mood('keeper', 'happy', 1500); placed++;
-          if (has3d() && coachOnce('dragtip')) say('keeper', 'Drag things to move them. Tap one to turn it around. Drag it down to the tray to put it away.');
-          else say('keeper', `My ${item(id).name.toLowerCase()} is in my house!`);
-          draw();
-        }));
-        $$('[data-o]', p).forEach(b => b.addEventListener('click', () => TSV.onHome({ type: 'away', id: b.dataset.o })));
+        bindTray(p);
         if ($('#walls', p)) $('#walls', p).addEventListener('click', () => { SFX.tap(); walls = true; say('keeper', 'Which wallpaper shall I have?'); draw(); });
         $('#dress', p).addEventListener('click', () => { SFX.tap(); openWardrobe(); });
         $('#bye', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
@@ -2377,7 +2408,7 @@ async function houseVisit() {
         delete S.homeAt[ev.id]; save(); syncView(); SFX.soft(); say('keeper', `My ${it.name.toLowerCase()} is back in the tray.`); draw();
       } else if (ev.type === 'tap') { SFX.tap(); mood('keeper', 'happy', 1500); say('keeper', `I love my ${it.name.toLowerCase()}!`); }
     };
-    TSV.decorate = true; document.body.classList.add('decorating'); // one-finger drags move things instead of panning
+    decorating(); // one-finger drags move things instead of panning
     rerender = draw; draw();
   });
   TSV.decorate = false; TSV.onHome = null; document.body.classList.remove('decorating');
