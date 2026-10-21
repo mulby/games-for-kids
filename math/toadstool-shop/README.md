@@ -44,10 +44,10 @@ The village is busy: Mo, Wilf, Great-Aunt Clover and Bramble stroll up and down 
 
 | Place | Who | What she does | Math |
 | --- | --- | --- | --- |
-| The burrow | Mrs. Bunbury | Count carrots planted in rows | Equal groups, skip counting |
-| The oak library | Old Hoot | Count books in stacks of ten | Tens and ones |
+| The burrow | Mrs. Bunbury | Count carrots planted in rows, then share out a pie fairly | Equal groups, skip counting, fair shares |
+| The oak library | Old Hoot | Count books in stacks of ten (then boxes of 100) | Tens and ones, hundreds |
 | The fairy ring | Fern the fairy | How many more lanterns to light | How many more |
-| The duck pond | Captain Whiskers | Count the coins in his chest | Counting coins |
+| The duck pond | Captain Whiskers | Count the coins in his chest (then a two-step treasure story) | Counting coins, two-step problems |
 | Dot's flower stall | Dot | Buy garden things that appear outside her shop (daisies 4¢ up to a fairy house 20¢) | Paying, change, taking away |
 | Miu's treasure stall | Miu | Buy treasures from Egypt, the Greek gods, pirates and fairies for a ledge on her counter (3¢ to 16¢), each a binder card | Paying, change, taking away |
 | Tansy's home things | Tansy | Buy things for her own house: 33 things from a toadstool stool 2¢ to a bed canopy 15¢, including four wallpapers, a baby crib and bathroom things (toilet, sink, vanity, tub, seashell mirror, towels, bath mat, rubber duck) | Paying, change, taking away |
@@ -140,6 +140,33 @@ After the onramp (from the night of day 5) the shop adapts to how she is doing, 
 | M Equal groups | 1-4 (start 1) | Bags of 2 (doubles), count by 2s, boxes of 5, crates of 10 |
 | F Money | 1-4 (start 1) | Pennies, then dimes and pennies, then nickels |
 | P Tens and ones | 1-2 (start 1) | Stacking the till in tens |
+| T Telling the time | 1-4 (start 1) | o'clock, half past, to 5 minutes, then time passing and to the minute |
+| Q Fair shares | 1-4 (start 1) | halves, fourths, thirds, then fractions (3/4 of the pie is left) |
+| H Hundreds | 1-5 (start 1) | hundreds, tens and ones; 300 + 40 + 2; 10 or 100 more or less; comparing; rounding |
+
+## Time, fair shares and hundreds (from day 5)
+
+Gabe (2026-10-21) saw on the math skills chart that no game practised telling the time, fractions or the
+bigger-number skills. `more-skills.js` adds three strands (T, Q, H above) as question makers that drop into the story,
+each logging its own Common Core code and adapting from the chart like the other strands:
+
+- **The shop clock.** Every day from day 5, before she opens, she reads the felt clock on the wall (or, at level 4,
+  works out when the shop opens: "It is 3:10. The shop opens in 20 minutes.").
+- **Baking with the family.** Half the time the tarts go in the oven and she reads the kitchen clock; the other half
+  Papa made a pie for pudding and she helps cut it: which pie is cut fairly, what each piece is called (one half,
+  one third, one fourth), what part each person gets, and what part is left after some are eaten.
+- **Mrs. Bunbury's burrow.** After the carrot rows, she helps share out a pie or a carrot cake fairly.
+- **Old Hoot's library.** Once tens and ones are going well (P level 2), the second shelf is the big library:
+  boxes of 100 books, 300 + 40 + 2, 100 more, which shelf has most, and about how many (rounding).
+- **Papa's day.** Old Hoot's job is now mending his old clock (reading it, or "it is 20 minutes slow") and fixing its
+  case; Papa's nails sometimes come in boxes of 100.
+- **Captain Whiskers' treasure.** Once adding and taking away are at level 3, the second question is a two-step story:
+  "I had 34 gold coins, spent 8 on rope, then found 10 more in the sand."
+- **Family play and stories.** A skittles match with three scores (who knocked down the most: comparing numbers to 10),
+  and the few-more-pages bedtime story now also counts as counting on.
+
+The help never says "count them all": the clock help counts the long hand by fives, the pies say what fair means,
+the hundreds show boxes of 100, sticks of 10 and ones.
 
 ## From counting to seeing (mental math)
 
@@ -180,12 +207,16 @@ she could not finish 58, 68, 78, ? (she expected 50, 60, 70), and she cannot kee
 that earn money for her house, with a bonus for being quick and no way to guess. So the notice board in the village,
 next to Old Hoot's oak, is a challenge board (`challenges.js`, progress in `S.ch`):
 
-- Three kinds of card, each with its own level:
+- Four kinds of card, each with its own level:
   - *Tens Trail* (place value), levels 1 to 7: tens and ones from sticks, 10 more and 10 less than any number,
     counting by 10s from any number (58, 68, 78, ?), adding and taking away tens, getting to the next ten
-    (58 + ? = 60, 58 + 4), adding 2-digit numbers (58 + 12), taking away 2-digit numbers.
+    (58 + ? = 60, 58 + 4), adding 2-digit numbers (58 + 12), taking away 2-digit numbers, then (level 8) adding three
+    or four 2-digit numbers.
   - *Quick Facts* (fluency), levels 1 to 6: partners of 10 and small doubles, facts to 10, facts to 20 (doubles,
     near doubles, make 10), taking away to 20, the 2, 5 and 10 times tables, then 3 and 4 and halves.
+  - *Hundreds Hill* (bigger numbers), levels 1 to 7: which of three 2-digit numbers is biggest, hundreds tens and
+    ones from boxes and sticks, 300 + 40 + 2 (and 342 = 300 + ? + 2), 10 or 100 more or less, comparing 3-digit
+    numbers, rounding to the nearest 10 or 100, adding and taking away hundreds.
   - *Hoot's Riddles* (spoken chains), levels 1 to 6: Hoot says one step at a time. At levels 1 and 2 she types the
     new number after every step (the habit that matters: keep only the number so far). From level 3 the steps come
     one after another, with nothing written down, and she gives only the answer (she taps for each step until level
@@ -208,6 +239,7 @@ Press and hold the ⚙️ gear for the grown-ups panel. "Jump to a day" sets the
 - `index.html`: the game (rules, touch, saves, voice, cards). Saves to `localStorage["toadstoolShop.v1"]`.
 - `wardrobe.js`: the shopkeeper's clothes list and helpers.
 - `challenges.js`: Hoot's challenge board (cards, number pad, levels, pay). Uses the game's globals like `mental.js`.
+- `more-skills.js`: the felt clock, the pies and tray bakes, and the boxes of 100, with the question makers for telling the time, fair shares and hundreds.
 - `mental.js`: ten-frames, the strategy help, peek and cover, strategy charms and the day-off activities. It uses the game's globals (`S`, `ask`, `talk`, `setPanel`, ...).
 - `shop3d.js`: the 3D world: the toadstool shop inside and out, the shopkeeper mouse, every customer, the goods,
   coins and decorations. It reads the game's view (`window.TSV`) every frame and bakes the panel pictures

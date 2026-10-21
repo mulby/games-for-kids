@@ -1184,6 +1184,7 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
 <script src="../../shared/skills.js"></script>
 <script src="wardrobe.js"></script>
 <script src="mental.js"></script>
+<script src="more-skills.js"></script>
 <script src="family.js"></script>
 <script src="challenges.js"></script>
 <script>
@@ -1249,9 +1250,12 @@ const NAMES = ['Ginny', 'Poppy', 'Primrose', 'Pip', 'Rosie', 'Juniper', 'Wren', 
 
 /* ================= levels (Moonlit Map strands) ================= */
 // 1 kindergarten to early 1st grade, 2 end of 1st, 3 early 2nd, 4 mid 2nd.
-const RANGE = { N: [1, 2], A: [1, 4], S: [1, 4], M: [1, 4], F: [1, 4], P: [1, 2] };
-const START = { N: 1, A: 1, S: 1, M: 1, F: 1, P: 1 };
-const STRAND_NAME = { N: 'Counting (filling orders)', A: 'Adding (order totals)', S: 'Taking away (change, leftovers, savings)', M: 'Equal groups (bags, boxes, sailors)', F: 'Money (counting coins, halves)', P: 'Tens and ones (stacking the till)' };
+// T, Q and H (more-skills.js, 2026-10-21) are the skills the chart showed no game practising: telling the time,
+// fair shares and fractions, and hundreds. They turn up in the story from day 5 (the shop clock, baking, Papa's day,
+// the village jobs) and are not part of the Moonlit Map.
+const RANGE = { N: [1, 2], A: [1, 4], S: [1, 4], M: [1, 4], F: [1, 4], P: [1, 2], T: [1, 4], Q: [1, 4], H: [1, 5] };
+const START = { N: 1, A: 1, S: 1, M: 1, F: 1, P: 1, T: 1, Q: 1, H: 1 };
+const STRAND_NAME = { N: 'Counting (filling orders)', A: 'Adding (order totals)', S: 'Taking away (change, leftovers, savings)', M: 'Equal groups (bags, boxes, sailors)', F: 'Money (counting coins, halves)', P: 'Tens and ones (stacking the till)', T: 'Telling the time (clocks)', Q: 'Fair shares (pies, fractions)', H: 'Hundreds (nail boxes, book boxes)' };
 // The first days teach how the shop works, one new thing a day:
 // day 1 one bag from Bramble and two shoppers who pay exactly, day 2 choosing bags and a second good,
 // day 3 giving change, day 4 price tags and the special visitors, then the full shop.
@@ -1286,6 +1290,9 @@ const LV_CODES = {
   M: { 1: '3.OA.A.1', 2: '3.OA.A.1', 3: '3.OA.A.1', 4: '3.OA.A.1' },
   F: { 1: 'K.CC.B.5', 2: 'K.CC.B.5', 3: '2.MD.C.8', 4: '2.MD.C.8' },
   P: { 1: 'K.NBT.A.1', 2: '1.NBT.B.2' },
+  T: { 1: '1.MD.B.3', 2: '1.MD.B.3', 3: '2.MD.C.7', 4: '3.MD.A.1' },
+  Q: { 1: '1.G.A.3', 2: '1.G.A.3', 3: '2.G.A.3', 4: '3.NF.A.1' },
+  H: { 1: '2.NBT.A.1', 2: '2.NBT.A.3', 3: '2.NBT.B.8', 4: '2.NBT.A.4', 5: '3.NBT.A.1' },
 };
 const ramp = () => S.day < SUMS_DAY ? 0 : S.pace || 0;
 // at least 70% of the last 2 days' answers right first time
@@ -1302,7 +1309,8 @@ function rampUp() {
   }
   if (S.day >= ADAPT_DAY) {
     // how busy the shop is, from how today went
-    const T = S.log.filter(x => x.day === S.day);
+    // (time, fair shares and hundreds are new skills, so a hard one does not make the shop quieter)
+    const T = S.log.filter(x => x.day === S.day && !'TQH'.includes(x.k));
     if (T.length >= 5) {
       const rate = T.filter(x => x.ok).length / T.length, was = S.pace || 0;
       S.pace = rate >= .8 ? Math.min(PACE_MAX, was + 1) : rate < .55 ? Math.max(0, was - 1) : was;
@@ -1328,6 +1336,8 @@ function freshState() {
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
 if (!S || S.v !== 1) S = freshState(); else { const had = S.lvDay, hadPace = 'pace' in S; S = Object.assign(freshState(), S); if (!had) S.lvDay = Object.fromEntries(Object.keys(RANGE).map(k => [k, S.day])); if (!hadPace) S.pace = S.day < SUMS_DAY ? 0 : Math.min(3, Math.floor((S.day - SUMS_DAY) / 3)); } // older saves start the 3-day wait fresh (and keep the busier days they had reached)
+// strands added later (time, fair shares, hundreds) start at their first level on older saves
+for (const k of Object.keys(RANGE)) { if (!(k in S.lv)) S.lv[k] = START[k]; if (S.lvDay && !(k in S.lvDay)) S.lvDay[k] = S.day; }
 // One purse: anything in the old savings jar joins her money.
 if (S.jar) { S.till += S.jar; S.jar = 0; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -1844,6 +1854,8 @@ async function shopTime() {
   if (!S.shop) { S.shop = { list: makeCustomers(), i: 0, earned: 0 }; save(); }
   if (S.shop.i === 0) {
     mood('keeper', 'happy', 1500);
+    // from day 5 she reads the shop clock before she opens (telling the time, more-skills.js)
+    if (S.day >= VILLAGE_DAY && !S.shop.clock) { S.shop.clock = 1; save(); await ask(Object.assign({ who: 'keeper' }, MoreSkills.timeQ(S.lv.T, 'shop'))); }
     await talk('keeper', S.day === 1 ? 'My very own shop! I\'ll flip the sign to Open.' : 'Time to open the shop!', 'Open the door');
   }
   while (S.shop.i < S.shop.list.length) {
@@ -2474,6 +2486,8 @@ const groupsHelp = (n, size, cls, lab) => `<div class="row">${Array.from({ lengt
 async function carrotJob(who) {
   const M = S.lv.M;
   for (let q = 0; q < 2; q++) {
+    // the second question is often about sharing out her baking fairly (fair shares, more-skills.js)
+    if (q && Math.random() < .6) { await talk(who, 'Thank you! Now I have baked something for my bunnies. Will you help me share it?', 'Yes!'); await ask(Object.assign({ who, helpWho: 'keeper' }, MoreSkills.shareQ(S.lv.Q, { what: pick(['pie', 'carrot cake']), two: 'Little Bun and I' }))); break; }
     const [rows, per] = M <= 1 ? [2, 1 + rnd(4)] : M === 2 ? [2 + rnd(4), 2] : M === 3 ? [2 + rnd(3), 5] : pick([[2 + rnd(4), 5], [2 + rnd(3), 10]]);
     await ask({
       k: 'M', std: per === 1 ? GFKSkills.count(rows) : '2.OA.C.4', who, q: q ? `And the next patch has ${rows} rows with ${per} in each. How many carrots?` : `I planted ${rows} rows of carrots, with ${per} in each row. How many carrots is that?`, answer: rows * per,
@@ -2487,6 +2501,8 @@ async function carrotJob(who) {
 async function bookJob(who) {
   const P = S.lv.P;
   for (let q = 0; q < 2; q++) {
+    // once tens and ones are going well, the second shelf is often the big library: boxes of 100 (hundreds, more-skills.js)
+    if (q && P >= 2 && Math.random() < .6) { await ask(Object.assign({ who, helpWho: 'keeper' }, MoreSkills.bigQ(S.lv.H, 'books'))); break; }
     const tens = P <= 1 ? 1 : 2 + rnd(4), ones = P <= 1 ? 1 + rnd(9) : rnd(10), n = tens * 10 + ones;
     const pile = () => `${Array.from({ length: tens }, () => `<span class="grp"><span class="books">${Array.from({ length: 10 }, (_, i) => `<i class="b${i % 5}"></i>`).join('')}</span><span class="lab">10</span></span>`).join('')}${ones ? `<span class="grp"><span class="books loose">${Array.from({ length: ones }, (_, i) => `<i class="b${i % 5}"></i>`).join('')}</span><span class="lab">&nbsp;</span></span>` : ''}`;
     await ask({
@@ -2515,6 +2531,17 @@ async function lanternJob(who) {
 async function chestJob(who) {
   const F = S.lv.F;
   for (let q = 0; q < 2; q++) {
+    // once adding and taking away 2-digit numbers (level 4), the second question is often a two-step story (2.OA.A.1)
+    if (q && S.lv.A >= 4 && S.lv.S >= 4 && Math.random() < .6) {
+      const had = 15 + rnd(36), spent = 3 + rnd(8), found = pick([10, 20, 4 + rnd(6)]), mid = had - spent, ans = mid + found;
+      await ask({
+        k: 'A', std: '2.OA.A.1', who, helpWho: 'keeper', strat: 'none', answer: ans,
+        q: `Arr! I had ${had} gold coins. I spent ${spent} on a new rope, and then I found ${found} more in the sand. How many gold coins do I have now?`,
+        help: () => `<div class="ch-line"><span class="n">${had}</span><span class="j">−${spent} ➜</span><span class="n">${mid}</span><span class="j">+${found} ➜</span><span class="n">?</span></div><div class="mm-tip">One step at a time: first the rope, then the sand.</div>`,
+        helpSay: `One step at a time. ${had} take away ${spent} is ${mid}. Then ${found} more.`,
+      });
+      break;
+    }
     const n = F <= 1 ? 3 + rnd(7) : F === 2 ? 6 + rnd(10) : F === 3 ? 12 + rnd(24) : 15 + rnd(31), coins = coinsFor(n);
     await ask({
       k: 'F', std: coins.some(v => v > 1) ? '2.MD.C.8' : GFKSkills.count(n), who, q: q ? 'Arr, there was more in the boat! How many pennies is this pile?' : 'Here is my treasure. How many pennies is it worth?', answer: n,

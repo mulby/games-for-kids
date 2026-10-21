@@ -205,9 +205,10 @@
   };
   // Hoot's challenge board in the Toadstool Shop: kind and level (its log has no numbers, so this is the level's main skill)
   const BOARD = {
-    tens: [, '1.NBT.B.2', '1.NBT.C.5', '1.NBT.C.5', '1.NBT.C.4', '1.NBT.C.4', '2.NBT.B.5', '2.NBT.B.5'],
+    tens: [, '1.NBT.B.2', '1.NBT.C.5', '1.NBT.C.5', '1.NBT.C.4', '1.NBT.C.4', '2.NBT.B.5', '2.NBT.B.5', '2.NBT.B.6'],
     facts: [, 'K.OA.A.4', 'K.OA.A.2', '1.OA.C.6', '1.OA.C.6', '3.OA.C.7', '3.OA.C.7'],
     riddles: [, '3.OA.D.8', '3.OA.D.8', '3.OA.D.8', '3.OA.D.8', '3.OA.D.8', '3.OA.D.8'],
+    big: [, '1.NBT.B.3', '2.NBT.A.1', '2.NBT.A.3', '2.NBT.B.8', '2.NBT.A.4', '3.NBT.A.1', '2.NBT.B.7'],
   };
   // Fairy Lantern Festival's own skill ids
   const FAIRY = {

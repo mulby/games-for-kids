@@ -30,28 +30,30 @@
   const QUICK_MS = 1200; // a wrong answer this soon is a guess
 
   const TRACKS = {
-    tens: { name: 'Tens Trail', emoji: '🔟', blurb: 'Tens and ones, 10 more, adding big numbers', max: 7, base: 12000 },
+    tens: { name: 'Tens Trail', emoji: '🔟', blurb: 'Tens and ones, 10 more, adding big numbers', max: 8, base: 12000 },
     facts: { name: 'Quick Facts', emoji: '⚡', blurb: 'Little facts to know by heart', max: 6, base: 6000 },
     riddles: { name: "Hoot's Riddles", emoji: '🦉', blurb: 'Listen, and keep the number in your head', max: 6, base: 7000 },
+    big: { name: 'Hundreds Hill', emoji: '💯', blurb: 'Hundreds, numbers to 1000, rounding', max: 7, base: 12000 },
   };
   const LEVEL_NAMES = {
-    tens: ['', 'Tens and ones', '10 more, 10 less', 'Counting by tens', 'Adding tens', 'To the next ten', 'Adding big numbers', 'Taking away big numbers'],
+    tens: ['', 'Tens and ones', '10 more, 10 less', 'Counting by tens', 'Adding tens', 'To the next ten', 'Adding big numbers', 'Taking away big numbers', 'Adding lots of numbers'],
     facts: ['', 'Tens and doubles', 'Facts to 10', 'Facts to 20', 'Taking away to 20', 'Times 2, 5 and 10', 'Times 3 and 4, halves'],
     riddles: ['', 'Two steps', 'Three steps', 'In my head', 'Doubles and halves', 'Bigger numbers', 'Long riddles'],
+    big: ['', 'Which is bigger', 'Hundreds, tens and ones', '300 + 40 + 2', '100 more, 10 less', 'Comparing hundreds', 'Rounding', 'Adding hundreds'],
   };
 
   function state() {
     S.ch = S.ch || {};
     const C = S.ch;
-    C.lv = Object.assign({ tens: 1, facts: 1, riddles: 1 }, C.lv);
-    C.cards = Object.assign({ tens: 0, facts: 0, riddles: 0 }, C.cards);
+    C.lv = Object.assign({ tens: 1, facts: 1, riddles: 1, big: 1 }, C.lv);
+    C.cards = Object.assign({ tens: 0, facts: 0, riddles: 0, big: 0 }, C.cards);
     C.times = C.times || {};   // "tens3": the last 12 first-try times in ms
     C.best = C.best || {};     // highest level reached per kind (for the binder cards)
     C.earned = C.earned || 0;  // all the money the board has paid
     C.log = C.log || [];       // a short history for grown-ups: {t, lv, ok, ms, day}
     // once a day Tens Trail and Quick Facts also ask the shared skills chart: mastered her level's skill in any game, a
     // harder card; struggling with it, an easier one (riddles are one skill at every level, so they go by her cards alone)
-    for (const t of ['tens', 'facts']) {
+    for (const t of ['tens', 'facts', 'big']) {
       const lv = GFKSkills.place && GFKSkills.BOARD ? GFKSkills.place('board.' + t, GFKSkills.BOARD[t], C.lv[t], { max: TRACKS[t].max, game: GAME, name: "Hoot's board: " + TRACKS[t].name }) : null;
       if (typeof lv === 'number' && lv !== C.lv[t]) { C.lv[t] = lv; save(); }
     }
@@ -193,6 +195,62 @@
       const bt = Math.floor(b / 10) * 10, bo = b % 10, ans = a - b;
       return { std: GFKSkills.sub(a, b), q: `${a} − ${b}`, say: `${a} take away ${b}.`, answer: ans, show: null, pic: false,
         help: { say: `First take away the tens. ${a} take away ${bt}. That leaves ${a - bt}. Then take away ${bo}. That leaves ${ans}.`, html: jumps(a, [...Array(bt / 10).fill(-10), -bo]) } };
+    },
+    // three or four numbers: add the tens first, then the ones (2.NBT.B.6)
+    8: () => {
+      let nums; do nums = Array.from({ length: Math.random() < .65 ? 3 : 4 }, () => ri(1, 3) * 10 + (Math.random() < .3 ? 0 : ri(1, 6))); while (nums.reduce((p, q) => p + q, 0) > 99);
+      const ans = nums.reduce((p, q) => p + q, 0), tens = nums.reduce((p, q) => p + Math.floor(q / 10) * 10, 0), ones = ans - tens;
+      return { std: '2.NBT.B.6', q: nums.join(' + '), say: nums.join(' plus ') + '.', answer: ans, show: null, pic: false,
+        help: { say: `Add the tens first: that makes ${tens}. Then the ones: ${ones}. ${tens} and ${ones}.`, html: `<div class="ch-seq">${nums.map(split).join(' + ')}</div><div class="mm-tip">tens: ${nums.map(n => Math.floor(n / 10) * 10).join(' + ')} = ${tens} · ones: ${nums.map(n => n % 10).join(' + ')} = ${ones}</div>` } };
+    },
+  };
+
+  /* ---------------- Hundreds Hill ---------------- */
+  // which of three is biggest (or smallest): she types it, and the help says which place to look at first
+  const three = (nums, most, std) => {
+    const ans = most ? Math.max(...nums) : Math.min(...nums), big = nums[0] >= 100;
+    return { std, q: `${nums.join(' · ')}<small>Type the ${most ? 'biggest' : 'smallest'}</small>`, say: `${nums.join(', ')}. Which is the ${most ? 'biggest' : 'smallest'}?`, answer: ans, show: null, pic: false,
+      help: { say: big ? 'Look at the hundreds first. If they are the same, look at the tens.' : 'Look at the tens first. More tens is bigger.', html: `<div class="ch-seq">${nums.map(n => big ? `<span class="t">${Math.floor(n / 100)}</span>${pad(n % 100)}` : split(n)).join(' · ')}</div>` } };
+  };
+  const pad = n => (n < 10 ? '0' : '') + n;
+  const hto = n => [Math.floor(n / 100), Math.floor(n / 10) % 10, n % 10];
+  const BIG = {
+    1: () => { const [a, b, c] = [ri(1, 9), ri(1, 9), ri(1, 9)]; const nums = [...new Set([a * 10 + b, b * 10 + a, a * 10 + c, c * 10 + b])].slice(0, 3); return nums.length < 3 ? BIG[1]() : three(nums, Math.random() < .65, '1.NBT.B.3'); },
+    2: () => {
+      const n = ri(1, 9) * 100 + ri(0, 9) * 10 + ri(0, 9), [h, t, o] = hto(n);
+      return { std: '2.NBT.A.1', q: `<span class="qm">?</span><small>${h} hundreds, ${t} tens and ${o} ones</small>`, say: `${h} hundreds, ${t} tens and ${o} ones. What number is that?`, answer: n, show: MoreSkills.hundreds(h, Math.min(t, 9), o), pic: n < 400,
+        help: { say: `${h} hundreds is ${h * 100}. ${t} tens is ${t * 10}. And ${o} ones.`, html: `${MoreSkills.hundreds(h, t, o)}<div class="mm-tip">${h} hundreds, ${t} tens, ${o} ones${t === 0 ? ': no tens, so 0 in the middle' : ''}</div>` } };
+    },
+    3: () => {
+      const zero = Math.random() < .3, h = ri(1, 9), t = zero ? 0 : ri(1, 9), o = ri(1, 9), n = h * 100 + t * 10 + o, sum = [h * 100, t * 10, o].filter(Boolean);
+      if (!zero && Math.random() < .4) return { std: '2.NBT.A.3', q: `${n} = ${h * 100} + <span class="qm">?</span> + ${o}`, say: `${n} is ${h * 100} plus what, plus ${o}?`, answer: t * 10, show: MoreSkills.hundreds(h, t, o), pic: false,
+        help: { say: `The middle number is the tens. ${t} tens is ${t * 10}.`, html: `<div class="ch-seq"><span class="t">${h}</span><span class="o">${t}</span>${o}</div><div class="mm-tip">${t} tens = ${t * 10}</div>` } };
+      return { std: '2.NBT.A.3', q: sum.join(' + '), say: sum.join(' plus ') + '.', answer: n, show: MoreSkills.hundreds(h, t, o), pic: false,
+        help: { say: zero ? `${h} hundreds, no tens, and ${o} ones. Put a 0 for the tens.` : `${h} hundreds, ${t} tens and ${o} ones.`, html: `${MoreSkills.hundreds(h, t, o)}<div class="mm-tip">Write the hundreds, then the tens, then the ones${zero ? ' (a 0 when there are no tens)' : ''}.</div>` } };
+    },
+    4: () => {
+      const big = Math.random() < .5, up = Math.random() < .55, d = big ? 100 : 10; let n; do n = ri(111, up && big ? 799 : 889); while (n % 10 === 0 || (!big && (up ? Math.floor(n / 10) % 10 === 9 : Math.floor(n / 10) % 10 === 0)));
+      const a = up ? n + d : n - d;
+      return { std: '2.NBT.B.8', q: `${d} ${up ? 'more' : 'less'} than ${n}`, say: `What is ${d} ${up ? 'more' : 'less'} than ${n}?`, answer: a, show: null, pic: false,
+        help: { say: `Only the ${big ? 'hundreds' : 'tens'} change. The other numbers stay the same.`, html: `<div class="mm-tip">${n} ➜ the ${big ? 'hundreds' : 'tens'} go ${up ? 'up' : 'down'} by one</div>` } };
+    },
+    5: () => { const [a, b, c] = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - .5); return three([a * 100 + b * 10 + c, b * 100 + a * 10 + c, a * 100 + c * 10 + b], Math.random() < .6, '2.NBT.A.4'); },
+    6: () => {
+      const hundred = Math.random() < .4; let n; do n = hundred ? ri(110, 890) : ri(12, 98); while (n % (hundred ? 100 : 10) === 0 || n % (hundred ? 100 : 10) === (hundred ? 50 : 5));
+      const step = hundred ? 100 : 10, lo = Math.floor(n / step) * step, hi = lo + step, ans = n - lo < hi - n ? lo : hi;
+      return { std: '3.NBT.A.1', q: `${n}<small>to the nearest ${hundred ? 'hundred' : 'ten'}</small>`, say: `Round ${n} to the nearest ${hundred ? 'hundred' : 'ten'}.`, answer: ans, show: null, pic: false,
+        help: { say: `${n} is between ${lo} and ${hi}. Which one is it nearer to?`, html: `<div class="ch-line"><span class="n">${lo}</span><span class="j">… ${n} …</span><span class="n">${hi}</span></div><div class="mm-tip">The halfway number is ${lo + step / 2}. ${n} is ${n < lo + step / 2 ? 'before' : 'after'} it.</div>` } };
+    },
+    7: () => {
+      const kind = any(['addH', 'addT', 'takeH', 'both']);
+      let a, b, up = kind !== 'takeH';
+      if (kind === 'addH') { a = ri(1, 7) * 100 + ri(0, 99); b = ri(1, 9 - Math.floor(a / 100)) * 100; }
+      else if (kind === 'addT') { a = ri(1, 8) * 100 + ri(0, 5) * 10 + ri(0, 9); b = ri(1, 9 - Math.floor(a / 10) % 10) * 10; }
+      else if (kind === 'takeH') { a = ri(3, 9) * 100 + ri(0, 99); b = ri(1, Math.floor(a / 100) - 1) * 100; }
+      else { const [h1, t1, o1] = [ri(1, 5), ri(0, 5), ri(0, 5)], [h2, t2, o2] = [ri(1, 4), ri(1, 4), ri(1, 4)]; a = h1 * 100 + t1 * 10 + o1; b = h2 * 100 + t2 * 10 + o2; }
+      const ans = up ? a + b : a - b, [h2, t2, o2] = hto(b);
+      return { std: '2.NBT.B.7', q: `${a} ${up ? '+' : '−'} ${b}`, say: `${a} ${word(up ? 1 : -1)} ${b}.`, answer: ans, show: null, pic: false,
+        help: { say: up ? `Add the hundreds, then the tens, then the ones.` : `Take away the hundreds. The tens and ones stay the same.`, html: jumps(a, [h2 * 100, t2 * 10, o2].filter(Boolean).map(v => up ? v : -v)) } };
     },
   };
 
@@ -346,7 +404,7 @@
       let r, std = '3.OA.D.8';
       if (riddles) r = await playRiddle(lv, dotsHTML(marks, n, i), C, k);
       else {
-        const p = (track === 'tens' ? TENS : FACTS)[lv]();
+        const p = { tens: TENS, facts: FACTS, big: BIG }[track][lv]();
         std = p.std;
         r = await padAsk(Object.assign({ who: 'keeper', dots: dotsHTML(marks, n, i) }, p));
       }
@@ -475,5 +533,5 @@
     return Object.entries(TRACKS).map(([id, T]) => `${T.name} level ${C.lv[id]} (${LEVEL_NAMES[id][C.lv[id]]}), ${C.cards[id]} cards`).join(' · ') + ` · ${C.earned}¢ earned`;
   }
 
-  G.Challenges = { TRACKS, LEVEL_NAMES, TENS, FACTS, riddle, run, summary, padAsk };
+  G.Challenges = { TRACKS, LEVEL_NAMES, TENS, FACTS, BIG, riddle, run, summary, padAsk };
 })(window);

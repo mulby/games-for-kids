@@ -320,7 +320,7 @@
     const label = j => (who[j] === 'keeper' ? 'Me' : CAST[who[j]].name);
     await act('eat', { who, each, food });
     await ask({
-      k: 'M', who: 'keeper', strat: 'skip', answer: total, peek: 0, q: `There are ${people} of us at breakfast. Everyone wants ${each} ${food}. How many ${food} do I make?`,
+      k: 'M', std: GFKSkills.times(people, each), who: 'keeper', strat: 'skip', answer: total, peek: 0, q: `There are ${people} of us at breakfast. Everyone wants ${each} ${food}. How many ${food} do I make?`,
       show: () => who.map((w, j) => `<span class="fm-plate">${pt(w)}${dots(each)}<span class="lab">${label(j)}</span></span>`).join(''),
       help: () => `<div class="row">${who.map((w, j) => `<span class="grp"><span class="lab">${j === people - 1 ? '?' : (j + 1) * each}</span>${dots(each)}</span>`).join('')}</div><div class="small">Count by ${each}s: ${Array.from({ length: people - 1 }, (_, j) => (j + 1) * each).join(', ')} …</div>`,
       helpSay: `Count by ${each === 2 ? 'twos' : each === 5 ? 'fives' : 'tens'}: ${Array.from({ length: Math.min(3, people - 1) }, (_, j) => (j + 1) * each).join(', ')}.`,
@@ -336,7 +336,7 @@
     const help = Mental.subHelp(whole, have, L);
     await act('bath', { who: [kidId(i)] });
     await ask({
-      k: 'S', who: 'keeper', strat: whole <= 10 ? 'ten' : help.kind, answer: need, q: `The bath holds ${whole} cups of warm water. I poured in ${have}. How many more cups will fill it?`,
+      k: 'S', std: GFKSkills.sub(whole, have, { missing: true }), who: 'keeper', strat: whole <= 10 ? 'ten' : help.kind, answer: need, q: `The bath holds ${whole} cups of warm water. I poured in ${have}. How many more cups will fill it?`,
       show: () => `<span class="fm-tub"><span class="lab">${have} cups in</span>${dots(have, whole, 'b2')}</span>`,
       help: () => help.html, helpSay: help.say,
     });
@@ -346,11 +346,28 @@
   // Play: two block towers (adding, at her adding level), or ten skittles knocked down (taking away from 10).
   async function playTime(i) {
     const A = S.lv.A, id = kidId(i), name = kids()[i].name;
+    // a skittles match: three scores written on the board, and who knocked down the most (comparing numbers to 10)
+    if (A <= 2 && Math.random() < .35) {
+      const scores = shuffle([2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, 3), who = [id, 'papa', 'keeper'], best = who[scores.indexOf(Math.max(...scores))];
+      const label = w => (w === 'keeper' ? 'Mama' : CAST[w].name);
+      await act('skittles', { who: [id], down: scores[0] });
+      await ask({
+        k: 'N', std: 'K.CC.C.7', who: id, helpWho: 'keeper', strat: 'none', answer: best, opts: who, labels: Object.fromEntries(who.map(w => [w, label(w)])),
+        q: `A skittles match! Here are our scores. Who knocked down the most?`,
+        show: () => who.map((w, j) => `<span class="fm-plate">${pt(w)}<b style="font-size:34px">${scores[j]}</b><span class="lab">${label(w)}</span></span>`).join(''),
+        help: () => `<div class="row">${who.map((w, j) => `<span class="grp"><span class="lab">${label(w)}: ${scores[j]}</span>${dots(scores[j], 10)}</span>`).join('')}</div><div class="mm-tip">The most is the biggest number.</div>`,
+        helpSay: 'The most is the biggest number. Which number comes last when we count?',
+        lastSay: `${label(best)} knocked down ${Math.max(...scores)}. That's the most! Tap ${label(best)}.`,
+      });
+      await doing(2800, '🎳 Roll the ball!');
+      await talk(id, best === 'keeper' ? 'Mama won! Again, again!' : best === id ? 'I won! Again, again!' : 'Papa won! My turn next!', 'Fun!');
+      return;
+    }
     if (A >= 2 && Math.random() < .4) {
       const down = 2 + rnd(7), help = Mental.subHelp(10, down, S.lv.S);
       await act('skittles', { who: [id], down });
       await ask({
-        k: 'S', who: id, helpWho: 'keeper', strat: 'ten', answer: 10 - down, q: `Skittles! There are 10 skittles. My ball knocked down ${down}. How many are still standing?`,
+        k: 'S', std: GFKSkills.sub(10, down), who: id, helpWho: 'keeper', strat: 'ten', answer: 10 - down, q: `Skittles! There are 10 skittles. My ball knocked down ${down}. How many are still standing?`,
         show: () => `<span class="fm-pins">🎳</span>${Mental.frames(Array.from({ length: 10 }, (_, j) => (j < 10 - down ? '' : 'x')))}`,
         help: () => help.html, helpSay: help.say,
       });
@@ -365,7 +382,7 @@
     const help = Mental.addHelp(a, b, A);
     await act('towers', { who: [id], a, b });
     await ask({
-      k: 'A', who: id, helpWho: 'keeper', strat: help.kind, answer: a + b, q: `Let's build towers! My tower has ${a} blocks and yours has ${b}. How many blocks is that altogether?`,
+      k: 'A', std: GFKSkills.add([a, b]), who: id, helpWho: 'keeper', strat: help.kind, answer: a + b, q: `Let's build towers! My tower has ${a} blocks and yours has ${b}. How many blocks is that altogether?`,
       show: () => `<span class="fm-tower">${dots(a)}<span class="lab">${name}</span></span><b style="font-size:30px">+</b><span class="fm-tower">${dots(b)}<span class="lab">Mama</span></span>`,
       help: () => help.html, helpSay: help.say,
     });
@@ -380,7 +397,7 @@
     if (tens) {
       const at = 11 + rnd(78), next = at + 10, t = Math.floor(at / 10), o = at % 10;
       await ask({
-        k: 'P', who: id, helpWho: 'keeper', strat: 'tens', answer: next, q: `We read 10 pages every night. Last night we stopped on page ${at}. What page will we stop on tonight?`,
+        k: 'P', std: '1.NBT.C.5', who: id, helpWho: 'keeper', strat: 'tens', answer: next, q: `We read 10 pages every night. Last night we stopped on page ${at}. What page will we stop on tonight?`,
         show: () => `<span class="fm-book">📖 ${at} <b style="opacity:.5">+ 10</b></span>`,
         help: () => `<div class="row"><span class="grp"><span class="lab">${t} tens</span>${Mental.bag(t * 10)}</span><span class="grp"><span class="lab">${o} ones</span>${dots(o)}</span><b style="font-size:30px">→</b><span class="grp"><span class="lab">${t + 1} tens</span>${Mental.bag((t + 1) * 10)}</span><span class="grp"><span class="lab">${o} ones</span>${dots(o)}</span></div><div class="mm-tip">10 more: the tens go up by one. The ones stay ${o}.</div>`,
         helpSay: `10 more means one more ten. ${t} tens becomes ${t + 1} tens. The ones stay the same.`,
@@ -388,7 +405,7 @@
     } else {
       const at = 2 + rnd(S.lv.A <= 1 ? 6 : 12), more = 1 + rnd(3), help = Mental.addHelp(at, more, S.lv.A);
       await ask({
-        k: 'A', who: id, helpWho: 'keeper', strat: help.kind, answer: at + more, q: `We are on page ${at}. We read ${more} more ${plural(more, 'page', 'pages')}. What page are we on now?`,
+        k: 'A', std: ['K.CC.A.2', GFKSkills.add([at, more])], who: id, helpWho: 'keeper', strat: help.kind, answer: at + more, q: `We are on page ${at}. We read ${more} more ${plural(more, 'page', 'pages')}. What page are we on now?`,
         show: () => `<span class="fm-book">📖 ${at}</span>${Mental.hops(at, more)}`,
         help: () => help.html, helpSay: help.say,
       });
@@ -426,10 +443,13 @@
     // 1. a double batch: twice the flour
     const h1 = Mental.addHelp(flour, flour, A);
     await ask({
-      k: 'A', who: kidId(helper), helpWho: 'keeper', strat: 'double', answer: flour * 2, q: `Let's make a double batch! One batch needs ${flour} cups of flour. How many cups for two batches?`,
+      k: 'A', std: GFKSkills.add([flour, flour]), who: kidId(helper), helpWho: 'keeper', strat: 'double', answer: flour * 2, q: `Let's make a double batch! One batch needs ${flour} cups of flour. How many cups for two batches?`,
       show: () => card(flour), help: () => h1.html, helpSay: h1.say,
     });
+    // into the oven: half the time she reads the kitchen clock (telling the time, more-skills.js)
+    const clockFirst = Math.random() < .5;
     SFX.tap(); await doing(3600, '🥣 Stir, stir… into the oven! 🔥');
+    if (clockFirst) await ask(Object.assign({ who: 'papa', helpWho: 'keeper' }, MoreSkills.timeQ(S.lv.T, 'oven')));
     // 2. two batches came out; everyone eats one, the rest are for the shop
     const made = R.makes * 2, left = made - people;
     SFX.cheer(); mood('keeper', 'happy', 1500);
@@ -437,12 +457,18 @@
     if (left > 0) {
       const h2 = Mental.subHelp(made, people, S.lv.S);
       await ask({
-        k: 'S', who: 'papa', helpWho: 'keeper', strat: h2.kind, answer: left, q: `We made ${made} ${GOODS[R.good].many}! There are ${people} of us, and we each eat one. How many are left for my shop?`,
+        k: 'S', std: GFKSkills.sub(made, people), who: 'papa', helpWho: 'keeper', strat: h2.kind, answer: left, q: `We made ${made} ${GOODS[R.good].many}! There are ${people} of us, and we each eat one. How many are left for my shop?`,
         show: () => `${dots(made)}`, help: () => h2.html, helpSay: h2.say,
       });
       if (TSV.act) { TSV.act.phase = 'eat'; setPanel(`<div class="mm-tip" style="font-size:26px">😋 One each…</div>`); await wait(has3d() ? 900 + people * 350 : 100); }
       toShop = Math.max(0, Math.min(left, 10 - (S.stock[R.good] || 0)));
       S.stock[R.good] = (S.stock[R.good] || 0) + toShop;
+    }
+    // otherwise there is a pie for pudding to share out fairly (fair shares, more-skills.js)
+    if (!clockFirst) {
+      const what = pick(['pie', 'pie', 'tray bake']);
+      await talk('papa', `And I made a ${what} for pudding! Can you help me cut it?`, 'Yes!');
+      await ask(Object.assign({ who: kidId(helper), helpWho: 'keeper' }, MoreSkills.shareQ(S.lv.Q, { what, noLeft: true })));
     }
     T.baked = true; save(); syncView();
     if (window.GFKCards && !S.family.bakes) GFKCards.collect({ game: GAME, id: 'family-recipes', name: 'Family Recipe Book', emoji: '📒', rarity: 'common' });
@@ -509,7 +535,7 @@
     // 1. the floor: rows of tiles
     const M = S.lv.M, per = M <= 2 ? 2 : M === 3 ? 5 : 10, rows = M <= 2 ? 3 + rnd(3) : 2 + rnd(4);
     await ask({
-      k: 'M', who, helpWho: 'keeper', strat: 'skip', answer: rows * per, q: `The floor has ${rows} rows of tiles, with ${per} tiles in each row. How many tiles do we need?`,
+      k: 'M', std: per === 1 ? GFKSkills.count(rows) : GFKSkills.times(rows, per, { rows: true }), who, helpWho: 'keeper', strat: 'skip', answer: rows * per, q: `The floor has ${rows} rows of tiles, with ${per} tiles in each row. How many tiles do we need?`,
       show: () => tiles(rows, per),
       help: () => `<div class="row">${Array.from({ length: rows }, (_, r) => `<span class="grp"><span class="lab">${r === rows - 1 ? '?' : (r + 1) * per}</span>${dots(per)}</span>`).join('')}</div><div class="small">Count by ${per}s</div>`,
       helpSay: `Count by ${per === 2 ? 'twos' : per === 5 ? 'fives' : 'tens'}, one row at a time.`,
@@ -517,7 +543,7 @@
     // 2. the walls: planks in bundles of ten and some loose ones
     const P = S.lv.P, b = P <= 1 ? 1 + rnd(2) : 2 + rnd(7), o = 1 + rnd(9);
     await ask({
-      k: 'P', who, helpWho: 'keeper', strat: 'tens', answer: b * 10 + o, q: `Here are the planks for the walls: ${b} ${plural(b, 'bundle', 'bundles')} of 10, and ${o} more. How many planks is that?`,
+      k: 'P', std: GFKSkills.tens(b * 10 + o), who, helpWho: 'keeper', strat: 'tens', answer: b * 10 + o, q: `Here are the planks for the walls: ${b} ${plural(b, 'bundle', 'bundles')} of 10, and ${o} more. How many planks is that?`,
       show: () => planks(b, o),
       help: () => `<div class="row"><span class="grp"><span class="lab">${b} tens</span>${Mental.bag(b * 10)}</span><b style="font-size:30px">+</b><span class="grp"><span class="lab">${o} ones</span>${dots(o)}</span></div><div class="mm-tip">${b} tens is ${b * 10}. And ${o} more.</div>`,
       helpSay: `${b} tens is ${b * 10}. Then ${o} more.`,
@@ -551,35 +577,42 @@
   }
   const JOBS = {
     burrow: { who: 'bunbury', what: 'a new shelf for my jam jars', steps: ['measure', 'nails'] },
-    oak: { who: 'hoot', what: 'a taller bookcase', steps: ['boards', 'planks'] },
+    oak: { who: 'hoot', what: 'my old clock tick again, and fix its case', steps: ['clock', 'planks'] },
     stall: { who: 'dot', what: 'a bench for my flower stall', steps: ['saw', 'nails'] },
     pond: { who: 'captain', what: 'a new plank for my little boat', steps: ['measure', 'saw'] },
   };
   async function carpentry(kind, who) {
     const A = S.lv.A, Sv = S.lv.S, M = S.lv.M;
-    if (kind === 'measure') {
+    if (kind === 'clock') {
+      // Old Hoot's clock (telling the time, more-skills.js)
+      await ask(Object.assign({ who: 'papa', helpWho: 'papa' }, MoreSkills.timeQ(S.lv.T, 'mend')));
+    } else if (kind === 'nails' && S.lv.P >= 2 && Math.random() < .5) {
+      // once tens and ones are going well, the nails come in boxes of 100 (hundreds, more-skills.js)
+      await ask(Object.assign({ who: 'papa' }, MoreSkills.bigQ(S.lv.H, 'nails')));
+    } else if (kind === 'measure') {
+      // reading a ruler is measuring length, which the skills chart does not list, so it logs no skill
       const len = (Sv <= 1 ? 4 : 6) + rnd(Sv <= 1 ? 6 : 9);
       await ask({ k: 'N', who: 'papa', strat: 'none', answer: len, q: 'First I measure the plank. It starts at 0 on my ruler. How long is it?',
         show: () => ruler(len), help: () => `<div class="mm-tip">Look where the plank ends. ${len > 10 ? `It goes past 10 by ${len - 10}.` : len > 5 ? `5 and ${len - 5} more.` : ''}</div>`,
         helpSay: len > 10 ? `It goes past 10, and ${len - 10} more.` : 'Look at the number where the plank ends.' });
     } else if (kind === 'saw') {
       const len = (Sv <= 1 ? 6 : 10) + rnd(Sv <= 1 ? 5 : 9), need = 2 + rnd(len - 3), h = Mental.subHelp(len, need, Sv);
-      await ask({ k: 'S', who, helpWho: 'papa', strat: h.kind, answer: len - need, q: `This plank is ${len} long, and I need it ${need} long. How much does Papa saw off?`,
+      await ask({ k: 'S', std: GFKSkills.sub(len, need), who, helpWho: 'papa', strat: h.kind, answer: len - need, q: `This plank is ${len} long, and I need it ${need} long. How much does Papa saw off?`,
         show: () => ruler(len, { need }), help: () => h.html, helpSay: h.say });
     } else if (kind === 'nails') {
       const per = M <= 2 ? 2 : M === 3 ? 5 : 10, n = 2 + rnd(M <= 2 ? 4 : 3);
-      await ask({ k: 'M', who: 'papa', strat: 'skip', answer: n * per, q: `There are ${n} boards, and each board needs ${per} nails. How many nails do I need?`,
+      await ask({ k: 'M', std: GFKSkills.times(n, per), who: 'papa', strat: 'skip', answer: n * per, q: `There are ${n} boards, and each board needs ${per} nails. How many nails do I need?`,
         show: () => Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">board ${i + 1}</span>${dots(per)}</span>`).join(''),
         help: () => `<div class="row">${Array.from({ length: n }, (_, i) => `<span class="grp"><span class="lab">${i === n - 1 ? '?' : (i + 1) * per}</span>${dots(per)}</span>`).join('')}</div>`,
         helpSay: `Count by ${per === 2 ? 'twos' : per === 5 ? 'fives' : 'tens'}.` });
     } else if (kind === 'boards') {
       const [a, b] = A <= 1 ? [2 + rnd(4), 1 + rnd(4)] : A === 2 ? [3 + rnd(5), 2 + rnd(5)] : [6 + rnd(4), 4 + rnd(6)], h = Mental.addHelp(a, b, A);
-      await ask({ k: 'A', who, helpWho: 'papa', strat: h.kind, answer: a + b, q: `One board is ${a} long and the other is ${b} long. End to end, how long is that?`,
+      await ask({ k: 'A', std: GFKSkills.add([a, b]), who, helpWho: 'papa', strat: h.kind, answer: a + b, q: `One board is ${a} long and the other is ${b} long. End to end, how long is that?`,
         show: () => `<span class="fm-ruler" style="padding-top:8px"><span class="ticks"><b style="width:${a * U}px;background:#d9a46a;color:#fff">${a}</b><b style="width:${b * U}px;background:#c98f55;color:#fff">${b}</b></span></span>`,
         help: () => h.html, helpSay: h.say });
     } else {
       const P = S.lv.P, bn = P <= 1 ? 1 + rnd(2) : 2 + rnd(7), o = 1 + rnd(9);
-      await ask({ k: 'P', who: 'papa', strat: 'tens', answer: bn * 10 + o, q: `I have ${bn} ${plural(bn, 'bundle', 'bundles')} of 10 planks and ${o} more. How many planks is that?`,
+      await ask({ k: 'P', std: GFKSkills.tens(bn * 10 + o), who: 'papa', strat: 'tens', answer: bn * 10 + o, q: `I have ${bn} ${plural(bn, 'bundle', 'bundles')} of 10 planks and ${o} more. How many planks is that?`,
         show: () => planks(bn, o), help: () => `<div class="mm-tip">${bn} tens is ${bn * 10}. And ${o} more.</div>`, helpSay: `${bn} tens is ${bn * 10}. Then ${o} more.` });
     }
   }
