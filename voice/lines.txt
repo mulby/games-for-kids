@@ -1829,3 +1829,21 @@ roll the ball	Roll the ball!
 building our towers	Building our towers…
 once upon a time	Once upon a time…
 stir stir into the oven	Stir, stir… into the oven!
+tap a new thing to put it in my house	Tap a new thing to put it in my house.
+rubber duck	rubber duck
+fluffy bath mat	fluffy bath mat
+towel stand	towel stand
+little sink	little sink
+toilet	toilet
+vanity with a basin	vanity with a basin
+baby crib	baby crib
+bubble bath tub	bubble bath tub
+the rubber duck	the rubber duck
+the fluffy bath mat	the fluffy bath mat
+the towel stand	the towel stand
+the little sink	the little sink
+the seashell mirror	the seashell mirror
+the toilet	the toilet
+the vanity with a basin	the vanity with a basin
+the baby crib	the baby crib
+the bubble bath tub	the bubble bath tub
