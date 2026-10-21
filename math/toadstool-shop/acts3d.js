@@ -69,8 +69,10 @@ export function places(act, room) {
     case 'bath': {
       const B = tubAt(room), kid = who[0], p = {};
       // she walks the child to the tub; in the bath they sit down in the water
-      p[kid] = act.phase === 'ready' ? [B.x + 1.3, B.z + 1.1, face(B.x + 1.3, B.z + 1.1, B.x, B.z), 0] : [B.x, B.z, .3, B.own ? .2 : -.38];
-      p.keeper = [B.x - 1.7, B.z + .9, face(B.x - 1.7, B.z + .9, B.x, B.z), 0];
+      p[kid] = act.phase === 'ready' ? [B.x + 1.3, B.z + 1.1, face(B.x + 1.3, B.z + 1.1, B.x, B.z), 0] : [B.x, B.z, .3, B.own ? .38 : -.38];
+      // she stands at the end of the tub (her bathroom's big tub is long), not in front of it
+      const kx = B.x - (B.own ? 2.3 : 1.7), kz = B.z + (B.own ? .5 : .9);
+      p.keeper = [kx, kz, face(kx, kz, B.x, B.z), 0];
       return p;
     }
     case 'towers': return { [who[0]]: [cx - 1.6, cz + .5, .9, 0], keeper: [cx + 2.1, cz + .4, -.9, 0] };
@@ -169,7 +171,7 @@ export function build(act, room) {
         if (!on) return;
         const k = (s * .5 + i / 14) % 1, a = i * 2.4 + s * .4, r = (B.own ? .9 : .55) * Math.sqrt((i % 5 + 1) / 5);
         b.position.set(B.x + Math.cos(a) * r * (B.own ? 1.1 : 1), water.position.y + .05 + k * 1.4, B.z + Math.sin(a) * r * .6);
-        b.scale.setScalar((1 - k) * (.1 + (i % 3) * .05) / .1);
+        b.scale.setScalar((.35 + .65 * (1 - k)) * (.1 + (i % 3) * .05)); // ball() sizes by scale, so this is its radius
       });
       duck.visible = on; duck.position.set(B.x + .45, water.position.y + .08 + Math.sin(t * 3) * .03, B.z + .2); duck.rotation.y = Math.sin(t * .7) * .6;
       return phase === 'do' ? { [kid]: s > 1.1 ? 'happy' : 'idle', keeper: s > 1.1 ? 'talk' : 'idle' } : {};
