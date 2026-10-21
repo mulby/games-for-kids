@@ -1244,3 +1244,12 @@ main	oh
 main	one half
 main	one third
 main	one fourth
+main	Breakfast!
+main	pancakes each
+main	strawberries each
+main	blueberries each
+main	Splish, splash!
+main	Roll the ball!
+main	Building our towers…
+main	Once upon a time…
+main	Stir, stir… into the oven!
