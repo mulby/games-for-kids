@@ -49,6 +49,12 @@
     C.best = C.best || {};     // highest level reached per kind (for the binder cards)
     C.earned = C.earned || 0;  // all the money the board has paid
     C.log = C.log || [];       // a short history for grown-ups: {t, lv, ok, ms, day}
+    // once a day Tens Trail and Quick Facts also ask the shared skills chart: mastered her level's skill in any game, a
+    // harder card; struggling with it, an easier one (riddles are one skill at every level, so they go by her cards alone)
+    for (const t of ['tens', 'facts']) {
+      const lv = GFKSkills.place && GFKSkills.BOARD ? GFKSkills.place('board.' + t, GFKSkills.BOARD[t], C.lv[t], { max: TRACKS[t].max, game: GAME, name: "Hoot's board: " + TRACKS[t].name }) : null;
+      if (typeof lv === 'number' && lv !== C.lv[t]) { C.lv[t] = lv; save(); }
+    }
     return C;
   }
 

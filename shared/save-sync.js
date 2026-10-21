@@ -207,7 +207,7 @@
     "egypt-puzzles": ["Miu's Magic Pyramids", ["games-for-kids.egypt-puzzles.v1"]],
     "pirate-voyage": ["The Shining Sea", ["shiningSeaVoyage.v1"]],
     "toadstool-shop": ["The Toadstool Shop", ["toadstoolShop.v1"]],
-    "skills": ["The math skills chart", ["gfk-skills"]],
+    "skills": ["The math skills chart", ["gfk-skills", "gfk-adapt"]],
     "bubble-garden": ["Bubble Garden", ["funBubbleGarden.v1"]],
     "mouse-house": ["Hazel's House", ["funMouseHouse.v1"]],
     "treasure-dig": ["Treasure Dig", ["funTreasureDig.v1"]]

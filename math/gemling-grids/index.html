@@ -1505,6 +1505,12 @@ function merge(def,src){if(def===null||typeof def!=='object'||Array.isArray(def)
 let S=defaults();
 function load(){try{const raw=localStorage.getItem(SAVE_KEY);if(raw){const d=JSON.parse(raw);S=merge(defaults(),d);S.current=d.current||null;S.doors=d.doors||null}}catch(e){S=defaults()}
  if(!Array.isArray(S.history))S.history=[];if(!Array.isArray(S.pending))S.pending=[];}
+// Once a day the sum walls also ask the shared skills chart (shared/skills.js, every game together): mastered the adding
+// skill her level practises, the next level; struggling with it, one level back. Logic walls have no number skill, so
+// they follow her walls alone. Only once she has started the sum walls, so the first ones are always the gentle ones.
+function fitToChart(){if(!window.GFKSkills||!GFKSkills.place||!sumSeen())return;const T=S.tracks.sum,was=T.level;
+ const lv=GFKSkills.place('gem.sum',GFKSkills.GEMLING,was,{max:10,game:'gemling-grids',name:'Sum walls'});
+ if(typeof lv==='number'&&lv!==was){T.level=lv;T.best=Math.max(T.best,lv);T.streak=0;T.missStreak=0;if(!S.current)S.doors=null;save()}}
 function save(){try{S.lastActive=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
 function addShared(item){GFKCards.collect(Object.assign({game:SLUG},item))}
 
@@ -2199,7 +2205,7 @@ function openGrown(){const T=S.tracks;const ladder=(arr,tr,track)=>`<div class="
  const rate=recentCleanRate();
  $('#grownPanel').innerHTML=`<div class="row"><h2 class="grow">Grown-ups: Gemling Grids</h2><button class="gbtn prim" id="gClose">Close</button></div>
  <div class="small">Every puzzle is a Latin-square logic grid (sudoku/KenKen style). The <b>Sum track</b> practises addition facts and missing addends through “nooks” whose pieces must add to a number (later: differences). The <b>Logic track</b> builds reasoning with pictures only. Levels move up after 3 clean solves (2 if she's above 95%) and down after 2 non-clean solves; the very first levels (LG1–LG3, S1–S2) can skip ahead after one perfect first try. If her recent clean rate dips below 70%, the Big Door offers one level easier for a couple of sets. Clean = never needed more than the first hint nudge on any cell. She never sees levels or percentages.</div>
- <h3>Summary</h3><div><b>${esc(summary)}</b> Total walls: ${S.totalWalls}. Rolling clean rate (last 8): ${rate===null?'n/a':Math.round(rate*100)+'%'}${S.softLanding?' (soft landing active)':''}.</div>
+ <h3>Summary</h3><div><b>${esc(summary)}</b> Total walls: ${S.totalWalls}. Rolling clean rate (last 8): ${rate===null?'n/a':Math.round(rate*100)+'%'}${S.softLanding?' (soft landing active)':''}. Sum walls also follow the shared math skills chart once a day: up a level when she has mastered the adding skill her level practises (in any game), back one when she is struggling with it.</div>
  <h3>Skill ladders</h3><div><b>Logic</b>${ladder(LOGIC,T.logic,'logic')}</div><div><b>Sum</b>${ladder(SUM,T.sum,'sum')}</div>
  <div class="small"><b>Sum fade stage:</b> ${STAGE_NAMES[Math.max(0,SUM[T.sum.level].stage-S.fadeStage.drop)]} (drop ${S.fadeStage.drop} from the level default).</div>
  <h3>Last 7 days</h3><div class="scroll"><table><tr><th>Day</th><th>Minutes</th><th>Walls</th><th>Doors L / B / P</th></tr>${days.map(dayRow).join('')}</table></div>
@@ -2261,6 +2267,7 @@ function setupShelfInput(){bindPress($('#shelfWrap'),e=>{const g=e.target.closes
 /* ---------- INIT ---------- */
 function init(){load();
  if(Date.now()-(S.lastActive||0)>30*60*1000){S.sessionWalls=0;S.sessionOpeningDone=false;S.doors=null}
+ fitToChart();
  $('#peek').innerHTML=[1,2,3,4].map(v=>gemSVG(v,{mode:'face'})).join('');$('#crystalBtn').innerHTML=crystalSVG();
  $$('[data-home]').forEach(b=>{b.innerHTML=ICON.home;b.onclick=()=>{sfx('tap');goHome()}});
  $$('.say').forEach(b=>b.innerHTML=ICON.say);

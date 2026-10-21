@@ -37,6 +37,8 @@
 #gfk-skills .sk .dots i.y{background:var(--c)}
 #gfk-skills .sk-notes{font-size:13px;color:var(--ink-soft,#7a6450);margin:12px 0 0}
 #gfk-skills .sk-notes p{margin:6px 0 0}
+#gfk-skills .sk-moves{margin:4px 0 0;padding-left:18px}
+#gfk-skills .sk-moves li{margin:2px 0}
 @media (max-width:760px){#gfk-skills .sk-grades{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:480px){#gfk-skills .sk-grades{grid-template-columns:1fr}}`;
 
@@ -56,6 +58,17 @@
     const recent = st.state === 'new' ? [] : (S.from ? [] : ((d.s[c] || {}).e || []).slice(-10));
     const dots = recent.length ? `<span class="dots" aria-hidden="true">${recent.map(r => `<i class="${r[1] ? 'y' : ''}"></i>`).join('')}</span>` : '';
     return `<div class="sk" style="--c:${col};--b:${bg}"><b>${esc(S.name)}</b><code>${c}</code><small>${esc(info)}</small>${dots}</div>`;
+  }
+  // the levels the games moved by the chart (shared/skills.js place/note), newest first
+  const GAMES = { 'toadstool-shop': 'Toadstool Shop', 'pirate-voyage': 'The Shining Sea', 'fairy-lantern': 'Fairy Lantern Festival', 'gemling-grids': 'Gemling Grids', 'egypt-puzzles': "Miu's Magic Pyramids" };
+  const WHY = { mastered: 'mastered the skills there', shaky: 'finding it hard', 'good day': 'a good day', 'hard day': 'a hard day' };
+  function movesHTML() {
+    const m = K.moves ? K.moves().slice(-12).reverse() : [];
+    const rows = m.map(([t, g, what, from, to, why]) => {
+      const up = typeof from === 'number' ? to > from : why === 'mastered';
+      return `<li>${up ? '⬆️' : '⬇️'} <b>${esc(GAMES[g] || g)}</b>, ${esc(what)}: ${esc(typeof from === 'number' ? `level ${from} to ${to}` : `${from} to ${to}`)} (${esc(WHY[why] || why)}, ${ago(t)})</li>`;
+    }).join('');
+    return `<div class="sk-notes"><p><b>How the games are fitting to her.</b> Once a day each math game checks this chart: skills she has mastered (in any game) move that game up a level, and skills she is finding hard move it down one. ${rows ? 'Recent moves:' : 'No moves yet.'}</p>${rows ? `<ul class="sk-moves">${rows}</ul>` : ''}</div>`;
   }
   function render(box) {
     const d = K.read(), all = K.LIST.map(c => [c, K.status(c, d)]);
@@ -81,7 +94,7 @@
       }
       return h + '</div>';
     }).join('');
-    box.innerHTML = `<p class="sk-head">${esc(head)}</p><div class="sk-legend">${legend}</div><div class="sk-grades">${grades}</div>
+    box.innerHTML = `<p class="sk-head">${esc(head)}</p><div class="sk-legend">${legend}</div><div class="sk-grades">${grades}</div>${movesHTML()}
       <div class="sk-notes">
         <p><b>Mastered</b> means at least 8 of her last 10 tries were right the first time with no help, on 2 or more different days. <b>Right, but slow</b> means she gets plain facts right but they take longer than knowing them would, so she is probably still counting. <b>Check again</b> means mastered, but not seen for 3 weeks.</p>
         <p>The skills are the <a href="https://www.thecorestandards.org/Math/" target="_blank" rel="noopener">Common Core math standards</a> for kindergarten to 3rd grade that the games practise, so not every standard is here (shapes and measuring are missing, for example). Waldorf schools teach in a different order, so a skill she hasn't seen may just not have been taught yet.</p>
@@ -102,7 +115,7 @@
     d.addEventListener('toggle', draw);
     window.addEventListener('gfk-saves-changed', draw);
     window.addEventListener('gfk-game-closed', () => setTimeout(draw, 300));
-    window.addEventListener('storage', e => { if (e.key === K.KEY) draw(); });
+    window.addEventListener('storage', e => { if (e.key === K.KEY || e.key === K.ADAPT) draw(); });
     // bring in what the games saved before the chart existed, once the shelf has fetched her saves
     const ready = window.SaveSync && window.SaveSync.ready;
     Promise.resolve(ready).then(() => { if (K.importOld()) { if (window.SaveSync && SaveSync.sweep) SaveSync.sweep(); draw(); } }, () => {});

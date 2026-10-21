@@ -1267,34 +1267,67 @@ function record(k, ok) {
   save();
 }
 
-// The shop also gets a little harder as the days go by, after the onramp (day 4 on):
-// from day 7 one more customer when she is doing well and (once she adds past level 1) orders with up to 3 kinds
-// of goods, and every 3 days (to day 13) the smallest orders get a little bigger within her adding level. A skill that has not moved for 3 days moves up one level overnight
-// if most of its answers in those days were right first time (it still drops after 2 misses, as always).
-const ramp = () => S.day < SUMS_DAY ? 0 : Math.min(3, Math.floor((S.day - SUMS_DAY) / 3));
+// The shop gets harder as she gets better, and easier where she is finding it hard (Gabe, 2026-10-20: "I want it to be adaptive").
+// Days 1-4 are the onramp and stay as they are. After that:
+//  - Pace (S.pace, 0 to 5) is how busy and big the shop days are. Each night from day 5 it goes up one when at least 80% of
+//    the day's answers were right first time, and down one when under 55% were. From pace 1: one more friend on days she
+//    has been doing well, and orders with up to 3 kinds of goods once her adding is past level 1; from pace 4 a sixth friend
+//    on good days. The smallest orders also lean further toward the top of her adding level as the pace goes up.
+//  - Each night from day 5 every strand asks the shared skills chart (shared/skills.js, all the games together): mastered
+//    the skills at her level, up a level (two when the next level's skills are mastered too); struggling with them, down one.
+//  - A skill that has not moved for 3 days still moves up when at least 70% of its answers in those days were right first
+//    time, and every strand still moves up after 3 first-try answers in a row and down after 2 misses.
+const ADAPT_DAY = 5, PACE_MAX = 5;
+// the Common Core skill(s) each strand's level practises (for the chart)
+const LV_CODES = {
+  N: { 1: 'K.CC.B.5', 2: 'K.CC.B.5' },
+  A: { 1: 'K.OA.A.5', 2: 'K.OA.A.2', 3: '1.OA.C.6', 4: '1.NBT.C.4' },
+  S: { 1: 'K.OA.A.3', 2: 'K.OA.A.4', 3: '1.OA.B.4', 4: '2.NBT.B.5' },
+  M: { 1: '3.OA.A.1', 2: '3.OA.A.1', 3: '3.OA.A.1', 4: '3.OA.A.1' },
+  F: { 1: 'K.CC.B.5', 2: 'K.CC.B.5', 3: '2.MD.C.8', 4: '2.MD.C.8' },
+  P: { 1: 'K.NBT.A.1', 2: '1.NBT.B.2' },
+};
+const ramp = () => S.day < SUMS_DAY ? 0 : S.pace || 0;
 // at least 70% of the last 2 days' answers right first time
 function goingWell() { const L = S.log.filter(x => x.day >= S.day - 2 && x.day < S.day); return L.length >= 3 && L.filter(x => x.ok).length / L.length >= .7; }
 function rampUp() {
   if (S.day < SUMS_DAY) return [];
   S.lvDay = S.lvDay || {}; const up = [];
+  const moved = k => { S.lvDay[k] = S.day; S.streak[k] = { ok: 0, miss: 0 }; };
   for (const k of Object.keys(RANGE)) {
     if (S.lv[k] >= RANGE[k][1]) continue;
     const since = S.lvDay[k] || 0; if (S.day - since < 3) continue;
     const L = S.log.filter(x => x.k === k && x.day > S.day - 3);
-    if (L.length >= 3 && L.filter(x => x.ok).length / L.length >= .7) { S.lv[k]++; S.lvDay[k] = S.day; S.streak[k] = { ok: 0, miss: 0 }; up.push(k); }
+    if (L.length >= 3 && L.filter(x => x.ok).length / L.length >= .7) { S.lv[k]++; moved(k); up.push(k); }
   }
-  if (up.length) save();
+  if (S.day >= ADAPT_DAY) {
+    // how busy the shop is, from how today went
+    const T = S.log.filter(x => x.day === S.day);
+    if (T.length >= 5) {
+      const rate = T.filter(x => x.ok).length / T.length, was = S.pace || 0;
+      S.pace = rate >= .8 ? Math.min(PACE_MAX, was + 1) : rate < .55 ? Math.max(0, was - 1) : was;
+      if (S.pace !== was && window.GFKSkills && GFKSkills.note) GFKSkills.note(GAME, 'Shop pace (how busy, how big the orders)', was, S.pace, S.pace > was ? 'good day' : 'hard day');
+    }
+    // each skill, from the shared chart
+    for (const k of Object.keys(RANGE)) {
+      if (!window.GFKSkills || !GFKSkills.place) break;
+      // a strand the 3-day rule just moved up can still come down, but not climb further tonight
+      const was = S.lv[k], lv = GFKSkills.place('shop.' + k, LV_CODES[k], was, { min: RANGE[k][0], max: up.includes(k) ? was : RANGE[k][1], game: GAME, name: STRAND_NAME[k] });
+      if (typeof lv === 'number' && lv !== was) { S.lv[k] = lv; moved(k); if (lv > was) up.push(k); }
+    }
+  }
+  save();
   return up;
 }
 
 /* ================= save ================= */
 function freshState() {
   const lv = Object.assign({}, START);
-  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], homeTray: [], homeAt: {}, paper: 'rose', rooms: [], family: null, village: null, friends: {}, lv, streak: {}, log: [], shop: null, served: 0, settings: { voice: true, sfx: true } };
+  return { v: 1, day: 1, phase: 'intro', keeper: null, till: 10, jar: 0, stock: {}, sold: {}, had: {}, wanted: {}, lastSold: {}, missed: {}, lastMissed: {}, dear: {}, lastDear: {}, prices: {}, spent: 0, best: 0, total: 0, profit: 0, decor: [], garden: [], treasures: [], home: [], homeTray: [], homeAt: {}, paper: 'rose', rooms: [], family: null, village: null, friends: {}, lv, streak: {}, log: [], pace: 0, shop: null, served: 0, settings: { voice: true, sfx: true } };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-if (!S || S.v !== 1) S = freshState(); else { const had = S.lvDay; S = Object.assign(freshState(), S); if (!had) S.lvDay = Object.fromEntries(Object.keys(RANGE).map(k => [k, S.day])); } // older saves start the 3-day wait fresh
+if (!S || S.v !== 1) S = freshState(); else { const had = S.lvDay, hadPace = 'pace' in S; S = Object.assign(freshState(), S); if (!had) S.lvDay = Object.fromEntries(Object.keys(RANGE).map(k => [k, S.day])); if (!hadPace) S.pace = S.day < SUMS_DAY ? 0 : Math.min(3, Math.floor((S.day - SUMS_DAY) / 3)); } // older saves start the 3-day wait fresh (and keep the busier days they had reached)
 // One purse: anything in the old savings jar joins her money.
 if (S.jar) { S.till += S.jar; S.jar = 0; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -1770,8 +1803,8 @@ function shopCart(lines, mostFor, again) {
 function makeCustomers() {
   if (S.day === 1) return [{ who: 'hazel', flow: 'count', order: [['bun', 1]] }, { who: 'mo', flow: 'count', order: [['bun', 1]] }];
   // From day 3 most customers pay with a bigger coin, so she gives change.
-  // From day 7 one more friend, but only while she is doing well (a long day is no fun when the sums are hard)
-  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4 + (ramp() >= 1 && goingWell() ? 1 : 0);
+  // A busier shop (pace 1, and 4) brings one more friend, then two, but only while she is doing well (a long day is no fun when the sums are hard)
+  const howMany = S.day === 2 ? 2 : S.day === 3 ? 3 : 4 + (ramp() >= 1 && goingWell() ? 1 : 0) + (ramp() >= 4 && goingWell() ? 1 : 0);
   const regs = shuffle(REGULARS).slice(0, howMany).map((who, i) => ({ who, flow: i === 0 || S.day < CHANGE_DAY ? 'count' : 'change' }));
   const sp = SPECIAL_BY_DAY[S.day] || (S.day > 11 ? pick(['captain', 'miu', 'athena']) : null);
   if (sp) regs.splice(1, 0, { who: sp, flow: 'change', special: sp });
@@ -1785,7 +1818,7 @@ const inStock = () => Object.keys(S.stock).filter(g => S.stock[g] > 0);
 const orderBand = () => {
   if (S.day < SUMS_DAY) return [1, 4];
   const [lo, hi] = [[2, 5], [3, 10], [8, 20], [15, 30]][S.lv.A - 1];
-  return [Math.round(lo + (hi - lo) * ramp() * .15), hi]; // later days lean toward the top of her level
+  return [Math.round(lo + (hi - lo) * ramp() * .1), hi]; // a busier pace leans toward the top of her level
 };
 // wish: what an animal would like at the usual prices, whatever is on the shelf (her stock decides what she can sell).
 function makeOrder(maxGoods = 2, wish = false) {
@@ -2514,7 +2547,7 @@ function tryOnSpec(id) {
 }
 function lookImg(spec) { return has3d() && spec ? `<img src="${Shop3D.portrait(spec)}" alt="">` : '🐭'; }
 function clothesBtn(c, state) {
-  const tag = state === 'on' ? '✓ wearing' : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
+  const tag = state === 'on' ? (c.none ? '✓ tap to take off' : '✓ wearing') : state === 'own' ? 'mine' : c.gift ? '🎁 a present' : c.cost + '¢';
   return `<button data-c="${c.id}" class="${state}"><span class="em" style="${c.css || ''}">${c.emoji}</span><span>${c.name}</span><span class="tag">${tag}</span></button>`;
 }
 // The 👗 button: change clothes any time. Only what she owns can go on; the rest shows where it comes from.
@@ -2588,7 +2621,7 @@ async function title() {
     const box = $('#grownups'); box.hidden = false;
     $('.card', box).innerHTML = `<h2 style="margin-top:0">The Toadstool Shop: grown-ups</h2>
       ${jumpPanel()}
-      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors. After that it slowly gets harder: from day 7 one more customer on days when she has been getting at least 70% right, orders with up to 3 kinds of goods once her adding is past level 1, the smallest orders get a little bigger every 3 days up to day 13, and a skill that has not moved for 3 days moves up overnight if at least 70% of its answers in those days were right first time.</p>
+      <p>Day ${S.day}. Every skill starts at level 1 (1 = kindergarten to early 1st grade, 2 = end of 1st, 3 = early 2nd, 4 = mid 2nd). A strand moves up after 3 first-try answers in a row and down after 2 misses. The first days teach the shop one step at a time: day 1 is one bag from Bramble and two shoppers, day 2 adds choosing bags, day 3 giving change, day 4 price tags and the special visitors. After that it adapts to her. Each night from day 5 the shop's pace (now ${S.pace || 0} of 5) goes up one after a day with at least 80% right first time and down one under 55%: a busier pace brings one more friend on good days (two from pace 4), orders with up to 3 kinds of goods once her adding is past level 1, and totals nearer the top of her adding level. Each night every skill also checks the shared math skills chart (all the games together): mastered the skills at her level, up a level; struggling with them, down one. A skill that has not moved for 3 days also moves up if at least 70% of its answers in those days were right first time. The recent moves are listed under the skills chart on The Wonder Shelf.</p>
       <table><tr><th>Skill</th><th>Level now</th><th>Last 10</th></tr>${rows}</table>
       <p>Earned so far ${S.total}¢ · Best day ${S.best}¢ · Prices: ${Object.keys(S.prices).map(g => `${GOODS[g].many} ${S.prices[g]}¢ (usual ${GOODS[g].price}¢)`).join(', ') || 'usual'}</p>
       <p>Money ${S.till}¢ · Decorations ${S.decor.length}/${DECOR.length} · Garden ${S.garden.length}/${GARDEN.length} · Treasures ${S.treasures.length}/${TREASURES.length} · Home things ${S.home.length}/${HOME.length} · Clothes ${ShopWardrobe.CLOTHES.filter(c => ShopWardrobe.owns(S, c.id)).length}/${ShopWardrobe.CLOTHES.length} · Friends ${Object.keys(S.friends).length}</p>

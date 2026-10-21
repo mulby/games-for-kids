@@ -115,10 +115,22 @@ Thinking is always the quickest way through, so tapping around stops being worth
 Each kind of problem follows one Moonlit Map strand and level (1 = kindergarten to early 1st grade, 2 = end of 1st,
 3 = early 2nd, 4 = mid 2nd). The game starts every strand at level 1, moves up after 3 first-try answers in a row and down after 2 misses.
 
-After the onramp the shop also gets slowly harder as the days go by: from day 7 a fifth regular friend on days after she has been
-getting at least 70% right, orders with up to 3 kinds of goods once her adding is past level 1, and every 3 days (up to
-day 13) the smallest orders get a little bigger within her adding level. A strand that has not moved for 3 days moves up one level overnight when at least 70% of its
-answers in those days were right first time; it still drops after 2 misses, so a hard patch never piles up.
+After the onramp (from the night of day 5) the shop adapts to how she is doing, not to how many days she has played
+(Gabe, 2026-10-20: "I want it to be adaptive"):
+
+- **Pace** (`S.pace`, 0 to 5) is how busy the shop is. Each night it goes up one after a day with at least 80% of answers
+  right first time, and down one after a day under 55%. From pace 1 a fifth regular friend comes on days after she has been
+  getting at least 70% right, and orders have up to 3 kinds of goods once her adding is past level 1; from pace 4 a sixth
+  friend on those days. The higher the pace, the nearer the smallest orders lean to the top of her adding level. (Older
+  saves start at the pace the old day-count ramp had reached.)
+- **The shared skills chart.** Each night every strand checks `shared/skills.js` (her tries in all the games together),
+  using the skills its level practises (`LV_CODES`): all of them mastered, up a level (two if the next level's different
+  skills are mastered too); struggling with them (6 or more recent tries, under half right first time), down one.
+  "Right, but slow" and "check again" hold her where she is. Hoot's Tens Trail and Quick Facts do the same once a day.
+- A strand that has not moved for 3 days still moves up overnight when at least 70% of its answers in those days were
+  right first time, and within a day a strand still moves up after 3 first-try answers in a row and down after 2 misses.
+- The day-off activities, the village jobs and the family's needs use the same strand levels, so they follow along.
+- Moves are listed for grown-ups under the math skills chart on The Wonder Shelf (`gfk-adapt`).
 
 | Strand | Levels | In the shop |
 | --- | --- | --- |
