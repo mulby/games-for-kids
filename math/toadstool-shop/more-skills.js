@@ -36,8 +36,8 @@
 .ms-ten span{display:block;width:9px;height:58px;border-radius:3px;background-color:#9fd0f5;background-image:linear-gradient(#3f86c6 1px,transparent 1px);background-size:9px 5.8px;box-shadow:inset 0 0 0 2px #3f86c6}
 .ms-ones{display:inline-grid;grid-template-columns:repeat(3,11px);gap:2px;align-content:end}
 .ms-ones i{display:block;width:11px;height:11px;border-radius:2px;background:#f6a6bd;box-shadow:inset 0 0 0 2px #e2566b}
-.ms-line{display:flex;align-items:flex-end;justify-content:center;gap:0;font-size:16px;font-weight:700}
-.ms-line b{display:flex;flex-direction:column;align-items:center;width:30px;border-top:3px solid #6b4a33}
+.ms-line{display:flex;align-items:flex-start;justify-content:center;gap:0;font-size:16px;font-weight:700}
+.ms-line b{display:flex;flex-direction:column;align-items:center;width:36px;border-top:3px solid #6b4a33}
 .ms-line b::before{content:'';display:block;width:2px;height:10px;background:#6b4a33}
 .ms-line b.end{font-size:20px;color:#3f86c6}
 .ms-line b.at{color:#c23f55;font-size:22px}
@@ -260,7 +260,7 @@
         k: 'H', std: '2.NBT.A.1', strat: 'tens', answer: n, opts: numOpts(n, [h * 100 + o * 10 + t, n + 100, n - 10, n + 10, h + t + o]),
         q: `${h} ${plural(h, U.box, U.boxes)} of 100 ${U.many}, ${t} ${plural(t, U.ten, U.tens)} of 10${o ? ` and ${o} more` : ''}. How many ${U.many} is that?`,
         show: () => hundreds(h, t, o),
-        help: () => `${hundreds(h, t, o)}<div class="mm-tip">${h} hundreds is ${h * 100}. ${t} tens is ${t * 10}. ${o} ones. Together: <b>${h}</b> hundreds, <b>${t}</b> tens, <b>${o}</b> ones.</div>`,
+        help: () => `<div class="mm-tip">${h} ${plural(h, 'hundred', 'hundreds')} is ${h * 100}. ${t} ${plural(t, 'ten', 'tens')} is ${t * 10}. And ${o} ${plural(o, 'one', 'ones')}. The hundreds come first, then the tens, then the ones.</div>`,
         helpSay: `Count the hundreds first: ${Array.from({ length: h }, (_, i) => (i + 1) * 100).join(', ')}. Then the tens, then the ones.`,
       };
     }
@@ -312,7 +312,7 @@
       k: 'H', std: '3.NBT.A.1', strat: 'none', answer: ans, opts: choices(ans, [ans === lo ? hi : lo, ans === lo ? lo - step : hi + step, n], ok3).slice(0, 3).sort((a, b) => a - b),
       q: `${who === 'I' ? 'I have' : who + ' has'} ${n} ${U.many}. About how many is that, to the nearest ${hundred ? 'hundred' : 'ten'}?`,
       show: () => roundLine(lo, hi, n),
-      help: () => `${roundLine(lo, hi, n)}<div class="mm-tip">${n} is between ${lo} and ${hi}. Halfway is ${lo + step / 2}: is ${n} before it or after it?</div>`,
+      help: () => `<div class="mm-tip">${n} is between ${lo} and ${hi}. Halfway is ${lo + step / 2}: is ${n} before it or after it?</div>`,
       helpSay: `${n} is between ${lo} and ${hi}. Which one is it nearer to?`,
     };
   }
