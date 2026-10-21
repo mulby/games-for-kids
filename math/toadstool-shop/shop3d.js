@@ -310,11 +310,18 @@ function updateActors(dt, t) {
     if (slot.endsWith('_new')) { a.obj.visible = false; continue; } // waits at the door until the last visitor has left
     a.obj.visible = true;
     const tgt = a.path[0] || (SPOTS[a.scene] || SPOTS.inside)[base];
-    const dx = tgt[0] - p.x, dz = tgt[2] - p.z, d = Math.hypot(dx, dz);
-    if (d > .05) {
+    // at home she steps round her family and the furniture (round the end of a table to sit behind it), and if
+    // someone stands in the way a while she stops
+    const home = a.scene === 'room' && slot === 'keeper', w = home ? AC.leg(a, tgt, tgt[0], tgt[2], p.x, p.z) : [tgt[0], tgt[2]];
+    const dx = w[0] - p.x, dz = w[1] - p.z, d = Math.hypot(dx, dz);
+    if (home) { const tk = tgt.join() + a.leg; if (a.tk !== tk) { a.tk = tk; a.stuck = 0; a.best = Infinity; } }
+    if (d > .05 && !(home && a.stuck >= 2)) {
       const sp = Math.min(d, dt * (a.scene === 'village' ? (a.speed || 5.5) : 4.2));
-      if (a.scene === 'room' && slot === 'keeper') AC.step(p, [tgt[0], tgt[2]], .5, dt, 4.2, fam.map(f => ({ p: f.obj.position, r: f.r })), roomBlocks);
-      else { p.x += dx / d * sp; p.z += dz / d * sp; }
+      if (home) {
+        AC.step(p, w, .5, dt, 4.2, fam.map(f => ({ p: f.obj.position, r: f.r })), roomBlocks);
+        const dd = Math.hypot(w[0] - p.x, w[1] - p.z); if (dd < a.best - .03) { a.best = dd; a.stuck = 0; } else a.stuck += dt; // not getting any nearer
+        p.y += (0 - p.y) * Math.min(1, dt * 8);
+      } else { p.x += dx / d * sp; p.z += dz / d * sp; }
       let dy = Math.atan2(dx, dz) - a.obj.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
       a.obj.rotation.y += dy * Math.min(1, dt * 8);
       u.mood = u.kind === 'fairy' ? 'idle' : 'walk';
@@ -324,6 +331,7 @@ function updateActors(dt, t) {
       a.path.length = 0;
       let dy = tgt[3] - a.obj.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
       a.obj.rotation.y += dy * Math.min(1, dt * 5);
+      if (home) p.y += ((d < .15 ? tgt[1] || 0 : 0) - p.y) * Math.min(1, dt * 4); // sitting down at the table
       // what the shopkeeper is doing in a family activity (acts3d.js), unless she is talking
       const vm = (v.mood || {})[base];
       u.mood = vm && vm !== 'idle' ? vm : (base === 'keeper' && act && act.moods.keeper) || vm || 'idle';
@@ -571,9 +579,11 @@ function updateFolk(v, t) {
     }
     // two people on the lane never walk through each other: whoever is walking (or standing in her way) steps aside
     let zt = f.z;
-    const near = folk.filter(g => g !== f).map(g => g.obj.position).concat(a && a.scene === 'village' ? [a.obj.position] : []);
-    for (const q of near) {
-      if (Math.abs(q.x - p.x) < 1.3 && Math.abs(q.z - zt) < .8) zt = q.z + (p.z >= q.z ? .85 : -.85);
+    // (two side by side on the same line step opposite ways, by their place in the list, so they don't step together)
+    const me = folk.indexOf(f), near = folk.map((g, i) => [g.obj.position, i]).filter(([, i]) => i !== me).concat(a && a.scene === 'village' ? [[a.obj.position, -1]] : []);
+    for (const [q, i] of near) {
+      const up = Math.abs(p.z - q.z) > 1e-3 ? p.z > q.z : me > i;
+      if (Math.abs(q.x - p.x) < 1.3 && Math.abs(q.z - zt) < .8) zt = q.z + (up ? .85 : -.85);
     }
     zt = THREE.MathUtils.clamp(zt, -.5, 1.4);
     p.z += (zt - p.z) * Math.min(1, dt * 3);
@@ -612,7 +622,7 @@ function syncAct(v, t) {
   if (!act) return;
   if (a.phase !== act.phase) { act.phase = a.phase; act.t0 = t; act.at = AC.places(a, roomKey); }
   act.moods = act.g.userData.update(a.phase, t - act.t0, t) || {};
-  const k = act.at.keeper; if (k) SPOTS.room.keeper = [k[0], 0, k[1], k[2]];
+  const k = act.at.keeper; if (k) SPOTS.room.keeper = Object.assign([k[0], k[3] || 0, k[1], k[2]], { via: k.via });
 }
 // Her husband and children (TSV.family: [{id, spec, kid}], family.js) are at home in a row at the front of her room;
 // the children are smaller. TSV.famMood[id] says who is talking, waving or happy.
@@ -632,21 +642,23 @@ function syncFamily(v, t) {
   for (const f of fam) {
     const o = f.obj, p = o.position, u = o.userData;
     // in an activity: their place in it, or else off to one side to watch
-    const tgt = act ? act.at[f.id] || (f.aside = f.aside && f.aside.key === act.key + act.phase ? f.aside : Object.assign(AC.aside(act.a, roomKey, fam.filter(g => !act.at[g.id]).indexOf(f)), { key: act.key + act.phase })) : f.home;
+    const tgt = act ? act.at[f.id] || (f.aside = f.aside && f.aside.key === act.key + act.phase ? f.aside : Object.assign(AC.aside(act.a, roomKey, fam.filter(g => !act.at[g.id]).indexOf(f), roomBlocks), { key: act.key + act.phase })) : f.home;
     const px = p.x, pz = p.z, k = actors.keeper;
     // everyone else in the room, so they step round each other
     const bodies = fam.filter(g => g !== f).map(g => ({ p: g.obj.position, r: g.r })).concat(k && k.scene === 'room' ? [{ p: k.obj.position, r: .5 }] : []);
     // someone standing in the way for a while: stop there rather than walk on the spot
-    const tk = tgt.join(); if (f.tk !== tk) { f.tk = tk; f.stuck = 0; }
-    if (f.stuck < 1.2 && Math.hypot(tgt[0] - p.x, tgt[1] - p.z) > .05 && AC.step(p, tgt, f.r, dt, 3.4, bodies, roomBlocks)) {
+    const w = AC.leg(f, tgt, tgt[0], tgt[1], p.x, p.z), tk = tgt.join() + f.leg; if (f.tk !== tk) { f.tk = tk; f.stuck = 0; f.best = Infinity; }
+    if (f.stuck < 2 && Math.hypot(w[0] - p.x, w[1] - p.z) > .05 && AC.step(p, w, f.r, dt, 3.4, bodies, roomBlocks)) {
       p.y += (0 - p.y) * Math.min(1, dt * 8);
       const mx = p.x - px, mz = p.z - pz;
-      f.stuck = Math.hypot(mx, mz) < dt * .6 ? f.stuck + dt : 0;
+      const dd = Math.hypot(w[0] - p.x, w[1] - p.z); if (dd < f.best - .03) { f.best = dd; f.stuck = 0; } else f.stuck += dt; // not getting any nearer
       if (Math.hypot(mx, mz) > 1e-4) { let dy = Math.atan2(mx, mz) - o.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); o.rotation.y += dy * Math.min(1, dt * 8); }
       u.mood = 'walk';
     } else {
-      let dy = tgt[2] - o.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); o.rotation.y += dy * Math.min(1, dt * 5);
-      p.y += ((tgt[3] || 0) - p.y) * Math.min(1, dt * 4);
+      // there: turn the right way and sit down (on a stool, in the bath); stuck short of it, stay standing
+      const there = Math.hypot(tgt[0] - p.x, tgt[1] - p.z) < .15;
+      let dy = tgt[2] - o.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); if (there) o.rotation.y += dy * Math.min(1, dt * 5);
+      p.y += ((there ? tgt[3] || 0 : 0) - p.y) * Math.min(1, dt * 4);
       u.mood = m[f.id] || (act && act.moods[f.id]) || 'idle';
     }
     animCritter(o, t);

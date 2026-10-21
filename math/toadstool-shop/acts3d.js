@@ -20,8 +20,8 @@ const ease = s => s <= 0 ? 0 : s >= 1 ? 1 : s * s * (3 - 2 * s);
 const clamp01 = s => Math.max(0, Math.min(1, s));
 
 // places round the back and ends of a table, all facing it (and so the camera); k < 1 is further in (their plates)
-function round(T, ids, k = 1, y = 0) {
-  const out = {}, n = ids.length, a0 = -Math.PI - .2, a1 = .2, rx = 1.85 * k, rz = 1.25 * k;
+function round(T, ids, k = 1, y = 0, trim = 0) {
+  const out = {}, n = ids.length, a0 = -Math.PI - .2 + trim, a1 = .2 - trim, rx = 1.85 * k, rz = 1.25 * k;
   ids.forEach((id, i) => {
     const a = n === 1 ? -Math.PI / 2 : a0 + (a1 - a0) * i / (n - 1), x = T.x + Math.cos(a) * rx, z = T.z + Math.sin(a) * rz;
     out[id] = [x, z, face(x, z, T.x, T.z), y];
@@ -29,18 +29,43 @@ function round(T, ids, k = 1, y = 0) {
   return out;
 }
 const STOOL_H = .52;
+// the kitchen has a chair at each end of its table: whoever sits at an end takes the chair, not a stool
+const CHAIRS = { kitchen: [[-1.9, -1.5], [1.9, -1.5]] }, CHAIR_H = .72;
+function seats(room, who) {
+  const T = tableAt(room), ch = CHAIRS[room];
+  if (!ch || who.length < 2) return round(T, who, 1, STOOL_H);
+  // the ends on the chairs, everyone else in a row on stools along the back
+  const P = {}, mid = who.slice(1, -1), w = Math.min(2.4, mid.length * .8);
+  [who[0], who[who.length - 1]].forEach((id, i) => { const [x, z] = ch[i]; P[id] = [x, z, face(x, z, T.x, T.z), CHAIR_H, true]; });
+  mid.forEach((id, i) => { const x = T.x + (mid.length < 2 ? 0 : -w / 2 + w * i / (mid.length - 1)), z = T.z - 1.15; P[id] = [x, z, 0, STOOL_H]; });
+  return P;
+}
 function stool() {
   const g = new THREE.Group(), w = D.wood('#a8734a', { axis: 1 });
   g.add(D.mesh(new THREE.CylinderGeometry(.3, .3, .08, 20), D.wood('#c08a58', { axis: 0 }), [0, STOOL_H - .04, 0]));
   for (let i = 0; i < 3; i++) { const a = i / 3 * TAU; g.add(D.capsule(w, [Math.cos(a) * .2, 0, Math.sin(a) * .2], [Math.cos(a) * .15, STOOL_H - .06, Math.sin(a) * .15], .035, 8)); }
   return g;
 }
+// The places behind a table: whoever comes from the front walks round the end first (via: the front corner, the back
+// corner, then behind their place), behind whoever is already sitting, instead of squeezing between them and the table.
+function roundBack(T, P) {
+  for (const p of Object.values(P)) if (p[1] < T.z - .1) { const x = T.x + Math.sign(p[0] - T.x || 1) * 2.75; p.via = [[x, T.z + 1.3], [x, T.z - 2.1], [p[0], T.z - 2.1]]; }
+  return P;
+}
+// Where someone walks next on the way to place p (from x, z): the via points they are still in front of, then p.
+// o keeps which leg they are on.
+export function leg(o, p, px, pz, x, z) {
+  const k = px + ',' + pz, via = p.via || [];
+  if (o.legK !== k) { o.legK = k; o.leg = via.findIndex(q => z > q[1] + .3); if (o.leg < 0) o.leg = via.length; }
+  while (o.leg < via.length && Math.hypot(via[o.leg][0] - x, via[o.leg][1] - z) < .45) o.leg++;
+  return o.leg < via.length ? via[o.leg] : [px, pz];
+}
 export function places(act, room) {
   const [cx, cz] = STAGE, who = act.who || [];
   switch (act.kind) {
     // at breakfast they sit up at the table on stools; baking is done standing
-    case 'eat': return round(tableAt(room), who, 1, STOOL_H);
-    case 'bake': return round(tableAt(room), who);
+    case 'eat': return roundBack(tableAt(room), seats(room, who));
+    case 'bake': return roundBack(tableAt(room), round(tableAt(room), who, 1, 0, CHAIRS[room] ? .6 : 0)); // standing, so not by the kitchen chairs
     case 'bath': {
       const B = tubAt(room), kid = who[0], p = {};
       // she walks the child to the tub; in the bath they sit down in the water
@@ -63,10 +88,14 @@ export function view(act, room) {
 }
 
 // where everyone else waits, off to the sides so the camera can see: they turn to watch
-export function aside(act, room, j) {
-  const V = view(act, room), x0 = V.look[0], z0 = V.look[2], side = j % 2 ? 1 : -1, x = x0 + side * (V.span / 2 + .3 + Math.floor(j / 2) * .9), z = z0 + .5 + Math.floor(j / 2) * .35;
-  const r = Math.hypot(x, z), k = r > 5.6 ? 5.6 / r : 1;
-  return [x * k, z * k, face(x * k, z * k, x0, z0), 0];
+export function aside(act, room, j, blockList = []) {
+  const V = view(act, room), x0 = V.look[0], z0 = V.look[2], side = j % 2 ? 1 : -1;
+  let x = x0 + side * (V.span / 2 + .3 + Math.floor(j / 2) * .9), z = z0 + .5 + Math.floor(j / 2) * .35;
+  for (let n = 0; n < 4; n++) { // not in the furniture, and not out through the walls
+    const r = Math.hypot(x, z); if (r > 5.6) { x *= 5.6 / r; z *= 5.6 / r; }
+    for (const b of blockList) { const R = reach(b, x, z) + .45, ox = x - b[0], oz = z - b[1], od = Math.hypot(ox, oz) || .001; if (od < R) { x = b[0] + ox / od * R; z = b[1] + oz / od * R; } }
+  }
+  return [x, z, face(x, z, x0, z0), 0];
 }
 
 /* ---------------- props ---------------- */
@@ -98,7 +127,7 @@ export function build(act, room) {
     // a plate for everyone; the food appears as she says how much to make, then it gets eaten up
     const T = tableAt(room), P = round(T, who, .62), n = Math.min(act.each || 2, 10), items = [];
     if (!T.own) { const t = table(2.4, 1.4); t.position.set(T.x, 0, T.z); g.add(t); }
-    for (const [x, z] of Object.values(round(T, who))) { const st = stool(); st.position.set(x, 0, z); g.add(st); }
+    for (const [x, z, , , chair] of Object.values(seats(room, who))) { if (chair) continue; const st = stool(); st.position.set(x, 0, z); g.add(st); }
     for (const id of who) {
       const [px, pz] = P[id], plate = new THREE.Group(); plate.position.set(THREE.MathUtils.clamp(px, T.x - 1.05, T.x + 1.05), T.top, THREE.MathUtils.clamp(pz, T.z - .5, T.z + .5)); g.add(plate);
       plate.add(D.mesh(new THREE.CylinderGeometry(.3, .22, .04, 24), mats.plate()));
@@ -176,14 +205,18 @@ export function build(act, room) {
       p.position.set(x0 + row * .3, 0, z0 + (j - row / 2) * .32); g.add(p);
       pins.push({ p, dir: Math.random() * TAU });
     }
-    const order = pins.map((_, i) => i).sort((i, j) => pins[i].p.position.x - pins[j].p.position.x || Math.random() - .5);
+    // the ball rolls straight down the middle: it knocks the skittles in its way first (front to back), and if it
+    // can't knock them all it stops at the first one left standing instead of rolling through it
+    const inPath = P => Math.abs(P.p.position.z - z0) <= .2;
+    const order = pins.map((_, i) => i).sort((i, j) => (inPath(pins[j]) - inPath(pins[i])) || pins[i].p.position.x - pins[j].p.position.x || Math.random() - .5);
     order.slice(0, down).forEach(i => { pins[i].falls = true; });
+    const stop = pins.filter(P => inPath(P) && !P.falls).reduce((m, P) => Math.min(m, P.p.position.x - .34), Infinity);
     const ball = D.ball(mats.ball(), [0, .2, 0], .2, [0, 0, 0], 20); g.add(ball);
-    const from = [cx - 1.8, cz + .3];
+    const from = [cx - 1.8, cz + .3], to = Math.min(x0 + 1.3, stop);
     update = (phase, s) => {
       const k = phase === 'do' ? clamp01(s / 1.1) : 0;
-      ball.position.set(from[0] + (x0 + 1.3 - from[0]) * k, .2, from[1] + (z0 - from[1]) * k); ball.rotation.z = -k * 10;
-      ball.visible = k < 1;
+      ball.position.set(from[0] + (to - from[0]) * k, .2, from[1] + (z0 - from[1]) * k); ball.rotation.z = -k * 10 * (to - from[0]) / 4;
+      ball.visible = k < 1 || to < x0 + 1.3;
       pins.forEach(P => { const f = P.falls ? ease(clamp01((s - .9 - (P.p.position.x - x0) * .4) / .35)) : 0; P.p.rotation.set(Math.cos(P.dir) * f * 1.5, 0, Math.sin(P.dir) * f * 1.5); });
       return phase === 'do' ? { [who[0]]: s < .4 ? 'give' : s > 1.6 ? 'happy' : 'idle', keeper: s > 1.6 ? 'happy' : 'idle' } : {};
     };
@@ -236,10 +269,16 @@ export function build(act, room) {
 
 /* ---------------- walking round things ---------------- */
 // Furniture in each room as circles on the floor [x, z, r], so people walk round it instead of through it.
+// A thing can also be an oval [x, z, rx, rz] (a long table): reach() is how far it comes out towards (x, z).
+const reach = (b, x, z) => {
+  if (b.length < 4) return b[2];
+  const a = Math.atan2(z - b[1], x - b[0]), c = Math.cos(a), s = Math.sin(a);
+  return b[2] * b[3] / Math.hypot(b[3] * c, b[2] * s);
+};
 const FURNITURE = {
   // the first circles of rooms3d.js FIXED (the bed, the table and so on; the rest there are where the family stands)
   home: [[2.1, -6.3, 1.5], [-2.3, -5.85, 1.2], [-3.7, -3.5, 1.9], [2.6, -2.4, 1.2], [3.9, -2.2, .6]],
-  kitchen: [[-.7, -1.6, .8], [.7, -1.6, .8], [-1.9, -1.5, .5], [1.9, -1.5, .5], [1.55, -6.05, 1.2], [-3.82, -5.33, 1.0], [-4.2, -2.4, .6], [-3.5, -3.2, .5], [4.0, -1.2, .5]],
+  kitchen: [[0, -1.6, 1.4, .8], [-1.9, -1.5, .5], [1.9, -1.5, .5], [1.55, -6.05, 1.2], [-3.82, -5.33, 1.0], [-4.2, -2.4, .6], [-3.5, -3.2, .5], [4.0, -1.2, .5]],
   kids: [[4.81, -2.76, 1.1], [1.9, -5.21, 1.1], [-1.9, -5.21, 1.1], [-4.81, -2.76, 1.1], [-4.3, -.6, .7], [-3.6, .4, .4], [4.6, -1.0, .8]],
   bath: [[-1.6, -3.4, .9], [0, -3.4, .9], [3.6, -3.0, .5]],
   attic: [[-3.4, -3.0, 1.0], [-.6, -3.8, .4], [1.2, .4, .4], [4.3, -.4, .7], [-4.0, .2, .95], [2.2, -2.6, .8]],
@@ -256,7 +295,7 @@ export function blocks(room, v, act) {
   }
   if (act) {
     const T = tableAt(room), B = tubAt(room), [cx, cz] = STAGE;
-    if ((act.kind === 'eat' || act.kind === 'bake') && !T.own) out.push([T.x - .6, T.z, .75], [T.x + .6, T.z, .75]);
+    if ((act.kind === 'eat' || act.kind === 'bake') && !T.own) out.push([T.x, T.z, 1.3, .75]);
     if (act.kind === 'bath' && !B.own) out.push([B.x, B.z, .95]);
     if (act.kind === 'skittles') out.push([cx + 1.35, cz + .3, .75]);
     if (act.kind === 'towers') out.push([cx - .55, cz + .5, .3], [cx + .75, cz + .4, .3]);
@@ -273,20 +312,22 @@ export function step(p, tgt, r, dt, speed, bodies, blockList) {
     const ox = p.x - bx, oz = p.z - bz, od = Math.hypot(ox, oz) || .001;
     if (od > R + .9) return;
     const w = (R + .9 - od) / .9, nx = ox / od, nz = oz / od;
-    // slide round on whichever side is nearer the way she is going
-    const [tx, tz] = -nz * vx + nx * vz >= 0 ? [-nz, nx] : [nz, -nx];
+    // slide round on whichever side leads towards where she is going (the same side every step, so she can't dither)
+    const gx = tgt[0] - bx, gz = tgt[1] - bz, [tx, tz] = -nz * gx + nx * gz >= 0 ? [-nz, nx] : [nz, -nx];
     vx += (nx * .6 + tx * 1.4) * w * k; vz += (nz * .6 + tz * 1.4) * w * k;
   };
-  const inside = (bx, bz, br) => Math.hypot(tgt[0] - bx, tgt[1] - bz) < br + r; // going to a place in it (into the tub)
-  for (const [bx, bz, br] of blockList) if (!inside(bx, bz, br)) push(bx, bz, br + r, 1);
-  for (const b of bodies) if (Math.hypot(tgt[0] - b.p.x, tgt[1] - b.p.z) > b.r + r) push(b.p.x, b.p.z, b.r + r, .7);
+  const inside = b => Math.hypot(tgt[0] - b[0], tgt[1] - b[1]) < reach(b, tgt[0], tgt[1]) + r; // going to a place in it (into the tub)
+  // (steering round things fades out close to the place, so a place next to a cupboard can still be reached)
+  const near = Math.min(1, d / 1.2);
+  for (const b of blockList) if (!inside(b)) push(b[0], b[1], reach(b, p.x, p.z) + r, near);
+  for (const b of bodies) if (Math.hypot(tgt[0] - b.p.x, tgt[1] - b.p.z) > b.r + r) push(b.p.x, b.p.z, b.r + r, .7 * near);
   const vl = Math.hypot(vx, vz) || 1, sp = Math.min(d, dt * speed);
   p.x += vx / vl * sp; p.z += vz / vl * sp;
   // and never inside a thing or a person
-  for (const [bx, bz, br] of blockList) {
-    if (inside(bx, bz, br)) continue;
-    const ox = p.x - bx, oz = p.z - bz, od = Math.hypot(ox, oz) || .001, R = br + r;
-    if (od < R) { p.x = bx + ox / od * R; p.z = bz + oz / od * R; }
+  for (const b of blockList) {
+    if (inside(b)) continue;
+    const ox = p.x - b[0], oz = p.z - b[1], od = Math.hypot(ox, oz) || .001, R = reach(b, p.x, p.z) + r;
+    if (od < R) { p.x = b[0] + ox / od * R; p.z = b[1] + oz / od * R; }
   }
   for (const b of bodies) {
     const ox = p.x - b.p.x, oz = p.z - b.p.z, od = Math.hypot(ox, oz) || .001, R = (b.r + r) * .9;
