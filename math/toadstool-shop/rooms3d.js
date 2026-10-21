@@ -50,7 +50,7 @@ function fireplace(o = {}) {
   const gl = D.glowSprite('#ffae5a', 1.8, .55); gl.position.set(0, .45, .3); fire.add(gl);
   return g;
 }
-function table(w = 2.2, d = 1.3, top = '#c08a58') {
+export function table(w = 2.2, d = 1.3, top = '#c08a58') {
   const g = new THREE.Group(), leg = D.wood('#8a5a36', { axis: 1 });
   g.add(D.rbox(w, .14, d, .05, D.wood(top, { axis: 0 })).translateY(1.0));
   for (const x of [-w / 2 + .18, w / 2 - .18]) for (const z of [-d / 2 + .18, d / 2 - .18]) g.add(D.lathe([[0, 0], [.09, 0], [.06, .3], [.08, .6], [.06, .93], [0, .93]], leg, 12).translateX(x).translateZ(z));

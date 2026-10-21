@@ -218,6 +218,19 @@
   }
 
   /* ---------------- what the children need today ---------------- */
+  /* ---------------- doing it, like The Sims ---------------- */
+  // Everyone in a job walks over and its things are set out while she works out the sum (phase 'ready'),
+  // then they do it on screen (phase 'do'): see acts3d.js. Everyone walks back when it is cleared.
+  let actN = 0;
+  function act(kind, o) { TSV.act = Object.assign({ id: ++actN, kind, phase: 'ready' }, o); return wait(has3d() ? 1500 : 0); }
+  async function doing(ms, caption) {
+    if (!TSV.act) return;
+    TSV.act.phase = 'do'; hush();
+    setPanel(`<div class="mm-tip" style="font-size:26px">${caption}</div>`); speak(caption.replace(/[^\w\s,.!?'…]/gu, '').trim());
+    await wait(has3d() ? ms : 150);
+  }
+  async function actEnd() { if (!TSV.act) return; TSV.act = null; await wait(has3d() ? 900 : 0); }
+
   const NEEDS = {
     hungry: { emoji: '🥞', say: "I'm hungry!", job: breakfast, what: 'had breakfast' },
     bath: { emoji: '🛁', say: 'I need a bath!', job: bathTime, what: 'had a bath' },
@@ -258,7 +271,8 @@
     famMood(id, 'wave', 1500);
     await talk(id, NEEDS[need].say, pick(['OK!', "Let's do it!"]));
     TIP = null;
-    const helped = await NEEDS[need].job(i);
+    let helped;
+    try { helped = await NEEDS[need].job(i); } finally { await actEnd(); }
     if (there !== back) { goRoom(back); await wait(has3d() ? 500 : 50); }
     // breakfast feeds every hungry child at once
     T.needs.forEach((n, j) => { if (j === i || (need === 'hungry' && n === 'hungry')) T.done[j] = true; });
@@ -304,6 +318,7 @@
     const [each, food] = M <= 2 ? [2, 'pancakes'] : M === 3 ? [5, 'strawberries'] : [10, 'blueberries'];
     const total = people * each, who = ['keeper', 'papa'].concat(kids().map((_, j) => kidId(j)));
     const label = j => (who[j] === 'keeper' ? 'Me' : CAST[who[j]].name);
+    await act('eat', { who, each, food });
     await ask({
       k: 'M', who: 'keeper', strat: 'skip', answer: total, peek: 0, q: `There are ${people} of us at breakfast. Everyone wants ${each} ${food}. How many ${food} do I make?`,
       show: () => who.map((w, j) => `<span class="fm-plate">${pt(w)}${dots(each)}<span class="lab">${label(j)}</span></span>`).join(''),
@@ -311,6 +326,7 @@
       helpSay: `Count by ${each === 2 ? 'twos' : each === 5 ? 'fives' : 'tens'}: ${Array.from({ length: Math.min(3, people - 1) }, (_, j) => (j + 1) * each).join(', ')}.`,
     });
     const hungry = today().needs.map((n, j) => (n === 'hungry' && !today().done[j] ? j : null)).filter(j => j !== null);
+    await doing(5200, `🥞 Breakfast! ${each} ${food} each…`);
     await talk('papa', `${total} ${food}! Yum! Thank you for breakfast!`, 'Eat up!');
     return hungry.includes(i) ? hungry : [i].concat(hungry);
   }
@@ -318,11 +334,13 @@
   async function bathTime(i) {
     const L = S.lv.S, whole = L <= 1 ? 5 : L <= 3 ? 10 : 20, have = whole === 5 ? 1 + rnd(4) : whole === 10 ? 2 + rnd(7) : 6 + rnd(13), need = whole - have;
     const help = Mental.subHelp(whole, have, L);
+    await act('bath', { who: [kidId(i)] });
     await ask({
       k: 'S', who: 'keeper', strat: whole <= 10 ? 'ten' : help.kind, answer: need, q: `The bath holds ${whole} cups of warm water. I poured in ${have}. How many more cups will fill it?`,
       show: () => `<span class="fm-tub"><span class="lab">${have} cups in</span>${dots(have, whole, 'b2')}</span>`,
       help: () => help.html, helpSay: help.say,
     });
+    await doing(3400, '🛁 Splish, splash!');
     await talk(kidId(i), pick(['Splash! Bubbles!', 'Bubbles! I love bath time!', 'Splish, splash!']), 'All clean!');
   }
   // Play: two block towers (adding, at her adding level), or ten skittles knocked down (taking away from 10).
@@ -330,11 +348,13 @@
     const A = S.lv.A, id = kidId(i), name = kids()[i].name;
     if (A >= 2 && Math.random() < .4) {
       const down = 2 + rnd(7), help = Mental.subHelp(10, down, S.lv.S);
+      await act('skittles', { who: [id], down });
       await ask({
         k: 'S', who: id, helpWho: 'keeper', strat: 'ten', answer: 10 - down, q: `Skittles! There are 10 skittles. My ball knocked down ${down}. How many are still standing?`,
         show: () => `<span class="fm-pins">🎳</span>${Mental.frames(Array.from({ length: 10 }, (_, j) => (j < 10 - down ? '' : 'x')))}`,
         help: () => help.html, helpSay: help.say,
       });
+      await doing(2800, '🎳 Roll the ball!');
       await talk(id, 'Strike! Again, again!', 'Fun!');
       return;
     }
@@ -343,17 +363,20 @@
       : A === 3 ? pick([() => { const x = 6 + rnd(3); return [x, 3 + rnd(5)]; }, () => { const x = 4 + rnd(5); return [x, x + 1]; }])()
       : pick([() => [10 * (1 + rnd(3)), 1 + rnd(9)], () => { const x = 7 + rnd(3); return [x, 4 + rnd(6)]; }])();
     const help = Mental.addHelp(a, b, A);
+    await act('towers', { who: [id], a, b });
     await ask({
       k: 'A', who: id, helpWho: 'keeper', strat: help.kind, answer: a + b, q: `Let's build towers! My tower has ${a} blocks and yours has ${b}. How many blocks is that altogether?`,
       show: () => `<span class="fm-tower">${dots(a)}<span class="lab">${name}</span></span><b style="font-size:30px">+</b><span class="fm-tower">${dots(b)}<span class="lab">Mama</span></span>`,
       help: () => help.html, helpSay: help.say,
     });
+    await doing((Math.min(a, 12) + Math.min(b, 12)) * 220 + 1500, '🧱 Building our towers…');
     await talk(id, pick(['Our towers are so tall!', 'Crash! Let\'s build them again!']), 'Fun!');
   }
   // A bedtime story. A few pages more (counting on), or, once she adds well, 10 pages a night from any page:
   // 34 then 44 then 54 (the tens go up by one and the ones stay the same).
   async function storyTime(i) {
     const id = kidId(i), tens = S.lv.P >= 2 || S.lv.A >= 3;
+    await act('story', { who: [id] });
     if (tens) {
       const at = 11 + rnd(78), next = at + 10, t = Math.floor(at / 10), o = at % 10;
       await ask({
@@ -370,6 +393,7 @@
         help: () => help.html, helpSay: help.say,
       });
     }
+    await doing(4600, '📖 Once upon a time…');
     await talk(id, pick(['The end! Night night.', 'I love that story!', 'Yawn. One more tomorrow?']), 'Night night 🌙');
   }
 
@@ -386,7 +410,7 @@
     const T = today(); if (!T || T.baked) return;
     const back = TSV.room || 'home', there = roomFor('bake');
     if (there !== back) { goRoom(there); await wait(has3d() ? 700 : 50); }
-    await bakeHere(T);
+    try { await bakeHere(T); } finally { await actEnd(); }
     if (there !== back) { goRoom(back); await wait(has3d() ? 500 : 50); }
   }
   async function bakeHere(T) {
@@ -394,7 +418,8 @@
     const list = RECIPES.filter(r => (morning || !r.fresh) && unlocked(S.day).includes(r.good) && (S.stock[r.good] || 0) < 10);
     const R = list.length ? pick(list) : RECIPES[0];
     const A = S.lv.A, flour = A <= 1 ? R.flour : A === 2 ? R.flour + 1 + rnd(2) : 3 + rnd(6);
-    const helper = rnd(kids().length);
+    const helper = rnd(kids().length), people = kids().length + 2;
+    await act('bake', { who: ['keeper', 'papa', kidId(helper)], good: R.good, made: R.makes * 2, people });
     famMood('papa', 'happy', 1500); famMood(kidId(helper), 'happy', 1500);
     if (coachOnce('bake')) await talk('papa', "Let's bake together! The recipe card says what we need for one batch.", 'Next');
     const card = n => `<div class="fm-recipe"><h4>${R.emoji} ${R.name}</h4><div>${n} cups of flour</div><div class="row">${Array.from({ length: n }, () => '<span class="fm-cup">🥣</span>').join('')}</div><div>Makes ${R.makes}</div></div>`;
@@ -404,9 +429,9 @@
       k: 'A', who: kidId(helper), helpWho: 'keeper', strat: 'double', answer: flour * 2, q: `Let's make a double batch! One batch needs ${flour} cups of flour. How many cups for two batches?`,
       show: () => card(flour), help: () => h1.html, helpSay: h1.say,
     });
-    setPanel(`<div class="mm-eyes">🔥</div><div class="mm-tip">Into the oven…</div>`); speak('Into the oven!'); SFX.tap(); await wait(1800);
+    SFX.tap(); await doing(3600, '🥣 Stir, stir… into the oven! 🔥');
     // 2. two batches came out; everyone eats one, the rest are for the shop
-    const made = R.makes * 2, people = kids().length + 2, left = made - people;
+    const made = R.makes * 2, left = made - people;
     SFX.cheer(); mood('keeper', 'happy', 1500);
     let toShop = 0;
     if (left > 0) {
@@ -415,6 +440,7 @@
         k: 'S', who: 'papa', helpWho: 'keeper', strat: h2.kind, answer: left, q: `We made ${made} ${GOODS[R.good].many}! There are ${people} of us, and we each eat one. How many are left for my shop?`,
         show: () => `${dots(made)}`, help: () => h2.html, helpSay: h2.say,
       });
+      if (TSV.act) { TSV.act.phase = 'eat'; setPanel(`<div class="mm-tip" style="font-size:26px">😋 One each…</div>`); await wait(has3d() ? 900 + people * 350 : 100); }
       toShop = Math.max(0, Math.min(left, 10 - (S.stock[R.good] || 0)));
       S.stock[R.good] = (S.stock[R.good] || 0) + toShop;
     }

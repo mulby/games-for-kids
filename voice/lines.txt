@@ -1820,6 +1820,15 @@ can we play in here	Can we play in here?
 my new	My new
 my house is getting bigger	My house is getting bigger.
 ta da	Ta-da!
+breakfast	Breakfast!
+pancakes each	pancakes each
+strawberries each	strawberries each
+blueberries each	blueberries each
+splish splash	Splish, splash!
+roll the ball	Roll the ball!
+building our towers	Building our towers…
+once upon a time	Once upon a time…
+stir stir into the oven	Stir, stir… into the oven!
 tap a new thing to put it in my house	Tap a new thing to put it in my house.
 rubber duck	rubber duck
 fluffy bath mat	fluffy bath mat

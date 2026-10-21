@@ -7,9 +7,12 @@ import * as THREE from 'three';
 import * as D from './felt3d.js';
 import * as VL from './village3d.js';
 import * as RM from './rooms3d.js';
+import * as AC from './acts3d.js';
 
 const G = window;
 const V = () => G.TSV || {};
+let act = null; // the family activity being drawn in her house (syncAct, acts3d.js)
+let roomBlocks = []; // furniture in the room she is in, as floor circles: people walk round it (acts3d.js)
 const TAU = Math.PI * 2, PI2 = Math.PI / 2;
 const calm = !!(G.matchMedia && G.matchMedia('(prefers-reduced-motion: reduce)').matches);
 const touch = (navigator.maxTouchPoints || 0) > 1;
@@ -307,10 +310,18 @@ function updateActors(dt, t) {
     if (slot.endsWith('_new')) { a.obj.visible = false; continue; } // waits at the door until the last visitor has left
     a.obj.visible = true;
     const tgt = a.path[0] || (SPOTS[a.scene] || SPOTS.inside)[base];
-    const dx = tgt[0] - p.x, dz = tgt[2] - p.z, d = Math.hypot(dx, dz);
-    if (d > .05) {
+    // at home she steps round her family and the furniture (round the end of a table to sit behind it), and if
+    // someone stands in the way a while she stops
+    const home = a.scene === 'room' && slot === 'keeper', w = home ? AC.leg(a, tgt, tgt[0], tgt[2], p.x, p.z) : [tgt[0], tgt[2]];
+    const dx = w[0] - p.x, dz = w[1] - p.z, d = Math.hypot(dx, dz);
+    if (home) { const tk = tgt.join() + a.leg; if (a.tk !== tk) { a.tk = tk; a.stuck = 0; a.best = Infinity; } }
+    if (d > .05 && !(home && a.stuck >= 2)) {
       const sp = Math.min(d, dt * (a.scene === 'village' ? (a.speed || 5.5) : 4.2));
-      p.x += dx / d * sp; p.z += dz / d * sp;
+      if (home) {
+        AC.step(p, w, .5, dt, 4.2, fam.map(f => ({ p: f.obj.position, r: f.r })), roomBlocks);
+        const dd = Math.hypot(w[0] - p.x, w[1] - p.z); if (dd < a.best - .03) { a.best = dd; a.stuck = 0; } else a.stuck += dt; // not getting any nearer
+        p.y += (0 - p.y) * Math.min(1, dt * 8);
+      } else { p.x += dx / d * sp; p.z += dz / d * sp; }
       let dy = Math.atan2(dx, dz) - a.obj.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
       a.obj.rotation.y += dy * Math.min(1, dt * 8);
       u.mood = u.kind === 'fairy' ? 'idle' : 'walk';
@@ -320,7 +331,10 @@ function updateActors(dt, t) {
       a.path.length = 0;
       let dy = tgt[3] - a.obj.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
       a.obj.rotation.y += dy * Math.min(1, dt * 5);
-      u.mood = (v.mood || {})[base] || 'idle';
+      if (home) p.y += ((d < .15 ? tgt[1] || 0 : 0) - p.y) * Math.min(1, dt * 4); // sitting down at the table
+      // what the shopkeeper is doing in a family activity (acts3d.js), unless she is talking
+      const vm = (v.mood || {})[base];
+      u.mood = vm && vm !== 'idle' ? vm : (base === 'keeper' && act && act.moods.keeper) || vm || 'idle';
     }
     if (u.kind === 'fairy') p.y = .45 + Math.sin(t * 1.5) * .12 * (calm ? .3 : 1);
     animCritter(a.obj, t);
@@ -346,8 +360,10 @@ let dpr = Math.min(maxDpr, touch ? 1.5 : 1.75);
 R.setPixelRatio(dpr); sizeAll(); addEventListener('resize', sizeAll);
 const FOV = 30, tmpV = new THREE.Vector3(), tmpL = new THREE.Vector3(), tmpL2 = new THREE.Vector3();
 function frameCamera(dt, snap) {
-  const v = V(), sc = sceneOf(v), ck = v.cam && v.cam !== 'meet' ? v.cam : v.cam === 'meet' ? (v.scene === 'inside' ? 'meet' : 'meetOut') : sc;
-  const c = ck === 'village' ? villageCam(v) : CAMS[ck] || CAMS[v.scene === 'inside' ? 'inside' : 'outside'];
+  const v = V(), sc = sceneOf(v), acting = sc === 'room' && act;
+  const ck = acting ? 'act' + act.key : v.cam && v.cam !== 'meet' ? v.cam : v.cam === 'meet' ? (v.scene === 'inside' ? 'meet' : 'meetOut') : sc;
+  // a family activity: the camera comes in close on it
+  const c = acting ? act.cam : ck === 'village' ? villageCam(v) : CAMS[ck] || CAMS[v.scene === 'inside' ? 'inside' : 'outside'];
   if (ck !== camKey) { camKey = ck; focusC.set(...c.focus); focusR = c.r; aimLights(); }
   else if (ck === 'village' && Math.abs(focusC.x - c.focus[0]) > 2.5) { focusC.set(...c.focus); aimLights(); }
   const top = v.top || 0, bottom = v.bottom || H, free = Math.max(120, bottom - top);
@@ -561,7 +577,16 @@ function updateFolk(v, t) {
       u.mood = f.chat ? 'talk' : 'idle';
       if (f.wait <= 0) { if (f.chat) f.chat.chat = null; f.chat = null; f.tx = THREE.MathUtils.clamp(kx + (Math.random() - .5) * 18, VL.LANE[0] + 1, VL.LANE[1] - 1); if (busyX != null && Math.abs(f.tx - busyX) < 3) f.tx += 6 * Math.sign(f.tx - busyX || 1); }
     }
-    p.z += (f.z - p.z) * Math.min(1, dt * 2);
+    // two people on the lane never walk through each other: whoever is walking (or standing in her way) steps aside
+    let zt = f.z;
+    // (two side by side on the same line step opposite ways, by their place in the list, so they don't step together)
+    const me = folk.indexOf(f), near = folk.map((g, i) => [g.obj.position, i]).filter(([, i]) => i !== me).concat(a && a.scene === 'village' ? [[a.obj.position, -1]] : []);
+    for (const [q, i] of near) {
+      const up = Math.abs(p.z - q.z) > 1e-3 ? p.z > q.z : me > i;
+      if (Math.abs(q.x - p.x) < 1.3 && Math.abs(q.z - zt) < .8) zt = q.z + (up ? .85 : -.85);
+    }
+    zt = THREE.MathUtils.clamp(zt, -.5, 1.4);
+    p.z += (zt - p.z) * Math.min(1, dt * 3);
     animCritter(o, t);
   }
 }
@@ -579,9 +604,25 @@ function showRoom(id) {
   }
 }
 function roomAfter(t) {
+  roomBlocks = AC.blocks(roomKey, V(), act && act.a);
   if (clock && roomKey === 'home') { const pd = clock.getObjectByName('clockPend'), hd = clock.getObjectByName('clockHand'); if (pd) pd.rotation.z = Math.sin(t * 2.4) * (calm ? .05 : .22); if (hd) hd.rotation.z = -t * .2; }
   if (myRoom()) animateHome(t);
+  syncAct(V(), t);
   syncFamily(V(), t);
+}
+// A family activity (TSV.act, acts3d.js), like The Sims: everyone in it walks over, the things for it are set out,
+// and then they do it. The shopkeeper walks there too (her room spot moves), and everyone walks back after.
+function syncAct(v, t) {
+  const a = RM.FAMILY_ROOMS.includes(roomKey) ? v.act : null, key = a ? a.id + '|' + roomKey : '';
+  if (key !== (act ? act.key : '')) {
+    if (act) { rooms.remove(act.g); const home = (RM.ROOM_SPOTS[roomKey] || RM.ROOM_SPOTS.home).keeper; SPOTS.room.keeper = home.slice(); }
+    act = null;
+    if (a) { const g = AC.build(a, roomKey); rooms.add(g); act = { key, g, a, phase: null, t0: t, moods: {}, at: {}, cam: AC.view(a, roomKey) }; }
+  }
+  if (!act) return;
+  if (a.phase !== act.phase) { act.phase = a.phase; act.t0 = t; act.at = AC.places(a, roomKey); }
+  act.moods = act.g.userData.update(a.phase, t - act.t0, t) || {};
+  const k = act.at.keeper; if (k) SPOTS.room.keeper = Object.assign([k[0], k[3] || 0, k[1], k[2]], { via: k.via });
 }
 // Her husband and children (TSV.family: [{id, spec, kid}], family.js) are at home in a row at the front of her room;
 // the children are smaller. TSV.famMood[id] says who is talking, waving or happy.
@@ -594,11 +635,34 @@ function syncFamily(v, t) {
     list.forEach((f, i) => {
       const obj = D.instance(model(f.spec)), s = RM.FAMILY_SPOTS[i] || RM.FAMILY_SPOTS[0];
       if (f.kid) obj.scale.setScalar(.68);
-      obj.position.set(s[0], 0, s[1]); obj.rotation.y = s[2]; rooms.add(obj); fam.push({ id: f.id, obj });
+      obj.position.set(s[0], 0, s[1]); obj.rotation.y = s[2]; rooms.add(obj); fam.push({ id: f.id, obj, home: [s[0], s[1], s[2], 0], r: f.kid ? .32 : .48 });
     });
   }
-  const m = v.famMood || {};
-  for (const f of fam) { f.obj.userData.mood = m[f.id] || 'idle'; animCritter(f.obj, t); }
+  const m = v.famMood || {}, dt = Math.min(.1, Math.max(0, t - (fam.t || t))); fam.t = t;
+  for (const f of fam) {
+    const o = f.obj, p = o.position, u = o.userData;
+    // in an activity: their place in it, or else off to one side to watch
+    const tgt = act ? act.at[f.id] || (f.aside = f.aside && f.aside.key === act.key + act.phase ? f.aside : Object.assign(AC.aside(act.a, roomKey, fam.filter(g => !act.at[g.id]).indexOf(f), roomBlocks), { key: act.key + act.phase })) : f.home;
+    const px = p.x, pz = p.z, k = actors.keeper;
+    // everyone else in the room, so they step round each other
+    const bodies = fam.filter(g => g !== f).map(g => ({ p: g.obj.position, r: g.r })).concat(k && k.scene === 'room' ? [{ p: k.obj.position, r: .5 }] : []);
+    // someone standing in the way for a while: stop there rather than walk on the spot
+    const w = AC.leg(f, tgt, tgt[0], tgt[1], p.x, p.z), tk = tgt.join() + f.leg; if (f.tk !== tk) { f.tk = tk; f.stuck = 0; f.best = Infinity; }
+    if (f.stuck < 2 && Math.hypot(w[0] - p.x, w[1] - p.z) > .05 && AC.step(p, w, f.r, dt, 3.4, bodies, roomBlocks)) {
+      p.y += (0 - p.y) * Math.min(1, dt * 8);
+      const mx = p.x - px, mz = p.z - pz;
+      const dd = Math.hypot(w[0] - p.x, w[1] - p.z); if (dd < f.best - .03) { f.best = dd; f.stuck = 0; } else f.stuck += dt; // not getting any nearer
+      if (Math.hypot(mx, mz) > 1e-4) { let dy = Math.atan2(mx, mz) - o.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); o.rotation.y += dy * Math.min(1, dt * 8); }
+      u.mood = 'walk';
+    } else {
+      // there: turn the right way and sit down (on a stool, in the bath); stuck short of it, stay standing
+      const there = Math.hypot(tgt[0] - p.x, tgt[1] - p.z) < .15;
+      let dy = tgt[2] - o.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); if (there) o.rotation.y += dy * Math.min(1, dt * 5);
+      p.y += ((there ? tgt[3] || 0 : 0) - p.y) * Math.min(1, dt * 4);
+      u.mood = m[f.id] || (act && act.moods[f.id]) || 'idle';
+    }
+    animCritter(o, t);
+  }
 }
 
 /* ------------------------------------------------------------------ decorating her house */
