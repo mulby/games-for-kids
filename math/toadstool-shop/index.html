@@ -2385,6 +2385,8 @@ async function houseVisit() {
       }));
       $$('[data-o]', p).forEach(b => b.addEventListener('click', () => TSV.onHome({ type: 'away', id: b.dataset.o })));
     };
+    // the Wallpaper button shows in both panels (with a family, only while moving things), so both must hook it up
+    const bindWalls = p => { if ($('#walls', p)) $('#walls', p).addEventListener('click', () => { SFX.tap(); walls = true; say('keeper', 'Which wallpaper shall I have?'); draw(); }); };
     const draw = () => {
       DBG.cur = { type: walls ? 'walls' : deco ? 'decorate' : 'house' };
       if (walls) {
@@ -2404,7 +2406,7 @@ async function houseVisit() {
       if (fam && deco) {
         // moving things: just the tray and a Done button, so the room is big enough to grab things
         setPanel(`${trayEl}<div class="row">${papers && inHome ? '<button class="btn alt" id="walls">Wallpaper 🎨</button>' : ''}<button class="btn" id="ddone">All done ✓</button></div>`, p => {
-          bindTray(p);
+          bindTray(p); bindWalls(p);
           $('#ddone', p).addEventListener('click', () => { SFX.tap(); deco = false; decorating(); hello(); draw(); });
         });
         return;
@@ -2435,7 +2437,7 @@ async function houseVisit() {
         if ($('#bake', p)) $('#bake', p).addEventListener('click', () => { if (Family.bakedToday()) return; SFX.tap(); busy(() => Family.bake()); });
         $('#fam', p).addEventListener('click', () => { SFX.tap(); busy(() => Family.make()); });
         bindTray(p);
-        if ($('#walls', p)) $('#walls', p).addEventListener('click', () => { SFX.tap(); walls = true; say('keeper', 'Which wallpaper shall I have?'); draw(); });
+        bindWalls(p);
         $('#dress', p).addEventListener('click', () => { SFX.tap(); openWardrobe(); });
         $('#bye', p).addEventListener('click', () => { SFX.tap(); rerender = null; res(); });
       });
