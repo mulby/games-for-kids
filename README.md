@@ -72,4 +72,8 @@ Add `?g3d=0` to a game's address to see the old 2D look; games also fall back to
 When publishing The Wonder Shelf, include `shared/toy3d.js`, `shared/vendor/*.js` and each game's `*3d.js` files.
 
 ## Reading
-Coming later.
+| Folder | Story | Skills |
+| --- | --- | --- |
+| `reading/missing-honey/` | **The Mystery of the Missing Honey**: an animated storybook about Wren the mouse (pages 1 to 3 so far). Each page reads aloud with word highlighting, and reading the glowing line plays that page's animation. | Reading fluency at Henry and Mudge level |
+
+The story is drawn in WebGL from painted cut-out puppets: `rig/puppet.js` animates the parts listed in each `*.rig.js` file.

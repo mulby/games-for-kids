@@ -1052,6 +1052,19 @@ void main(){vec2 q=gl_PointCoord-.5;float d=length(q);
     <div class="plank"></div>
   </section>
 
+  <section class="breaks" aria-label="Reading">
+    <div class="head"><h2>Reading</h2><span>Read along with Wren</span></div>
+    <div class="books fun">
+      <a class="book fun" href="reading/missing-honey/index.html" style="--c:#b07a2a">
+        <span class="art" aria-hidden="true">🐭🍯</span>
+        <h3>The Mystery of the Missing Honey</h3>
+        <p>Wren follows sticky clues around Thistledown Hedge. Read the glowing line to make each page come alive.</p>
+        <span class="play">Read</span>
+      </a>
+    </div>
+    <div class="plank"></div>
+  </section>
+
   <section class="breaks" aria-label="Break time games">
     <div class="head"><h2>Break Time</h2><span>Quick games just for fun</span></div>
     <div class="books fun" id="funbooks"></div>
@@ -1482,7 +1495,7 @@ document.getElementById("voiceHear").onclick = hear;
   frame.addEventListener("load", () => {
     if (!open || !frame.getAttribute("src")) return;
     let w;
-    try { w = frame.contentWindow; if (!/\/(math|fun)\/[^/]+\/(index\.html)?$/.test(w.location.pathname)) { close(); return; } }
+    try { w = frame.contentWindow; if (!/\/(math|fun|reading)\/[^/]+\/(index\.html)?$/.test(w.location.pathname)) { close(); return; } }
     catch (e) { return; }
     frame.style.visibility = "";
     try { w.focus(); } catch (e) {}
