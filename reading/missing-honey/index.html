@@ -1,0 +1,1114 @@
+<title>The Missing Honey</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Andika:wght@400;700&display=swap">
+<style>
+/* Layout: a picture-book page. One painted plate on top, the words underneath set large in phrases, and a short row of reading controls. It is a single warm-paper look on purpose, because the book is the world. */
+:root {
+  color-scheme: light;
+  --page: #efe5cf;
+  --mat: #f9f6ee;
+  --ink: #3a2c1e;
+  --ink-soft: #7a6850;
+  --rule: rgba(58,44,30,.18);
+  --honey: #c98a1b;
+  --honey-wash: rgba(232,176,64,.22);
+  --berry: #5b2a48;
+  --display: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --read: "Andika", "Trebuchet MS", system-ui, sans-serif;
+  --book-w: min(1080px, 100%, max(420px, calc((100svh - 430px) * 1.5)));
+}
+* { box-sizing: border-box; }
+html, body { background: var(--page); }
+body {
+  color: var(--ink); font-family: var(--read);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 32px;
+}
+.book { width: var(--book-w); margin: 0 auto; display: grid; gap: 12px; }
+.spread { display: grid; gap: 12px; min-width: 0; }
+
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.top h1 { font-family: var(--display); font-weight: 400; font-size: clamp(1.3rem, 3.4vw, 1.9rem); margin: 0; line-height: 1.1; text-wrap: balance; }
+.top .meta { display: flex; align-items: center; gap: 14px; color: var(--ink-soft); font-size: .95rem; }
+.top .shelf { text-decoration: none; font-size: 1.3rem; line-height: 1; }
+.basket { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; color: var(--berry); font-weight: 700; }
+.basket svg { width: 22px; height: 22px; }
+
+.plate { background: var(--mat); padding: clamp(6px, 1.4vw, 14px); box-shadow: 0 1px 0 var(--rule), 0 10px 30px rgba(58,44,30,.13); border-radius: 3px; }
+.stage { position: relative; width: 100%; aspect-ratio: 3 / 2; max-width: 100%; overflow: hidden; background: var(--mat); }
+.stage canvas, .stage img.fallback { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; }
+.fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-style: italic; color: var(--ink-soft); font-size: 1.2rem; background: var(--mat); }
+
+.pop { position: absolute; transform: translate(-50%, -50%); font-family: var(--display); color: var(--ink); white-space: nowrap;
+  font-size: clamp(1.1rem, 3.6vw, 2.2rem); text-shadow: 0 0 6px var(--mat), 0 0 12px var(--mat), 0 0 2px var(--mat);
+  animation: pop 1.6s cubic-bezier(.2,1.6,.4,1) forwards; }
+.pop.big { font-size: clamp(1.4rem, 5vw, 3rem); letter-spacing: .02em; }
+.pop.small { font-size: clamp(.95rem, 2.8vw, 1.6rem); font-style: italic; }
+.pop.z { font-size: clamp(.9rem, 2.4vw, 1.4rem); font-style: italic; color: var(--ink-soft); animation: zfloat 2.6s ease-out forwards; }
+@keyframes pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(-8deg); }
+  18% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(3deg); }
+  32% { transform: translate(-50%, -50%) scale(1) rotate(-2deg); }
+  75% { opacity: 1; transform: translate(-50%, -62%) scale(1) rotate(-2deg); }
+  100% { opacity: 0; transform: translate(-50%, -80%) scale(.96) rotate(-2deg); }
+}
+@keyframes zfloat {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); }
+  20% { opacity: .9; }
+  100% { opacity: 0; transform: translate(-10%, -260%) scale(1.15) rotate(12deg); }
+}
+
+.cover { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px;
+  background: radial-gradient(ellipse at center, rgba(249,246,238,.86) 0%, rgba(249,246,238,.72) 55%, rgba(249,246,238,.35) 100%); transition: opacity .5s; }
+.cover.gone { opacity: 0; pointer-events: none; }
+.cover .inner { display: grid; gap: 10px; justify-items: center; }
+.cover .kicker { font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); margin: 0; }
+.cover h2 { font-family: var(--display); font-weight: 400; font-size: clamp(1.8rem, 6vw, 3.4rem); line-height: 1.02; margin: 0; text-wrap: balance; }
+.cover p.by { font-family: var(--display); font-style: italic; color: var(--ink-soft); margin: 0 0 6px; font-size: clamp(1rem, 2.4vw, 1.25rem); }
+
+.btn { font: inherit; font-weight: 700; color: var(--mat); background: var(--ink); border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 1.05rem; }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
+.btn:focus-visible, .chip:focus-visible, .star:focus-visible, .w:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
+.btn[disabled] { opacity: .35; cursor: default; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+
+.words { background: var(--mat); border-radius: 3px; box-shadow: 0 1px 0 var(--rule); padding: clamp(14px, 2.4vw, 24px) clamp(16px, 3vw, 32px); min-width: 0; }
+.text { font-size: clamp(1.25rem, 2.7vw, 1.75rem); line-height: 1.95; margin: 0; max-width: 46ch; word-spacing: .06em; }
+.phrase { display: inline-block; white-space: nowrap; margin-right: .42em; border-radius: .35em; padding: 0 .08em; transition: background-color .2s; }
+.phrase.reading { background: rgba(58,44,30,.07); }
+.marks .phrase:not(:last-child)::after { content: "/"; color: var(--rule); margin-left: .32em; font-weight: 400; }
+.w { cursor: pointer; border-radius: .25em; transition: background-color .12s, color .12s; }
+.w:hover { background: rgba(58,44,30,.06); }
+.w.now { background: var(--honey); color: var(--mat); box-shadow: 0 0 0 .08em var(--honey); }
+.readit { background: linear-gradient(transparent 58%, var(--honey-wash) 58%); box-decoration-break: clone; -webkit-box-decoration-break: clone; border-radius: .2em; animation: glow 2.4s ease-in-out infinite; padding: 0 .1em; }
+.readit .phrase { font-weight: 700; }
+.readit.done { animation: none; background: linear-gradient(transparent 58%, rgba(201,138,27,.12) 58%); }
+.readit.done .phrase { color: #6a4a12; }
+@keyframes glow { 50% { background-color: rgba(232,176,64,.12); } }
+.star { display: inline-grid; place-items: center; width: 1.55em; height: 1.55em; vertical-align: -.32em; margin-left: .1em; border-radius: 50%; border: 0; cursor: pointer; padding: 0;
+  background: var(--honey); color: var(--mat); box-shadow: 0 0 0 4px rgba(232,176,64,.28); animation: pulse 1.8s ease-in-out infinite; }
+.star svg { width: .95em; height: .95em; }
+.readit.done .star { animation: none; background: transparent; color: var(--honey); box-shadow: inset 0 0 0 2px var(--honey); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 9px rgba(232,176,64,0); transform: scale(1.06); } }
+.hint { margin: 10px 0 0; color: var(--ink-soft); font-size: .95rem; line-height: 1.5; max-width: 62ch; }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.bar .mid { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+.berries { display: inline-flex; gap: 4px; margin-left: 2px; }
+.berries i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px currentColor; opacity: .5; display: inline-block; }
+.berries i.got { background: var(--berry); box-shadow: none; opacity: 1; }
+.btn.ghost .berries { color: var(--berry); }
+.chip { font: inherit; font-size: .9rem; color: var(--ink-soft); background: transparent; border: 1.5px solid var(--rule); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.chip[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-soft); }
+.pageno { font-family: var(--display); font-style: italic; color: var(--ink-soft); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.end { text-align: center; display: grid; gap: 6px; justify-items: center; padding: 6px 0; }
+.end h3 { font-family: var(--display); font-weight: 400; font-size: clamp(1.4rem, 4vw, 2rem); margin: 0; }
+.end p { margin: 0; color: var(--ink-soft); }
+/* landscape screens: the words sit beside the picture, like a facing page */
+@media (min-width: 860px) and (min-aspect-ratio: 5/4) {
+  .book { width: min(1320px, 100%, max(760px, calc((100svh - 150px) * 2.15))); }
+  .spread { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: start; }
+  .text { font-size: clamp(1.15rem, 1.6vw, 1.55rem); line-height: 1.8; }
+  .hint { font-size: .88rem; }
+}@media (max-width: 520px) {
+  .bar { display: grid; grid-template-columns: 1fr 1fr; }
+  .bar .mid { grid-column: 1 / -1; order: -1; }
+  #prev { justify-self: start; } #next { justify-self: end; }
+  .btn { padding: 9px 15px; font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .readit, .star { animation: none; }
+}
+</style>
+
+<div class="book">
+  <div class="top">
+    <h1>The Mystery of the Missing Honey</h1>
+    <div class="meta">
+      <a class="shelf" href="../../index.html" aria-label="Back to the shelf">📚</a>
+      <span class="pageno" id="pageno">Page 1 of 3</span>
+      <span class="basket" title="Berries collected"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="#5b2a48"><circle cx="9" cy="12" r="3.2"/><circle cx="15" cy="12" r="3.2"/><circle cx="12" cy="16.5" r="3.2"/><circle cx="12" cy="8.5" r="3"/></g><g fill="#fff" opacity=".45"><circle cx="8" cy="11" r=".8"/><circle cx="14" cy="11" r=".8"/><circle cx="11" cy="15.5" r=".8"/><circle cx="11" cy="7.6" r=".7"/></g><path d="M12 5.5c0-2 1.2-3 3-3.4" stroke="#5a7a3a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span id="total">0</span></span>
+    </div>
+  </div>
+
+  <div class="spread">
+  <div class="plate">
+    <div class="stage" id="stage">
+      <canvas id="gl" aria-label="The picture for this page of the story"></canvas>
+      <div class="fx" id="fx" aria-hidden="true"></div>
+      <div class="cover" id="cover">
+        <div class="inner">
+          <p class="kicker">A Thistledown Hedge story</p>
+          <h2>The Mystery of the Missing Honey</h2>
+          <p class="by">Pages one to three</p>
+          <button class="btn" id="open" type="button">Open the book</button>
+        </div>
+      </div>
+      <div class="loading" id="loading">Mixing the paints&hellip;</div>
+    </div>
+  </div>
+
+  <div class="words" id="words">
+    <p class="text" id="text" aria-live="off"></p>
+    <p class="hint" id="hint">Tap <b>Read to me</b> to listen first. Tap any word to hear it. Then read the gold words out loud and tap the star.</p>
+  </div>
+  </div>
+
+  <div class="bar">
+    <button class="btn ghost" id="prev" type="button" aria-label="Previous page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
+    <div class="mid">
+      <button class="btn" id="listen" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="listen-label">Read to me</span></button>
+      <button class="btn ghost" id="again" type="button" title="Read the whole page out loud again, then tap for a berry">I read it again <span class="berries" id="berries"><i></i><i></i><i></i></span></button>
+      <button class="chip" id="marks" type="button" aria-pressed="false">Phrase marks</button>
+    </div>
+    <button class="btn" id="next" type="button" aria-label="Next page">Next<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</div>
+
+<script src="rig/puppet.js"></script>
+<script src="rig/wren.rig.js"></script>
+<script src="rig/grandpa.rig.js"></script>
+<script>
+(() => {
+  // ================= Story =================
+  // Each phrase is a breath-sized chunk. `who` picks the voice for read-aloud. `readit` marks the gold line that makes the picture move.
+  const PAGES = [
+    { scene: 'larder', phrases: [
+      'Wren Hollyhock', 'was a small mouse', 'with a big straw hat.',
+      'Every Midsummer,', 'Wren brought the honey', 'to the feast.',
+      'This morning', 'she went to the larder.', 'She looked on the table.',
+      { t: 'The honey jar was gone!', readit: true },
+      'On the floor', 'were small, sticky footprints.',
+      'Sticky feet, sticky feet,', 'where did you go?' ] },
+    { scene: 'larder', phrases: [
+      'Grandpa Burdock', 'was asleep by the fire.', 'Wren tapped his paw.',
+      { t: '"The honey is gone!"', who: 'wren' }, 'she said.',
+      { t: '"Hmm,"', who: 'grandpa' }, 'said Grandpa.',
+      { t: '"Last night', who: 'grandpa', readit: true }, { t: 'I heard a thump.', who: 'grandpa', readit: true },
+      { t: 'Then a bump.', who: 'grandpa', readit: true }, { t: 'Then a little giggle."', who: 'grandpa', readit: true },
+      'He pointed up.', { t: '"It came from the attic."', who: 'grandpa' } ] },
+    { scene: 'attic', phrases: [
+      'Wren climbed', 'up to the attic.', 'It was dark', 'and dusty.', 'Apples sat in rows.',
+      'The little window', 'was open.',
+      { t: 'On the sill', readit: true }, { t: 'was a drip of honey!', readit: true },
+      'A long string', 'hung by the window.', 'Someone small', 'had climbed down', 'in the night.',
+      'Sticky feet, sticky feet,', 'where did you go?' ] }
+  ].map(p => ({ ...p, phrases: p.phrases.map(x => typeof x === 'string' ? { t: x } : x), berries: 0, done: false }));
+
+  // ================= Art and rigs =================
+  // Rig coordinates are percent of each painting, so they hold at any resolution.
+  const G = (x, y) => [x / 100, y / 100];
+  const GB = (x0, y0, x1, y1) => [x0 / 100, y0 / 100, x1 / 100, y1 / 100];
+  const RIGS = {
+    wren: { src: 'art/wren.png', baseH: .38, feet: G(52, 91.5),
+      bones: {
+        head:  { pivot: G(55, 32), boxes: [GB(27, 4, 82, 31)], feather: .03 },
+        ear:   { pivot: G(64, 17), boxes: [GB(61, 9, 68, 17.5)], feather: .01 },
+        body:  { pivot: G(52, 55), boxes: [GB(31, 32, 76, 53)], feather: .035 },
+        skirt: { pivot: G(50, 50), boxes: [GB(19, 53, 87, 85.5)], feather: .03 },
+        tail:  { pivot: G(24, 83), boxes: [GB(5, 83, 21, 93), GB(5, 88.5, 37, 93)], feather: .012 } },
+      eye: { c: G(61.5, 23.4), r: [2.7 / 100, 2.1 / 100], lid: G(67, 25) } },
+    grandpa: { src: 'art/grandpa.png', baseH: .47, feet: G(50, 92.5),
+      bones: {
+        head: { pivot: G(57, 30), boxes: [GB(36, 4, 92, 30.5)], feather: .03 },
+        ear:  { pivot: G(47, 19), boxes: [GB(37, 6, 50, 19)], feather: .012 },
+        body: { pivot: G(50, 60), boxes: [GB(26, 30.5, 82, 58)], feather: .035 },
+        tail: { pivot: G(31, 71), boxes: [GB(4, 71, 31, 96)], feather: .015 } },
+      eye: { c: G(62.8, 21.1), r: [2.1 / 100, 1.05 / 100], lid: G(62.5, 18.3) } }
+  };
+  // light: where the warm glow sits (backdrop uv), its colour, spread and flicker
+  const SCENES = {
+    larder: { src: 'art/larder.jpg', light: [0.28, 0.47], lightCol: [1, .58, .22], base: .10, flick: .10, spread: 5.5, motes: [0, 1.5, .05, .85] },
+    attic:  { src: 'art/attic.jpg',  light: [0.76, 0.33], lightCol: [1, .9, .66], base: .12, flick: .0, spread: 4.2, motes: [.85, 1.35, .15, .8] }
+  };
+
+  // ================= GL =================
+  const canvas = document.getElementById('gl');
+  let gl = canvas.getContext('webgl2', { premultipliedAlpha: true, antialias: true });
+  const isGL2 = !!gl;
+  if (!gl) gl = canvas.getContext('webgl', { premultipliedAlpha: true, antialias: true });
+  if (!gl) {
+    const img = document.createElement('img'); img.className = 'fallback'; img.src = SCENES.larder.src; img.alt = '';
+    canvas.replaceWith(img); document.getElementById('loading').remove();
+  }
+
+  const NOISE = `
+    float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
+    float noise(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+      return mix(mix(hash(i),hash(i+vec2(1,0)),u.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x), u.y); }
+    float fbm(vec2 p){ float v=0., a=.5; for(int i=0;i<5;i++){ v+=a*noise(p); p*=2.03; a*=.5; } return v; }`;
+
+  function shader(type, src) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  function program(vs, fs) {
+    const p = gl.createProgram();
+    gl.attachShader(p, shader(gl.VERTEX_SHADER, vs)); gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) { const info = gl.getActiveUniform(p, i); const name = info.name.replace(/\[0\]$/, ''); u[name] = gl.getUniformLocation(p, name); }
+    return { p, u, a: name => gl.getAttribLocation(p, name) };
+  }
+
+  // World space: x 0..1.5, y 0..1 (y down). The camera (centre x, y and zoom) is applied in every vertex shader.
+  const toClip = `uniform vec3 uCam;
+    vec4 toClip(vec2 w){ vec2 v = (w - uCam.xy) * uCam.z + vec2(.75, .5); return vec4(v.x/1.5*2.-1., 1.-v.y*2., 0., 1.); }`;
+
+  let backdropProg, puppetProg, shadowProg, blobProg, sparkProg, postProg;
+  const MAXB = 8;
+  if (gl) {
+    backdropProg = program(`
+      attribute vec2 aPos; varying vec2 vUv; ${toClip}
+      void main(){ vUv = aPos; gl_Position = toClip(aPos*vec2(1.5,1.)); }`, `
+      precision mediump float; varying vec2 vUv; uniform sampler2D uTex;
+      void main(){ gl_FragColor = texture2D(uTex, vUv); }`);
+
+    puppetProg = program(`
+      attribute vec2 aUv;
+      uniform vec4 uBox[${MAXB * 2}];
+      uniform vec4 uXf[${MAXB}];      // angle, scaleY, tx, ty
+      uniform vec2 uPivot[${MAXB}];
+      uniform float uFeather[${MAXB}];
+      uniform int uBones;
+      uniform float uAspect;
+      uniform vec2 uFeet; uniform vec2 uPos; uniform float uHeight; uniform float uFlip; uniform float uRock; uniform vec2 uSquash;
+      varying vec2 vUv; varying vec2 vWorld;
+      ${toClip}
+      float boxW(vec4 b, vec2 p, float f){
+        if (b.z <= b.x) return 0.;
+        vec2 fx = vec2(f / uAspect, f);
+        vec2 lo = smoothstep(b.xy - fx, b.xy + fx, p);
+        vec2 hi = 1. - smoothstep(b.zw - fx, b.zw + fx, p);
+        return lo.x*lo.y*hi.x*hi.y;
+      }
+      void main(){
+        vec2 p = aUv; vec2 A = vec2(uAspect, 1.);
+        vec2 a = p * A; vec2 disp = vec2(0.);
+        for (int i = 0; i < ${MAXB}; i++) {
+          if (i >= uBones) break;
+          float w = max(boxW(uBox[i*2], p, uFeather[i]), boxW(uBox[i*2+1], p, uFeather[i]));
+          if (w <= 0.) continue;
+          vec4 x = uXf[i]; vec2 pv = uPivot[i] * A; vec2 d = a - pv;
+          d.y *= x.y; float c = cos(x.x), s = sin(x.x);
+          vec2 t = pv + vec2(c*d.x - s*d.y, s*d.x + c*d.y) + x.zw;
+          disp += w * (t - a);
+        }
+        vec2 q = (a + disp - uFeet * A) * uHeight * uSquash;
+        q.x *= uFlip;
+        float c = cos(uRock), s = sin(uRock);
+        q = vec2(c*q.x - s*q.y, s*q.x + c*q.y);
+        vUv = p; vWorld = uPos + q;
+        gl_Position = toClip(vWorld);
+      }`, `
+      precision mediump float;
+      uniform sampler2D uTex; uniform vec2 uEyeC; uniform vec2 uEyeR; uniform float uBlink; uniform vec2 uLid;
+      uniform vec2 uFire; uniform float uFireAmt; uniform vec3 uLightCol;
+      varying vec2 vUv; varying vec2 vWorld;
+      void main(){
+        vec4 c = texture2D(uTex, vUv);
+        vec2 e = (vUv - uEyeC) / uEyeR;
+        float r2 = dot(e, e);
+        if (uBlink > .02 && r2 < 1.35) {
+          float lid = -1.2 + 2.4 * uBlink;
+          if (e.y < lid) c = texture2D(uTex, uLid + vec2(e.x, 0.) * uEyeR * .6);
+          // fully shut eyes become a soft curved line, like a sleepy smile
+          float lineY = mix(lid, .18 + .3 * e.x * e.x, smoothstep(.85, 1., uBlink));
+          c.rgb = mix(c.rgb, vec3(.22,.14,.09) * c.a, smoothstep(.22, .02, abs(e.y - lineY)) * smoothstep(1.3, .8, r2));
+        }
+        float side = exp(-pow(distance(vWorld, uFire), 2.) * 3.) * uFireAmt;
+        c.rgb *= vec3(1.0, .985, .955) + (uLightCol - vec3(.94, .97, 1.)) * .1 * side;
+        gl_FragColor = c;
+      }`);
+
+    shadowProg = program(`
+      attribute vec2 aPos; uniform vec2 uC; uniform vec2 uR; varying vec2 vP; ${toClip}
+      void main(){ vP = aPos; gl_Position = toClip(uC + aPos * uR); }`, `
+      precision mediump float; varying vec2 vP;
+      void main(){ float a = smoothstep(1., .1, length(vP)) * .28; gl_FragColor = vec4(vec3(.16,.11,.06)*a, a); }`);
+
+    // Painted marks on the set: sticky rings, footprints, honey drops. Shape 0 soft dot, 1 ring, 2 footprint, 3 drop.
+    blobProg = program(`
+      attribute vec2 aPos; uniform vec2 uC; uniform vec2 uR; uniform float uRot; varying vec2 vP; ${toClip}
+      void main(){ vP = aPos; float c = cos(uRot), s = sin(uRot); vec2 q = aPos * uR; q = vec2(c*q.x - s*q.y, s*q.x + c*q.y); gl_Position = toClip(uC + q); }`, `
+      precision mediump float; varying vec2 vP; uniform int uShape; uniform vec4 uCol; uniform float uGlow;
+      float ell(vec2 p, vec2 c, vec2 r){ return length((p - c) / r); }
+      void main(){
+        vec2 p = vP; float a = 0.; float hi = 0.;
+        if (uShape == 0) a = smoothstep(1., .0, length(p));
+        else if (uShape == 1) { float l = length(p); float d = abs(l - .74); a = max(smoothstep(.3, .14, d), .3 * smoothstep(.8, .6, l)); hi = smoothstep(.1, 0., abs(length(p - vec2(-.08,-.1)) - .6)) * step(p.y, -.15) * .8; }
+        else if (uShape == 2) {
+          float pad = ell(p, vec2(0., .32), vec2(.42, .5));
+          float t1 = ell(p, vec2(-.46, -.42), vec2(.17, .2));
+          float t2 = ell(p, vec2(0., -.62), vec2(.17, .2));
+          float t3 = ell(p, vec2(.46, -.42), vec2(.17, .2));
+          float m = min(min(pad, t1), min(t2, t3));
+          a = smoothstep(1.05, .75, m);
+        } else {
+          float w = .58 * sqrt(clamp((p.y + 1.) / 1.4, 0., 1.));
+          float body = p.y < .4 ? smoothstep(.06, -.04, abs(p.x) - w) : smoothstep(.62, .52, length(p - vec2(0., .4)));
+          a = body * step(-1., p.y);
+          hi = smoothstep(.2, .05, length((p - vec2(-.2, .45)) / vec2(.6, 1.))) * a;
+        }
+        if (uGlow > 0.) { float g = smoothstep(1., 0., length(p)); gl_FragColor = vec4(uCol.rgb * g * g * uGlow, 0.); return; }
+        a *= uCol.a;
+        vec3 col = mix(uCol.rgb, vec3(1., .97, .85), hi);
+        gl_FragColor = vec4(col * a, a);
+      }`);
+
+    sparkProg = program(`
+      attribute vec4 aP; uniform float uPx; varying float vA; ${toClip}
+      void main(){ vA = aP.w; gl_Position = toClip(aP.xy); gl_PointSize = uPx * aP.z * uCam.z; }`, `
+      precision mediump float; varying float vA; uniform vec3 uCol; uniform float uStar; uniform float uAdd;
+      void main(){
+        vec2 p = gl_PointCoord - .5; float d = length(p);
+        float glow = smoothstep(.5, .0, d);
+        float rays = (smoothstep(.05, 0., abs(p.x)) + smoothstep(.05, 0., abs(p.y))) * smoothstep(.5, .05, d);
+        float a = (mix(glow, glow * glow * .7 + rays, uStar)) * vA;
+        if (uAdd > .5) gl_FragColor = vec4(uCol * a, 0.);
+        else { a = smoothstep(.5, .25, d) * vA; gl_FragColor = vec4(uCol * a, a); }
+      }`);
+
+    postProg = program(`
+      attribute vec2 aPos; varying vec2 vUv;
+      void main(){ vUv = aPos; gl_Position = vec4(aPos*2.-1., 0., 1.); }`, `
+      precision highp float; varying vec2 vUv;
+      uniform sampler2D uScene; uniform vec2 uRes;
+      uniform vec2 uLight; uniform vec3 uLightCol; uniform float uLightAmt; uniform float uSpread; uniform float uZoom; uniform float uFade;
+      ${NOISE}
+      void main(){
+        vec3 c = texture2D(uScene, vUv).rgb;
+        vec2 d = (vUv - vec2(uLight.x, 1. - uLight.y)) * vec2(1.5, 1.) / uZoom;
+        float g = exp(-dot(d, d) * uSpread);
+        c += uLightCol * g * uLightAmt;
+        c *= 1. + uLightCol * vec3(.06, .03, 0.) * g * 6. * uLightAmt;
+        vec2 px = vUv * uRes;
+        float tooth = fbm(px / 2.2);
+        float fibre = fbm(px * vec2(.035, .22) + 5.);
+        c *= (.955 + .07 * tooth) * (.985 + .03 * fibre);
+        c = mix(c, vec3(.976, .965, .933) * (.97 + .04 * tooth), uFade);
+        gl_FragColor = vec4(c, 1.);
+      }`);
+  }
+
+  // ================= Buffers and textures =================
+  let quad, disc, mesh, sparkBuf, fbo = null, fboTex = null, W = 0, H = 0;
+  function gridMesh(nx, ny) {
+    const v = [];
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const u0 = i / nx, u1 = (i + 1) / nx, v0 = j / ny, v1 = (j + 1) / ny;
+      v.push(u0,v0, u1,v0, u0,v1, u0,v1, u1,v0, u1,v1);
+    }
+    const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(v), gl.STATIC_DRAW);
+    return { b, n: v.length / 2 };
+  }
+  if (gl) {
+    quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0,0, 1,0, 0,1, 0,1, 1,0, 1,1]), gl.STATIC_DRAW);
+    disc = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, disc);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+    mesh = gridMesh(48, 64);
+    sparkBuf = gl.createBuffer();
+  }
+  function texture(img) {
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    if (isGL2) { gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); }
+    else gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    return t;
+  }
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(2, Math.round(r.width * dpr)), h = Math.max(2, Math.round(r.height * dpr));
+    if (w === W && h === H) return;
+    W = canvas.width = w; H = canvas.height = h;
+    if (fbo) { gl.deleteFramebuffer(fbo); gl.deleteTexture(fboTex); }
+    fboTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, fboTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, W, H, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fboTex, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  function bindAttr(prog, name, buf, size) {
+    const loc = prog.a(name); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
+  }
+
+  // ================= Camera =================
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cam = { x: .75, y: .5, z: 1, tx: .75, ty: .5, tz: 1, jolt: 0 };
+  function camTo(x, y, z) { if (reduce) return; cam.tx = x; cam.ty = y; cam.tz = z; }
+  function camHome() { cam.tx = .75; cam.ty = .5; cam.tz = 1; }
+  function camClamp() {
+    const hx = .75 / cam.z, hy = .5 / cam.z;
+    cam.x = Math.min(1.5 - hx, Math.max(hx, cam.x)); cam.y = Math.min(1 - hy, Math.max(hy, cam.y));
+  }
+  const camU = () => [cam.x, cam.y + cam.jolt * Math.sin(T * 47), cam.z];
+  function worldToScreen(x, y) { // percent of the stage
+    return [((x - cam.x) * cam.z + .75) / 1.5 * 100, ((y - cam.y) * cam.z + .5) * 100];
+  }
+  function screenToWorld(px, py) { // px, py in 0..1 of the stage
+    return [(px * 1.5 - .75) / cam.z + cam.x, (py - .5) / cam.z + cam.y];
+  }
+
+  // ================= Puppets =================
+  const smooth = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
+  class Puppet {
+    constructor(key) {
+      const d = RIGS[key]; this.key = key; this.d = d; this.tex = null; this.aspect = .75;
+      this.names = Object.keys(d.bones);
+      this.box = new Float32Array(MAXB * 8); this.piv = new Float32Array(MAXB * 2); this.fea = new Float32Array(MAXB); this.xf = new Float32Array(MAXB * 4);
+      this.names.forEach((n, i) => {
+        const b = d.bones[n]; this.piv.set(b.pivot, i * 2); this.fea[i] = b.feather;
+        b.boxes.forEach((bx, k) => this.box.set(bx, (i * 2 + k) * 4)); this.xf.set([0, 1, 0, 0], i * 4);
+      });
+      this.reset();
+    }
+    reset() {
+      Object.assign(this, { x: -1, y: .86, dir: 1, flip: 1, visible: false, tx: null, ty: null, vel: 0, phase: 0, walkMix: 0, arrive: null,
+        sq: 0, sqv: 0, sqTarget: 0, hopT: -1, hopH: 0, lift: 0, look: 0, lookT: 0, lookHold: false,
+        head: 0, headV: 0, headKick: 0, blink: 0, blinkT: -1, nextBlink: 1 + Math.random() * 2, earT: 9, nextEar: 2 + Math.random() * 3,
+        asleep: false, sleep: 0, lean: 0, leanT: 0, nextZ: 0 });
+    }
+    place(x, y, dir) { this.reset(); this.x = x; this.y = y; this.dir = this.flip = dir; this.visible = true; }
+    get h() { return this.d.baseH * (1 + (this.y - .86) * 1.2); }
+    walkTo(x, y = this.y) { this.tx = x; this.ty = y; return new Promise(r => { this.arrive = r; }); }
+    face(dir) { this.dir = dir; }
+    lookAt(a) { this.lookT = a; this.lookHold = a !== null; if (a === null) this.lookT = 0; }
+    hop(h = .04) { if (this.hopT >= 0) return; this.hopT = 0; this.hopH = h; sfx.boing(this.key === 'grandpa' ? .7 : 1); }
+    surprised() { this.hop(.05); this.headKick -= 2.2; this.earT = 0; this.blinkT = 0; }
+    sleepNow() { this.asleep = true; this.sleep = 1; this.blink = 1; }
+    wake() { this.asleep = false; this.headKick -= 3.2; this.hop(.03); this.blinkT = 0; this.nextBlink = T + .5; }
+    hit(wx, wy) { return this.visible && Math.abs(wx - this.x) < this.h * .3 && wy < this.y + .02 && wy > this.y - this.h; }
+    act(name) {
+      if (name === 'nod') { this.leanT = -.06; setTimeout(() => { this.leanT = 0; }, 350); }
+      else if (name === 'surprised') this.surprised();
+      else this.hop(.035);
+    }
+
+    update(t, dt) {
+      if (!this.visible) return;
+      let moving = false;
+      if (this.tx !== null) {
+        const dx = this.tx - this.x, dy = this.ty - this.y, dist = Math.hypot(dx, dy);
+        if (dist < .004) { this.tx = null; this.vel = 0; const r = this.arrive; this.arrive = null; if (r) r(); }
+        else {
+          if (Math.abs(dx) > .01) this.dir = Math.sign(dx);
+          const maxV = .2 * this.h / .38;
+          // ease in from a standstill, ease out on arrival
+          this.vel = Math.min(maxV, this.vel + dt * .5, Math.sqrt(2 * .45 * dist) + .015);
+          const step = Math.min(dist, this.vel * dt);
+          this.x += dx / dist * step; this.y += dy / dist * step;
+          this.phase += step / this.h * 17;
+          moving = true;
+        }
+      }
+      this.walkMix = smooth(this.walkMix, moving ? 1 : 0, 8, dt);
+      // paper turn: the cut-out flips through edge-on when changing direction
+      const fd = this.dir - this.flip; this.flip += Math.sign(fd) * Math.min(Math.abs(fd), dt * 11);
+
+      // squash and stretch spring, plus hop: anticipation, launch, airtime, landing
+      if (this.hopT >= 0) {
+        const p = this.hopT; this.hopT += dt;
+        const ant = .11, air = .34 + this.hopH * 2;
+        if (p < ant) { this.sqTarget = -.09; }
+        else if (p < ant + air) {
+          if (p - dt < ant) { this.sqTarget = 0; this.sqv += 2.4; }
+          const q = (p - ant) / air; this.lift = Math.sin(Math.PI * q) * this.hopH;
+        } else { this.lift = 0; this.sqv -= 2.8; this.hopT = -1; }
+      }
+      const acc = 260 * (this.sqTarget - this.sq) - 13 * this.sqv;
+      this.sqv += acc * dt; this.sq += this.sqv * dt;
+      this.sq = Math.max(-.12, Math.min(.1, this.sq));
+
+      // where to look
+      if (!this.lookHold && !this.asleep && Math.random() < dt * .25) this.lookT = (Math.random() - .5) * .14;
+      this.look = smooth(this.look, this.lookT, 4, dt);
+      this.sleep = smooth(this.sleep, this.asleep ? 1 : 0, this.asleep ? 1.5 : 5, dt);
+      const ph = this.phase, wm = this.walkMix;
+      const headTarget = Math.sin(t * .7) * .025 * (1 - this.sleep) + this.look + Math.sin(ph) * .03 * wm + this.sleep * .11;
+      this.headV += (90 * (headTarget - this.head) - 10 * this.headV + this.headKick) * dt; this.headKick = 0;
+      this.head += this.headV * dt;
+
+      // eyes
+      if (this.asleep) this.blink = smooth(this.blink, 1, 6, dt);
+      else {
+        if (t > this.nextBlink && this.blinkT < 0) { this.blinkT = 0; this.nextBlink = t + 2.2 + Math.random() * 3.5; }
+        if (this.blinkT >= 0) { this.blinkT += dt; const p = this.blinkT / .16; this.blink = p < 1 ? Math.sin(Math.PI * p) * (this.blink > .9 ? 1 : 1) : 0; if (p >= 1) this.blinkT = -1; }
+        else this.blink = smooth(this.blink, 0, 14, dt);
+      }
+      if (t > this.nextEar && !this.asleep) { this.earT = 0; this.nextEar = t + 2 + Math.random() * 5; }
+      this.earT += dt;
+      const ear = this.earT < .35 ? -Math.sin(Math.PI * this.earT / .35) * .22 * (1 + .5 * Math.sin(this.earT * 60)) : 0;
+      const breath = 1 + (.012 + this.sleep * .014) * Math.sin(t * (2.3 - this.sleep * 1.1));
+      this.lean = smooth(this.lean, this.leanT, 6, dt);
+
+      this.setBone('head', this.head, 1, 0, -.003 * (breath - 1) * 80);
+      this.setBone('ear', ear);
+      this.setBone('body', 0, breath);
+      this.setBone('skirt', Math.sin(t * 1.1) * .01 + Math.sin(ph - .6) * .035 * wm);
+      this.setBone('tail', Math.sin(t * 1.4) * .12 * (1 - .6 * this.sleep) + Math.sin(t * 3.1) * .04 + Math.sin(ph - 1.2) * .2 * wm);
+      this.bob = -Math.abs(Math.sin(ph)) * .009 * wm * this.h / .38 - this.lift;
+      this.rock = Math.sin(ph) * .025 * wm + Math.sin(t * .9) * .006 + this.lean;
+
+      if (this.asleep && t > this.nextZ) { this.nextZ = t + 1.5; pop('z', this.x + this.h * .18 * this.dir, this.y - this.h * .98, 'z'); }
+    }
+    setBone(n, angle = 0, sy = 1, tx = 0, ty = 0) { const i = this.names.indexOf(n); if (i >= 0) this.xf.set([angle, sy, tx, ty], i * 4); }
+
+    drawShadow() {
+      if (!this.visible) return;
+      gl.uniform2f(shadowProg.u.uC, this.x, this.y + .004);
+      const lift = Math.max(0, -this.bob) * 4;
+      gl.uniform2f(shadowProg.u.uR, this.h * (.36 - lift * .1) * Math.max(.4, Math.abs(this.flip)), this.h * .05);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+    draw(scene) {
+      if (!this.visible || !this.tex) return;
+      const P = puppetProg;
+      gl.uniform4fv(P.u.uBox, this.box); gl.uniform4fv(P.u.uXf, this.xf); gl.uniform2fv(P.u.uPivot, this.piv);
+      gl.uniform1fv(P.u.uFeather, this.fea); gl.uniform1i(P.u.uBones, this.names.length);
+      gl.uniform1f(P.u.uAspect, this.aspect);
+      gl.uniform2fv(P.u.uFeet, this.d.feet);
+      gl.uniform2f(P.u.uPos, this.x, this.y + this.bob);
+      gl.uniform1f(P.u.uHeight, this.h);
+      const f = Math.abs(this.flip) < .06 ? .06 * Math.sign(this.flip || 1) : this.flip;
+      gl.uniform1f(P.u.uFlip, f); gl.uniform1f(P.u.uRock, this.rock * Math.sign(f));
+      gl.uniform2f(P.u.uSquash, 1 - this.sq * .6, 1 + this.sq);
+      gl.uniform2fv(P.u.uEyeC, this.d.eye.c); gl.uniform2fv(P.u.uEyeR, this.d.eye.r); gl.uniform2fv(P.u.uLid, this.d.eye.lid);
+      gl.uniform1f(P.u.uBlink, this.blink);
+      gl.uniform2f(P.u.uFire, scene.light[0] * 1.5, scene.light[1]); gl.uniform1f(P.u.uFireAmt, 1);
+      gl.uniform3fv(P.u.uLightCol, scene.lightCol);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.tex); gl.uniform1i(P.u.uTex, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, mesh.n);
+    }
+  }
+  // Cut-out rig (separate painted parts, stepping walk, lip-sync) wrapped to the same stage directions.
+  class RigActor {
+    constructor(p, key, baseH) { this.p = p; this.key = key; this.baseH = baseH; this.visible = false; this.asleep = false; this.nextZ = 0; }
+    hAt(y) { return this.baseH * (1 + (y - .86) * 1.2); }
+    reset() { this.visible = false; this.asleep = false; this.p.lookAt(null); const S = this.p.state; if (S.emote) { S.emote.resolve(false); S.emote = null; } }
+    sleepNow() { // a held pose: lids shut, head drooped, slow deep breaths
+      this.asleep = true; this.p.emote('sleep');
+    }
+    wake() { this.asleep = false; this.p.emote('wake'); }
+    place(x, y, dir) {
+      this.visible = true; this.p.place(x, y, this.hAt(y)); this.p.lookAt(null);
+      const S = this.p.state; S.facing = S.flip = S.flipFrom = dir; S.turnT = -1;
+    }
+    get x() { return this.p.x; } get y() { return this.p.y; } get h() { return this.p.h; }
+    get dir() { return this.p.facing; }
+    walkTo(x, y) { return this.p.walkTo(x, y); }
+    lookAt(a) { // a is a head tilt: negative looks up
+      if (a === null) { this.p.lookAt(null); return; }
+      const f = this.p.facing, hy = this.y - this.h * .75;
+      this.p.lookAt(this.x + f * .4, hy + Math.tan(Math.max(-1.2, Math.min(1.2, a / .45))) * .6);
+    }
+    hop() { this.p.emote('hop'); sfx.boing(1); }
+    surprised() { this.p.emote('surprised'); }
+    act(name) { this.p.emote(name); }
+    say(text, o) { return this.p.say(text, o); }
+    hit(x, y) { return this.visible && this.p.hit(x, y); }
+    update(t) {
+      if (!this.visible) return;
+      this.p.h = this.hAt(this.p.y); this.p.update(t);
+      if (this.asleep && t > this.nextZ) { this.nextZ = t + 1.5; const [hx, hy] = this.p.headTop(); pop('z', hx + .03 * this.p.facing, hy, 'z'); }
+    }
+    drawShadow() {}
+    draw(scene) { if (this.visible) this.p.draw({ worldW: 1.5, worldH: 1, fire: [scene.light[0] * 1.5, scene.light[1]], fireAmt: 1, view: camU() }); }
+  }
+  let wren = new Puppet('wren');
+  let grandpa = new Puppet('grandpa');
+  const cast = [wren, grandpa];
+
+  // ================= Effects =================
+  const HONEY = [.80, .53, .13];
+  let decals = [];
+  function decal(o) { const d = { shape: 0, rx: .01, ry: .01, rot: 0, col: [...HONEY, .6], t0: T, glow: 0, glint: false, grow: false, ...o }; decals.push(d); return d; }
+  let sparks = [], dust = [];
+  function burst(x, y, n = 14, spread = .05, size = 1) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * 6.283, s = (.2 + Math.random()) * spread;
+      sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - .02, life: 0, max: .6 + Math.random() * .7, size: (3 + Math.random() * 5) * size });
+    }
+  }
+  function dustFall(x, y, n = 40, w = .12) {
+    for (let i = 0; i < n; i++) dust.push({ x: x + (Math.random() - .5) * w, y: y + Math.random() * .03, vx: (Math.random() - .5) * .02, vy: Math.random() * .05, life: 0, max: 1.4 + Math.random() * 1.2, size: 1.5 + Math.random() * 2.5 });
+  }
+  const sparkData = new Float32Array(4 * 600);
+  let motes = [];
+  function seedMotes(r) { motes = Array.from({ length: 46 }, () => ({ x: r[0] + Math.random() * (r[1] - r[0]), y: r[2] + Math.random() * (r[3] - r[2]), s: Math.random(), ph: Math.random() * 6.28 })); }
+
+  const fxEl = document.getElementById('fx');
+  let pops = [];
+  function pop(text, x, y, cls = '') {
+    const el = document.createElement('div'); el.className = 'pop ' + cls; el.textContent = text; fxEl.append(el);
+    const p = { el, x, y }; pops.push(p); placePop(p);
+    setTimeout(() => { el.remove(); pops = pops.filter(q => q !== p); }, 2700);
+  }
+  function placePop(p) { const [sx, sy] = worldToScreen(p.x, p.y); p.el.style.left = sx + '%'; p.el.style.top = sy + '%'; }
+
+  // ================= Sound =================
+  let ac = null;
+  function audio() { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ac && ac.state === 'suspended') ac.resume(); return ac; }
+  function tone(freq, dur, { type = 'sine', gain = .1, slide = 0, delay = 0, attack = .005 } = {}) {
+    const a = ac; if (!a) return;
+    const t0 = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq * slide), t0 + dur);
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(gain, t0 + attack); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    o.connect(g).connect(a.destination); o.start(t0); o.stop(t0 + dur + .05);
+  }
+  function noise(dur, { gain = .1, freq = 800, q = .8, delay = 0, sweep = 1 } = {}) {
+    const a = ac; if (!a) return;
+    const n = Math.floor(a.sampleRate * dur), b = a.createBuffer(1, n, a.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(), t0 = a.currentTime + delay;
+    s.buffer = b; f.type = 'bandpass'; f.frequency.setValueAtTime(freq, t0); f.frequency.exponentialRampToValueAtTime(freq * sweep, t0 + dur); f.Q.value = q;
+    g.gain.value = gain; s.connect(f).connect(g).connect(a.destination); s.start(t0);
+  }
+  const PENTA = [523, 587, 659, 784, 880, 1047, 1175, 1319, 1568];
+  const sfx = {
+    chime(i = 0) { tone(PENTA[i % PENTA.length], 1.1, { gain: .07 }); tone(PENTA[i % PENTA.length] * 2, .6, { gain: .025, type: 'triangle' }); },
+    shine() { [0, 2, 4, 6].forEach((k, i) => { tone(PENTA[k], 1.2, { gain: .06, delay: i * .07 }); }); },
+    thump() { tone(95, .45, { gain: .5, slide: .4 }); noise(.18, { gain: .25, freq: 220, q: .6 }); },
+    bump() { tone(150, .3, { gain: .35, slide: .5 }); noise(.12, { gain: .16, freq: 400, q: .8 }); },
+    giggle() { [0, 1, 2, 3, 4].forEach(i => tone(1150 - i * 70 + Math.random() * 60, .09, { type: 'triangle', gain: .05, slide: .82, delay: i * .12 })); },
+    boing(k = 1) { tone(320 * k, .22, { gain: .05, slide: 1.9, type: 'sine' }); },
+    page() { noise(.38, { gain: .12, freq: 1800, q: .5, sweep: .35 }); },
+    berry() { tone(660, .14, { gain: .08, slide: 1.5 }); tone(990, .3, { gain: .05, delay: .09 }); },
+    snort() { noise(.25, { gain: .12, freq: 300, q: 2, sweep: 1.6 }); tone(110, .2, { gain: .1, slide: 1.4 }); }
+  };
+
+  // ================= Read-aloud =================
+  const TTS = 'speechSynthesis' in window;
+  let voices = [];
+  function loadVoices() { try { voices = speechSynthesis.getVoices(); } catch (e) {} }
+  if (TTS) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+  function pickVoice(male) {
+    const en = voices.filter(v => /^en/i.test(v.lang));
+    const gb = en.filter(v => /GB/i.test(v.lang));
+    const want = male ? /Daniel|Arthur|George|Ryan|Oliver|UK English Male|Male/i : /Serena|Kate|Martha|Libby|Sonia|Hazel|Stephanie|UK English Female|Female/i;
+    return gb.find(v => want.test(v.name)) || en.find(v => want.test(v.name)) || gb[0] || en[0] || null;
+  }
+  const VOICE = {
+    narrator: { male: false, pitch: 1.05, rate: .86 },
+    wren: { male: false, pitch: 1.4, rate: .95 },
+    grandpa: { male: true, pitch: .72, rate: .8 }
+  };
+  const keep = [];
+  function speak(text, who = 'narrator', onWord) {
+    const clean = text.replace(/["“”]/g, '');
+    const words = []; clean.replace(/\S+/g, (m, i) => { words.push([i, m.length]); return m; });
+    const v = VOICE[who] || VOICE.narrator;
+    const est = (clean.length * .072 + .25) / v.rate;
+    return new Promise(res => {
+      let finished = false, gotBoundary = false, timers = [];
+      const done = () => { if (finished) return; finished = true; timers.forEach(clearTimeout); res(); };
+      const fakeWords = () => { // some voices never report word boundaries, so pace the highlight by word length
+        let acc = 0; const total = words.reduce((s, w) => s + w[1] + 1.5, 0);
+        words.forEach((w, k) => { timers.push(setTimeout(() => { if (!gotBoundary && onWord) onWord(k); }, acc / total * est * 1000)); acc += w[1] + 1.5; });
+      };
+      if (!TTS) { fakeWords(); timers.push(setTimeout(done, est * 1000)); return; }
+      const u = new SpeechSynthesisUtterance(clean);
+      const voice = pickVoice(v.male); if (voice) u.voice = voice;
+      u.pitch = v.pitch; u.rate = v.rate; keep.push(u); if (keep.length > 20) keep.shift();
+      u.onboundary = e => {
+        if (e.name && e.name !== 'word') return; gotBoundary = true;
+        const k = words.findIndex(w => e.charIndex >= w[0] && e.charIndex < w[0] + w[1] + 1);
+        if (k >= 0 && onWord) onWord(k);
+      };
+      u.onstart = () => { timers.push(setTimeout(() => { if (!gotBoundary) fakeWords(); }, 280)); };
+      u.onend = done; u.onerror = done;
+      timers.push(setTimeout(done, est * 2600 + 2500));
+      speechSynthesis.speak(u);
+    });
+  }
+  function hush() { if (TTS) try { speechSynthesis.cancel(); } catch (e) {} }
+
+  // ================= Page text =================
+  const textEl = document.getElementById('text');
+  const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.7 6.2 6.8.6-5.1 4.5 1.5 6.6L12 17l-5.9 3.4 1.5-6.6L2.5 9.3l6.8-.6z" fill="currentColor"/></svg>';
+  let readToken = 0;
+  function renderText(page) {
+    textEl.innerHTML = '';
+    let group = null;
+    page.phrases.forEach((ph, i) => {
+      const span = document.createElement('span'); span.className = 'phrase'; span.dataset.i = i;
+      const parts = ph.t.split(' ');
+      parts.forEach((w, k) => {
+        const ws = document.createElement('span'); ws.className = 'w'; ws.textContent = w; ws.tabIndex = 0; ws.setAttribute('role', 'button');
+        span.append(ws); if (k < parts.length - 1) span.append(' ');
+      });
+      if (ph.readit) {
+        if (!group) { group = document.createElement('span'); group.className = 'readit' + (page.done ? ' done' : ''); textEl.append(group); }
+        group.append(span, ' ');
+        const nxt = page.phrases[i + 1];
+        if (!nxt || !nxt.readit) {
+          const b = document.createElement('button'); b.className = 'star'; b.type = 'button'; b.innerHTML = STAR;
+          b.setAttribute('aria-label', page.done ? 'Play it again' : 'I read the gold words. Make it happen!');
+          b.addEventListener('click', () => payoff());
+          group.append(b); textEl.append(' '); group = null;
+        }
+      } else textEl.append(span, ' ');
+    });
+  }
+  function wordEls(i) { return textEl.querySelectorAll(`.phrase[data-i="${i}"] .w`); }
+  function clearMarks() { textEl.querySelectorAll('.now').forEach(e => e.classList.remove('now')); textEl.querySelectorAll('.reading').forEach(e => e.classList.remove('reading')); }
+
+  textEl.addEventListener('click', e => {
+    const w = e.target.closest('.w'); if (!w) return;
+    audio(); stopReading();
+    w.classList.add('now');
+    const ph = PAGES[pageIdx].phrases[+w.closest('.phrase').dataset.i];
+    speak(w.textContent.replace(/[^\w']/g, ''), 'narrator').then(() => w.classList.remove('now'));
+  });
+  textEl.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('w')) { e.preventDefault(); e.target.click(); } });
+
+  const listenBtn = document.getElementById('listen'), listenLabel = document.getElementById('listen-label');
+  let reading = false;
+  function stopReading() { readToken++; reading = false; hush(); clearMarks(); listenLabel.textContent = 'Read to me'; }
+  async function readPage() {
+    if (reading) { stopReading(); return; }
+    audio(); hush();
+    const my = ++readToken; reading = true; listenLabel.textContent = 'Stop';
+    const page = PAGES[pageIdx];
+    for (let i = 0; i < page.phrases.length; i++) {
+      if (my !== readToken) return;
+      const ph = page.phrases[i], ws = wordEls(i);
+      clearMarks(); ws[0] && ws[0].parentElement.classList.add('reading');
+      const mark = k => { if (my !== readToken) return; ws.forEach(e => e.classList.remove('now')); ws[k] && ws[k].classList.add('now'); };
+      const actor = ph.who === 'wren' ? wren : ph.who === 'grandpa' ? grandpa : null;
+      if (actor && actor.say && actor.visible) { // characters speak their own lines, with moving mouths
+        const vc = VOICE[ph.who], v = pickVoice(vc.male);
+        if (actor.asleep) actor.wake();
+        await actor.say(ph.t.replace(/["“”]/g, ''), { onWord: mark, pitch: vc.pitch, rate: vc.rate, voice: v && v.name });
+      } else await speak(ph.t, ph.who || 'narrator', mark);
+      if (my !== readToken) return;
+      ws.forEach(e => e.classList.remove('now'));
+      await wait(/[.!?]"?$/.test(ph.t) ? .38 : .12, null);
+    }
+    if (my === readToken) stopReading();
+  }
+  listenBtn.addEventListener('click', readPage);
+
+  // ================= Berries =================
+  const berriesEl = document.getElementById('berries'), totalEl = document.getElementById('total');
+  function showBerries() {
+    const p = PAGES[pageIdx];
+    berriesEl.querySelectorAll('i').forEach((b, k) => b.classList.toggle('got', k < p.berries));
+    totalEl.textContent = PAGES.reduce((s, q) => s + q.berries, 0);
+    document.getElementById('again').disabled = p.berries >= 3;
+  }
+  document.getElementById('again').addEventListener('click', () => {
+    audio(); const p = PAGES[pageIdx]; if (p.berries >= 3) return;
+    p.berries++; showBerries(); sfx.berry();
+    pop(['Lovely reading!', 'Smooth as honey!', 'Just like a storyteller!'][p.berries - 1], wren.visible ? wren.x : .75, wren.visible ? wren.y - wren.h * 1.15 : .3, 'small');
+    if (wren.visible) wren.act('happy');
+  });
+  const marksBtn = document.getElementById('marks');
+  marksBtn.addEventListener('click', () => { const on = marksBtn.getAttribute('aria-pressed') !== 'true'; marksBtn.setAttribute('aria-pressed', on); textEl.classList.toggle('marks', on); });
+
+  // ================= Direction =================
+  // Each page stages its set, plays an entrance, and saves its big moment for the gold words.
+  let pageIdx = 0, sceneToken = 0, T = 0, scene = SCENES.larder, bgTex = {}, playing = false;
+  const CANCEL = Symbol('cancel');
+  function wait(s, token = sceneToken) {
+    return new Promise((res, rej) => setTimeout(() => (token !== null && token !== sceneToken) ? rej(CANCEL) : res(), s * 1000));
+  }
+  const guard = p => p.catch(e => { if (e !== CANCEL) console.error(e); });
+
+  // footprint trail on page 1: from the table leg, across the flags, up the ladder (percent of the painting)
+  const TRAIL = [[59, 80.5], [57.4, 78], [56, 75.4], [54.6, 72.8], [53.6, 70.2], [54.4, 61.5], [55.8, 54.5], [57.2, 47.5], [58.6, 40.5]];
+  const P = (x, y) => [x / 100 * 1.5, y / 100];
+
+  const DIRECTION = [
+    { // 1: the empty spot on the table
+      set() { wren.place(-.15, .9, 1); },
+      async intro(tk) { await wait(.5, tk); await wren.walkTo(.68, .9); wren.lookAt(-.1); },
+      async payoff(tk) {
+        const [rx, ry] = P(57.6, 57.2);
+        camTo(.84, .62, 1.45); await wait(.5, tk);
+        decal({ shape: 1, x: rx, y: ry, rx: .055, ry: .02, col: [.66, .4, .06, .95], glint: true });
+        decal({ shape: 0, x: rx, y: ry, rx: .1, ry: .06, col: [1, .75, .3, 1], glow: .7, pulse: true });
+        burst(rx, ry, 22, .06); sfx.shine();
+        wren.surprised(); wren.lookAt(-.16);
+        pop('Gone!', rx, ry - .09, 'big');
+        await wait(1.2, tk);
+        wren.lookAt(.06);
+        for (let i = 0; i < TRAIL.length; i++) {
+          const [x, y] = P(...TRAIL[i]); const nx = TRAIL[Math.min(i + 1, TRAIL.length - 1)], pv = TRAIL[Math.max(i - 1, 0)];
+          const ang = Math.atan2((nx[1] - pv[1]) / 100, (nx[0] - pv[0]) / 100 * 1.5) + Math.PI / 2;
+          const side = (i % 2 ? 1 : -1) * .013;
+          decal({ shape: 2, x: x + Math.cos(ang) * side, y: y + Math.sin(ang) * side, rx: .022, ry: .028, rot: ang, col: [.5, .28, .05, .88], glint: true });
+          decal({ shape: 0, x, y, rx: .03, ry: .022, col: [1, .78, .35, 1], glow: .35 });
+          burst(x, y, 6, .025, .7); sfx.chime(i);
+          if (i === 4) wren.lookAt(-.08);
+          if (i === 6) wren.lookAt(-.22);
+          await wait(.3, tk);
+        }
+        await wait(1.4, tk); camHome(); wren.lookAt(null);
+      }
+    },
+    { // 2: Grandpa dozing by the fire
+      set() { grandpa.place(.6, .72, 1); grandpa.sleepNow(); wren.place(1.62, .97, -1); },
+      // she comes in along the front, passing in front of the petal basket, then steps up onto the rug
+      async intro(tk) { await wait(.4, tk); await wren.walkTo(.92, .97); await wren.walkTo(.79, .86); wren.act('nod'); },
+      async payoff(tk) {
+        camTo(.72, .5, 1.12);
+        if (grandpa.asleep) { sfx.snort(); grandpa.wake(); await wait(grandpa.p ? 1.8 : .9, tk); }
+        grandpa.lookAt(-.18); wren.lookAt(-.18); await wait(.5, tk);
+        cam.jolt = .006; sfx.thump(); pop('THUMP!', .42, .14, 'big'); dustFall(.42, .1, 46, .16); grandpa.surprised();
+        await wait(1.1, tk);
+        cam.jolt = .004; sfx.bump(); pop('bump!', .92, .12); dustFall(.92, .1, 30, .12);
+        grandpa.lookAt(-.22); wren.lookAt(-.24);
+        await wait(1.1, tk);
+        sfx.giggle(); pop('hee hee hee!', 1.2, .1, 'small'); wren.surprised();
+        await wait(1.4, tk);
+        grandpa.lookAt(-.3); grandpa.act(grandpa.p ? 'pointUp' : 'hop');
+        await wait(2.6, tk); camHome(); grandpa.lookAt(null); wren.lookAt(null);
+      }
+    },
+    { // 3: the attic window
+      set() { wren.place(-.15, .92, 1); },
+      async intro(tk) { await wait(.4, tk); await wren.walkTo(.62, .9); await wait(.5, tk); wren.lookAt(-.08); await wait(.8, tk); await wren.walkTo(1.0, .8); wren.lookAt(-.18); },
+      async payoff(tk) {
+        const [sx, sy] = P(75.4, 42.6);
+        camTo(1.05, .5, 1.32); wren.lookAt(-.22); await wait(.6, tk);
+        decal({ shape: 1, x: sx + .004, y: sy - .004, rx: .032, ry: .01, col: [.7, .44, .08, .8] });
+        decal({ shape: 3, x: sx, y: sy + .02, rx: .013, ry: .024, col: [.78, .48, .08, .97], grow: true, glint: true });
+        decal({ shape: 0, x: sx, y: sy + .01, rx: .06, ry: .05, col: [1, .78, .32, 1], glow: .6, pulse: true });
+        burst(sx, sy + .01, 20, .05); sfx.shine(); pop('honey!', sx - .05, sy - .08, 'small');
+        await wait(.4, tk); wren.surprised();
+        await wait(.9, tk);
+        const [rx] = P(79.1, 0);
+        for (let k = 0; k < 4; k++) {
+          const y = .45 + k * .028;
+          decal({ shape: 3, x: rx, y, rx: .007, ry: .012, col: [.78, .48, .08, .95], grow: true, glint: true });
+          burst(rx, y, 5, .02, .6); sfx.chime(4 + k); await wait(.32, tk);
+        }
+        wren.lookAt(-.05);
+        await wait(1.5, tk); camHome(); wren.lookAt(null);
+      }
+    }
+  ];
+
+  function payoff() {
+    audio(); stopReading();
+    const page = PAGES[pageIdx], dir = DIRECTION[pageIdx];
+    if (playing) return;
+    // a second play starts from the staged set so the moment can be enjoyed again
+    if (page.done) { stage(pageIdx, false); }
+    page.done = true;
+    textEl.querySelectorAll('.readit').forEach(r => r.classList.add('done'));
+    const tk = sceneToken; playing = true;
+    guard(dir.payoff(tk)).finally(() => { if (tk === sceneToken) playing = false; });
+  }
+
+  function stage(i, withIntro = true) {
+    sceneToken++; playing = false;
+    const page = PAGES[i];
+    scene = SCENES[page.scene];
+    cast.forEach(c => c.reset());
+    decals = []; sparks = []; dust = []; pops.forEach(p => p.el.remove()); pops = [];
+    cam.x = cam.tx = .75; cam.y = cam.ty = .5; cam.z = cam.tz = 1;
+    seedMotes(scene.motes);
+    DIRECTION[i].set();
+    if (!withIntro) { // jump straight to where the entrance ends
+      const end = [[.68, .9], [.79, .86], [1.0, .8]][i]; wren.place(end[0], end[1], i === 1 ? -1 : 1);
+      if (i === 1) grandpa.sleepNow();
+    } else guard(DIRECTION[i].intro(sceneToken));
+  }
+
+  let fade = 0, fadeT = 0;
+  const pagenoEl = document.getElementById('pageno');
+  const wordsEl = document.getElementById('words');
+  async function goTo(i, instant = false) {
+    if (i < 0) return;
+    stopReading();
+    if (!instant) { audio(); sfx.page(); fadeT = 1; await wait(.36, null); }
+    if (i >= PAGES.length) { showEnd(); fadeT = 0; return; }
+    pageIdx = i;
+    pagenoEl.textContent = `Page ${i + 1} of ${PAGES.length}`;
+    renderWords();
+    stage(i);
+    showBerries();
+    document.getElementById('prev').disabled = i === 0;
+    fadeT = 0;
+  }
+  function renderWords() {
+    wordsEl.innerHTML = '<p class="text" id="text"></p><p class="hint" id="hint"></p>';
+    wordsEl.replaceChild(textEl, wordsEl.querySelector('#text'));
+    textEl.classList.toggle('marks', marksBtn.getAttribute('aria-pressed') === 'true');
+    wordsEl.querySelector('#hint').innerHTML = pageIdx === 0 && !PAGES[0].done
+      ? 'Tap <b>Read to me</b> to listen first. Tap any word to hear it. Then read the gold words out loud and tap the star.'
+      : 'Read the gold words out loud, then tap the star. Read the whole page again for a berry.';
+    renderText(PAGES[pageIdx]);
+  }
+  function showEnd() {
+    pageIdx = PAGES.length - 1;
+    wordsEl.innerHTML = `<div class="end"><h3>To be continued&hellip;</h3><p>Next time: Wren follows the string down the tree and meets Fennel the frog.</p><p>You found <b>${PAGES.reduce((s, q) => s + q.berries, 0)}</b> berries.</p><button class="btn" id="restart" type="button">Start again</button></div>`;
+    wordsEl.querySelector('#restart').addEventListener('click', () => goTo(0));
+    if (wren.visible) wren.act('happy');
+  }
+  document.getElementById('next').addEventListener('click', () => goTo(pageIdx + 1));
+  document.getElementById('prev').addEventListener('click', () => goTo(pageIdx - 1));
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('.text')) return;
+    if (e.key === 'ArrowRight') goTo(pageIdx + 1); else if (e.key === 'ArrowLeft') goTo(pageIdx - 1);
+  });
+
+  canvas.addEventListener('pointerdown', ev => {
+    audio();
+    const r = canvas.getBoundingClientRect();
+    const [wx, wy] = screenToWorld((ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height);
+    if (grandpa.hit(wx, wy)) { if (grandpa.asleep) { sfx.snort(); grandpa.wake(); } else grandpa.hop(.03); return; }
+    if (wren.hit(wx, wy)) { wren.act('giggle'); sfx.giggle(); }
+  });
+
+  // ================= Frame =================
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now; T += dt;
+    resize();
+    cast.forEach(c => c.update(T, dt));
+    cam.x = smooth(cam.x, cam.tx, 2.2, dt); cam.y = smooth(cam.y, cam.ty, 2.2, dt); cam.z = smooth(cam.z, cam.tz, 2.2, dt); camClamp();
+    cam.jolt *= Math.exp(-dt * 9);
+    fade = smooth(fade, fadeT, 12, dt);
+    pops.forEach(placePop);
+    const flick = .55 + .25 * Math.sin(T * 7.3) + .15 * Math.sin(T * 13.1 + 1.3) + .1 * Math.sin(T * 23.7);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.viewport(0, 0, W, H);
+    gl.clearColor(.976, .965, .933, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    const cu = camU();
+
+    gl.disable(gl.BLEND);
+    gl.useProgram(backdropProg.p); gl.uniform3fv(backdropProg.u.uCam, cu);
+    bindAttr(backdropProg, 'aPos', quad, 2);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, bgTex[scene.src]); gl.uniform1i(backdropProg.u.uTex, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.enable(gl.BLEND);
+
+    // marks on the set
+    gl.useProgram(blobProg.p); gl.uniform3fv(blobProg.u.uCam, cu);
+    bindAttr(blobProg, 'aPos', disc, 2);
+    decals.forEach(d => {
+      const age = T - d.t0; let k = Math.min(1, Math.max(0, age / .35));
+      let s = 1; if (d.grow) { const g = Math.min(1, age / .8); s = 1 + 2.7 * Math.pow(g - 1, 3) + 1.7 * Math.pow(g - 1, 2); }
+      gl.uniform2f(blobProg.u.uC, d.x, d.y); gl.uniform2f(blobProg.u.uR, d.rx * s, d.ry * s); gl.uniform1f(blobProg.u.uRot, d.rot);
+      gl.uniform1i(blobProg.u.uShape, d.shape);
+      if (d.glow) {
+        gl.blendFunc(gl.ONE, gl.ONE);
+        const pulse = d.pulse ? .65 + .35 * Math.sin(T * 3.2) : 1;
+        gl.uniform4fv(blobProg.u.uCol, d.col); gl.uniform1f(blobProg.u.uGlow, d.glow * k * pulse * Math.max(.35, Math.exp(-age * .25)));
+      } else {
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.uniform4f(blobProg.u.uCol, d.col[0], d.col[1], d.col[2], d.col[3] * k); gl.uniform1f(blobProg.u.uGlow, 0);
+      }
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      if (d.glint && age > .4 && Math.random() < dt * .7) burst(d.x + (Math.random() - .5) * d.rx, d.y + (Math.random() - .5) * d.ry, 1, .004, .8);
+    });
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    // shadows, then the cast from back to front
+    gl.useProgram(shadowProg.p); gl.uniform3fv(shadowProg.u.uCam, cu);
+    bindAttr(shadowProg, 'aPos', disc, 2);
+    cast.forEach(c => c.drawShadow());
+    [...cast].sort((a, b) => a.y - b.y).forEach(c => {
+      if (c instanceof Puppet) { gl.useProgram(puppetProg.p); gl.uniform3fv(puppetProg.u.uCam, cu); bindAttr(puppetProg, 'aUv', mesh.b, 2); }
+      c.draw(scene);
+    });
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    // particles: falling dust (painted), then sparkles and motes (light)
+    gl.useProgram(sparkProg.p); gl.uniform3fv(sparkProg.u.uCam, cu); gl.uniform1f(sparkProg.u.uPx, H / 330);
+    let n = 0;
+    dust = dust.filter(p => (p.life += dt) < p.max);
+    dust.forEach(p => { p.vy += dt * .12; p.x += p.vx * dt + Math.sin(T * 2 + p.size * 9) * dt * .01; p.y += p.vy * dt;
+      if (n < 600) sparkData.set([p.x, p.y, p.size, .55 * Math.min(1, (p.max - p.life) * 2)], 4 * n++); });
+    if (n) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, sparkBuf); gl.bufferData(gl.ARRAY_BUFFER, sparkData.subarray(0, n * 4), gl.DYNAMIC_DRAW);
+      bindAttr(sparkProg, 'aP', sparkBuf, 4);
+      gl.uniform3f(sparkProg.u.uCol, .45, .34, .22); gl.uniform1f(sparkProg.u.uStar, 0); gl.uniform1f(sparkProg.u.uAdd, 0);
+      gl.drawArrays(gl.POINTS, 0, n);
+    }
+    n = 0;
+    sparks = sparks.filter(p => (p.life += dt) < p.max);
+    sparks.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= Math.exp(-dt * 2.5); p.vy = p.vy * Math.exp(-dt * 2.5) + dt * .01;
+      const q = p.life / p.max; if (n < 600) sparkData.set([p.x, p.y, p.size * (1 - q * .5), Math.sin(Math.PI * Math.min(1, q * 1.2)) * 1.3], 4 * n++); });
+    const sparkN = n;
+    motes.forEach(m => {
+      m.y -= dt * (.006 + m.s * .01); m.x += Math.sin(T * .3 + m.ph) * dt * .01;
+      if (m.y < scene.motes[2] - .03) { m.y = scene.motes[3]; m.x = scene.motes[0] + Math.random() * (scene.motes[1] - scene.motes[0]); }
+      if (n < 600) sparkData.set([m.x, m.y, 2.2 * (.6 + m.s), (.35 + .65 * (.5 + .5 * Math.sin(T * (.6 + m.s) + m.ph))) * .55], 4 * n++);
+    });
+    gl.bindBuffer(gl.ARRAY_BUFFER, sparkBuf); gl.bufferData(gl.ARRAY_BUFFER, sparkData.subarray(0, n * 4), gl.DYNAMIC_DRAW);
+    bindAttr(sparkProg, 'aP', sparkBuf, 4);
+    gl.blendFunc(gl.ONE, gl.ONE); gl.uniform1f(sparkProg.u.uAdd, 1);
+    if (sparkN) { gl.uniform3f(sparkProg.u.uCol, 1, .86, .5); gl.uniform1f(sparkProg.u.uStar, 1); gl.drawArrays(gl.POINTS, 0, sparkN); }
+    gl.uniform3f(sparkProg.u.uCol, 1, .86, .6); gl.uniform1f(sparkProg.u.uStar, 0); gl.drawArrays(gl.POINTS, sparkN, n - sparkN);
+
+    // post: light, paper, page-turn fade
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, W, H);
+    gl.disable(gl.BLEND);
+    gl.useProgram(postProg.p);
+    bindAttr(postProg, 'aPos', quad, 2);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboTex); gl.uniform1i(postProg.u.uScene, 0);
+    gl.uniform2f(postProg.u.uRes, W, H);
+    const [lx, ly] = worldToScreen(scene.light[0] * 1.5, scene.light[1]);
+    gl.uniform2f(postProg.u.uLight, lx / 100, ly / 100);
+    gl.uniform3fv(postProg.u.uLightCol, scene.lightCol);
+    gl.uniform1f(postProg.u.uLightAmt, scene.base + scene.flick * flick);
+    gl.uniform1f(postProg.u.uSpread, scene.spread); gl.uniform1f(postProg.u.uZoom, cam.z);
+    gl.uniform1f(postProg.u.uFade, fade);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    requestAnimationFrame(frame);
+  }
+
+  // ================= Start =================
+  const cover = document.getElementById('cover');
+  document.getElementById('open').addEventListener('click', () => {
+    audio(); sfx.page(); cover.classList.add('gone'); setTimeout(() => cover.remove(), 600);
+    goTo(0, true);
+  });
+  pagenoEl.textContent = `Page 1 of ${PAGES.length}`;
+  renderWords(); showBerries(); document.getElementById('prev').disabled = true;
+
+  if (gl) {
+    const load = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+    const rigFor = name => window.Puppet && window.Puppet.rigs && window.Puppet.rigs[name]
+      ? window.Puppet.create(gl, window.Puppet.rigs[name], { base: 'rig/' }).catch(e => { console.warn(name + ' rig unavailable', e); return null; })
+      : Promise.resolve(null);
+    // the cut-out rigs come first; a single-painting puppet stands in if a rig cannot load
+    const actor = (name, baseH) => rigFor(name).then(r => r ? new RigActor(r, name, baseH)
+      : load(RIGS[name].src).then(img => { const p = new Puppet(name); p.tex = texture(img); p.aspect = img.width / img.height; return p; }));
+    const painted = name => load(RIGS[name].src).then(img => { const p = new Puppet(name); p.tex = texture(img); p.aspect = img.width / img.height; return p; });
+    Promise.all([load(SCENES.larder.src), load(SCENES.attic.src), actor('wren', .38), actor('grandpa', .42)]).then(([l, a, w, g]) => {
+      bgTex[SCENES.larder.src] = texture(l); bgTex[SCENES.attic.src] = texture(a);
+      wren = cast[0] = w; grandpa = cast[1] = g;
+      document.getElementById('loading').remove();
+      seedMotes(scene.motes);
+      if (new URLSearchParams(location.search).has('page')) { cover.remove(); goTo(+new URLSearchParams(location.search).get('page') - 1, true); }
+      requestAnimationFrame(t => { last = t; frame(t); });
+    }).catch(err => { console.error(err); document.getElementById('loading').textContent = 'The paintings could not be loaded.'; });
+  }
+})();
+</script>
