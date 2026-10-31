@@ -1184,15 +1184,22 @@ window.addEventListener("storage", e => { if (!e.key || e.key === "moonlit-map-v
 // and each fun game gives one bonus for it (a golden bubble, a parcel for Hazel, a rare treasure).
 const FUN = [
   {slug:"bubble-garden", title:"Bubble Garden", art:"🫧🧚", c:"#d77fb3", blurb:"Pop Posy's bubbles to free the firefly friends inside.", bonus:"Golden bubbles"},
-  {slug:"mouse-house", title:"Hazel's House", art:"🐭🏠", c:"#c98a55", blurb:"Decorate Hazel the mouse's cozy room, and open parcels of new things.", bonus:"A parcel"},
+  {slug:"mouse-house", title:"Hazel's House", art:"🐭🏠", c:"#c98a55", blurb:"Decorate Hazel the mouse's cozy room, and open parcels of new things.", bonus:"A parcel", hasBonus: hazelHasParcel},
   {slug:"treasure-dig", title:"Treasure Dig", art:"🐈⛏️", c:"#d39a2c", blurb:"Brush away the sand with Miu to find Pharaoh's lost treasures.", bonus:"A rare treasure"}
 ];
+// Hazel's parcels each bring a new thing, so once she has found them all there is no parcel to promise.
+// Saves from before Hazel's House wrote its total have 17 things.
+function hazelHasParcel() {
+  let v = null; try { v = JSON.parse(localStorage.getItem("funMouseHouse.v1")); } catch (e) {}
+  if (!v || !Array.isArray(v.unlocked)) return true;
+  return new Set(v.unlocked).size < (v.total || 17);
+}
 const BREAK_KEY = "gfk-break", WORK_FOR_BREAK = 4 * 60 * 1000;
 function readBreak() { let v = null; try { v = JSON.parse(localStorage.getItem(BREAK_KEY)); } catch (e) {} return v && typeof v === "object" ? v : { work: 0 }; }
 function writeBreak(v) { try { localStorage.setItem(BREAK_KEY, JSON.stringify(v)); } catch (e) {} }
 const funCard = (g, br) => `
   <a class="book fun" href="fun/${g.slug}/index.html" style="--c:${g.c}">
-    ${br.earned && !(br.used || []).includes(g.slug) ? `<span class="bonus">🎁 ${esc(g.bonus)}</span>` : ""}
+    ${br.earned && !(br.used || []).includes(g.slug) && (!g.hasBonus || g.hasBonus()) ? `<span class="bonus">🎁 ${esc(g.bonus)}</span>` : ""}
     <span class="art" aria-hidden="true">${g.art}</span>
     <h3>${esc(g.title)}</h3>
     <p>${esc(g.blurb)}</p>
@@ -1215,7 +1222,7 @@ window.addEventListener("gfk-game-closed", e => {
   else { writeBreak(br); renderFun(); }
 });
 window.addEventListener("storage", e => { if (!e.key || e.key === BREAK_KEY) renderFun(); });
-window.addEventListener("gfk-saves-changed", renderPath);
+window.addEventListener("gfk-saves-changed", () => { renderPath(); renderFun(); });
 
 // The binder: every card from every game, filterable, tap any card to flip through them big.
 const C = window.GFKCards, $ = id => document.getElementById(id);
